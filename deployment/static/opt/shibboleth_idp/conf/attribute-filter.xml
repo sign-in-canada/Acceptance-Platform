@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AttributeFilterPolicyGroup id="ShibbolethFilterPolicy"
+        xmlns="urn:mace:shibboleth:2.0:afp"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="urn:mace:shibboleth:2.0:afp http://shibboleth.net/schema/idp/shibboleth-afp.xsd">
+
+
+    <!-- Release some attributes to an SP. -->
+    <AttributeFilterPolicy id="SignInCanada">
+
+        <PolicyRequirementRule xsi:type="ANY"/>
+
+        <AttributeRule attributeID="accessToken">
+            <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"
+                attributeNameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri"
+                attributeName="urn:ietf:params:oauth:token-type:access_token"/>
+        </AttributeRule>
+
+        <AttributeRule attributeID="claimSource">
+            <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"
+                attributeNameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri"
+                attributeName="urn:oid:TBD"/>
+        </AttributeRule>
+
+        <AttributeRule attributeID="sn">
+            <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"
+                attributeNameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic"
+                attributeName="family_name"/>
+        </AttributeRule>
+
+        <AttributeRule attributeID="birthdate">
+            <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"
+                attributeNameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic"
+                attributeName="birthdate"/>
+        </AttributeRule>
+
+        <AttributeRule attributeID="givenName">
+            <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"
+                attributeNameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic"
+                attributeName="given_name"/>
+        </AttributeRule>
+
+        <AttributeRule attributeID="region">
+            <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"
+                attributeNameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic"
+                attributeName="region"/>
+        </AttributeRule>
+
+    </AttributeFilterPolicy>
+
+</AttributeFilterPolicyGroup>

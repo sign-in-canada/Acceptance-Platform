@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:c="http://www.springframework.org/schema/c"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd"
+                           default-init-method="initialize"
+                           default-destroy-method="destroy">
+
+    <!-- For the equivalent to the V2 setting of "conditional" in the legacy configuration format -->
+    <bean id="SignNoIntegrity" class="org.opensaml.profile.logic.NoIntegrityMessageChannelPredicate" />
+    <bean id="EncryptNoConfidentiality" class="org.opensaml.profile.logic.NoConfidentialityMessageChannelPredicate" />
+
+    <bean id="shibboleth.UnverifiedRelyingParty" parent="RelyingParty" />
+
+    <!-- CATS Security Configuration for KeyInfo generation. -->
+    <bean id="CATSKeyInfoGeneratorManager" class="org.opensaml.xmlsec.keyinfo.NamedKeyInfoGeneratorManager"
+        p:useDefaultManager="true" />
+
+    <bean id="DefaultKeyInfoGeneratorManager" factory-bean="CATSKeyInfoGeneratorManager" factory-method="getDefaultManager" />
+
+    <bean class="org.springframework.beans.factory.config.MethodInvokingBean"
+        p:targetObject-ref="DefaultKeyInfoGeneratorManager"
+        p:targetMethod="registerFactory">
+        <property name="arguments">
+            <list>
+                <bean class="org.opensaml.xmlsec.keyinfo.impl.BasicKeyInfoGeneratorFactory"
+                    p:emitPublicKeyValue="true" p:emitPublicDEREncodedKeyValue="true" p:emitKeyNames="true" />
+            </list>
+        </property>
+    </bean>
+
+    <bean class="org.springframework.beans.factory.config.MethodInvokingBean"
+        p:targetObject-ref="DefaultKeyInfoGeneratorManager"
+        p:targetMethod="registerFactory">
+        <property name="arguments">
+            <list>
+                <bean class="org.opensaml.xmlsec.keyinfo.impl.X509KeyInfoGeneratorFactory"
+                    p:emitEntityCertificate="false"
+                    p:emitEntityCertificateChain="false"
+                    p:emitPublicKeyValue="false"
+                    p:emitX509SubjectName="false" />
+            </list>
+        </property>
+    </bean>
+
+    <bean id="CATSSecurityConfig" parent="shibboleth.DefaultSecurityConfiguration">
+        <property name="signatureSigningConfiguration">
+            <bean parent="shibboleth.SigningConfiguration.SHA256" p:keyInfoGeneratorManager-ref="CATSKeyInfoGeneratorManager" />
+        </property>
+        <property name="EncryptionConfiguration">
+            <bean parent="shibboleth.BasicEncryptionConfiguration" p:keyTransportKeyInfoGeneratorManager-ref="CATSKeyInfoGeneratorManager" />
+        </property>
+    </bean>
+
+    <bean id="shibboleth.DefaultRelyingParty" parent="RelyingParty">
+        <property name="profileConfigurations">
+            <list>
+
+                <bean parent="SAML2.SSO"
+                      p:includeAttributeStatement="true"
+                      p:assertionLifetime="PT5M"
+                      p:signResponses="false"
+                      p:signAssertions="true"
+                      p:encryptNameIDs="false"
+                      p:encryptAssertions="true" />
+
+                <bean parent="SAML2.Logout"
+                      p:securityConfiguration-ref="CATSSecurityConfig"
+                      p:assertionLifetime="PT5M"
+                      p:signRequests="true"
+                      p:signResponses="true"
+                      p:encryptNameIDs="true" />
+
+            </list>
+        </property>
+    </bean>
+
+    <util:list id="shibboleth.RelyingPartyOverrides">
+    </util:list>
+</beans>

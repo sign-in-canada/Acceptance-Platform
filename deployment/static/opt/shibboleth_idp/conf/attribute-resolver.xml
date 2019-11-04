@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resolver:AttributeResolver
+        xmlns:resolver="urn:mace:shibboleth:2.0:resolver"
+        xmlns:ad="urn:mace:shibboleth:2.0:resolver:ad"
+        xmlns:dc="urn:mace:shibboleth:2.0:resolver:dc"
+        xmlns:enc="urn:mace:shibboleth:2.0:attribute:encoder"
+        xmlns:sec="urn:mace:shibboleth:2.0:security"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="urn:mace:shibboleth:2.0:resolver http://shibboleth.net/schema/idp/shibboleth-attribute-resolver.xsd
+                            urn:mace:shibboleth:2.0:resolver:ad http://shibboleth.net/schema/idp/shibboleth-attribute-resolver-ad.xsd
+                            urn:mace:shibboleth:2.0:resolver:dc http://shibboleth.net/schema/idp/shibboleth-attribute-resolver-dc.xsd
+                            urn:mace:shibboleth:2.0:attribute:encoder http://shibboleth.net/schema/idp/shibboleth-attribute-encoder.xsd
+                            urn:mace:shibboleth:2.0:security http://shibboleth.net/schema/idp/shibboleth-security.xsd">
+
+    <!-- ========================================== -->
+    <!--      Attribute Definitions                 -->
+    <!-- ========================================== -->
+
+    <!-- "internal" Attributes retreived from LDAP -->
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="persistentId" sourceAttributeID="persistentId" dependencyOnly="true">
+        <resolver:Dependency ref="siteDataConnector" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:1.3.6.1.4.1.48710.1.3.291" friendlyName="persistentId" encodeType="false" />
+    </resolver:AttributeDefinition>
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="transientId" sourceAttributeID="transientId" dependencyOnly="true">
+        <resolver:Dependency ref="siteDataConnector" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:1.3.6.1.4.1.48710.1.3.312" friendlyName="transientId" encodeType="false" />
+    </resolver:AttributeDefinition>
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="profile" sourceAttributeID="profile" dependencyOnly="true">
+        <resolver:Dependency ref="siteDataConnector" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:1.3.6.1.4.1.48710.1.3.321" friendlyName="profile" encodeType="false" />
+    </resolver:AttributeDefinition>
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="address" sourceAttributeID="address" dependencyOnly="true">
+        <resolver:Dependency ref="siteDataConnector" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:1.3.6.1.4.1.48710.1.3.330" friendlyName="address" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <!-- Attribute used to populate the NameID (PAI) -->
+    <resolver:AttributeDefinition id="nameId" xsi:type="resolver:ScriptedAttribute">
+        <resolver:InputAttributeDefinition ref="persistentId" />
+        <resolver:ScriptFile>/opt/shibboleth-idp/conf/nameIdAttributeDefn.js</resolver:ScriptFile>
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:1.3.6.1.4.1.48710.1.3.291" friendlyName="persistentId" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <!-- Attributes for identity "pass-around" -->
+    <resolver:AttributeDefinition id="userInfo" xsi:type="resolver:ScriptedAttribute" dependencyOnly="true">
+        <resolver:InputAttributeDefinition ref="transientId" />
+        <resolver:ScriptFile>/opt/shibboleth-idp/conf/selectTransientId.js</resolver:ScriptFile>
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition id="claimSource" xsi:type="resolver:RegexSplit" regex="([^|]+).*">
+        <resolver:InputAttributeDefinition ref="userInfo" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" nameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" name="urn:oid:TBD" friendlyName="claim_source" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <resolver:AttributeDefinition id="accessToken" xsi:type="resolver:RegexSplit" regex="[^|]+\|(.*)">
+        <resolver:InputAttributeDefinition ref="userInfo" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" nameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" name="urn:ietf:params:oauth:token-type:access_token" friendlyName="access_token" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <!-- Attributes for identity "pass-through" -->
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="givenName" sourceAttributeID="givenName">
+        <resolver:Dependency ref="siteDataConnector" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" nameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic" name="given_name" friendlyName="given_name" encodeType="false" />
+    </resolver:AttributeDefinition>
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="sn" sourceAttributeID="sn">
+        <resolver:Dependency ref="siteDataConnector" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" nameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic" name="family_name" friendlyName="family_name" encodeType="false" />
+    </resolver:AttributeDefinition>
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="birthdate" sourceAttributeID="birthdate">
+        <resolver:Dependency ref="siteDataConnector" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" nameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic" name="birthdate" friendlyName="birthdate" encodeType="false" />
+    </resolver:AttributeDefinition>
+    <resolver:AttributeDefinition xsi:type="resolver:RegexSplit" regex=".*&quot;region&quot;\s*:\s*&quot;([^&quot;]+)&quot;.*" id="region" sourceAttributeID="address">
+        <resolver:InputAttributeDefinition ref="address" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" nameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic" name="region" friendlyName="region" encodeType="false" />
+    </resolver:AttributeDefinition>
+
+    <!-- ========================================== -->
+    <!--      Data Connectors                       -->
+    <!-- ========================================== -->
+    <resolver:DataConnector id="siteDataConnector" xsi:type="dc:LDAPDirectory"
+                            ldapURL="%{idp.attribute.resolver.LDAP.ldapURL}"
+                            baseDN="%{idp.attribute.resolver.LDAP.baseDN}"
+                            principal="%{idp.attribute.resolver.LDAP.bindDN}"
+                            principalCredential="%{idp.attribute.resolver.LDAP.bindDNCredential}"
+                            useStartTLS="%{idp.attribute.resolver.LDAP.useStartTLS}">
+
+        <dc:FilterTemplate>
+            <![CDATA[
+                %{idp.attribute.resolver.LDAP.searchFilter}
+            ]]>
+        </dc:FilterTemplate>
+
+        <!-- <dc:ReturnAttributes>%{idp.attribute.resolver.LDAP.returnAttributes}</dc:ReturnAttributes> -->
+
+        <dc:StartTLSTrustCredential id="LDAPtoIdPCredential" xsi:type="sec:X509ResourceBacked">
+            <sec:Certificate>%{idp.attribute.resolver.LDAP.trustCertificates}</sec:Certificate>
+        </dc:StartTLSTrustCredential>
+
+    </resolver:DataConnector>
+
+</resolver:AttributeResolver>
