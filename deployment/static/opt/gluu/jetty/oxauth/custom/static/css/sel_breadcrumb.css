@@ -1,0 +1,30 @@
+@media screen and (max-width: 736px) {
+
+/* Fix needed:
+Unfortunately, using :before:
+- doesn't include the < as part of the clickable part of the link -
+- < does not change colour to purple with the link when previously clicked
+** I suspect we'd have to approach it by writing javascript class toggles for the breadcrumbs to do the rest of these features (Jennifer)
+- still appears as > when I test on Safari - **July 17th should be fixed (Jennifer)
+*/
+
+#wb-bc li:before {
+		color: #284162;
+		content: '\f053';
+    display: inline-block;
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    font-size: .8em;
+		padding: 0 .4em;
+	}
+	#wb-bc a {
+			text-decoration:none;
+			padding-left: 0px!important;
+	}
+}
+@media screen and (min-width: 737px) {
+	.no-break-breadcrumb {
+		display: inline-block!important;
+	}
+}
+

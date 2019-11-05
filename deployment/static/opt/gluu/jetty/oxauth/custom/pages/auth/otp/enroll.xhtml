@@ -1,0 +1,179 @@
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+                "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:f="http://xmlns.jcp.org/jsf/core"
+        xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+        xmlns:h="http://xmlns.jcp.org/jsf/html"
+        template="/WEB-INF/incl/layout/login-template.TBS.xhtml">
+        <f:metadata>
+                <f:viewAction action="#{authenticator.prepareAuthenticationForStep}"
+                        if="#{not identity.loggedIn}" />
+        </f:metadata>
+        <ui:define name="head">
+            <meta name="description" content="Gluu Inc." />
+
+            <script>
+                var helper, request, label, qr_options;
+                function initHandler() {
+                    loadJSD.loadjscssfile("/oxauth/js/jquery.qrcode-0.12.0.min.js", "js");
+                    loadJSD.loadjscssfile("/oxauth/js/jquery-ui-1.12.1.min.js", "js");
+                    loadJSD.loadjscssfile("../../js/gluu-auth.js", "js");
+
+                    helper = function () {
+                        var authResult = undefined;
+
+                        return {
+                            /**
+                             * Resume on getting authentication result from server
+                             */
+                            onSignInCallback: function (authResult) {
+                                console.log('Get authentication result: ' + authResult);
+                                helper.resumeAuthentication(authResult);
+                            },
+
+                            /**
+                             * Send form to server to resume authentication workflow
+                             */
+                            resumeAuthentication: function (authResult) {
+                                $('input#auth_result').val(authResult);
+                                $('form#response').submit();
+                            },
+                        };
+                    };
+
+                    /**
+                     * Calls the helper method that handles the authentication flow.
+                     */
+                    function onSignInCallback(authResult) {
+                        helper.onSignInCallback(authResult);
+                    }
+
+                    request = '${identity.getWorkingParameter('otp_enrollment_request')}';
+                    label = '${identity.getWorkingParameter('qr_label')}';
+                    qr_options = ${ identity.getWorkingParameter('qr_options') };
+              
+
+                    if (request == '') {
+                        onSignInCallback('error');
+                    }
+
+                    loadGluuAuth();
+               
+                };
+
+                function loadGluuAuth() {
+                    if (typeof gluu_auth === 'undefined' || gluu_auth == null) {
+                        setTimeout(function () { loadGluuAuth(); }, 100);
+                    } else {
+                        gluu_auth.renderQrCode('#container', request, qr_options, label);
+                        gluu_auth.startProgressBar('#progressbar', 60, onSignInCallback);
+                    }
+
+                }
+
+                function addWBReadyEventListener_FP() {
+
+                    //Wet has not even initialized
+                    if (typeof wb === 'undefined') {
+                        setTimeout(function () { addWBReadyEventListener_FP(); }, 100);
+                    } else {
+                        //event to listen to WET ready event
+                        wb.doc.on("wb-ready.wb", function (evt) {
+                            initHandler();
+                        });
+
+                        //if Wet Event has fired already, this will detect that and trigger init
+                        if ($._data(document, "events")["wb-ready"].length >= 2) {
+                            initHandler();
+                        }
+                    }
+                };
+
+                addWBReadyEventListener_FP();
+
+            </script>
+            <style type="text/css">
+
+                .otp-progress-bar {
+                    margin-right: 80px;
+                }
+
+                #progressbar {
+                    background-color: #1AB26B;
+                    border-radius: 10px;
+                    margin: auto;
+                    margin-left: 5%;
+                    width: 90%;
+                }
+            </style>
+        </ui:define>
+
+        <ui:define name="pageTitle">
+                <h:outputText value="#{msgs['otp.pageTitle']}" />
+        </ui:define>
+
+        <ui:define name="body">
+                <form method="post" id="response"
+                        action="#{request.contextPath}/postlogin.htm">
+                        <input type="hidden" id="auth_result" name="auth_result" />
+                </form>
+                <header>
+                </header>
+                <h1 id="wb-cont" property="name" class="text-center">Enroll</h1>
+                <div class="container otp-container">
+                        <div id="content" class="sign-in-page">
+                                <div class="row">
+                                    <div class="col-md-6 col-md-offset-3">
+                                        <h:form id="loginForm" class="signin-form">
+                                                <h:panelGroup rendered="#{not identity.loggedIn}">
+                                                        <div class="inner-form-container row-fluid">
+                                                                <div class="row">
+                                                                    <div align="center">
+                                                                        <p>#{msgs['otp.scanQRCode']}</p>
+                                                                        <div id="container"></div>
+                                                                        <br></br>
+                                                                        <div id="progressbar" class="otp-progress-bar"></div>
+                                                                        <br></br>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div align="center">
+                                                                        <div id="submit_block" class="login_input col-md-offset-3 col-md-6">
+                                                                                <h:commandButton id="finishButton"
+                                                                                        styleClass="btn btn-primary btn-block"
+                                                                                        align="center"
+                                                                                        value="#{msgs['otp.finish']}"
+                                                                                        action="#{authenticator.authenticate}" />
+                                                                        </div>
+                                                                        <span class="sprite-green_click_icon"></span>
+                                                                    </div>
+                                                                </div>
+                                                                <h:panelGroup rendered='#{!empty client.getPolicyUri()}'>
+                                                                        <p>
+                                                                                <h:outputText value="#{msgs['common.agreePolicy']}" />
+                                                                                <a target="_blank" href='#{client.getPolicyUri()}'> <h:outputText
+                                                                                                value="#{msgs['common.privacyPolicy']}" />
+                                                                                </a>
+                                                                        </p>
+                                                                </h:panelGroup>
+
+                                                                <h:panelGroup rendered='#{!empty client.getTosUri()}'>
+                                                                        <p>
+                                                                                <h:outputText value="#{msgs['common.pleaseReadTheTos']}" />
+                                                                                <a target="_blank" href='#{client.getTosUri()}'> <h:outputText
+                                                                                                value="#{msgs['common.termsOfService']}" />
+                                                                                </a>
+                                                                        </p>
+                                                                </h:panelGroup>
+
+                                                        </div>
+                                                </h:panelGroup>
+                                        </h:form>
+                                    </div>
+                                </div>
+                        </div>
+                </div>
+
+        </ui:define>
+</ui:composition>
+
