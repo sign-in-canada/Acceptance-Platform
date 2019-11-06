@@ -42,19 +42,19 @@
     </resolver:AttributeDefinition>
 
     <!-- Attributes for identity "pass-around" -->
-    <resolver:AttributeDefinition id="userInfo" xsi:type="resolver:ScriptedAttribute" dependencyOnly="true">
+    <resolver:AttributeDefinition id="claimSource" xsi:type="resolver:ScriptedAttribute" dependencyOnly="true">
         <resolver:InputAttributeDefinition ref="transientId" />
         <resolver:ScriptFile>/opt/shibboleth-idp/conf/selectTransientId.js</resolver:ScriptFile>
     </resolver:AttributeDefinition>
 
-    <resolver:AttributeDefinition id="claimSource" xsi:type="resolver:RegexSplit" regex="([^|]+).*">
-        <resolver:InputAttributeDefinition ref="userInfo" />
-        <resolver:AttributeEncoder xsi:type="enc:SAML2String" nameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" name="urn:oid:TBD" friendlyName="claim_source" encodeType="false" />
+    <resolver:AttributeDefinition id="endpoint" xsi:type="resolver:RegexSplit" regex="([^|]+).*">
+        <resolver:InputAttributeDefinition ref="claimSource" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" nameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic" name="endpoint" friendlyName="claim_source" encodeType="false" />
     </resolver:AttributeDefinition>
 
     <resolver:AttributeDefinition id="accessToken" xsi:type="resolver:RegexSplit" regex="[^|]+\|(.*)">
-        <resolver:InputAttributeDefinition ref="userInfo" />
-        <resolver:AttributeEncoder xsi:type="enc:SAML2String" nameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" name="urn:ietf:params:oauth:token-type:access_token" friendlyName="access_token" encodeType="false" />
+        <resolver:InputAttributeDefinition ref="claimSource" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" nameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic" name="access_token" friendlyName="access_token" encodeType="false" />
     </resolver:AttributeDefinition>
 
     <!-- Attributes for identity "pass-through" -->

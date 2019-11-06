@@ -12,14 +12,14 @@
 
         <AttributeRule attributeID="accessToken">
             <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"
-                attributeNameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri"
-                attributeName="urn:ietf:params:oauth:token-type:access_token"/>
+                attributeNameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic"
+                attributeName="access_token"/>
         </AttributeRule>
 
-        <AttributeRule attributeID="claimSource">
+        <AttributeRule attributeID="endpoint">
             <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="false"
-                attributeNameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri"
-                attributeName="urn:oid:TBD"/>
+                attributeNameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic"
+                attributeName="endpoint"/>
         </AttributeRule>
 
         <AttributeRule attributeID="sn">
