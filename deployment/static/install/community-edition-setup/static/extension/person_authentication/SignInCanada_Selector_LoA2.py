@@ -168,14 +168,14 @@ class PersonAuthentication(PersonAuthenticationType):
                 entityId = "oidc:%s" % oidcClient.getClientName()
                 sessionAttributes.put("entityId", entityId)
 
-			# SpNameQualifier is used for persistenId generation. Handle getting entitySpNameQualifier if it's an OIDC client
-			if ( entitySpNameQualifier == None ):
-				# Look for value saved in the PolicyURL field in the client configurationAttributes
-				clientPolicyUri = oidcClient.getPolicyUri()
-				if ( clientPolicyUri != None ):
-					# Set it to the clientPolicyUri if absent
-					entitySpNameQualifier = clientPolicyUri
-					sessionAttributes.put("spNameQualifier", clientPolicyUri)
+            # SpNameQualifier is used for persistenId generation. Handle getting entitySpNameQualifier if it's an OIDC client
+            if ( entitySpNameQualifier == None ):
+                # Look for value saved in the PolicyURL field in the client configurationAttributes
+                clientPolicyUri = oidcClient.getPolicyUri()
+                if ( clientPolicyUri != None ):
+                    # Set it to the clientPolicyUri if absent
+                    entitySpNameQualifier = clientPolicyUri
+                    sessionAttributes.put("spNameQualifier", clientPolicyUri)
 
         # CUSTOMIZATION - Select which page body elements will be rendered
         if (sessionAttributes.get("pageContent") == None):
