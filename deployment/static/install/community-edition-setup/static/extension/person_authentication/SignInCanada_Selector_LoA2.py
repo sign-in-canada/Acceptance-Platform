@@ -298,7 +298,7 @@ class PersonAuthentication(PersonAuthenticationType):
             print "IDP Chooser. getAcrValueFromAuth: fetched new_acr_provider_value '%s'" % new_acr_provider_value
             if StringHelper.isNotEmpty(new_acr_provider_value):
                 return new_acr_provider_value
-            return Null
+            return None
         except Exception, err:
             print("IDP Chooser. getAcrValueFromAuth Exception: " + str(err))
 
