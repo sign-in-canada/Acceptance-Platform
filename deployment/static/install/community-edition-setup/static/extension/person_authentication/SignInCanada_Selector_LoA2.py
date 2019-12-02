@@ -248,9 +248,6 @@ class PersonAuthentication(PersonAuthenticationType):
         else:
             return False
 
-    def getApiVersion(self):
-        return 2
-
     def getNextStep(self, configurationAttributes, requestParameters, step):
         print "IDP Chooser. getNextStep called for step '%s' (returns -1)" % step
         return -1
