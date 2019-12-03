@@ -77,12 +77,17 @@ class PersonAuthentication(PersonAuthenticationType):
             print "Passport DEBUG. isValidAuthenticationMethod SWITCH FLOW set to 2_GET_TARGET, auth complete, returning False"
             return False
 
+        # TOFO: For now take this out since we are not going back to SELECT_LOA2 but staying in PASSPORT_SOCIAL to do MFA. Uncomment when refactoring
+        # elif ( sessionAttributes.get("mfaFlowStatus") == "MFA_1_REQUIRED" ):
+        #     print "Passport DEBUG. isValidAuthenticationMethod MFA FLOW set to MFA_1_REQUIRED, auth complete, returning False"
+        #     return False
+
         return True
 
 
     def getAlternativeAuthenticationMethod(self, usageType, configurationAttributes):
         print "Passport. getAlternativeAuthenticationMethod called"
-        return "idp_chooser_loa2"
+        return "select_loa2"
 
 
     def authenticate(self, configurationAttributes, requestParameters, step):
@@ -172,26 +177,40 @@ class PersonAuthentication(PersonAuthenticationType):
             identity.setWorkingParameter("externalProviders", json.dumps(self.registeredProviders))
 
             providerParam = self.customAuthzParameter
+            providerFromSession = None
             url = None
 
             print "Passport. prepareForStep. got session '%s'" % identity.getSessionId().toString()
 
             sessionAttributes = identity.getSessionId().getSessionAttributes()
             self.skipProfileUpdate = StringHelper.equalsIgnoreCase(sessionAttributes.get("skipPassportProfileUpdate"), "true")
+            
+            # MFAgetCountAuthenticationSteps
+            # 1. Check if there has been an authenticated user
+            # 2. Check that mfa flow status is MFA_2_IN_PROGRESS
+            # 3. Generate the mfa PAI
+            mfaPai = None
+            if ( sessionAttributes.get("auth_user") != None and sessionAttributes.get("mfaFlowStatus") == "MFA_2_IN_PROGRESS" ):
+                # set the provider to "mfa"
+                sessionAttributes.put("selectedProvider", "mfa")
+                sessionAttributes.put("mfaPai", mfaPai)
+                mfaPai = "mfa" + uuid.uuid4().hex
+                print "Passport. prepareForStep. generating new mfaPai = '%s'" % mfaPai
 
             # This is added to the script by a previous module if the provider is preselected
             providerFromSession = sessionAttributes.get("selectedProvider")
+
             if providerFromSession != None:
                 # Reset the provider in session in case the choice has to be made again
                 print "Passport. prepareForStep. Setting selectedProvider from session  = '%s'" % providerFromSession
                 sessionAttributes.remove("selectedProvider")
                 sessionAttributes.remove("new_acr_value")
-                identity.setWorkingParameter("selectedProvider", providerFromSession)            
+                identity.setWorkingParameter("selectedProvider", providerFromSession)
 
             #this param could have been set previously in authenticate step if current step is being retried
             provider = identity.getWorkingParameter("selectedProvider")
             if provider != None:
-                url = self.getPassportRedirectUrl(provider)
+                url = self.getPassportRedirectUrl(provider, mfaPai)
                 identity.setWorkingParameter("selectedProvider", None)
 
             elif providerParam != None:
@@ -206,7 +225,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     elif not provider in self.registeredProviders:
                         print "Passport. prepareForStep. Provider '%s' not part of known configured IDPs/OPs" % provider
                     else:
-                        url = self.getPassportRedirectUrl(provider)
+                        url = self.getPassportRedirectUrl(provider, mfaPai)
 
             if url == None:
                 print "Passport. prepareForStep. A page to manually select an identity provider will be shown"
@@ -232,9 +251,12 @@ class PersonAuthentication(PersonAuthenticationType):
         if identity.getWorkingParameter("passport_user_profile") != None:
             return 2
         if identity.getSessionId().getSessionAttributes().get("switchFlowStatus") != None:
-            print "Passport. prepareForStep. getCountAuthenticationSteps returning 2 because of switchFlowStatus"
+            print "Passport. getCountAuthenticationSteps returning 2 because of switchFlowStatus"
             return 2
-        print "Passport. prepareForStep. getCountAuthenticationSteps returning 1"
+        if identity.getSessionId().getSessionAttributes().get("mfaFlowStatus") == "MFA_2_IN_PROGRESS":
+            print "Passport. getCountAuthenticationSteps returning 2 because of mfaFlowStatus MFA_2_IN_PROGRESS"
+            return 2
+        print "Passport. getCountAuthenticationSteps returning 1"
         return 1
 
 
@@ -256,6 +278,7 @@ class PersonAuthentication(PersonAuthenticationType):
         if step == 1:
             identity = CdiUtil.bean(Identity)
             provider = identity.getWorkingParameter("selectedProvider")
+            print "Passport DEBUG getNextStep. provider = %s" % provider
             if provider != None:
                 print "Passport DEBUG getNextStep. returning 1"
                 return 1
@@ -425,7 +448,7 @@ class PersonAuthentication(PersonAuthenticationType):
         return provider
 
 
-    def getPassportRedirectUrl(self, provider):
+    def getPassportRedirectUrl(self, provider, mfaPai):
 
         # provider is assumed to exist in self.registeredProviders
         url = None
@@ -445,7 +468,12 @@ class PersonAuthentication(PersonAuthenticationType):
             print "Passport. getPassportRedirectUrl. Response was %s" % httpResponse.getStatusLine().getStatusCode()
 
             tokenObj = json.loads(response)
-            url = "/passport/auth/%s/%s/%s" % (provider, tokenObj["token_"], "MA")
+            # "MA" is value of "0" ASCII in base64
+            if (mfaPai != None):
+                url = "/passport/auth/%s/%s/id/%s" % (provider, tokenObj["token_"], mfaPai)
+            else:
+                url = "/passport/auth/%s/%s" % (provider, tokenObj["token_"])
+            print "Passport. getPassportRedirectUrl. Returning URL = %s" % url
         except:
             print "Passport. getPassportRedirectUrl. Error building redirect URL: ", sys.exc_info()[1]
 
@@ -520,9 +548,10 @@ class PersonAuthentication(PersonAuthenticationType):
         sessionAttributes = identity.getSessionId().getSessionAttributes()
         newPersistentIdSamlRp = sessionAttributes.get("spNameQualifier")
         switchFlowStatus = sessionAttributes.get("switchFlowStatus")
+        mfaFlowStatus = sessionAttributes.get("mfaFlowStatus")
         
         # SWITCH - do NOT generate a new persistentId if the switch flow is being executed
-        if ( newPersistentIdSamlRp != None and switchFlowStatus == None):
+        if ( newPersistentIdSamlRp != None and switchFlowStatus == None and mfaFlowStatus != "MFA_2_IN_PROGRESS"):
             # PERSISTENT_ID - generate the persistentId for the RP in case there is no further processing/collection happening
             newPersistentIdIdp = self.registeredProviders[provider]["samlissuer"]
             newPersistentIdUid = "sic" + uuid.uuid4().hex
@@ -532,8 +561,8 @@ class PersonAuthentication(PersonAuthenticationType):
             
         if ( user_profile["claims"] != None ):
             # DISTRIBUTED CLAIMS - save the access token and the userInfo URL
-            accessToken = user_profile["claims"]
-            print "Passport. attemptAuthentication. Claims '%s'" % accessToken
+            claimsReturn = user_profile["claims"]
+            print "Passport. attemptAuthentication. Claims '%s'" % claimsReturn
 
         userService = CdiUtil.bean(UserService)
         userByUid = userService.getUserByAttribute("oxExternalUid", externalUid)
@@ -629,6 +658,16 @@ class PersonAuthentication(PersonAuthenticationType):
                     print "Passport. attemptAuthentication. SWITCH FLOW: Setting TARGET provider to %s" % sessionAttributes.get("authenticatedProvider")
                     sessionAttributes.put("switchTargetAuthenticatedProvider", sessionAttributes.get("authenticatedProvider") )
                     sessionAttributes.put("switchTargetAuthenticatedUser", username)
+                elif (mfaFlowStatus == "MFA_1_REQUIRED"):
+                    print "Passport. attemptAuthentication. MFA FLOW: starting flow marking status = MFA_2_IN_PROGRESS"
+                    sessionAttributes.put("mfaFlowStatus", "MFA_2_IN_PROGRESS" )
+                    identity.setWorkingParameter("selectedProvider", "mfa")
+                elif ( mfaFlowStatus == "MFA_2_IN_PROGRESS" ):
+                    print "Passport. attemptAuthentication. MFA FLOW: Marking flow as complete"
+                    sessionAttributes.put("mfaFlowStatus", "MFA_3_COMPLETE" )
+            elif ( mfaFlowStatus == "MFA_2_IN_PROGRESS" ):
+                print "Passport. attemptAuthentication. MFA FLOW: Marking flow as FAILED"
+                sessionAttributes.put("mfaFlowStatus", "MFA_3_FAILED" )
 
             return logged_in
 
@@ -672,7 +711,8 @@ class PersonAuthentication(PersonAuthenticationType):
 
         # To save the Persistent ID
         identity = CdiUtil.bean(Identity)
-        currentRp = identity.getSessionId().getSessionAttributes().get("entityId")
+        sessionAttributes = identity.getSessionId().getSessionAttributes()
+        currentRp = sessionAttributes.get("entityId")
         issuerSpNameQualifier = sessionAttributes.get("spNameQualifier")
 
         for attr in profile:
@@ -718,7 +758,7 @@ class PersonAuthentication(PersonAuthenticationType):
                         accessTokenWithRpAndTimestamp = '%s|%s|%s|%s' % (currentRp, timeSeconds, claims["userinfourl"], claims["accesstoken"] )
                         print "Passport. updateUser. Claims adding access token (as transientId) '%s'" % accessTokenWithRpAndTimestamp
                         foundUser.setAttribute( "transientId", accessTokenWithRpAndTimestamp )
-                        # Save the claims into the session for distributed claims
+                        # Save the claims into the session for distributed claims (USELESS TODAY, TODO: REMOVE)
                         sessionAttributes.put("identityClaimsAccessToken", claims["accesstoken"])
                         sessionAttributes.put("identityClaimsUserInfoURL", claims["userinfourl"])
 

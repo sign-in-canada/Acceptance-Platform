@@ -39,6 +39,8 @@ class PersonAuthentication(PersonAuthenticationType):
             return False
         finally:
             f.close()
+            
+        success = self.processMfaEntityIDsProperty(configurationAttributes)
 
         print "IDP Chooser. Initialized successfully"
         return True   
@@ -119,7 +121,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     targetUser.setAttribute( "persistentId", tmpList )
                     userService.updateUser(targetUser)
                     return False
-                
+
                 # finish the switch flow
                 sessionAttributes.put( "switchFlowStatus", "4_FINISHED" )
                 return CdiUtil.bean(AuthenticationService).authenticate( targetUser.getUserId() )
@@ -151,12 +153,12 @@ class PersonAuthentication(PersonAuthenticationType):
 
     def prepareForStep(self, configurationAttributes, requestParameters, step):
         print "IDP Chooser. prepareForStep called for step '%s'" % step
-        
+
         identity = CdiUtil.bean(Identity)
         sessionAttributes = identity.getSessionId().getSessionAttributes()
         entityId = sessionAttributes.get("entityId")
         entitySpNameQualifier = sessionAttributes.get("spNameQualifier")
-        
+
         # entityId is used for UI branding. Handle getting entityId if it's an OIDC client
         if ( entityId == None ):
             # First get the client_id (should be deterministic ... ?????)
@@ -168,19 +170,23 @@ class PersonAuthentication(PersonAuthenticationType):
                 entityId = "oidc:%s" % oidcClient.getClientName()
                 sessionAttributes.put("entityId", entityId)
 
-			# SpNameQualifier is used for persistenId generation. Handle getting entitySpNameQualifier if it's an OIDC client
-			if ( entitySpNameQualifier == None ):
-				# Look for value saved in the PolicyURL field in the client configurationAttributes
-				clientPolicyUri = oidcClient.getPolicyUri()
-				if ( clientPolicyUri != None ):
-					# Set it to the clientPolicyUri if absent
-					entitySpNameQualifier = clientPolicyUri
-					sessionAttributes.put("spNameQualifier", clientPolicyUri)
+            # SpNameQualifier is used for persistenId generation. Handle getting entitySpNameQualifier if it's an OIDC client
+            if ( entitySpNameQualifier == None ):
+                # Look for value saved in the PolicyURL field in the client configurationAttributes
+                clientPolicyUri = oidcClient.getPolicyUri()
+                if ( clientPolicyUri != None ):
+                    # Set it to the clientPolicyUri if absent
+                    entitySpNameQualifier = clientPolicyUri
+                    sessionAttributes.put("spNameQualifier", clientPolicyUri)
+
+        # FIXME - For now as an error scenario if it's not found put a default
+        if ( entityId == None ):
+            entityId = "_default"
 
         # CUSTOMIZATION - Select which page body elements will be rendered
         if (sessionAttributes.get("pageContent") == None):
             pageContent = self.selectorPageContent.get(entityId)
-            if ( entityId != None and self.selectorPageContent.get(entityId) != None ):
+            if ( self.selectorPageContent.get(entityId) != None ):
                 sessionAttributes.put("pageContent", self.selectorPageContent[entityId])
             else:
                 sessionAttributes.put("pageContent", self.selectorPageContent["_default"])
@@ -191,10 +197,6 @@ class PersonAuthentication(PersonAuthenticationType):
             for cred in StringHelper.split(allCredentials,','):
                 if (showCredentials.find(cred) == -1):
                     sessionAttributes.put("hide_cred_"+cred, False)
-
-        # FIXME - For now as an error scenario if it's not found put a default
-        if ( entityId == None ):
-            entityId = "_default"
 
         # SWITCH - update switch flow step if coming back with a user
         if ( sessionAttributes.get("switchFlowStatus") == "1_GET_SOURCE" and sessionAttributes.get("auth_user") != None ):
@@ -236,14 +238,35 @@ class PersonAuthentication(PersonAuthenticationType):
             else:
                 print "IDP Chooser. prepareForStep SWITCH FLOW: FAILED - target contains mapping for %s" % entitySpNameQualifier
                 sessionAttributes.put("switchFlowStatus", "4_FINISHED" )
-            
+
             sessionAttributes.put( "switchCurrentState", switchCurrentState )
-            
+
+        # MFA - update mfa flow status - check if the entityId is on the list of MFA applications
+        mfaFlowStatus = sessionAttributes.get("mfaFlowStatus")
+        print "IDP Chooser. prepareForStep Fetched mfaFlowStatus = '%s'" % mfaFlowStatus
+        for mfaEntityId in StringHelper.split(self.entityids_with_mfa,','):
+            if (mfaEntityId == entityId):
+                # if the status is blank then we set it to MFA_1_REQUIRED. This also means first pass so no MFA forwarding
+                if ( mfaFlowStatus == None ):
+                    mfaFlowStatus = "MFA_1_REQUIRED"
+                    print "IDP Chooser. prepareForStep Setting  mfaFlowStatus = '%s'" % mfaFlowStatus
+                    sessionAttributes.put("mfaFlowStatus", mfaFlowStatus)
+
+                # we check that we have an authenticated user, which is a signal to trigger MFA
+                elif ( sessionAttributes.get("auth_user") != None ):
+                    print "IDP Chooser. prepareForStep For mfaFlowStatus found authenticated user = '%s'" % sessionAttributes.get("auth_user")
+                    # SWITCH - we check that we are not in a switch flow, or switch flow has finished
+                    if ( switchFlowStatus != None and switchFlowStatus == "4_FINISHED" ):
+                        mfaFlowStatus = "MFA_2_IN_PROGRESS"
+                        print "IDP Chooser. prepareForStep Setting  mfaFlowStatus = '%s' and [new_acr_value to 'passport_social'] and [selectedProvider to 'mfa']" % mfaFlowStatus
+                        sessionAttributes.put("mfaFlowStatus", mfaFlowStatus)
+                        print "IDP Chooser. prepareForStep Setting  [new_acr_value = 'passport_social'] and [selectedProvider = 'mfa']"
+                        sessionAttributes.put("new_acr_value", "passport_social")
+                        sessionAttributes.put("selectedProvider", "mfa")
+                        
         print "IDP Chooser. prepareForStep. got session '%s'"  % identity.getSessionId().toString()
 
-        if (step == 1):
-            return True
-        elif (step == 2):
+        if (step == 1 or step == 2):
             return True
         else:
             return False
@@ -264,26 +287,31 @@ class PersonAuthentication(PersonAuthenticationType):
         # SWITCH - if we did perform a switch then end the flow with the authenticated user
         if ( CdiUtil.bean(Identity).getSessionId() != None ):
             switchFlowStatus = CdiUtil.bean(Identity).getSessionId().getSessionAttributes().get("switchFlowStatus")
+            mfaFlowStatus    = CdiUtil.bean(Identity).getSessionId().getSessionAttributes().get("mfaFlowStatus")
             print "IDP Chooser. getCountAuthenticationSteps session found, switchFlowStatus = '%s'" % switchFlowStatus
-            if ( switchFlowStatus != None and switchFlowStatus == "4_FINISHED" ):
-                print "IDP Chooser. getCountAuthenticationSteps returning 1"
+            print "IDP Chooser. getCountAuthenticationSteps session found, mfaFlowStatus    = '%s'" % mfaFlowStatus
+            # check that we are not in a SWITCH flow
+            if ( mfaFlowStatus != None and switchFlowStatus == "4_FINISHED" ):
+                print "IDP Chooser. getCountAuthenticationSteps (SWITCH COMPLETE) returning 1"
                 return 1
+            #elif ( mfaFlowStatus == "MFA_3_COMPLETE" ):
+            #    print "IDP Chooser. getCountAuthenticationSteps (MFA COMPLETE) returning 1"
+            #    return 1
 
         return 2
 
 
     def getPageForStep(self, configurationAttributes, step):
         print "IDP Chooser. getPageForStep called for step '%s'" % step
-        
+
         if ( CdiUtil.bean(Identity).getSessionId() != None ):
             switchFlowStatus = CdiUtil.bean(Identity).getSessionId().getSessionAttributes().get("switchFlowStatus")
             print "IDP Chooser. getPageForStep session found, switchFlowStatus = '%s'" % switchFlowStatus
             if ( switchFlowStatus != None and switchFlowStatus == "1_GET_SOURCE" ):
-                return "select2.xhtml"
+                return "/select2.xhtml"
             if ( switchFlowStatus != None and switchFlowStatus == "2_GET_TARGET" ):
-                return "switch.xhtml"
-
-        return "select.xhtml"
+                return "/switch.xhtml"
+        return "/select.xhtml"
 
 
     def logout(self, configurationAttributes, requestParameters):
@@ -305,7 +333,7 @@ class PersonAuthentication(PersonAuthenticationType):
         except Exception, err:
             print("IDP Chooser. getAcrValueFromAuth Exception: " + str(err))
 
-            
+
     def getSwitchValueFromAuth(self, requestParameters):
         print "IDP Chooser. getSwitchValueFromAuth called"
         try:
@@ -319,3 +347,18 @@ class PersonAuthentication(PersonAuthenticationType):
             return False
         except Exception, err:
             print("IDP Chooser. getSwitchValueFromAuth Exception: " + str(err))
+
+
+    def processMfaEntityIDsProperty(self, attrs):
+        param = attrs.get("entityids_with_mfa")
+
+        if param != None:
+            entityids_with_mfa = param.getValue2()
+            
+            # TODO: validate string is a csv
+
+            self.entityids_with_mfa = entityids_with_mfa
+            return True
+
+        print "Passport. processMfaEntityIDsProperty. Property entityids_with_mfa found as invalid CSV"
+        return False

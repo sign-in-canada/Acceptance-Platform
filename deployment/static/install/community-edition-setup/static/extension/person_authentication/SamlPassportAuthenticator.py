@@ -82,13 +82,18 @@ class PersonAuthentication(PersonAuthenticationType):
             elif ( sessionAttributes.get("switchFlowStatus") == "2_GET_TARGET" and sessionAttributes.get("switchTargetAuthenticatedProvider") != None ):
                 print "Passport DEBUG. isValidAuthenticationMethod SWITCH FLOW set to 2_GET_TARGET, auth complete, returning False"
                 return False
-
+        if ( sessionAttributes.get("mfaFlowStatus") == "MFA_2_IN_PROGRESS" ):
+            print "Passport DEBUG. isValidAuthenticationMethod MFA FLOW set to MFA_2_IN_PROGRESS, auth complete, returning False"
+            return False
         return True
 
 
     def getAlternativeAuthenticationMethod(self, usageType, configurationAttributes):
         print "Passport. getAlternativeAuthenticationMethod called"
-        return "idp_chooser_loa2"
+        mfaFlowStatus = CdiUtil.bean(Identity).getSessionId().getSessionAttributes().get("mfaFlowStatus")
+        if ( mfaFlowStatus == "MFA_2_IN_PROGRESS" ):
+            return "passport_social"
+        return "select_loa2"
 
 
     def authenticate(self, configurationAttributes, requestParameters, step):
@@ -285,6 +290,8 @@ class PersonAuthentication(PersonAuthenticationType):
         if identity.getWorkingParameter("passport_user_profile") != None:
             return 2
         if identity.getSessionId().getSessionAttributes().get("switchFlowStatus") != None:
+            return 2
+        if identity.getSessionId().getSessionAttributes().get("mfaFlowStatus") != None:
             return 2
         return 1
 
@@ -529,7 +536,7 @@ class PersonAuthentication(PersonAuthenticationType):
             print "Passport. getPassportRedirectUrl. Building URL: provider:  %s" % provider
             print "Passport. getPassportRedirectUrl. Building URL: token:     %s" % tokenObj["token_"]
             print "Passport. getPassportRedirectUrl. Building URL: spNameQfr: %s" % issuerSpNameQualifier
-            url = "/passport/auth/%s/%s/%s" % (provider, tokenObj["token_"], Base64Util.base64urlencode(issuerSpNameQualifier))
+            url = "/passport/auth/%s/%s/saml/%s" % (provider, tokenObj["token_"], Base64Util.base64urlencode(issuerSpNameQualifier))
         except:
             print "Passport. getPassportRedirectUrl. Error building redirect URL: ", sys.exc_info()[1]
 
@@ -589,7 +596,7 @@ class PersonAuthentication(PersonAuthenticationType):
         sessionAttributes = identity.getSessionId().getSessionAttributes()
         collectSamlPass = sessionAttributes.get("collectSamlPass")
         switchFlowStatus = sessionAttributes.get("switchFlowStatus")
-        
+
         if (collectSamlPass != 2):
             # COLLECT - Do not check user attributes if user has already been authenticated
             if not self.checkRequiredAttributes(user_profile, [uidKey, self.providerKey]):
@@ -778,6 +785,10 @@ class PersonAuthentication(PersonAuthenticationType):
                     print "Passport. attemptAuthentication. SWITCH FLOW: Setting TARGET provider to %s" % sessionAttributes.get("authenticatedProvider")
                     sessionAttributes.put("switchTargetAuthenticatedProvider", sessionAttributes.get("authenticatedProvider") )
                     sessionAttributes.put("switchTargetAuthenticatedUser", username)
+                elif (sessionAttributes.get("mfaFlowStatus") == "MFA_1_REQUIRED"):
+                    print "Passport. attemptAuthentication. MFA FLOW: starting flow marking status = MFA_2_IN_PROGRESS"
+                    sessionAttributes.put("mfaFlowStatus", "MFA_2_IN_PROGRESS")
+                    identity.setWorkingParameter("selectedProvider", "mfa")
 
             return logged_in
 
