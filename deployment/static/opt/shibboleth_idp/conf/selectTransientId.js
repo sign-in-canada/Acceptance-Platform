@@ -20,7 +20,7 @@ while (transientIds.hasNext()) {
    logger.info("Found access token for {} with expiry {}", rpEntity, new Date(expiry));
    if (rpEntity === recipientId && new Date().getTime() <= expiry) {
       logger.info("Populating a value for the userInfo reference {}", claimsURL);
-      userInfo.addValue(claimsURL + "|" + accessToken);
+      claimSource.addValue(claimsURL + "|" + accessToken);
       break;
    }
 }

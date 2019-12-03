@@ -178,7 +178,6 @@ class PersonAuthentication(PersonAuthenticationType):
                     # Set it to the clientPolicyUri if absent
                     entitySpNameQualifier = clientPolicyUri
                     sessionAttributes.put("spNameQualifier", clientPolicyUri)
-
         # FIXME - For now as an error scenario if it's not found put a default
         if ( entityId == None ):
             entityId = "_default"
@@ -271,9 +270,6 @@ class PersonAuthentication(PersonAuthenticationType):
         else:
             return False
 
-    def getApiVersion(self):
-        return 2
-
     def getNextStep(self, configurationAttributes, requestParameters, step):
         print "IDP Chooser. getNextStep called for step '%s' (returns -1)" % step
         return -1
@@ -329,7 +325,7 @@ class PersonAuthentication(PersonAuthenticationType):
             print "IDP Chooser. getAcrValueFromAuth: fetched new_acr_provider_value '%s'" % new_acr_provider_value
             if StringHelper.isNotEmpty(new_acr_provider_value):
                 return new_acr_provider_value
-            return Null
+            return None
         except Exception, err:
             print("IDP Chooser. getAcrValueFromAuth Exception: " + str(err))
 

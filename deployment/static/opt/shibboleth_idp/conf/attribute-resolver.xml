@@ -42,19 +42,19 @@
     </resolver:AttributeDefinition>
 
     <!-- Attributes for identity "pass-around" -->
-    <resolver:AttributeDefinition id="userInfo" xsi:type="resolver:ScriptedAttribute" dependencyOnly="true">
+    <resolver:AttributeDefinition id="claimSource" xsi:type="resolver:ScriptedAttribute" dependencyOnly="true">
         <resolver:InputAttributeDefinition ref="transientId" />
         <resolver:ScriptFile>/opt/shibboleth-idp/conf/selectTransientId.js</resolver:ScriptFile>
     </resolver:AttributeDefinition>
 
-    <resolver:AttributeDefinition id="claimSource" xsi:type="resolver:RegexSplit" regex="([^|]+).*">
-        <resolver:InputAttributeDefinition ref="userInfo" />
-        <resolver:AttributeEncoder xsi:type="enc:SAML2String" nameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" name="urn:oid:TBD" friendlyName="claim_source" encodeType="false" />
+    <resolver:AttributeDefinition id="endpoint" xsi:type="resolver:RegexSplit" regex="([^|]+).*">
+        <resolver:InputAttributeDefinition ref="claimSource" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" nameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic" name="endpoint" friendlyName="claim_source" encodeType="false" />
     </resolver:AttributeDefinition>
 
     <resolver:AttributeDefinition id="accessToken" xsi:type="resolver:RegexSplit" regex="[^|]+\|(.*)">
-        <resolver:InputAttributeDefinition ref="userInfo" />
-        <resolver:AttributeEncoder xsi:type="enc:SAML2String" nameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" name="urn:ietf:params:oauth:token-type:access_token" friendlyName="access_token" encodeType="false" />
+        <resolver:InputAttributeDefinition ref="claimSource" />
+        <resolver:AttributeEncoder xsi:type="enc:SAML2String" nameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic" name="access_token" friendlyName="access_token" encodeType="false" />
     </resolver:AttributeDefinition>
 
     <!-- Attributes for identity "pass-through" -->
@@ -78,25 +78,15 @@
     <!-- ========================================== -->
     <!--      Data Connectors                       -->
     <!-- ========================================== -->
-    <resolver:DataConnector id="siteDataConnector" xsi:type="dc:LDAPDirectory"
-                            ldapURL="%{idp.attribute.resolver.LDAP.ldapURL}"
-                            baseDN="%{idp.attribute.resolver.LDAP.baseDN}"
-                            principal="%{idp.attribute.resolver.LDAP.bindDN}"
-                            principalCredential="%{idp.attribute.resolver.LDAP.bindDNCredential}"
-                            useStartTLS="%{idp.attribute.resolver.LDAP.useStartTLS}">
+    <resolver:DataConnector id="siteDataConnector" xsi:type="dc:RelationalDatabase">
+        <dc:BeanManagedConnection>siteDataSource</dc:BeanManagedConnection>
 
-        <dc:FilterTemplate>
-            <![CDATA[
-                %{idp.attribute.resolver.LDAP.searchFilter}
+         <dc:QueryTemplate>
+
+             <![CDATA[
+                %{idp.attribute.resolver.N1QL.searchFilter}
             ]]>
-        </dc:FilterTemplate>
-
-        <!-- <dc:ReturnAttributes>%{idp.attribute.resolver.LDAP.returnAttributes}</dc:ReturnAttributes> -->
-
-        <dc:StartTLSTrustCredential id="LDAPtoIdPCredential" xsi:type="sec:X509ResourceBacked">
-            <sec:Certificate>%{idp.attribute.resolver.LDAP.trustCertificates}</sec:Certificate>
-        </dc:StartTLSTrustCredential>
-
+        </dc:QueryTemplate>
     </resolver:DataConnector>
 
 </resolver:AttributeResolver>
