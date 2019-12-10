@@ -188,14 +188,26 @@ class PersonAuthentication(PersonAuthenticationType):
             # MFAgetCountAuthenticationSteps
             # 1. Check if there has been an authenticated user
             # 2. Check that mfa flow status is MFA_2_IN_PROGRESS
-            # 3. Generate the mfa PAI
+            # 3. Set the selected provider to "mfa"
+            # 4. Get the MFA PAI from the user profile
+            userService = CdiUtil.bean(UserService)
             mfaPai = None
             if ( sessionAttributes.get("auth_user") != None and sessionAttributes.get("mfaFlowStatus") == "MFA_2_IN_PROGRESS" ):
                 # set the provider to "mfa"
                 sessionAttributes.put("selectedProvider", "mfa")
-                sessionAttributes.put("mfaPai", mfaPai)
-                mfaPai = "mfa" + uuid.uuid4().hex
-                print "Passport. prepareForStep. generating new mfaPai = '%s'" % mfaPai
+                # get the MFA PAI from the external UID
+                mfaOriginalUid = sessionAttributes.get( "authenticatedUser" )
+                mfaUserByUid = userService.getUserByAttribute("uid", mfaOriginalUid)
+                # go through the values to find the MFA PAI
+                mfaUserOxExternalUids = mfaUserByUid.getAttributeValues("oxExternalUid")
+                if (mfaUserOxExternalUids != None):
+                    for mfaUserOxExternalUid in mfaUserOxExternalUids:
+                        if ( mfaUserOxExternalUid.find("passport-mfa:") > -1 ):
+                            mfaPai = StringHelper.split(mfaUserOxExternalUid,':')[1]
+                print "Passport. prepareForStep. Using mfaPai = '%s'" % mfaPai
+            elif ( sessionAttributes.get("selectedProvider") == "mfa"):
+                print "Passport. prepareForStep. ERROR: 'selectedProvider' is 'mfa' but no in the MFA flow, Exiting"
+                return False
 
             # This is added to the script by a previous module if the provider is preselected
             providerFromSession = sessionAttributes.get("selectedProvider")
@@ -564,9 +576,22 @@ class PersonAuthentication(PersonAuthenticationType):
             claimsReturn = user_profile["claims"]
             print "Passport. attemptAuthentication. Claims '%s'" % claimsReturn
 
+        print "Passport. attemptAuthentication. Looking for user with oxExternalUid = '%s'" % externalUid
         userService = CdiUtil.bean(UserService)
         userByUid = userService.getUserByAttribute("oxExternalUid", externalUid)
-
+        
+        # MFA - if MFA is in progress, make sure UID matches the previous one
+        if ( provider == "mfa" and sessionAttributes.get("mfaFlowStatus") == "MFA_2_IN_PROGRESS" ):
+            # get the MFA PAI from the external UID
+            if ( userByUid == None ):
+                # the MFA authenticated user is not the same user
+                print "Passport. attemptAuthentication. ERROR for MFA - MFA user cannot be found"
+                return False
+            elif ( userByUid.getUserId() != sessionAttributes.get("authenticatedUser") ):
+                # the MFA authenticated user is not the same user
+                print "Passport. attemptAuthentication. ERROR for MFA - The original and MFA users do not match"
+                return False
+            
         email = None
         if "mail" in user_profile:
             email = user_profile["mail"]
@@ -622,6 +647,11 @@ class PersonAuthentication(PersonAuthenticationType):
             else:
                 print "An attempt to supply an email of an existing user was made. Turn on 'emailLinkingSafe' if you want to enable linking"
                 self.setMessageError(FacesMessage.SEVERITY_ERROR, "Email value corresponds to an already existing account. If you already have a username and password use those instead of an external authentication site to get access.")
+
+        # MFA - if MFA is REQUIRED generate the MFA PAI for the second pass
+        if ( provider != "mfa" and sessionAttributes.get("mfaFlowStatus") == "MFA_1_REQUIRED" ):
+            # generate a new MFA PAI in case there is none in the user profile
+            user_profile[ "oxExternalUid_newMfa" ] = [ "passport-mfa:" + "mfa" + uuid.uuid4().hex ]
 
         username = None
         try:
@@ -742,6 +772,29 @@ class PersonAuthentication(PersonAuthenticationType):
                             foundUser.setAttribute(attr, tmpList)
                         else:
                             print "Passport. fillUser. PersistentId for RP '%s' already exists, ignoring new RP mapping" % issuerSpNameQualifier
+
+                elif attr == "oxExternalUid_newMfa":
+                    # The attribute is here so MFA flow is REQUIRED.
+                    # First we check for existing MFA PAI already in the user profile
+                    mfaOxExternalUid = values[0]
+                    userOxExternalUids = foundUser.getAttributeValues("oxExternalUid")
+                    if (userOxExternalUids != None):
+                        for userOxExternalUid in userOxExternalUids:
+                            if ( userOxExternalUid.find("passport-mfa:") > -1 ):
+                                # if we found an MFA PAI then remove the new value
+                                mfaOxExternalUid = userOxExternalUid
+                                values.pop(0)
+
+                    # if there still is a value for MFA PAI, then add it to the current user profile because it did not exist
+                    if ( len(values) > 0):
+                        print "Passport. fillUser. Updating MFA PAI oxExternalUid, original list = '%s'" % userOxExternalUids
+                        # if there are no current Persistent IDs create a new list
+                        tmpList = ArrayList(userOxExternalUids) if userOxExternalUids != None else ArrayList()
+                        tmpList.add( mfaOxExternalUid )
+                        print "Passport. fillUser. Updating persistent IDs, updated with MFA = '%s'" % tmpList
+                        foundUser.setAttribute("oxExternalUid", tmpList)
+                    else:
+                        print "Passport. fillUser. oxExternalUid for MFA '%s' already exists, ignoring new RP mapping" % mfaOxExternalUid
 
                 elif attr == "mail":
                     oxtrustMails = []
