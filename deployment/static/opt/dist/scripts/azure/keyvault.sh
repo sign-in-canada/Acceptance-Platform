@@ -48,7 +48,7 @@ umask 337
 for cert in $CERTS ; do
    fetchCert $cert > ${cert}.crt
    fetchKey $cert > ${cert}.key
-   chown root:gluu *.crt *.key
+   chown root:gluu ${cert}.crt ${cert}.key
    ln -s -f /run/certs/${cert}.crt /etc/certs/${cert}.crt && chown root:gluu /etc/certs/${cert}.crt
    ln -s -f /run/certs//${cert}.key /etc/certs/${cert}.key && chown root:gluu /etc/certs/${cert}.key
 done
