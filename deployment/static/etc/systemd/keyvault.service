@@ -1,0 +1,14 @@
+[Unit]
+Description=Retreive secrets from Azure Keyvault
+Before=idp.service
+Before=passport.service
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/default/azure
+ExecStart=/opt/dist/scripts/azure/keyvault.sh $KEYVAULT
+User=root
+Group=gluu
+
+[Install]
+WantedBy=multi-user.target
