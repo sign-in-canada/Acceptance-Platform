@@ -1,6 +1,8 @@
 [Unit]
 Description=Retreive secrets from Azure Keyvault
 Before=idp.service
+Before=oxauth.service
+Before=httpd.service
 Before=passport.service
 
 [Service]
