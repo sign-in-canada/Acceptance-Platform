@@ -28,6 +28,11 @@ fetchKey () {
       | openssl rsa -outform PEM
 }
 
+fetchSecret () {
+   curl -s -H "Authorization: Bearer ${TOKEN}" ${KEYVAULT}/secrets/${1}?api-version=${API_VER} \
+      | extractJSONValue value
+}
+
 # Obtain an access token
 TOKEN=$(curl -s 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fvault.azure.net' -H Metadata:true | extractJSONValue access_token)
 
@@ -36,7 +41,7 @@ mkdir -p -m 551 /run/certs
 chown root:gluu /run/certs
 
 # Get the certificates and their private keys
-CERTS=$(curl -s -H "Authorization: Bearer ${TOKEN}" ${KEYVAULT}/certificates?api-version=${API_VER} \
+certs=$(curl -s -H "Authorization: Bearer ${TOKEN}" ${KEYVAULT}/certificates?api-version=${API_VER} \
    | /opt/node/bin/node -e \
     "let certs = JSON.parse(require('fs').readFileSync(0, 'utf8')).value; \
      for (cert of certs) { \
@@ -44,22 +49,17 @@ CERTS=$(curl -s -H "Authorization: Bearer ${TOKEN}" ${KEYVAULT}/certificates?api
      }" )
 
 umask 337
-for cert in $CERTS ; do
+for cert in $certs ; do
    fetchCert $cert > /run/certs/${cert}.crt
    fetchKey $cert > /run/certs/${cert}.key
-   chown root:gluu /run/certs/${cert}.crt /run/certs/${cert}.key
    ln -s -f /run/certs/${cert}.crt /etc/certs/${cert}.crt && chown root:gluu /etc/certs/${cert}.crt
    ln -s -f /run/certs//${cert}.key /etc/certs/${cert}.key && chown root:gluu /etc/certs/${cert}.key
 done
 
 # Create a tmpfs directory to store the secrets
 mkdir -p -m 551 /run/secrets
-chown root:gluu /run/secrets
-cd /run/secrets
 
 # Get the Application Insights Instrumentation Key
-curl -s -H "Authorization: Bearer ${TOKEN}" ${KEYVAULT}/secrets/InstrumentationKey?api-version=${API_VER} \
-   | extractJSONValue value > InstrumentationKey
-chown root:gluu secrets/InstrumentationKey
+fetchSecret InstrumentationKey > /run/secrets/InstrumentationKey
 
 exit 0
