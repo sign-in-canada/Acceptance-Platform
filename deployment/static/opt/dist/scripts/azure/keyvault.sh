@@ -8,6 +8,7 @@
 
 KEYVAULT=$1
 API_VER='7.0'
+KV_DIR=/run/keyvault
 
 extractJSONValue () {
    /opt/node/bin/node -e "console.log(JSON.parse(require('fs').readFileSync(0, 'utf8'))[process.argv[1]])" $1
@@ -21,24 +22,27 @@ fetchCert () {
    echo "-----END CERTIFICATE-----"
 }
 
-fetchKey () {
-   curl -s -H "Authorization: Bearer ${TOKEN}" ${KEYVAULT}/secrets/${1}?api-version=${API_VER} \
-      | extractJSONValue value | base64 --decode \
-      | openssl pkcs12 -passin 'pass:' -nodes -nocerts \
-      | openssl rsa -outform PEM
-}
-
 fetchSecret () {
    curl -s -H "Authorization: Bearer ${TOKEN}" ${KEYVAULT}/secrets/${1}?api-version=${API_VER} \
       | extractJSONValue value
 }
 
+fetchKey () {
+   fetchSecret $1 \
+      | base64 --decode \
+      | openssl pkcs12 -passin 'pass:' -nodes -nocerts \
+      | openssl rsa -outform PEM
+}
+
+
+# Create a ramfs directory to hold the secrets
+umask 227
+mkdir $KV_DIR
+mount -t ramfs ramfs $KV_DIR
+mkdir ${KV_DIR}/certs ${KV_DIR}/secrets 
+
 # Obtain an access token
 TOKEN=$(curl -s 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fvault.azure.net' -H Metadata:true | extractJSONValue access_token)
-
-# Create a tmpfs directory to store the certificates
-mkdir -p -m 551 /run/certs
-chown root:gluu /run/certs
 
 # Get the certificates and their private keys
 certs=$(curl -s -H "Authorization: Bearer ${TOKEN}" ${KEYVAULT}/certificates?api-version=${API_VER} \
@@ -48,18 +52,16 @@ certs=$(curl -s -H "Authorization: Bearer ${TOKEN}" ${KEYVAULT}/certificates?api
         console.log(cert.id.split('/').pop()); \
      }" )
 
-umask 337
 for cert in $certs ; do
-   fetchCert $cert > /run/certs/${cert}.crt
-   fetchKey $cert > /run/certs/${cert}.key
-   ln -s -f /run/certs/${cert}.crt /etc/certs/${cert}.crt && chown root:gluu /etc/certs/${cert}.crt
-   ln -s -f /run/certs//${cert}.key /etc/certs/${cert}.key && chown root:gluu /etc/certs/${cert}.key
+   fetchCert $cert > ${KV_DIR}/certs/${cert}.crt
+   fetchKey $cert > ${KV_DIR}/certs/${cert}.key
+   ln -s -f ${KV_DIR}/certs/${cert}.crt /etc/certs/${cert}.crt
+   ln -s -f ${KV_DIR}/certs/${cert}.key /etc/certs/${cert}.key
 done
 
-# Create a tmpfs directory to store the secrets
-mkdir -p -m 551 /run/secrets
-
 # Get the Application Insights Instrumentation Key
-fetchSecret InstrumentationKey > /run/secrets/InstrumentationKey
+fetchSecret InstrumentationKey > ${KV_DIR}/secrets/InstrumentationKey
+
+# TODO: Get the Couchbase password
 
 exit 0
