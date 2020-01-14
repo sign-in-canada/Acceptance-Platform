@@ -1,0 +1,16 @@
+JAVA_HOME=%(jre_home)s
+JAVA=$JAVA_HOME/bin/java
+JAVA_OPTIONS="-server -Xms%(oxauth_min_heap_mem)sm -Xmx%(oxauth_max_heap_mem)sm -XX:MaxMetaspaceSize=%(oxauth_max_meta_mem)sm -XX:+DisableExplicitGC -Dgluu.base=%(gluuBaseFolder)s -Dserver.base=%(jetty_base)s/oxauth -Dlog.base=%(jetty_base)s/oxauth -Dpython.home=%(jython_home)s"
+
+JETTY_HOME=%(jetty_home)s
+JETTY_BASE=%(jetty_base)s/oxauth
+JETTY_USER=jetty
+JETTY_ARGS="jetty.http.host=localhost jetty.http.port=8081"
+TMPDIR=%(jetty_dist)s/temp
+
+export PYTHON_HOME=%(jython_home)s
+
+JAVA_OPTIONS="$JAVA_OPTIONS -javaagent:/opt/azure/applicationinsights-agent-2.5.1.jar"
+JAVA_OPTIONS="$JAVA_OPTIONS -Dapplicationinsights.configurationDirectory=/opt/azure"
+
+export APPINSIGHTS_INSTRUMENTATIONKEY=$(< /run/secrets/InstrumentationKey)
