@@ -7,12 +7,12 @@
 from org.gluu.jsf2.service import FacesService
 from org.gluu.jsf2.message import FacesMessages
 
-from org.gluu.oxauth.model.common import User, WebKeyStorage
+from org.gluu.oxauth.model.common import User, WebKeyStorage, SessionIdState
 from org.gluu.oxauth.model.configuration import AppConfiguration
 from org.gluu.oxauth.model.crypto import CryptoProviderFactory
 from org.gluu.oxauth.model.jwt import Jwt, JwtClaimName
 from org.gluu.oxauth.model.util import Base64Util
-from org.gluu.oxauth.service import AppInitializer, AuthenticationService, UserService
+from org.gluu.oxauth.service import AppInitializer, AuthenticationService, UserService, SessionIdService
 from org.gluu.oxauth.service.net import HttpService
 from org.gluu.oxauth.security import Identity
 from org.gluu.oxauth.util import ServerUtil
@@ -66,9 +66,21 @@ class PersonAuthentication(PersonAuthenticationType):
 
     def isValidAuthenticationMethod(self, usageType, configurationAttributes):
         print "Passport. isValidAuthenticationMethod called"
-        
-        sessionAttributes = CdiUtil.bean(Identity).getSessionId().getSessionAttributes()
-        authenticatedSourceProvider = sessionAttributes.get("authenticatedProvider")
+
+        identity = CdiUtil.bean(Identity)
+        sessionAttributes = identity.getSessionId().getSessionAttributes()
+        print "Passport. isValidAuthenticationMethod. got session '%s'"  % identity.getSessionId().toString()
+
+        # the authentication did not happen or failed, return to the chooser page
+        selectedProvider = sessionAttributes.get("selectedProvider")
+        userState = identity.getSessionId().getState()
+        print "Passport. isValidAuthenticationMethod. Found selectedProvider = %s" % selectedProvider
+        print "Passport. isValidAuthenticationMethod. Found state = %s" % userState
+        # selectedProvider will be None after first passport script execution because it will be removed
+        if ( userState == SessionIdState.UNAUTHENTICATED and selectedProvider == None ):
+            print "Passport. isValidAuthenticationMethod. Found unauthenticated sessions after step 1, meaning cancel/failure."
+            return False
+
         # SWITCH - invalidate this authentication only if the switchFlow is ON
         if ( sessionAttributes.get("switchFlowStatus") == "1_GET_SOURCE" and sessionAttributes.get("switchSourceAuthenticatedProvider") != None ):
             print "Passport DEBUG. isValidAuthenticationMethod SWITCH FLOW set to 1_GET_SOURCE, auth complete, returning False"
@@ -170,6 +182,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
         print "Passport. prepareForStep called for step %s" % str(step)
         identity = CdiUtil.bean(Identity)
+        sessionId = identity.getSessionId()
 
         if step == 1:
             #re-read the strategies config (for instance to know which strategies have enabled the email account linking)
@@ -206,7 +219,7 @@ class PersonAuthentication(PersonAuthenticationType):
                             mfaPai = StringHelper.split(mfaUserOxExternalUid,':')[1]
                 print "Passport. prepareForStep. Using mfaPai = '%s'" % mfaPai
             elif ( sessionAttributes.get("selectedProvider") == "mfa"):
-                print "Passport. prepareForStep. ERROR: 'selectedProvider' is 'mfa' but no in the MFA flow, Exiting"
+                print "Passport. prepareForStep. ERROR: 'selectedProvider' is 'mfa' but not in the MFA flow, Exiting"
                 return False
 
             # This is added to the script by a previous module if the provider is preselected
@@ -215,9 +228,10 @@ class PersonAuthentication(PersonAuthenticationType):
             if providerFromSession != None:
                 # Reset the provider in session in case the choice has to be made again
                 print "Passport. prepareForStep. Setting selectedProvider from session  = '%s'" % providerFromSession
-                sessionAttributes.remove("selectedProvider")
-                sessionAttributes.remove("new_acr_value")
                 identity.setWorkingParameter("selectedProvider", providerFromSession)
+                sessionAttributes.remove("selectedProvider")
+                ## SESSION_SAFE - update
+                CdiUtil.bean(SessionIdService).updateSessionId(sessionId)
 
             #this param could have been set previously in authenticate step if current step is being retried
             provider = identity.getWorkingParameter("selectedProvider")
@@ -557,7 +571,8 @@ class PersonAuthentication(PersonAuthenticationType):
         externalUid = "passport-%s:%s" % (provider, uid)
 
         # PERSISTENT_ID - generate the persistentId for the RP if coming from SAML (entityId parameter is set)
-        sessionAttributes = identity.getSessionId().getSessionAttributes()
+        sessionId = identity.getSessionId()
+        sessionAttributes = sessionId.getSessionAttributes()
         newPersistentIdSamlRp = sessionAttributes.get("spNameQualifier")
         switchFlowStatus = sessionAttributes.get("switchFlowStatus")
         mfaFlowStatus = sessionAttributes.get("mfaFlowStatus")
@@ -698,6 +713,9 @@ class PersonAuthentication(PersonAuthenticationType):
             elif ( mfaFlowStatus == "MFA_2_IN_PROGRESS" ):
                 print "Passport. attemptAuthentication. MFA FLOW: Marking flow as FAILED"
                 sessionAttributes.put("mfaFlowStatus", "MFA_3_FAILED" )
+                
+            ## SESSION_SAFE - update
+            CdiUtil.bean(SessionIdService).updateSessionId(sessionId)
 
             return logged_in
 
