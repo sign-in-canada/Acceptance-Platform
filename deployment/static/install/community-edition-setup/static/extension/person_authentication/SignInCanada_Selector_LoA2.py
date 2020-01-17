@@ -9,8 +9,8 @@ from org.gluu.service.cdi.util import CdiUtil
 from org.gluu.oxauth.security import Identity
 from org.gluu.util import StringHelper
 from org.gluu.oxauth.util import ServerUtil
-from org.gluu.oxauth.service import AuthenticationService, UserService, ClientService
-from java.util import ArrayList
+from org.gluu.oxauth.service import AuthenticationService, UserService, ClientService, SessionIdService
+from java.util import ArrayList, Arrays
 
 import sys
 import java
@@ -57,8 +57,7 @@ class PersonAuthentication(PersonAuthenticationType):
         print "IDP Chooser. isValidAuthenticationMethod called"
 
         identity = CdiUtil.bean(Identity)
-        sessionAttributes = identity.getSessionId().getSessionAttributes()
-        new_acr_value = sessionAttributes.get("new_acr_value")
+        new_acr_value = identity.getWorkingParameter("new_acr_value")
         print "IDP Chooser. isValidAuthenticationMethod: new_acr_value retrieved = '%s'" % new_acr_value
 
         if (new_acr_value != None):
@@ -68,15 +67,16 @@ class PersonAuthentication(PersonAuthenticationType):
     def getAlternativeAuthenticationMethod(self, usageType, configurationAttributes):
         print "IDP Chooser. getAlternativeAuthenticationMethod called"
         identity = CdiUtil.bean(Identity)
-        sessionAttributes = identity.getSessionId().getSessionAttributes()
-        new_acr_value = sessionAttributes.get("new_acr_value")
+        new_acr_value = identity.getWorkingParameter("new_acr_value")
         print "IDP Chooser. getAlternativeAuthenticationMethod: new_acr_value retrieved = '%s'" % new_acr_value
         return new_acr_value
 
     def authenticate(self, configurationAttributes, requestParameters, step):
         print "IDP Chooser. authenticate called for step '%s'" % step
 
-        sessionAttributes = CdiUtil.bean(Identity).getSessionId().getSessionAttributes()
+        identity = CdiUtil.bean(Identity)
+        sessionId = identity.getSessionId()
+        sessionAttributes = sessionId.getSessionAttributes()
         # SWITCH - if the switch credential is in 3_DO_SWITCH state, then do the switch
         if ( sessionAttributes.get("switchFlowStatus") == "3_DO_SWITCH" ):
             # first get the target user
@@ -87,10 +87,14 @@ class PersonAuthentication(PersonAuthenticationType):
             if ( targetUser == None):
                 print "IDP Chooser. authenticate: Failed to fetch target user '%s'" % sessionAttributes.get("switchTargetAuthenticatedUser")
                 sessionAttributes.remove( "switchFlowStatus" )
+                ## SESSION_SAFE - update
+                CdiUtil.bean(SessionIdService).updateSessionId(sessionId)
                 return False
             elif (sourceUser == None ):
                 print "IDP Chooser. authenticate: Failed to fetch source user '%s'" % sessionAttributes.get("switchSourceAuthenticatedUser")
                 sessionAttributes.remove( "switchFlowStatus" )
+                ## SESSION_SAFE - update
+                CdiUtil.bean(SessionIdService).updateSessionId(sessionId)
                 return False
             else:
                 switchPersistentId = sessionAttributes.get( "switchPersistentId" )
@@ -124,6 +128,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
                 # finish the switch flow
                 sessionAttributes.put( "switchFlowStatus", "4_FINISHED" )
+                ## SESSION_SAFE - update
                 return CdiUtil.bean(AuthenticationService).authenticate( targetUser.getUserId() )
         else:
             # process the ACR selection
@@ -134,9 +139,20 @@ class PersonAuthentication(PersonAuthenticationType):
             new_acr_provider = new_acr_provider_elements[1]
             print "IDP Chooser. authenticate: setting new_acr_value = '%s'" % new_acr_value
             print "IDP Chooser. authenticate: setting new_acr_provider = '%s'" % new_acr_provider
-
-            sessionAttributes.put("new_acr_value", new_acr_value)
-            sessionAttributes.put("selectedProvider", new_acr_provider)
+            
+            # Validate the ACR is allowed for the current entityId/client
+            allowedCredentials = sessionAttributes.get("pageContent")["credentials"]
+            allowSetNewAcr = False
+            for cred in StringHelper.split(allowedCredentials,','):
+                if (new_acr_provider_value.find(cred) == -1):
+                    allowSetNewAcr = True
+                    
+            if ( allowSetNewAcr ):
+                identity.setWorkingParameter("new_acr_value", new_acr_value)
+                sessionAttributes.put("selectedProvider", new_acr_provider)
+            else:
+                print "IDP Chooser. authenticate: provider '%s' not allowed for this client" % new_acr_provider
+                return False
 
             # SWITCH - Reading switch credential checkbox
             switchFlowStatus = sessionAttributes.get("switchFlowStatus")
@@ -145,6 +161,9 @@ class PersonAuthentication(PersonAuthenticationType):
                 if (switchSelected == True):
                     print "IDP Chooser. authenticate SWITCH FLOW: setting 1_GET_SOURCE"
                     sessionAttributes.put("switchFlowStatus", "1_GET_SOURCE")
+
+        ## SESSION_SAFE - update
+        CdiUtil.bean(SessionIdService).updateSessionId(sessionId)
 
         if step == 1:
             return True
@@ -155,7 +174,8 @@ class PersonAuthentication(PersonAuthenticationType):
         print "IDP Chooser. prepareForStep called for step '%s'" % step
 
         identity = CdiUtil.bean(Identity)
-        sessionAttributes = identity.getSessionId().getSessionAttributes()
+        sessionId = identity.getSessionId()
+        sessionAttributes = sessionId.getSessionAttributes()
         entityId = sessionAttributes.get("entityId")
         entitySpNameQualifier = sessionAttributes.get("spNameQualifier")
 
@@ -255,14 +275,18 @@ class PersonAuthentication(PersonAuthenticationType):
                 elif ( sessionAttributes.get("auth_user") != None ):
                     print "IDP Chooser. prepareForStep For mfaFlowStatus found authenticated user = '%s'" % sessionAttributes.get("auth_user")
                     # SWITCH - we check that we are not in a switch flow, or switch flow has finished
-                    if ( switchFlowStatus != None and switchFlowStatus == "4_FINISHED" ):
+                    switchFlowStatus = sessionAttributes.get("switchSourceAuthenticatedUser")
+                    if ( switchFlowStatus == None or switchFlowStatus == "4_FINISHED" ):
                         mfaFlowStatus = "MFA_2_IN_PROGRESS"
                         print "IDP Chooser. prepareForStep Setting  mfaFlowStatus = '%s' and [new_acr_value to 'passport_social'] and [selectedProvider to 'mfa']" % mfaFlowStatus
                         sessionAttributes.put("mfaFlowStatus", mfaFlowStatus)
                         print "IDP Chooser. prepareForStep Setting  [new_acr_value = 'passport_social'] and [selectedProvider = 'mfa']"
-                        sessionAttributes.put("new_acr_value", "passport_social")
+                        identity.setWorkingParameter("new_acr_value", "passport_social")
                         sessionAttributes.put("selectedProvider", "mfa")
-                        
+
+        ## SESSION_SAFE - update
+        CdiUtil.bean(SessionIdService).updateSessionId(sessionId)
+
         print "IDP Chooser. prepareForStep. got session '%s'"  % identity.getSessionId().toString()
 
         if (step == 1 or step == 2):
@@ -276,7 +300,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
     def getExtraParametersForStep(self, configurationAttributes, step):
         print "IDP Chooser. getExtraParametersForStep called for step '%s'" % step
-        return None
+        return Arrays.asList("new_acr_value")
 
     def getCountAuthenticationSteps(self, configurationAttributes):
         print "IDP Chooser. getCountAuthenticationSteps called"

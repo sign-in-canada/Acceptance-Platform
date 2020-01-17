@@ -7,12 +7,12 @@
 from org.gluu.jsf2.service import FacesService
 from org.gluu.jsf2.message import FacesMessages
 
-from org.gluu.oxauth.model.common import User, WebKeyStorage
+from org.gluu.oxauth.model.common import User, WebKeyStorage, SessionIdState
 from org.gluu.oxauth.model.configuration import AppConfiguration
 from org.gluu.oxauth.model.crypto import CryptoProviderFactory
 from org.gluu.oxauth.model.jwt import Jwt, JwtClaimName
 from org.gluu.oxauth.model.util import Base64Util
-from org.gluu.oxauth.service import AppInitializer, AuthenticationService, UserService
+from org.gluu.oxauth.service import AppInitializer, AuthenticationService, UserService, SessionIdService
 from org.gluu.oxauth.model.authorize import AuthorizeRequestParam
 from org.gluu.oxauth.service.net import HttpService
 from org.gluu.oxauth.security import Identity
@@ -69,9 +69,26 @@ class PersonAuthentication(PersonAuthenticationType):
 
     def isValidAuthenticationMethod(self, usageType, configurationAttributes):
         print "Passport. isValidAuthenticationMethod called"
-        
-        sessionAttributes = CdiUtil.bean(Identity).getSessionId().getSessionAttributes()
-        authenticatedSourceProvider = sessionAttributes.get("authenticatedProvider")
+
+        identity = CdiUtil.bean(Identity)
+        sessionAttributes = identity.getSessionId().getSessionAttributes()
+        print "Passport. isValidAuthenticationMethod. got session '%s'"  % identity.getSessionId().toString()
+
+        # MFA - the authentication is complete, MFA has been initiated, redirect to passport_social
+        if ( sessionAttributes.get("mfaFlowStatus") == "MFA_2_IN_PROGRESS" ):
+            print "Passport. isValidAuthenticationMethod MFA FLOW set to MFA_2_IN_PROGRESS, auth complete, returning False"
+            return False
+
+        # the authentication did not happen or failed, return to the chooser page
+        selectedProvider = sessionAttributes.get("selectedProvider")
+        userState = identity.getSessionId().getState()
+        print "Passport. isValidAuthenticationMethod. Found selectedProvider = %s" % selectedProvider
+        print "Passport. isValidAuthenticationMethod. Found state = %s" % userState
+        # selectedProvider will be None after first passport script execution because it will be removed
+        if ( userState == SessionIdState.UNAUTHENTICATED and selectedProvider == None ):
+            print "Passport. isValidAuthenticationMethod. Found unauthenticated sessions after step 1, meaning cancel/failure."
+            return False
+
         # COLLECT - we do not want to interrupt collection if in progress
         collectSamlPass = sessionAttributes.get("collectSamlPass")
         if ( collectSamlPass != 1 ):
@@ -82,9 +99,7 @@ class PersonAuthentication(PersonAuthenticationType):
             elif ( sessionAttributes.get("switchFlowStatus") == "2_GET_TARGET" and sessionAttributes.get("switchTargetAuthenticatedProvider") != None ):
                 print "Passport DEBUG. isValidAuthenticationMethod SWITCH FLOW set to 2_GET_TARGET, auth complete, returning False"
                 return False
-        if ( sessionAttributes.get("mfaFlowStatus") == "MFA_2_IN_PROGRESS" ):
-            print "Passport DEBUG. isValidAuthenticationMethod MFA FLOW set to MFA_2_IN_PROGRESS, auth complete, returning False"
-            return False
+
         return True
 
 
@@ -194,7 +209,8 @@ class PersonAuthentication(PersonAuthenticationType):
 
             print "Passport. prepareForStep. got session '%s'"  % identity.getSessionId().toString()
             
-            sessionAttributes = identity.getSessionId().getSessionAttributes()
+            sessionId = identity.getSessionId()
+            sessionAttributes = sessionId.getSessionAttributes()
             self.skipProfileUpdate = StringHelper.equalsIgnoreCase(sessionAttributes.get("skipPassportProfileUpdate"), "true")
 
             # This is added to the script by a previous module if the provider is preselected
@@ -204,7 +220,6 @@ class PersonAuthentication(PersonAuthenticationType):
                 identity.setWorkingParameter("selectedProvider", providerFromSession)            
                 # SWITCH - Reset the provider in session in case the choice has to be made again
                 sessionAttributes.remove("selectedProvider")
-                sessionAttributes.remove("new_acr_value")
 
             issuerSpNameQualifier = sessionAttributes.get("spNameQualifier")
             
@@ -265,6 +280,9 @@ class PersonAuthentication(PersonAuthenticationType):
                         print "Passport. prepareForStep. Provider '%s' not part of known configured IDPs/OPs" % provider
                     else:
                         url = self.getPassportRedirectUrl(provider, issuerSpNameQualifier)
+
+            ## SESSION_SAFE - update
+            CdiUtil.bean(SessionIdService).updateSessionId(sessionId)
 
             if url == None:
                 print "Passport. prepareForStep. A page to manually select an identity provider will be shown"
@@ -528,15 +546,16 @@ class PersonAuthentication(PersonAuthenticationType):
             response = httpService.convertEntityToString(bytes)
             print "Passport. getPassportRedirectUrl. Response was %s" % httpResponse.getStatusLine().getStatusCode()
 
-            if (issuerSpNameQualifier == None):
-                issuerSpNameQualifier = "0"
-
             print "Passport. getPassportRedirectUrl. Loading response %s" % response
             tokenObj = json.loads(response)
             print "Passport. getPassportRedirectUrl. Building URL: provider:  %s" % provider
             print "Passport. getPassportRedirectUrl. Building URL: token:     %s" % tokenObj["token_"]
             print "Passport. getPassportRedirectUrl. Building URL: spNameQfr: %s" % issuerSpNameQualifier
-            url = "/passport/auth/%s/%s/saml/%s" % (provider, tokenObj["token_"], Base64Util.base64urlencode(issuerSpNameQualifier))
+            # Check if the samlissuer is there so to use the old endpoint if no collection needed
+            if ( issuerSpNameQualifier != None ):
+                url = "/passport/auth/%s/%s/saml/%s" % (provider, tokenObj["token_"], Base64Util.base64urlencode(issuerSpNameQualifier))
+            else:
+                url = "/passport/auth/%s/%s" % (provider, tokenObj["token_"])
         except:
             print "Passport. getPassportRedirectUrl. Error building redirect URL: ", sys.exc_info()[1]
 
@@ -591,9 +610,10 @@ class PersonAuthentication(PersonAuthenticationType):
     def attemptAuthentication(self, identity, user_profile, user_profile_json):
 
         uidKey = "uid"
-        
+
         print "Passport. attemptAuthentication. got session '%s'"  % identity.getSessionId().toString()
-        sessionAttributes = identity.getSessionId().getSessionAttributes()
+        sessionId = identity.getSessionId()
+        sessionAttributes = sessionId.getSessionAttributes()
         collectSamlPass = sessionAttributes.get("collectSamlPass")
         switchFlowStatus = sessionAttributes.get("switchFlowStatus")
 
@@ -619,6 +639,8 @@ class PersonAuthentication(PersonAuthenticationType):
             newPersistentIdIdp = self.registeredProviders[provider]["issuer"]
             newPersistentIdUid = "sic" + uuid.uuid4().hex
             newPersistentId = '%s|%s|%s' % (newPersistentIdRp, newPersistentIdIdp, newPersistentIdUid )
+        else:
+            print "WARNING! The 'spNameQualifier' attribute from SHIBBOLETH is empty, no persistentId will be generated"
 
         # SWITCH - do NOT generate a new persistentId if the switch flow is being executed and not collecting
         if  ( switchFlowStatus == None or collectSamlPass != None ):
@@ -675,8 +697,12 @@ class PersonAuthentication(PersonAuthenticationType):
 
         print "Passport. attemptAuthentication. Searching for user ExternalUID '%s'" % externalUid
 
+        # MFA - save external UID to retrieve the user later
+        sessionAttributes.put("auth_user_externalUid", externalUid)
+
         userService = CdiUtil.bean(UserService)
         userByUid = self.getUserByExternalUid(uid, provider, userService)
+
 
         # COLLECT - We will never use email in our data
         email = None
@@ -749,6 +775,12 @@ class PersonAuthentication(PersonAuthenticationType):
                 print "An attempt to supply an email of an existing user was made. Turn on 'emailLinkingSafe' if you want to enable linking"
                 self.setMessageError(FacesMessage.SEVERITY_ERROR, "Email value corresponds to an already existing account. If you already have a username and password use those instead of an external authentication site to get access.")
 
+        # MFA - precreate a new PAI for MFA
+        if ( sessionAttributes.get("mfaFlowStatus") == "MFA_1_REQUIRED" ):
+            # generate a new MFA PAI in case there is none in the user profile
+            mfaUid = "mfa" + uuid.uuid4().hex
+            user_profile[ "oxExternalUid_newMfa" ] = [ "passport-mfa:" + mfaUid ]
+        
         username = None
         try:
             if doUpdate:
@@ -788,7 +820,10 @@ class PersonAuthentication(PersonAuthenticationType):
                 elif (sessionAttributes.get("mfaFlowStatus") == "MFA_1_REQUIRED"):
                     print "Passport. attemptAuthentication. MFA FLOW: starting flow marking status = MFA_2_IN_PROGRESS"
                     sessionAttributes.put("mfaFlowStatus", "MFA_2_IN_PROGRESS")
-                    identity.setWorkingParameter("selectedProvider", "mfa")
+                    sessionAttributes.put("selectedProvider", "mfa")
+
+            ## SESSION_SAFE - update
+            CdiUtil.bean(SessionIdService).updateSessionId(sessionId)
 
             return logged_in
 
@@ -856,8 +891,6 @@ class PersonAuthentication(PersonAuthenticationType):
                 print "Passport. fillUser. %s = %s" % (attr, values)
                 if attr == "persistentId":
                     if (values != None):
-                        # There is only one value from the mapping
-                        newPersistenId = values[0]
                         # The format is rp|idp|uid, so we split by '|' and take the first element of the array
                         currentRp = StringHelper.split(values[0],'|')[0]
                         # then we look through the old values if there is a matching RP remove if from "values" and do not update
@@ -866,18 +899,41 @@ class PersonAuthentication(PersonAuthenticationType):
                             for userPersistentId in userPersistentIds:
                                 if ( userPersistentId.find(currentRp) > -1 ):
                                     values.pop(0)
-                        
+
                         # if there still is a persistentId, then add it to the current user profile
                         if ( len(values) > 0):
                             print "Passport. fillUser. Updating persistent IDs, original = '%s'" % userPersistentIds
                             # if there are no current Persistent IDs create a new list
                             tmpList = ArrayList(userPersistentIds) if userPersistentIds != None else ArrayList()
-                            tmpList.add(newPersistenId)
+                            tmpList.add( values[0] )
                             print "Passport. fillUser. Updating persistent IDs, updated  = '%s'" % tmpList
                             foundUser.setAttribute(attr, tmpList)
                         else:
                             print "Passport. fillUser. PersistentId for RP '%s' already exists, ignoring new RP mapping" % currentRp
 
+                elif attr == "oxExternalUid_newMfa":
+                    # The attribute is here so MFA flow is REQUIRED.
+                    # First we check for existing MFA PAI already in the user profile
+                    mfaOxExternalUid = values[0]
+                    userOxExternalUids = foundUser.getAttributeValues("oxExternalUid")
+                    if (userOxExternalUids != None):
+                        for userOxExternalUid in userOxExternalUids:
+                            if ( userOxExternalUid.find("passport-mfa:") > -1 ):
+                                # if we found an MFA PAI then remove the new value
+                                mfaOxExternalUid = userOxExternalUid
+                                values.pop(0)
+
+                    # if there still is a value for MFA PAI, then add it to the current user profile because it did not exist
+                    if ( len(values) > 0):
+                        print "Passport. fillUser. Updating MFA PAI oxExternalUid, original list = '%s'" % userOxExternalUids
+                        # if there are no current Persistent IDs create a new list
+                        tmpList = ArrayList(userOxExternalUids) if userOxExternalUids != None else ArrayList()
+                        tmpList.add( mfaOxExternalUid )
+                        print "Passport. fillUser. Updating persistent IDs, updated with MFA = '%s'" % tmpList
+                        foundUser.setAttribute("oxExternalUid", tmpList)
+                    else:
+                        print "Passport. fillUser. oxExternalUid for MFA '%s' already exists, ignoring new MFA mapping" % mfaOxExternalUid
+            
                 elif attr == "mail":
                     oxtrustMails = []
                     for mail in values:
