@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Fetch certificates, keys and secrets from Azure KeyVault
 #
@@ -14,32 +14,16 @@ extractJSONValue () {
    /opt/node/bin/node -e "console.log(JSON.parse(require('fs').readFileSync(0, 'utf8'))[process.argv[1]])" $1
 }
 
-fetchCert () {
-   echo "-----BEGIN CERTIFICATE-----"
-   curl -s -H "Authorization: Bearer ${TOKEN}" ${KEYVAULT}/certificates/${1}?api-version=${API_VER} \
-      | extractJSONValue cer \
-      | fold -w 65
-   echo "-----END CERTIFICATE-----"
-}
-
 fetchSecret () {
    curl -s -H "Authorization: Bearer ${TOKEN}" ${KEYVAULT}/secrets/${1}?api-version=${API_VER} \
       | extractJSONValue value
 }
 
-fetchKey () {
-   fetchSecret $1 \
-      | base64 --decode \
-      | openssl pkcs12 -passin 'pass:' -nodes -nocerts \
-      | openssl rsa -outform PEM
-}
-
-
 # Create a ramfs directory to hold the secrets
 umask 227
 mkdir $KV_DIR
 mount -t ramfs ramfs $KV_DIR
-mkdir ${KV_DIR}/certs ${KV_DIR}/secrets 
+mkdir ${KV_DIR}/certs ${KV_DIR}/secrets
 
 # Obtain an access token
 TOKEN=$(curl -s 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fvault.azure.net' -H Metadata:true | extractJSONValue access_token)
@@ -53,9 +37,13 @@ certs=$(curl -s -H "Authorization: Bearer ${TOKEN}" ${KEYVAULT}/certificates?api
      }" )
 
 for cert in $certs ; do
-   fetchCert $cert > ${KV_DIR}/certs/${cert}.crt
-   fetchKey $cert > ${KV_DIR}/certs/${cert}.key
+   fetchSecret $cert | tee \
+      >(openssl x509 -outform pem  > ${KV_DIR}/certs/${cert}.crt) \
+      >(openssl rsa -outform PEM > ${KV_DIR}/certs/${cert}.key) \
+      >(sed '1,/-----END CERTIFICATE-----/d' > ${KV_DIR}/certs/${cert}.chain) \
+      > /dev/null
    ln -s -f ${KV_DIR}/certs/${cert}.crt /etc/certs/${cert}.crt
+   ln -s -f ${KV_DIR}/certs/${cert}.chain /etc/certs/${cert}.chain
    ln -s -f ${KV_DIR}/certs/${cert}.key /etc/certs/${cert}.key
 done
 
