@@ -112,7 +112,7 @@
       "requestForEmail": false,
       "emailLinkingSafe": false,
       "options": {
-        "logoutUri": "https://cbs-uat-cbs.securekey.com/cbs/profile/SAML2/Redirect/SLO",
+        "logoutUrl": "https://cbs-uat-cbs.securekey.com/cbs/profile/SAML2/Redirect/SLO",
         "authnRequestBinding": "HTTP-Reirect",
         "authnContext": "urn:gc-ca:cyber-auth:assurance:loa2",
         "acceptedClockSkewMs": "180000",
