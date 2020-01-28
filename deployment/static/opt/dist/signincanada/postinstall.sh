@@ -11,7 +11,7 @@ echo 'Enabling the keyvault service...'
 
 echo 'Installing the UI...'
 chgrp gluu /etc/gluu/select_page_content.json
-/usr/bin/tar xzf /opt/dist/gluu/custom.tgz -C /opt/gluu/jetty/oxauth/custom
+/usr/bin/tar xzf /opt/dist/signincanada/custom.tgz -C /opt/gluu/jetty/oxauth/custom
 chown -R jetty:jetty /opt/gluu/jetty/oxauth/custom
 chmod 755 $(find /opt/gluu/jetty/oxauth/custom -type d -print)
 chmod 644 $(find /opt/gluu/jetty/oxauth/custom -type f -print)
