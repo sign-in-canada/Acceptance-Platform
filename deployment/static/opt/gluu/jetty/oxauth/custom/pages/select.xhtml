@@ -16,7 +16,7 @@
       <f:viewAction action="#{authenticator.prepareAuthenticationForStep}"/>
     </f:metadata>
     <meta content="" />
-    <!--  Web Experience Toolkit (WET) / BoÃ®te Ã  outils de l'expÃ©rience Web 
+    <!--  Web Experience Toolkit (WET) / BoÃ®te Ã  outils de l'expÃ©rience Web
       (BOEW) wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html -->
     <title>Sign in Canada - Canada.ca</title>
     <meta content="width=device-width,initial-scale=1" name="viewport" />
@@ -135,7 +135,10 @@
       </div>
       <div class="clearfix"></div>
       <div id="switchMessage" class="col-lg-12" style="display:none">
-        <p><br /><u>You selected to perform a credential switch. Below is your progress:</u> <br /><b>Step 1: Choose source credential</b> ..... Step 2: Choose target credential ..... Step 3: Migrate service associtions</p>
+        <p><br /><h3>You selected to perform a credential switch. Below is your progress:</h3> <br /><b>Step 1: Choose source credential</b> ..... Step 2: Choose target credential ..... Step 3: Migrate service associtions</p>
+      </div>
+      <div id="switchMessage2" class="col-lg-12" style="display:none">
+        <p><br /><h3>You selected to perform a credential switch. Below is your progress:</h3> <br />Step 1: Choose source credential ..... <b>Step 2: Choose target credential</b> ..... Step 3: Migrate service associtions</p>
       </div>
       <div class="col-lg-6 row mrgn-bttm-lg mrgn-tp-md" style="float:right !important; position: relative; z-index: 10;">
 
@@ -150,20 +153,20 @@
               <div class="signin">
 
                 <div class="input-icons d-teal">
-                  <h:outputText rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_saml:cra') == None }" 
+                  <h:outputText rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_saml:cra') == None }"
                     escape="false" value="&lt;i class=&quot;fas fa-university icon&quot;&gt;&lt;/i&gt;" />
                   <h:commandButton id="loginButton0" styleClass="btn btn-signin" value="Sign in with your CRA user ID and password"
-                    rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_saml:cra') == None }" 
+                    rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_saml:cra') == None }"
                     action="#{authenticator.authenticate}" type="submit" onclick="fillInAcrOnSubmit('passport_saml:cra')">
                   </h:commandButton>
                 </div>
-                
+
                 <div class="input-icons d-teal">
                   <h:outputText rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_saml:gckey') == None }"
                     escape="false" value="&lt;i class=&quot;fas fa-sign-in-alt icon&quot;&gt;&lt;/i&gt;" />
                   <h:commandButton id="loginButton1" styleClass="btn btn-signin" value="Sign in with GCKey"
-                    rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_saml:gckey') == None }" 
-                    action="#{authenticator.authenticate}" type="submit" onclick="fillInAcrOnSubmit('passport_saml:cpsim1')">
+                    rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_saml:gckey') == None }"
+                    action="#{authenticator.authenticate}" type="submit" onclick="fillInAcrOnSubmit('passport_saml:gckey')">
                   </h:commandButton>
                 </div>
 
@@ -171,25 +174,25 @@
                   <h:outputText rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_saml:cbs') == None }"
                     escape="false" value="&lt;i class=&quot;fas fa-university icon&quot;&gt;&lt;/i&gt;" />
                   <h:commandButton id="loginButton2" styleClass="btn btn-signin" value="Use your online banking (Sign-in Partner)"
-                    rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_saml:cbs') == None }" 
+                    rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_saml:cbs') == None }"
                     action="#{authenticator.authenticate}" type="submit" onclick="fillInAcrOnSubmit('passport_saml:cbs')">
                   </h:commandButton>
                 </div>
 
                 <div class="input-icons purple">
-                  <h:outputText rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_saml:madi') == None }" 
+                  <h:outputText rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_saml:madi') == None }"
                     escape="false" value="&lt;i class=&quot;fas fa-id-card icon&quot;&gt;&lt;/i&gt;" />
                   <h:commandButton id="loginButton3" styleClass="btn btn-signin" value="Use your province (Alberta)"
-                    rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_saml:madi') == None }" 
+                    rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_saml:madi') == None }"
                     action="#{authenticator.authenticate}" type="submit" onclick="fillInAcrOnSubmit('passport_saml:madi')">
                   </h:commandButton>
                 </div>
 
                 <div class="input-icons green">
-                  <h:outputText rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_social:bcsc') == None }" 
+                  <h:outputText rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_social:bcsc') == None }"
                     escape="false" value="&lt;i class=&quot;fas fa-id-card icon&quot;&gt;&lt;/i&gt;" />
                   <h:commandButton id="loginButton4" styleClass="btn btn-signin" value="Use your province (British Columbia)"
-                    rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_social:bcsc') == None }" 
+                    rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_social:bcsc') == None }"
                     action="#{authenticator.authenticate}" type="submit" onclick="fillInAcrOnSubmit('passport_social:bcsc')">
                   </h:commandButton>
                 </div>
@@ -198,22 +201,22 @@
                   <h:outputText rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_social:google') == None }"
                     escape="false" value="&lt;i class=&quot;fab fa-google icon&quot;&gt;&lt;/i&gt;" />
                   <h:commandButton id="loginButton5" styleClass="btn btn-signin" value="Sign in with Google"
-                    rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_social:google') == None }" 
+                    rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_social:google') == None }"
                     action="#{authenticator.authenticate}" type="submit" onclick="fillInAcrOnSubmit('passport_social:google')">
                   </h:commandButton>
                 </div>
 
                 <div class="input-icons blue">
-                  <h:outputText rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_social:microsoft') == None }" 
+                  <h:outputText rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_social:microsoft') == None }"
                     escape="false" value="&lt;i class=&quot;fab fa-microsoft icon&quot;&gt;&lt;/i&gt;" />
                   <h:commandButton id="loginButton6" styleClass="btn btn-signin" value="Sign in with Microsoft"
-                    rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_social:microsoft') == None }" 
+                    rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_social:microsoft') == None }"
                     action="#{authenticator.authenticate}" type="submit" onclick="fillInAcrOnSubmit('passport_social:microsoft')">
                   </h:commandButton>
                 </div>
-  
+
               </div> <!-- this is the close of the 'signin' class div -->
-  
+
               <details class="mrgn-bttm-lg mrgn-tp-md">
                 <summary>Not sure which sign-in to use?</summary>
                 <p>You need to sign in with the same username and password every time you use My Account.</p>

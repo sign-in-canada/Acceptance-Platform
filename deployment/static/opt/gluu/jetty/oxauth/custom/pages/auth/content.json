@@ -3,8 +3,50 @@
         "accouttitle" : "Sign In Canada",
         "accouttext" : "Sign in to access <b>Government of Canada</b> services.",
         "breadcrumbs" : "<li><a href=\"https://www.canada.ca/en.html\">Home</a></li>\n            <li><a href=\"#\">Sign in</a></li>\n",
-        "infopanel" : "<h2>Once signed in: </h2> <ul><li>You can access all Government of Canada services.</li><li>For example, you can access your <b>CRA My Account for Individuals, My Service Canada Account (MSCA), IIRC account, and My VAC Account </b> to name a few.</li></ul>",
+        "infopanel" : "<h2><p>Once signed in, you can access all Government of Canada services.</p><p>For example, you can access your CRA My Account for Individuals, My Service Canada Account (MSCA), IIRC account, and My VAC Account to name a few.</p></h2>",
         "credentials" : "passport_saml:cra,passport_saml:gckey,passport_saml:cbs,passport_saml:madi,passport_social:bcsc,passport_social:google,passport_social:microsoft"
+    },
+    "oidc:atip_aors_local" : {
+        "accouttitle" : "ATIP Request Submission",
+        "accouttext" : "Sign in to access <b>Access to Information and Personal Information Request Service</b> services.",
+        "breadcrumbs" : "<li><a href=\"https://www.canada.ca/en.html\">Home</a></li>\n            <li><a href=\"#\">ATIP Request Submission</a></li>\n            <li><a href=\"#\">Sign in</a></li>\n",
+        "infopanel" : "<h2><p>Once signed in, you can access all Government of Canada services.</p><p>For example, you can access your CRA My Account for Individuals, My Service Canada Account (MSCA), IIRC account, and My VAC Account to name a few.</p></h2>",
+        "credentials" : "passport_saml:gckey,passport_saml:cbs,passport_social:google,passport_social:microsoft"
+    },
+    "oidc:atip_aors_dev" : {
+        "accouttitle" : "ATIP Request Submission",
+        "accouttext" : "Sign in to access <b>Access to Information and Personal Information Request Service</b> services.",
+        "breadcrumbs" : "<li><a href=\"https://www.canada.ca/en.html\">Home</a></li>\n            <li><a href=\"#\">ATIP Request Submission</a></li>\n            <li><a href=\"#\">Sign in</a></li>\n",
+        "infopanel" : "<h2><p>Once signed in, you can access ATIP Request Submission services.</p></p></h2>",
+        "credentials" : "passport_saml:gckey,passport_saml:cbs,passport_social:google,passport_social:microsoft"
+    },
+    "oidc:atip_aomt_local" : {
+        "accouttitle" : "ATIP Online Management Tool",
+        "accouttext" : "Sign in to access <b>Government of Canada</b> services.",
+        "breadcrumbs" : "<li><a href=\"https://www.canada.ca/en.html\">Home</a></li>\n            <li><a href=\"#\">Sign in</a></li>\n",
+        "infopanel" : "<h2><p>Once signed in, you can access all Government of Canada services.</p><p>For example, you can access your CRA My Account for Individuals, My Service Canada Account (MSCA), IIRC account, and My VAC Account to name a few.</p></h2>",
+        "credentials" : "passport_saml:gckey,passport_saml:cbs"
+    },
+    "oidc:atip_aomt_dev" : {
+        "accouttitle" : "ATIP Online Management Tool",
+        "accouttext" : "Sign in to access <b>Government of Canada</b> services.",
+        "breadcrumbs" : "<li><a href=\"https://www.canada.ca/en.html\">Home</a></li>\n            <li><a href=\"#\">Sign in</a></li>\n",
+        "infopanel" : "<h2><p>Once signed in, you can access all Government of Canada services.</p><p>For example, you can access your CRA My Account for Individuals, My Service Canada Account (MSCA), IIRC account, and My VAC Account to name a few.</p></h2>",
+        "credentials" : "passport_saml:gckey,passport_saml:cbs"
+    },
+    "https://rp4.tbstest.catslab.ca" : {
+        "accouttitle" : "Sign In Canada",
+        "accouttext" : "Sign in to access <b>Government of Canada</b> services.",
+        "breadcrumbs" : "<li><a href=\"https://www.canada.ca/en.html\">Home</a></li>\n            <li><a href=\"#\">Sign in</a></li>\n",
+        "infopanel" : "<h2>Once signed in: </h2> <ul><li>You can access all Government of Canada services.</li><li>For example, you can access your <b>CRA My Account for Individuals, My Service Canada Account (MSCA), IIRC account, and My VAC Account </b> to name a few.</li></ul>",
+        "credentials" : "passport_saml:gckey,passport_saml:cbs,passport_saml:madi,passport_social:bcsc,passport_social:google,passport_social:microsoft"
+    },
+    "https://rp1.tbstest.catslab.ca" : {
+        "accouttitle" : "Sign In Canada",
+        "accouttext" : "Sign in to access <b>Government of Canada</b> services.",
+        "breadcrumbs" : "<li><a href=\"https://www.canada.ca/en.html\">Home</a></li>\n            <li><a href=\"#\">Sign in</a></li>\n",
+        "infopanel" : "<h2>Once signed in: </h2> <ul><li>You can access all Government of Canada services.</li><li>For example, you can access your <b>CRA My Account for Individuals, My Service Canada Account (MSCA), IIRC account, and My VAC Account </b> to name a few.</li></ul>",
+        "credentials" : "passport_saml:gckey,passport_saml:cbs,passport_saml:madi,passport_social:bcsc,passport_social:google,passport_social:microsoft"
     },
     "https://rp2.tbstest.catslab.ca" : {
         "accouttitle" : "Service Canada Account",
@@ -19,12 +61,5 @@
         "breadcrumbs" : "<li class=\"visible-md visible-lg no-break-breadcrumb cust-breadcrumb\"><a href=\"https://gc-proto.github.io/canada-child-benefit-2/validation/en.html\">Home</a></li></li>\n                    <li class=\"visible-md visible-lg no-break-breadcrumb cust-breadcrumb\"><a href=\"https://gc-proto.github.io/canada-child-benefit-2/validation/services/taxes.html\">Taxes</a></li>\n                    <li class=\"visible-md visible-lg no-break-breadcrumb cust-breadcrumb\"><a href=\"https://gc-proto.github.io/canada-child-benefit-2/validation/revenue-agency/services/e-services.html\">E-services</a></li>\n                    <li class=\"cust-breadcrumb\"><a href=\"https://gc-proto.github.io/canada-child-benefit-2/validation/revenue-agency/services/e-services.html\">E-services for individuals</a></li>",
         "infopanel" : "<h2 class=\"mini-h2s\" id=\"benefits\">With My Account you can:</h2>\n                      <ul>\n                        <li>track your refund </li>\n                        <li>view or change your return, </li>\n                        <li>check your benefit and credit payments </li>\n                        <li>view your RRSP limit </li>\n                        <li>change your address </li>\n                        <li>set up <a href=\"/en/revenue-agency/services/about-canada-revenue-agency-cra/direct-deposit.html\">direct deposit</a> </li>\n                        <li><a href=\"/en/revenue-agency/services/e-services/e-services-individuals/online-mail-helping-you-organize-your-canada-revenue-agency-mail.html\">receive email notifications of changes</a> </li>\n                        <li>and much more</li>\n                      </ul>\n                    <p>My Account is fast - transactions are processed immediately.</p>\n                    <p>It's convenient at tax time - you can use <a href=\"/en/revenue-agency/services/e-services/about-auto-fill-return.html\">Auto-fill my return</a> when you file online using certified software.</p>\n                    <p>You can also set up a payment plan through My Account. To make an online payment, go to <a href=\"/en/revenue-agency/services/make-a-payment-canada-revenue-agency.html\">Make a payment</a>. </p>",
         "credentials" : "passport_saml:cra,passport_saml:cbs,passport_social:bcsc"
-    },
-    "https://rp4.tbstest.catslab.ca" : {
-        "accouttitle" : "Sign In Canada",
-        "accouttext" : "Sign in to access <b>Government of Canada</b> services.",
-        "breadcrumbs" : "<li><a href=\"https://www.canada.ca/en.html\">Home</a></li>\n            <li><a href=\"#\">Sign in</a></li>\n",
-        "infopanel" : "<h2>Once signed in: </h2> <ul><li>You can access all Government of Canada services.</li><li>For example, you can access your <b>CRA My Account for Individuals, My Service Canada Account (MSCA), IIRC account, and My VAC Account </b> to name a few.</li></ul>",
-        "credentials" : "passport_saml:gckey,passport_saml:cbs,passport_saml:madi,passport_social:bcsc,passport_social:google,passport_social:microsoft"
     }
 }

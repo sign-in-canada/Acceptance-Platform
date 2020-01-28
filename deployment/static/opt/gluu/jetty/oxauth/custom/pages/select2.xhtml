@@ -163,7 +163,7 @@
                     escape="false" value="&lt;i class=&quot;fas fa-sign-in-alt icon&quot;&gt;&lt;/i&gt;" />
                   <h:commandButton id="loginButton1" styleClass="btn btn-signin" value="Sign in with GCKey"
                     rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_saml:gckey') == None }" 
-                    action="#{authenticator.authenticate}" type="submit" onclick="fillInAcrOnSubmit('passport_saml:authpub1')">
+                    action="#{authenticator.authenticate}" type="submit" onclick="fillInAcrOnSubmit('passport_saml:gckey')">
                   </h:commandButton>
                 </div>
 
@@ -417,4 +417,3 @@
   </h:body>
   </f:view>
 </html>
-
