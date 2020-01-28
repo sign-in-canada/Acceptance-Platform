@@ -17,7 +17,7 @@ chmod 755 $(find /opt/gluu/jetty/oxauth/custom -type d -print)
 chmod 644 $(find /opt/gluu/jetty/oxauth/custom -type f -print)
 
 echo 'Configuring Shibboleth...'
-cp /opt/dist/gluu/postinstall/opt/shibboleth-idp/conf/* /opt/shibboleth-idp/conf
+cp /opt/dist/signincanada/postinstall/opt/shibboleth-idp/conf/* /opt/shibboleth-idp/conf
 chmod 444 /opt/shibboleth-idp/conf/attribute-filter.xml
 chmod 444 /opt/shibboleth-idp/conf/attribute-resolver.xml
 chmod 444 /opt/shibboleth-idp/conf/metadata-providers.xml
