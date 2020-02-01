@@ -1,446 +1,363 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-<!DOCTYPE html
-   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd" >
-
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd" >
 
 <html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:a4j="http://richfaces.org/a4j"
     xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
     xmlns:f="http://xmlns.jcp.org/jsf/core"
     xmlns:h="http://xmlns.jcp.org/jsf/html"
-    xmlns:a4j="http://richfaces.org/a4j">
+    class="js backgroundsize borderimage csstransitions fontface svg details progressbar meter no-mathml cors xlargeview">
   <f:view locale="#{language.localeCode}">
+
   <h:head lang="en" dir="ltr" xmlns="http://www.w3.org/1999/xhtml">
     <f:metadata>
       <f:viewAction action="#{authenticator.prepareAuthenticationForStep}"/>
     </f:metadata>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta content="" />
-    <!--  Web Experience Toolkit (WET) / BoÃ®te Ã  outils de l'expÃ©rience Web
-      (BOEW) wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html -->
+    <!--  Web Experience Toolkit (WET) / Bo&Atilde;&reg;te &Atilde;  outils de l'exp&Atilde;&copy;rience Web
+        (BOEW) wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html -->
     <title>Sign in Canada - Canada.ca</title>
     <meta content="width=device-width,initial-scale=1" name="viewport" />
     <meta name="description" content="" />
-    <!-- [if gte IE 9 | !IE ]><! -->
-      <link href="/oxauth/ext/resources/assets/favicon.ico" rel="icon" type="image/x-icon" />
-      <link rel="stylesheet" href="/oxauth/ext/resources/css/theme.min.css" />
-      <link rel="stylesheet" href="/oxauth/ext/resources/css/sel_signincanada.css" />
-      <link rel="stylesheet" href="/oxauth/ext/resources/css/sel_breadcrumb.css" />
-    <!-- <![endif] -->
-    <!-- [if lt IE 9]> <link href="/oxauth/ext/resources/assets/favicon.ico" rel="shortcut icon" />
-      <link rel="stylesheet" href="/oxauth/ext/resources/css/sel_ie8-theme.min.css" />
-      <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-      <script src="/oxauth/ext/resources/js/sel_ie8-wet-boew.min.js"></script>
-    <![endif] -->
-    <!-- [if lte IE 9]>
-    <![endif] -->
+    <link href="/oxauth/ext/resources/assets/favicon.ico" rel="icon" type="image/x-icon" />
+    <link rel="stylesheet" href="/oxauth/ext/resources/css/theme.min.css" />
+    <link rel="stylesheet" href="/oxauth/ext/resources/css/sel_signincanada.css" />
+    <link rel="stylesheet" href="/oxauth/ext/resources/css/sel_breadcrumb.css" />
   </h:head>
 
   <h:body class="page-type-nav" vocab="http://schema.org/" typeof="WebPage">
-    <ul id="wb-tphp">
-      <li class="wb-slc"> <a class="wb-sl" href="#wb-cont">Skip to main content</a> </li>
-      <li class="wb-slc"> <a class="wb-sl" href="#wb-info">Skip to "About government"</a> </li>
-    </ul>
-    <header>
-      <div id="wb-bnr" class="container">
-        <section id="wb-lng" class="text-right">
-          <h2 class="wb-inv">Language selection</h2>
-          <div class="row">
-            <div class="col-md-12">
-              <ul class="list-inline margin-bottom-none">
-                <li>
-                  <a lang="fr" href="https://sbx-gluutest.eastus2.cloudapp.azure.com/oxauth/auth/idp_chooser_loa2/home-fr.html">Fran&ccedil;ais</a>
-               </li>
-              </ul>
-            </div>
-          </div>
-        </section>
+  <ul id="wb-tphp">
+    <li class="wb-slc"> <a class="wb-sl" href="/oxauth/auth/idp_chooser_loa2/selector.htm#wb-cont">Skip to main content</a> </li>
+    <li class="wb-slc"> <a class="wb-sl" href="/oxauth/auth/idp_chooser_loa2/selector.htm#wb-info">Skip to "About government"</a> </li>
+  </ul>
+  <header>
+    <div id="wb-bnr" class="container">
+      <section id="wb-lng" class="text-right">
+        <h2 class="wb-inv">Language selection</h2>
         <div class="row">
-          <div class="brand col-xs-5 col-md-4" property="publisher" typeof="GovernmentOrganization">
-            <a href="https://www.canada.ca/en.html" property="url">
-              <img src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/sig-blk-en.svg" alt="" property="logo" />
-              <span class="wb-inv" property="name"> Government of Canada</span>
-            </a>
-            <meta property="areaServed" typeof="Country" content="Canada"/>
-            <link property="logo" href="/etc/designs/canada/wet-boew/assets/wmms-blk.svg"/>
+          <div class="col-md-12">
+            <ul class="list-inline margin-bottom-none">
+              <li>
+                <a lang="fr" href="/oxauth/auth/idp_chooser_loa2/home-fr.html">Français</a>
+              </li>
+            </ul>
           </div>
-          <section id="wb-srch" class="col-lg-8 text-right">
-            <h2>Search</h2>
-            <form action="https://www.canada.ca/en/sr/srb.html" method="get" name="cse-search-box" role="search" class="form-inline">
-              <div class="form-group">
-                <label for="wb-srch-q" class="wb-inv">Search Canada.ca</label>
-                <input name="cdn" value="canada" type="hidden"/>
-                <input name="st" value="s" type="hidden"/>
-                <input name="num" value="10" type="hidden"/>
-                <input name="langs" value="en" type="hidden"/>
-                <input name="st1rt" value="1" type="hidden"/>
-                <input name="s5bm3ts21rch" value="x" type="hidden"/>
-                <input id="wb-srch-q" list="wb-srch-q-ac" class="wb-srch-q form-control" name="q" type="search" value="" size="34" maxlength="170" placeholder="Search Canada.ca"/>
-                <input type="hidden" name="_charset_" value="UTF-8"/>
-                <datalist id="wb-srch-q-ac"></datalist>
-              </div>
-              <div class="form-group submit">
-                <button type="submit" id="wb-srch-sub" class="btn btn-primary btn-small" name="wb-srch-sub">
-                  <span class="glyphicon-search glyphicon"></span><span class="wb-inv">Search</span>
-                </button>
-              </div>
-            </form>
-          </section>
         </div>
+      </section>
+      <div class="row">
+        <div class="brand col-xs-5 col-md-4" property="publisher" typeof="GovernmentOrganization">
+          <a href="https://www.canada.ca/en.html" property="url">
+            <img src="/oxauth/ext/resources/assets/sig-blk-en.svg" alt="" property="logo"/>
+            <span class="wb-inv" property="name"> Government of Canada</span>
+          </a>
+          <meta property="areaServed" typeof="Country" content="Canada" />
+          <link property="logo" href="/etc/designs/canada/wet-boew/assets/wmms-blk.svg" />
+        </div>
+        <section id="wb-srch" class="col-lg-8 text-right">
+          <h2>Search</h2>
+          <form action="https://www.canada.ca/en/sr/srb.html" method="get" name="cse-search-box" role="search" class="form-inline">
+            <div class="form-group">
+              <label for="wb-srch-q" class="wb-inv">Search Canada.ca</label>
+              <input name="cdn" value="canada" type="hidden" />
+              <input name="st" value="s" type="hidden" />
+              <input name="num" value="10" type="hidden" />
+              <input name="langs" value="en" type="hidden" />
+              <input name="st1rt" value="1" type="hidden" />
+              <input name="s5bm3ts21rch" value="x" type="hidden" />
+              <input id="wb-srch-q" list="wb-srch-q-ac" class="wb-srch-q form-control" name="q" type="search" value="" size="34" maxlength="170" placeholder="Search Canada.ca" />
+              <input type="hidden" name="_charset_" value="UTF-8" />
+              <datalist id="wb-srch-q-ac"></datalist>
+            </div>
+            <div class="form-group submit">
+              <button type="submit" id="wb-srch-sub" class="btn btn-primary btn-small" name="wb-srch-sub">
+                <span class="glyphicon-search glyphicon"></span><span class="wb-inv">Search</span>
+              </button>
+            </div>
+          </form>
+        </section>
       </div>
-      <nav class="gcweb-v2 gcweb-menu" typeof="SiteNavigationElement">
-        <div class="container">
-          <h2 class="wb-inv">Menu</h2>
-          <button type="button" aria-haspopup="true" aria-expanded="false">
-            <span class="wb-inv">Main </span>Menu <span class="expicon glyphicon glyphicon-chevron-down"></span>
-          </button>
-          <ul role="menu" aria-orientation="vertical" data-ajax-replace="https://www.canada.ca/content/dam/canada/sitemenu/sitemenu-v2-en.html">
-            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.canada.ca/en/services/jobs.html">Jobs and the workplace</a></li>
-            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.canada.ca/en/services/immigration-citizenship.html">Immigration and citizenship</a></li>
-            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://travel.gc.ca/">Travel and tourism</a></li>
-            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.canada.ca/en/services/business.html">Business and industry</a></li>
-            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.canada.ca/en/services/benefits.html">Benefits</a></li>
-            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.canada.ca/en/services/health.html">Health</a></li>
-            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.canada.ca/en/services/taxes.html">Taxes</a></li>
-            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.canada.ca/en/services/environment.html">Environment and natural resources</a></li>
-            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.canada.ca/en/services/defence.html">National security and defence</a></li>
-            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.canada.ca/en/services/culture.html">Culture, history and sport</a></li>
-            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.canada.ca/en/services/policing.html">Policing, justice and emergencies</a></li>
-            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.canada.ca/en/services/transport.html">Transport and infrastructure</a></li>
-            <li role="presentation"><a role="menuitem" tabindex="-1" href="http://international.gc.ca/world-monde/index.aspx?lang=eng">Canada and the world</a></li>
-            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.canada.ca/en/services/finance.html">Money and finances</a></li>
-            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.canada.ca/en/services/science.html">Science and innovation</a></li>
-          </ul>
-        </div>
-      </nav>
-      <nav id="wb-bc" property="breadcrumb">
-        <h2 class="wb-inv">You are here:</h2>
-        <div class="container">
-          <ol class="breadcrumb">
-            <h:outputText escape="false" value="#{ identity.getSessionId().getSessionAttributes().get('pageContent')['breadcrumbs']}" />
-          </ol>
-        </div>
-      </nav>
-      <div data-ajax-replace="/bin/canada/alert/messages.en.html" class="original"></div>
-    </header>
+    </div>
+    <nav class="gcweb-v2 gcweb-menu" typeof="SiteNavigationElement">
+      <div class="container">
+        <h2 class="wb-inv">Menu</h2>
+        <button type="button" aria-haspopup="true" aria-expanded="false">
+          <span class="wb-inv">Main </span>Menu <span class="expicon glyphicon glyphicon-chevron-down"></span>
+        </button>
+        <ul role="menu" aria-orientation="vertical"
+          data-ajax-replace="https://www.canada.ca/content/dam/canada/sitemenu/sitemenu-v2-en.html">
+          <li role="presentation"><a role="menuitem" tabindex="-1"
+              href="https://www.canada.ca/en/services/jobs.html">Jobs and the workplace</a></li>
+          <li role="presentation"><a role="menuitem" tabindex="-1"
+              href="https://www.canada.ca/en/services/immigration-citizenship.html">Immigration and citizenship</a></li>
+          <li role="presentation"><a role="menuitem" tabindex="-1" href="https://travel.gc.ca/">Travel and tourism</a>
+          </li>
+          <li role="presentation"><a role="menuitem" tabindex="-1"
+              href="https://www.canada.ca/en/services/business.html">Business and industry</a></li>
+          <li role="presentation"><a role="menuitem" tabindex="-1"
+              href="https://www.canada.ca/en/services/benefits.html">Benefits</a></li>
+          <li role="presentation"><a role="menuitem" tabindex="-1"
+              href="https://www.canada.ca/en/services/health.html">Health</a></li>
+          <li role="presentation"><a role="menuitem" tabindex="-1"
+              href="https://www.canada.ca/en/services/taxes.html">Taxes</a></li>
+          <li role="presentation"><a role="menuitem" tabindex="-1"
+              href="https://www.canada.ca/en/services/environment.html">Environment and natural resources</a></li>
+          <li role="presentation"><a role="menuitem" tabindex="-1"
+              href="https://www.canada.ca/en/services/defence.html">National security and defence</a></li>
+          <li role="presentation"><a role="menuitem" tabindex="-1"
+              href="https://www.canada.ca/en/services/culture.html">Culture, history and sport</a></li>
+          <li role="presentation"><a role="menuitem" tabindex="-1"
+              href="https://www.canada.ca/en/services/policing.html">Policing, justice and emergencies</a></li>
+          <li role="presentation"><a role="menuitem" tabindex="-1"
+              href="https://www.canada.ca/en/services/transport.html">Transport and infrastructure</a></li>
+          <li role="presentation"><a role="menuitem" tabindex="-1"
+              href="http://international.gc.ca/world-monde/index.aspx?lang=eng">Canada and the world</a></li>
+          <li role="presentation"><a role="menuitem" tabindex="-1"
+              href="https://www.canada.ca/en/services/finance.html">Money and finances</a></li>
+          <li role="presentation"><a role="menuitem" tabindex="-1"
+              href="https://www.canada.ca/en/services/science.html">Science and innovation</a></li>
+        </ul>
+      </div>
+    </nav>
+    <nav id="wb-bc" property="breadcrumb">
+      <h2 class="wb-inv">You are here:</h2>
+      <div class="container">
+        <ol class="breadcrumb">
+          <h:outputText escape="false" value="#{ identity.getSessionId().getSessionAttributes().get('pageContent')['breadcrumbs']}" />
+        </ol>
+      </div>
+    </nav>
+    <div data-ajax-replace="/bin/canada/alert/messages.en.html" class="original"></div>
+  </header>
 
-    <main property="mainContentOfPage" class="container">
-      <div class="col-lg-12 account-banner">
-        <div class="col-md-4" style="margin-right: 2em;">
-          <h1 property="name" id="wb-cont" dir="ltr"><h:outputText escape="false" value="#{ identity.getSessionId().getSessionAttributes().get('pageContent')['accouttitle']}" /></h1>
-        </div>
-        <div class="col-md-7" style="padding-top: 1.5em;">
-          <p><h:outputText escape="false" value="#{ identity.getSessionId().getSessionAttributes().get('pageContent')['accouttext']}" /></p>
-        </div>
+  <main property="mainContentOfPage" class="container">
+    <div class="col-lg-12 account-banner">
+      <div class="col-md-11" style="margin-right: 2em;">
+        <h1 property="name" id="wb-cont" dir="ltr"><h:outputText escape="false" value="#{ identity.getSessionId().getSessionAttributes().get('pageContent')['accouttitle']}" /></h1>
+      </div>
+      <div class="col-md-7">
+        <p><h:outputText escape="false" value="#{ identity.getSessionId().getSessionAttributes().get('pageContent')['accouttext']}" /></p>
+      </div>
+
+    </div>
+    <div class="col-lg-12">
+      <div class="mrgn-bttm-xl">
+        <h2>Please choose an option to sign in to use your account: </h2>
       </div>
       <div class="clearfix"></div>
-      <div id="switchMessage" class="col-lg-12" style="display:none">
-        <p><br /><h3>You selected to perform a credential switch. Below is your progress:</h3> <br /><b>Step 1: Choose source credential</b> ..... Step 2: Choose target credential ..... Step 3: Migrate service associtions</p>
-      </div>
-      <div id="switchMessage2" class="col-lg-12" style="display:none">
-        <p><br /><h3>You selected to perform a credential switch. Below is your progress:</h3> <br />Step 1: Choose source credential ..... <b>Step 2: Choose target credential</b> ..... Step 3: Migrate service associtions</p>
-      </div>
-      <div class="col-lg-6 row mrgn-bttm-lg mrgn-tp-md" style="float:right !important; position: relative; z-index: 10;">
 
-        <div class="outline" style="margin-top:1em; padding:1em;">
-          <h2 class="mini-h2s" style="margin-top:0em;">Use the sign-in option you registered with:</h2>
+      <div class="cddol-lg-12">
 
-          <h:form id="loginForm" class="form-horizontal" action="#{authenticator.authenticate}" >
-            <div>
-              <h:inputHidden id="acrname" value="#{acrname}" styleClass="form-control" autocomplete="off" />
-              <h:messages style="color:red;"/>
+       <h:form id="loginForm" class="form-horizontal" action="#{authenticator.authenticate}" >
 
-              <div class="signin">
+         <h:inputHidden id="acrname" value="#{acrname}" styleClass="form-control" autocomplete="off" />
+         <h:messages style="color:red;"/>
+         <h:inputHidden id="switchCredentialBox" value="off" styleClass="form-control" autocomplete="off" />
 
-                <div class="input-icons d-teal">
-                  <h:outputText rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_saml:cra') == None }"
-                    escape="false" value="&lt;i class=&quot;fas fa-university icon&quot;&gt;&lt;/i&gt;" />
-                  <h:commandButton id="loginButton0" styleClass="btn btn-signin" value="Sign in with your CRA user ID and password"
-                    rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_saml:cra') == None }"
-                    action="#{authenticator.authenticate}" type="submit" onclick="fillInAcrOnSubmit('passport_saml:cra')">
-                  </h:commandButton>
-                </div>
+       <div class="cddol-lg-12">
+        <div class="col-md-6" style="vertical-align: top; min-height: 283px;">
+          <section class="panel panel-default hght-inhrt">
+            <header class="panel-heading">
 
-                <div class="input-icons d-teal">
-                  <h:outputText rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_saml:gckey') == None }"
-                    escape="false" value="&lt;i class=&quot;fas fa-sign-in-alt icon&quot;&gt;&lt;/i&gt;" />
-                  <h:commandButton id="loginButton1" styleClass="btn btn-signin" value="Sign in with GCKey"
-                    rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_saml:gckey') == None }"
-                    action="#{authenticator.authenticate}" type="submit" onclick="fillInAcrOnSubmit('passport_saml:gckey')">
-                  </h:commandButton>
-                </div>
+              <svg width="30px" height="30px" viewBox="0 0 30 33" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                    <g transform="translate(-257.000000, -573.000000)" fill="#000000" fill-rule="nonzero">
+                        <g transform="translate(194.000000, 429.000000)">
+                            <g transform="translate(0.000000, 131.000000)">
+                                <path d="M86.2274678,35.6681641 C86.388412,35.5070312 93,29.7126953 93,29.7126953 L91.8733906,29.2292969 C91.2296137,28.9134766 91.3969957,28.4880859 91.5515021,28.1078125 C91.7060086,27.6179687 92.8454936,23.7701172 92.8454936,23.7701172 C92.8454936,23.7701172 89.7746781,24.4146484 89.1309013,24.5757812 C88.6480687,24.7304688 88.4871245,24.4146484 88.3261803,24.0923828 C88.1652361,23.7701172 87.360515,22.0041016 87.360515,22.0041016 C87.360515,22.0041016 83.9742489,25.8648437 83.8133047,26.0195312 C83.1695279,26.5029297 82.5193133,26.0195312 82.6802575,25.375 C82.6802575,24.7304687 84.4570815,17.021875 84.4570815,17.021875 C84.4570815,17.021875 82.5193133,18.1433594 81.8755365,18.465625 C81.3927039,18.7878906 81.0643777,18.7878906 80.7424893,18.1433594 C80.4141631,17.6599609 77.9935622,13 77.9935622,13 C77.9935622,13 75.5793991,17.6599609 75.2575107,18.1433594 C74.9356223,18.7878906 74.6137339,18.7878906 74.1244635,18.465625 C73.4806867,18.1433594 71.5429185,17.021875 71.5429185,17.021875 C71.5429185,17.021875 73.3197425,24.7304688 73.3197425,25.375 C73.4806867,26.0195312 72.8369099,26.5029297 72.1866953,26.0195312 C72.0257511,25.8583984 68.639485,22.0041016 68.639485,22.0041016 C68.639485,22.0041016 67.8347639,23.7636719 67.6738197,24.0859375 C67.5128755,24.4082031 67.3519313,24.7240234 66.8690987,24.5693359 C66.2188841,24.4082031 63.1545064,23.7636719 63.1545064,23.7636719 C63.1545064,23.7636719 64.2875536,27.6115234 64.4484979,28.1013672 C64.6030043,28.4880859 64.7703863,28.9070313 64.1266094,29.2228516 L63,29.7126953 C63,29.7126953 69.6051502,35.5070313 69.7725322,35.6681641 C70.1008584,35.9904297 70.416309,36.1515625 70.1008584,37.1183594 C69.7725322,38.0851563 69.4506438,39.3806641 69.4506438,39.3806641 C69.4506438,39.3806641 75.5793991,38.0851563 76.2296137,37.9240234 C76.7896996,37.8660156 77.4077253,38.0851563 77.4077253,38.7296875 C77.4077253,39.3806641 77.0343348,46 77.0343348,46 L78.9656652,46 C78.9656652,46 78.5922747,39.3806641 78.5922747,38.7296875 C78.5922747,38.0851562 79.2038627,37.8660156 79.776824,37.9240234 C80.4206009,38.0851562 86.5493562,39.3806641 86.5493562,39.3806641 C86.5493562,39.3806641 86.2274678,38.0851562 85.9055794,37.1183594 C85.583691,36.1515625 85.9055794,35.9904297 86.2274678,35.6681641 L86.2274678,35.6681641 Z" id="Path"></path>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+              </svg>
+              <h1 class="panel-title h3 mrgn-tp-0">Option 1: Government of Canada account</h1><br/>
+            </header>
 
-                <div class="input-icons d-blue">
-                  <h:outputText rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_saml:cbs') == None }"
-                    escape="false" value="&lt;i class=&quot;fas fa-university icon&quot;&gt;&lt;/i&gt;" />
-                  <h:commandButton id="loginButton2" styleClass="btn btn-signin" value="Use your online banking (Sign-in Partner)"
-                    rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_saml:cbs') == None }"
-                    action="#{authenticator.authenticate}" type="submit" onclick="fillInAcrOnSubmit('passport_saml:cbs')">
-                  </h:commandButton>
-                </div>
+            <div class="panel-body">
+              <p class="text-center">Sign in with your GCKey user ID and password.</p>
+              <p class="text-center"><h:commandButton id="loginButton1" styleClass="btn btn-primary mrgn-tp-lg btn-lg" value="Sign in with GCKey"
+                    action="#{authenticator.authenticate}" type="submit" onclick="fillInAcrOnSubmit('passport_saml:gckey')"></h:commandButton></p>
 
-                <div class="input-icons purple">
-                  <h:outputText rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_saml:madi') == None }"
-                    escape="false" value="&lt;i class=&quot;fas fa-id-card icon&quot;&gt;&lt;/i&gt;" />
-                  <h:commandButton id="loginButton3" styleClass="btn btn-signin" value="Use your province (Alberta)"
-                    rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_saml:madi') == None }"
-                    action="#{authenticator.authenticate}" type="submit" onclick="fillInAcrOnSubmit('passport_saml:madi')">
-                  </h:commandButton>
-                </div>
-
-                <div class="input-icons green">
-                  <h:outputText rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_social:bcsc') == None }"
-                    escape="false" value="&lt;i class=&quot;fas fa-id-card icon&quot;&gt;&lt;/i&gt;" />
-                  <h:commandButton id="loginButton4" styleClass="btn btn-signin" value="Use your province (British Columbia)"
-                    rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_social:bcsc') == None }"
-                    action="#{authenticator.authenticate}" type="submit" onclick="fillInAcrOnSubmit('passport_social:bcsc')">
-                  </h:commandButton>
-                </div>
-
-                <div class="input-icons green">
-                  <h:outputText rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_social:google') == None }"
-                    escape="false" value="&lt;i class=&quot;fab fa-google icon&quot;&gt;&lt;/i&gt;" />
-                  <h:commandButton id="loginButton5" styleClass="btn btn-signin" value="Sign in with Google"
-                    rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_social:google') == None }"
-                    action="#{authenticator.authenticate}" type="submit" onclick="fillInAcrOnSubmit('passport_social:google')">
-                  </h:commandButton>
-                </div>
-
-                <div class="input-icons blue">
-                  <h:outputText rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_social:microsoft') == None }"
-                    escape="false" value="&lt;i class=&quot;fab fa-microsoft icon&quot;&gt;&lt;/i&gt;" />
-                  <h:commandButton id="loginButton6" styleClass="btn btn-signin" value="Sign in with Microsoft"
-                    rendered="#{ identity.getSessionId().getSessionAttributes().get('hide_cred_passport_social:microsoft') == None }"
-                    action="#{authenticator.authenticate}" type="submit" onclick="fillInAcrOnSubmit('passport_social:microsoft')">
-                  </h:commandButton>
-                </div>
-
-              </div> <!-- this is the close of the 'signin' class div -->
-
-              <details class="mrgn-bttm-lg mrgn-tp-md">
-                <summary>Not sure which sign-in to use?</summary>
-                <p>You need to sign in with the same username and password every time you use My Account.</p>
-                <ul>
-                  <li>When you first registered for a My Canada Account, you selected a particular sign-in method. </li>
-                  <li>You might have created a new Canada user id and password just for this account, and written it down or saved it in a Password manager.</li>
-                  <li>Or when you registered, you may have decided to use your existing financial institution username and password rather than create a new set for Canada.</li>
-                </ul>
-              </details>
-
-              <details class="mrgn-bttm-lg mrgn-tp-md">
-                <summary>Want to switch to another authentication method?</summary>
-                <p>Your application account is linked to the sign-in option you registered with.</p>
-                  <ul>
-                    <li>You might have created a new Canada user id and password just for this account, and written it down or saved it in a Password manager.</li>
-                    <li>Or when you registered, you may have decided to use your existing financial institution username and password rather than create a new set for Canada.</li>
-                    <li>If you have multiple methods to sign in listed above to different government applications, you can consolidate them.</li>
-                    <li>You can even register a previously unused option and switch known applications to it.</li>
-                    <li>You will be shown list of applications known to be tied to your sign-in option. If an application is not listed but known to you, please sign in to that application before switching.</li>
-                  </ul>
-                <p><b>Note: If you have not previously logged in to an application through this portal, due to privacy that application account will not be migrated.</b></p>
-                <div style="vertical-align:middle;">
-                  <h:selectBooleanCheckbox id="switchCredentialBox" styleClass="checkmark" style="position:relative !important;" onchange="this.checked ? $('#switchMessage').attr('style', 'display:inline') : $('#switchMessage').attr('style', 'display:none') " type="checkbox"></h:selectBooleanCheckbox>
-                  <label style="vertical-align:middle;">Select new credential after sign-in</label>
-                </div>
-              </details>
-
-              <div style="text-align: center;" class="mrgn-tp-xl">
-                <section style="margin: -1em -1em -1em -1em; padding-top: .3em; padding-bottom: 1em;">
-                  <h3 class="h4">Don't have an account yet?</h3>
-                  <p><a href="./register.html" class="btn btn-default btn-full mrgn-bttm-md mrgn-tp-md" style="border: 1px solid grey;">Register</a></p>
-                  <small><a href="#">Learn more about My Account privacy and security</a></small>
-                </section>
-              </div>
             </div>
+          </section>
+        </div></div>
 
-          </h:form>
-        </div>
-      </div>
+        <div class="col-md-6" style="vertical-align: top; min-height: 283px;">
+          <section class="panel panel-default hght-inhrt">
+            <header class="panel-heading">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="30px" x="0px" y="0px" viewBox="0 0 1000 1000" enable-background="new 0 0 1000 1000" xml:space="preserve">
+<metadata> Svg Vector Icons : http://www.onlinewebfonts.com/icon </metadata>
+<g><g transform="translate(0.000000,511.000000) scale(0.100000,-0.100000)"><path d="M2570.9,3908.2C1292.3,3292.1,226.3,2773.6,204.2,2751.4c-68.7-62.1-104.2-150.7-104.2-259.3c0-124.1,51-219.4,150.7-281.4l73.1-46.5h4673.7h4671.5l75.4,46.5c183.9,115.2,210.5,394.5,48.8,540.7c-24.4,19.9-1090.3,540.7-2373.5,1156.8C5412,4874.4,5075.1,5029.6,4993.1,5027.3C4913.4,5027.3,4496.7,4832.3,2570.9,3908.2z M5248,3881.6c363.4-195,352.4-720.2-17.7-910.8c-480.9-248.2-972.9,330.2-653.7,769C4731.6,3954.8,5004.2,4012.4,5248,3881.6z"/><path d="M1287.8,1302.1c-31-44.3-35.5-301.4-35.5-2324.7c0-2267.1,0-2273.7,46.5-2333.6l44.3-57.6h476.5c445.4,0,476.5,2.2,518.6,44.3c44.3,44.3,44.3,73.1,44.3,2333.5c0,2034.4-4.4,2293.7-35.5,2338c-33.2,48.8-42.1,48.8-529.6,48.8C1329.9,1350.8,1321.1,1350.8,1287.8,1302.1z"/><path d="M3459.6,1302.1c-31-44.3-35.5-301.4-35.5-2318c0-2282.6,2.2-2331.3,75.3-2380.1c13.3-8.9,234.9-17.7,494.2-17.7h469.8l44.3,57.6c46.5,59.8,46.5,66.5,46.5,2333.6c0,2023.3-4.4,2280.4-35.5,2324.7c-33.2,48.8-42.1,48.8-529.6,48.8S3492.8,1350.8,3459.6,1302.1z"/><path d="M5600.4,1324.3c-20-19.9-26.6-571.7-26.6-2346.8v-2322.5l48.8-33.2c42.1-28.8,128.5-35.4,509.7-35.4c432.1,0,463.2,2.2,505.3,44.3c44.3,44.3,44.3,73.1,44.3,2344.6c0,2202.8-2.2,2304.7-39.9,2338c-35.5,33.2-106.4,37.7-527.4,37.7C5764.3,1350.8,5620.3,1344.2,5600.4,1324.3z"/><path d="M7781,1302.1c-31-44.3-35.4-301.4-35.4-2324.7c0-2267.1,0-2273.7,46.5-2333.6l44.3-57.6h476.5c445.4,0,476.5,2.2,518.6,44.3c44.3,44.3,44.3,73.1,44.3,2333.5c0,2034.4-4.4,2293.7-35.4,2338c-33.2,48.8-42.1,48.8-529.6,48.8S7814.2,1350.8,7781,1302.1z"/><path d="M277.3-4162.8c-113-55.4-177.3-164-177.3-301.4c0-148.5,59.8-246,186.1-303.6c95.3-42.1,186.2-42.1,4738-37.7l4638.3,6.6l77.6,48.8c219.4,137.4,208.3,463.1-22.1,585c-73.1,39.9-243.8,42.1-4720.3,42.1C620.8-4122.9,350.4-4125.1,277.3-4162.8z"/></g></g>
+</svg>
+              <h1 class="panel-title h3 mrgn-tp-0">Option 2: Sign-In Partner</h1><br/>
 
-      <div class="col-lg-6 mrgn-tp-sm">
-        <div class="mrgn-bttm-xl">
-          <h:outputText escape="false" value="#{ identity.getSessionId().getSessionAttributes().get('pageContent')['infopanel']}" />
-        </div>
-      </div>
-    </main>
-
-    <div class="edge-color">
-      <main role="main" property="mainContentOfPage" class="container">
-        <div class="row">
-          <section class="col-md-12 mrgn-bttm-lg">
-            <h2 class="mini-h2s" id="assistance">Assistance</h2>
-            <div class="wb-eqht row">
-
-              <div class="col-md-4">
-                <section>
-                  <h3 class="h5"> <a href="https://www.canada.ca" rel="external">Learn more about privacy and security</a> </h3>
-                </section>
-              </div>
-
-              <div class="col-md-4">
-                <section>
-                  <h3 class="h5"> <a href="https://www.canada.ca">Terms and Conditions</a> </h3>
-                </section>
-              </div>
-
-              <div class="col-md-4">
-                <section>
-                  <h3 class="h5"> <a href="https://www.canada.ca">Troubleshooting My Account</a> </h3>
-                </section>
-              </div>
+            <div class="panel-body">
+              <p>Sign in with your online Canadian banking information if you have an existing account with 1 of our partners.</p>
+              <p class="text-center"><h:commandButton id="loginButton2" styleClass="btn btn-primary mrgn-tp-lg btn-lg" value="Sign in with Sign-In Partner"
+                    action="#{authenticator.authenticate}" type="submit" onclick="fillInAcrOnSubmit('passport_saml:cbs')"></h:commandButton></p>
             </div>
-            <!-- wb-eq row -->
-            <br />
+            </header>
           </section>
         </div>
-      </main>
-    </div>
-    <!-- end edge color -->
-
-    <main role="main" property="mainContentOfPage" class="container">
-
-      <div class="col-md-8 row">
-
-        <div class="clearfix"></div>
-        <!-- <h2>Topics</h2>
-              <ul class="list-group">
-                <li class="list-group-item">
-                  <a href="https://www.canada.ca/en/revenue-agency/services/e-services/e-services-individuals/account-individuals/account-whats-new.html"><strong>Account - what's new</strong></a>
-                </li>
-                <li class="list-group-item"><a href="account-individuals/about-account.html"><strong>About My Account</strong></a></li>
-                <li class="list-group-item"><a href="https://www.canada.ca/en/revenue-agency/services/e-services/cra-login-services.html"><strong>Canada login services</strong></a></li>
-                <li class="list-group-item"><a href="https://www.canada.ca/en/revenue-agency/corporate/contact-information/telephone-numbers.html#h5"><strong>Individual tax enquiries</strong></a></li>
-              </ul> -->
+    </h:form>
       </div>
 
-      <div class="pagedetails">
-        <div class="row">
-          <div class="col-sm-6 col-md-5 col-lg-4">
-            <details class="brdr-0">
-              <summary class="btn btn-default text-center">Report a problem on this page</summary>
-              <div class="well row">
-                <div class="gc-rprt-prblm">
-                  <div class="gc-rprt-prblm-frm gc-rprt-prblm-tggl">
-                    <form action="#">
-                      <fieldset>
-                        <legend><span class="field-name">Please select all that apply: </span></legend>
-                        <div class="checkbox">
-                          <label for="problem1">
-                            <input type="checkbox" data-reveal="#broken" name="problem" value="Something is broken" id="problem1" />Something is broken
-                          </label>
-                        </div>
-                        <div class="form-group hide" id="broken">
-                          <label for="problem1-detail">Provide more details (optional):</label>
-                          <input type="text" class="form-control full-width" id="problem1-detail" /> </div>
-                        <div class="checkbox">
-                          <label for="problem2">
-                          <input type="checkbox" data-reveal="#spelling" name="problem" value="It has spelling or grammar mistakes" id="problem2" />The page has spelling or grammar mistakes
-                          </label>
-                        </div>
-                        <div class="form-group hide" id="spelling">
-                          <label for="problem2-detail">Provide more details (optional):</label>
-                          <input type="text" class="form-control full-width" id="problem2-detail" />
-                        </div>
-                        <div class="checkbox">
-                          <label for="problem3">
-                            <input type="checkbox" data-reveal="#wrong" name="problem" value="The information is wrong" id="problem3" />The information is wrong</label>
-                        </div>
-                        <div class="form-group hide" id="wrong">
-                          <label for="problem3-detail">Provide more details (optional):</label>
-                          <input type="text" class="form-control full-width" id="problem3-detail" /> </div>
-                        <div class="checkbox">
-                          <label for="problem4">
-                            <input type="checkbox" data-reveal="#outdated" name="problem" value="The information is outdated" id="problem4" />The information is outdated</label>
-                        </div>
-                        <div class="form-group hide" id="outdated">
-                          <label for="problem4-detail">Provide more details (optional):</label>
-                          <input type="text" class="form-control full-width" id="problem4-detail" /> </div>
-                        <div class="checkbox">
-                          <label for="problem5">
-                            <input type="checkbox" data-reveal="#find" name="problem" value="I can’t find what I’m looking for" id="problem5" />I can’t find what I’m looking for</label>
-                        </div>
-                        <div class="form-group hide" id="find">
-                          <label for="problem5-detail">Describe what you’re looking for (optional):</label>
-                          <input type="text" class="form-control full-width" id="problem5-detail" /> </div>
-                        <div class="checkbox">
-                          <label for="problem6">
-                            <input type="checkbox" data-reveal="#confusing" name="problem" value="It’s confusing" id="problem6" />Other</label>
-                        </div>
-                        <div class="form-group hide" id="confusing">
-                          <label for="problem6-detail">Provide more details (optional):
-                          </label>
-                          <input type="text" class="form-control full-width" id="problem6-detail" /> </div>
-                      </fieldset>
-                      <button type="submit" class="btn btn-primary wb-toggle" data-toggle='{"stateOff": "hide", "stateOn": "show", "selector": ".gc-rprt-prblm-tggl"}'>Submit</button>
-                    </form>
-                  </div>
-                  <div class="gc-rprt-prblm-thnk gc-rprt-prblm-tggl hide">
-                    <h3>Thank you for your help!</h3>
-                    <p>You will not receive a reply. For enquiries, please <a href="https://www.canada.ca/en/contact.html">contact us</a>.</p>
-                  </div>
+
+    <div class="clearfix"></div>
+    <div style="text-align: center;" class="col-lg-12 ">
+      <section style="margin: -1em -1em -1em -1em; padding-top: .3em; padding-bottom: 1em;">
+        <h2>Don't have an account yet?</h2>
+        <p><a href="/oxauth/auth/idp_chooser_loa2/register.html"
+            class="btn btn-default btn-full mrgn-bttm-md mrgn-tp-md" style="border: 1px solid grey;">Register</a></p>
+      </section>
+    </div></div>
+
+    <div class="pagedetails">
+      <div class="row">
+        <div class="col-sm-6 col-md-5 col-lg-4">
+          <details class="brdr-0">
+            <summary class="btn btn-default text-center">Report a problem on this page</summary>
+            <div class="well row">
+              <div class="gc-rprt-prblm">
+                <div class="gc-rprt-prblm-frm gc-rprt-prblm-tggl">
+                  <form action="/oxauth/auth/idp_chooser_loa2/selector.htm#">
+                    <fieldset>
+                      <legend><span class="field-name">Please select all that apply: </span></legend>
+                      <div class="checkbox">
+                        <label for="problem1">
+                          <input type="checkbox" data-reveal="#broken" name="problem" value="Something is broken"
+                            id="problem1"/>Something is broken
+                        </label>
+                      </div>
+                      <div class="form-group hide" id="broken">
+                        <label for="problem1-detail">Provide more details (optional):</label>
+                        <input type="text" class="form-control full-width" id="problem1-detail"/> </div>
+                      <div class="checkbox">
+                        <label for="problem2">
+                          <input type="checkbox" data-reveal="#spelling" name="problem"
+                            value="It has spelling or grammar mistakes" id="problem2"/>The page has spelling or grammar
+                          mistakes
+                        </label>
+                      </div>
+                      <div class="form-group hide" id="spelling">
+                        <label for="problem2-detail">Provide more details (optional):</label>
+                        <input type="text" class="form-control full-width" id="problem2-detail"/>
+                      </div>
+                      <div class="checkbox">
+                        <label for="problem3">
+                          <input type="checkbox" data-reveal="#wrong" name="problem" value="The information is wrong"
+                            id="problem3"/>The information is wrong</label>
+                      </div>
+                      <div class="form-group hide" id="wrong">
+                        <label for="problem3-detail">Provide more details (optional):</label>
+                        <input type="text" class="form-control full-width" id="problem3-detail"/> </div>
+                      <div class="checkbox">
+                        <label for="problem4">
+                          <input type="checkbox" data-reveal="#outdated" name="problem"
+                            value="The information is outdated" id="problem4"/>The information is outdated</label>
+                      </div>
+                      <div class="form-group hide" id="outdated">
+                        <label for="problem4-detail">Provide more details (optional):</label>
+                        <input type="text" class="form-control full-width" id="problem4-detail"/> </div>
+                      <div class="checkbox">
+                        <label for="problem5">
+                          <input type="checkbox" data-reveal="#find" name="problem"
+                            value="I can’t find what I’m looking for" id="problem5"/>I can’t find what I’m looking
+                          for</label>
+                      </div>
+                      <div class="form-group hide" id="find">
+                        <label for="problem5-detail">Describe what you’re looking for (optional):</label>
+                        <input type="text" class="form-control full-width" id="problem5-detail"/> </div>
+                      <div class="checkbox">
+                        <label for="problem6">
+                          <input type="checkbox" data-reveal="#confusing" name="problem" value="It’s confusing"
+                            id="problem6"/>Other</label>
+                      </div>
+                      <div class="form-group hide" id="confusing">
+                        <label for="problem6-detail">Provide more details (optional):
+                        </label>
+                        <input type="text" class="form-control full-width" id="problem6-detail"/> </div>
+                    </fieldset>
+                    <button type="submit" class="btn btn-primary wb-toggle"
+                      data-toggle="{&quot;stateOff&quot;: &quot;hide&quot;, &quot;stateOn&quot;: &quot;show&quot;, &quot;selector&quot;: &quot;.gc-rprt-prblm-tggl&quot;}">Submit</button>
+                  </form>
+                </div>
+                <div class="gc-rprt-prblm-thnk gc-rprt-prblm-tggl hide">
+                  <h3>Thank you for your help!</h3>
+                  <p>You will not receive a reply. For enquiries, please <a
+                      href="https://www.canada.ca/en/contact.html">contact us</a>.</p>
                 </div>
               </div>
-            </details>
-          </div>
-          <div class="wb-share col-sm-4 col-md-3 col-sm-offset-2 col-md-offset-4 col-lg-offset-5" data-wb-share='{"lnkClass": "btn btn-default btn-block"}'></div>
+            </div>
+          </details>
         </div>
-        <dl id="wb-dtmd"> <dt>Date modified:&#32;</dt>
-          <dd>
-            <time property="dateModified">2018-01-15</time>
-          </dd>
-        </dl>
+        <div class="wb-share col-sm-4 col-md-3 col-sm-offset-2 col-md-offset-4 col-lg-offset-5"
+          data-wb-share="{&quot;lnkClass&quot;: &quot;btn btn-default btn-block&quot;}"></div>
       </div>
-    </main>
-    <footer id="wb-info">
-      <div class="landscape">
-        <nav class="container wb-navcurr">
-          <h2 class="wb-inv">About government</h2>
-          <ul class="list-unstyled colcount-sm-2 colcount-md-3">
-            <li><a href="https://www.canada.ca">Contact the Government of Canada</a></li>
-            <li><a href="https://www.canada.ca/en/government/dept.html">Departments and agencies</a></li>
-            <li><a href="https://www.canada.ca/en/government/publicservice.html">Public service and military</a></li>
-            <li><a href="https://www.canada.ca/en/news.html">News</a></li>
-            <li><a href="https://www.canada.ca/en/government/system/laws.html">Treaties, laws and regulations</a></li>
-            <li><a href="https://www.canada.ca/en/transparency/reporting.html">Government- wide reporting</a></li>
-            <li><a href="https://pm.gc.ca/eng">Prime Minister</a></li>
-            <li><a href="https://www.canada.ca/en/government/system.html">How government works</a></li>
-            <li><a href="https://open.canada.ca/en/">Open government</a></li>
-          </ul>
-        </nav>
-      </div>
-      <div class="brand">
-        <div class="container">
-          <div class="row">
-            <nav class="col-md-9 col-lg-10 ftr-urlt-lnk">
-              <h2 class="wb-inv">About this site</h2>
-              <ul>
-                <li><a href="https://www.canada.ca/en/social.html">Social media</a></li>
-                <li><a href="https://www.canada.ca/en/mobile.html">Mobile applications</a></li>
-                <li><a href="https://www1.canada.ca/en/newsite.html">About Canada.ca</a></li>
-                <li><a href="https://www.canada.ca/en/transparency/terms.html">Terms and conditions</a></li>
-                <li><a href="https://www.canada.ca/en/transparency/privacy.html">Privacy</a></li>
-              </ul>
-            </nav>
-            <div class="col-xs-6 visible-sm visible-xs tofpg"> <a href="#wb-cont">Top of Page <span class="glyphicon glyphicon-chevron-up"></span></a> </div>
-            <div class="col-xs-6 col-md-3 col-lg-2 text-right"> <img src="https://wet-boew.github.io/themes-dist/GCWeb/GCWeb/assets/wmms-blk.svg" alt="Symbol of the Government of Canada" /> </div>
-          </div>
+      <dl id="wb-dtmd">
+        <dt>Date modified: </dt>
+        <dd>
+          <time property="dateModified">2018-01-15</time>
+        </dd>
+      </dl>
+    </div>
+  </main>
+  <footer id="wb-info">
+    <div class="landscape">
+      <nav class="container wb-navcurr">
+        <h2 class="wb-inv">About government</h2>
+        <ul class="list-unstyled colcount-sm-2 colcount-md-3">
+          <li><a href="https://www.canada.ca/">Contact the Government of Canada</a></li>
+          <li><a href="https://www.canada.ca/en/government/dept.html">Departments and agencies</a></li>
+          <li><a href="https://www.canada.ca/en/government/publicservice.html">Public service and military</a></li>
+          <li><a href="https://www.canada.ca/en/news.html">News</a></li>
+          <li><a href="https://www.canada.ca/en/government/system/laws.html">Treaties, laws and regulations</a></li>
+          <li><a href="https://www.canada.ca/en/transparency/reporting.html">Government- wide reporting</a></li>
+          <li><a href="https://pm.gc.ca/eng">Prime Minister</a></li>
+          <li><a href="https://www.canada.ca/en/government/system.html">How government works</a></li>
+          <li><a href="https://open.canada.ca/en/">Open government</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="brand">
+      <div class="container">
+        <div class="row">
+          <nav class="col-md-9 col-lg-10 ftr-urlt-lnk">
+            <h2 class="wb-inv">About this site</h2>
+            <ul>
+              <li><a href="https://www.canada.ca/en/social.html">Social media</a></li>
+              <li><a href="https://www.canada.ca/en/mobile.html">Mobile applications</a></li>
+              <li><a href="https://www1.canada.ca/en/newsite.html">About Canada.ca</a></li>
+              <li><a href="https://www.canada.ca/en/transparency/terms.html">Terms and conditions</a></li>
+              <li><a href="https://www.canada.ca/en/transparency/privacy.html">Privacy</a></li>
+            </ul>
+          </nav>
+          <div class="col-xs-6 visible-sm visible-xs tofpg"> <a
+              href="/oxauth/auth/idp_chooser_loa2/selector.htm#wb-cont">Top of Page <span
+                class="glyphicon glyphicon-chevron-up"></span></a> </div>
+          <div class="col-xs-6 col-md-3 col-lg-2 text-right"> <img src="/oxauth/ext/resources/assets/wmms-blk.svg"
+              alt="Symbol of the Government of Canada"/> </div>
         </div>
       </div>
-    </footer>
-    <!--[if gte IE 9 | !IE ]><!-->
-    <script src="/oxauth/ext/resources/js/jquery.min.js"></script>
-    <script src="https://www.canada.ca/etc/designs/canada/wet-boew/js/wet-boew.min.js "></script>
-    <script src="/oxauth/ext/resources/js/theme.min.js"></script>
-    <!--<![endif]-->
-    <!--[if lt IE 9]> <script src="./wet-boew/js/ie8-wet-boew2.min.js"></script>
-    <![endif]-->
-    <script src="/oxauth/ext/resources/js/theme.min.js"></script>
-    <script src="/oxauth/ext/resources/js/sel_checkboxes.js"></script>
-    <script type="text/javascript">
-        function fillInAcrOnSubmit(acrButtonValue){
-            document.getElementById("loginForm:acrname").value = acrButtonValue;
-        }
-    </script>
+    </div>
+  </footer>
+  <script src="/oxauth/ext/resources/js/jquery.min.js.download"></script>
+  <script src="/oxauth/ext/resources/js/wet-boew.min.js.download"></script><span id="wb-rsz">&nbsp;</span>
+  <script src="/oxauth/ext/resources/js/theme.min.js.download"></script>
+  <script type="text/javascript">
+    function fillInAcrOnSubmit(acrButtonValue) {
+      document.getElementById("loginForm:acrname").value = acrButtonValue;
+    }
+    $(document).ready(function() {
+      $.ajax({
+         url: 'https://te-lang-tbs.fjgc-gccf.gc.ca/v1/lang',
+         type: 'PUT',
+         datatype: 'application/json',
+         contentType: 'application/json',
+         data: '{"lang": "eng"}',
+         xhrFields: {withCredentials: true}
+         });
+      })
+  </script>
   </h:body>
   </f:view>
 </html>
