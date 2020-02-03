@@ -2,32 +2,15 @@
 @import url(https://use.fontawesome.com/releases/v5.6.3/css/all.css);
 
 .account-banner {
-  background-color: #347e83;
   margin-top: 1em;
-  padding: 1em 1em 1.5em 1em;
+  padding: 1em 1em 1em 1em;
   margin-bottom: 0em;
-  /* opacity: 0.7; why is this here? makes it too hard to read */
-
   }
 
 .account-banner h1 {
   border-bottom-width: 4px;
-  color: white;
 }
 
-.account-banner p {
-  color: white;
-  background-color: #347e83;
-  margin-left: -1.85em;
-  padding-left: 1.85em;
-  margin-right: -1.85em;
-  padding-right: 1.85em;
-
-}
-
-.outline {
-  border: .25em solid #e3e3e3;
-}
 
 /* controls the icon position in relation to the button */
 .input-icons i {
@@ -38,31 +21,33 @@
 /* icon size and space around it */
 .icon {
   padding: 20px;
-  font-size: 1.7em;
 }
+/* for the sign in box*/
 
-/* padding left of the button */
-form div.signin .btn-signin {
-  padding-left: 3em;
+
+.panel {
+   border-radius: 0.551875em;
+
 }
+.panel-heading {
 
+  height: 3em;
+  border-radius: 0.551875em;
+
+
+}
+.panel-heading svg{
+  float: left;
+  margin-right: .7em;
+}
 /* overall style of buttons */
-form div.signin .btn-signin {
-  margin-bottom: .5em;
-  height: 3.5em;
-  color: #333;
-  font-size: 20px;
-  margin-top: .5em;
-  width: 100%;
-  text-align: left;
-  background-color: #f0f0f0;
-  -webkit-box-shadow: 1px 5px 6px -6px rgba(0,0,0,0.6);
-  -moz-box-shadow: 1px 5px 6px -6px rgba(0,0,0,0.6);
-  box-shadow: 1px 5px 6px -6px rgba(0,0,0,0.6);
+.sign-in .btn-sign-in {
+  margin: 3em;
+
 }
 
 /* what the button does on hover */
-form div.signin .btn-signin:hover {
+form div.sign-in .btn-signin:hover {
   color: #333;
   background-color: white;
 }
@@ -131,4 +116,3 @@ form div.signin .btn-signin:hover {
   margin-bottom: 0em;
 }
 }
-
