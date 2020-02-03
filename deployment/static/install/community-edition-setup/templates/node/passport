@@ -11,4 +11,4 @@ APP_ARGS=""
 NODE_USER=node
 TMPDIR=%(node_home)s/temp
 
-export APPINSIGHTS_INSTRUMENTATIONKEY=$(< /run/secrets/InstrumentationKey)
+export APPINSIGHTS_INSTRUMENTATIONKEY=$(< /run/keyvault/secrets/InstrumentationKey)
