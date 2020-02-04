@@ -18,7 +18,7 @@ steps:
     cd deployment/static/opt/gluu/jetty/oxauth/
     tar -czvf custom.tgz custom
     tar -tvf custom.tgz
-    mv custom.tgz ../../dist/signincanada
+    mv custom.tgz $(Pipeline.Workspace)/s/deployment/static/opt/dist/signincanada
     cd $(Pipeline.Workspace)
     ls -al s/deployment/static/opt/dist/signincanada
   displayName: 'Packaging UI'
