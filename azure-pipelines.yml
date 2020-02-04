@@ -17,10 +17,11 @@ steps:
     ls -al $(Pipeline.Workspace)
     cd deployment/static/opt/dist/signincanada/
     tar -czvf custom.tgz ../../gluu/jetty/oxauth/custom
-    tar - tvf custom.tgz
+    tar -tvf custom.tgz
     cd $(Pipeline.Workspace)
-    ls -al deployment/static/opt/dist/signincanada
+    ls -al s/deployment/static/opt/dist/signincanada
   displayName: 'Packaging UI'
+  continueOnError: false
 
 - script: |
     echo 'Downloading AppInsights SDK'
@@ -31,6 +32,7 @@ steps:
     mv applicationinsights-agent-2.5.1.jar deployment/static/opt/azure
     ls -al 
   displayName: 'Downloading AppInsights'
+  continueOnError: false
 
 - task: PublishPipelineArtifact@1
   inputs:
