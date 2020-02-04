@@ -15,9 +15,10 @@ steps:
 
 - script: |
     ls -al $(Pipeline.Workspace)
-    cd deployment/static/opt/dist/signincanada/
-    tar -czvf custom.tgz ../../gluu/jetty/oxauth/custom
+    cd deployment/static/opt/gluu/jetty/oxauth/
+    tar -czvf custom.tgz custom
     tar -tvf custom.tgz
+    mv custom.tgz ../../dist/signincanada
     cd $(Pipeline.Workspace)
     ls -al s/deployment/static/opt/dist/signincanada
   displayName: 'Packaging UI'
