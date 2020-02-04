@@ -27,7 +27,7 @@ steps:
     mv applicationinsights-web-auto-2.5.1.jar deployment/static/opt/dist/signincanada
     echo 'Downloading AppInsights Agent'
     wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.5.1/applicationinsights-agent-2.5.1.jar
-    mv applicationinsights-agent-2.5.1.jar deployment/static/opt/dist/signincanada
+    mv applicationinsights-agent-2.5.1.jar deployment/static/opt/azure
     ls -al 
   displayName: 'Downloading AppInsights'
 
