@@ -1,0 +1,38 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- script: echo Acceptance Platform Build
+  displayName: 'Start'
+
+- script: |
+    ls -al $(Pipeline.Workspace)
+    ls -al $(Pipeline.Workspace)/a
+    ls -al deployment/static/
+    tar -czvf deployment/static/opt/dist/signincanada/custom.tgz deployment/static/opt/gluu/jetty/oxauth/custom
+    ls -al deployment/static/opt/dist/signincanada
+  displayName: 'Packaging UI'
+
+- script: |
+    echo 'Downloading AppInsights SDK'
+    wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.5.1/applicationinsights-web-auto-2.5.1.jar
+    mv applicationinsights-web-auto-2.5.1.jar deployment/static/opt/dist/signincanada
+    echo 'Downloading AppInsights Agent'
+    wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.5.1/applicationinsights-agent-2.5.1.jar
+    mv applicationinsights-agent-2.5.1.jar deployment/static/opt/dist/signincanada
+    ls -al 
+  displayName: 'Downloading AppInsights'
+
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Pipeline.Workspace)'
+    artifact: 'accpetance-platform'
+    publishLocation: 'pipeline'
