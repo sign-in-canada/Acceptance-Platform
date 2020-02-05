@@ -35,6 +35,20 @@ steps:
   displayName: 'Downloading AppInsights'
   continueOnError: false
 
+- task: DownloadPipelineArtifact@2
+  inputs:
+    buildType: 'specific'
+    project: '7302639f-e704-47c3-9557-99b4e04a75bc'
+    definition: '285'
+    buildVersionToDownload: 'latest'
+    artifactName: 'gluu-passport'
+    itemPattern: |
+      **/package/passport*.gz
+      **/package/passport.tgz
+    targetPath: '$(Pipeline.Workspace)/s/deployment/static/opt/dist/gluu'
+  displayName: 'Download gluu binaries'
+  continueOnError: false
+
 - task: PublishPipelineArtifact@1
   inputs:
     targetPath: '$(Pipeline.Workspace)'
