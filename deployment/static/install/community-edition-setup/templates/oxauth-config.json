@@ -200,6 +200,7 @@
     "dynamicRegistrationPersistClientAuthorizations":true,
     "trustedClientEnabled":true,
     "skipAuthorizationForOpenIdScopeAndPairwiseId": true,
+    "allowPostLogoutRedirectWithoutValidation": true,
     "dynamicRegistrationScopesParamEnabled":true,
     "dynamicRegistrationCustomObjectClass":"",
     "personCustomObjectClassList":[
