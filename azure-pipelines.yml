@@ -55,6 +55,13 @@ steps:
     Contents: '**'
     TargetFolder: 'SIC'
 
+- script: |
+    echo 'packaging tarball'
+    ls -al SIC
+    tar -czvf SIC-AP-0.0.4.tgz SIC/*
+  displayName: 'Packaging tarball'
+  continueOnError: true
+
 - task: PublishPipelineArtifact@1
   inputs:
     targetPath: '$(Pipeline.Workspace)'
