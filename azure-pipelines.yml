@@ -43,11 +43,17 @@ steps:
     buildVersionToDownload: 'latest'
     artifactName: 'gluu-passport'
     itemPattern: |
-      **/package/passport*.gz
-      **/package/passport.tgz
+      **/passport*.gz
+      **/passport.tgz
     targetPath: '$(Pipeline.Workspace)/s/deployment/static/opt/dist/gluu'
   displayName: 'Download gluu binaries'
   continueOnError: false
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Pipeline.Workspace)/s/deployment/static'
+    Contents: '**'
+    TargetFolder: 'SIC'
 
 - task: PublishPipelineArtifact@1
   inputs:
