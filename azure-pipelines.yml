@@ -49,16 +49,10 @@ steps:
   displayName: 'Download gluu binaries'
   continueOnError: false
 
-- task: CopyFiles@2
-  inputs:
-    SourceFolder: '$(Pipeline.Workspace)/s/deployment/static'
-    Contents: '**'
-    TargetFolder: 'SIC'
-
 - script: |
+    cd deployment/static/
     echo 'packaging tarball'
-    ls -al SIC
-    tar -czvf SIC-AP-0.0.4.tgz SIC/*
+    tar -czvf SIC-AP-0.0.5.tgz *
   displayName: 'Packaging tarball'
   continueOnError: true
 
