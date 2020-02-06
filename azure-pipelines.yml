@@ -53,6 +53,7 @@ steps:
     cd deployment/static/
     echo 'packaging tarball'
     tar -czvf SIC-AP-0.0.5.tgz *
+    mv SIC-AP-0.0.5.tgz $(Pipeline.Workspace) 
   displayName: 'Packaging tarball'
   continueOnError: true
 
