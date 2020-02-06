@@ -43,11 +43,19 @@ steps:
     buildVersionToDownload: 'latest'
     artifactName: 'gluu-passport'
     itemPattern: |
-      **/package/passport*.gz
-      **/package/passport.tgz
+      **/passport*.gz
+      **/passport.tgz
     targetPath: '$(Pipeline.Workspace)/s/deployment/static/opt/dist/gluu'
   displayName: 'Download gluu binaries'
   continueOnError: false
+
+- script: |
+    cd deployment/static/
+    echo 'packaging tarball'
+    tar -czvf SIC-AP-0.0.5.tgz *
+    mv SIC-AP-0.0.5.tgz $(Pipeline.Workspace) 
+  displayName: 'Packaging tarball'
+  continueOnError: true
 
 - task: PublishPipelineArtifact@1
   inputs:
