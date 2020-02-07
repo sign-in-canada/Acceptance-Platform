@@ -10,13 +10,13 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  major: 0
+  major: 1
   # define b as a counter with the prefix as variable a, and seed as 100.
-  minor: $[counter(variables['major'], 01)]
+  minor: $[counter(variables['major'], 1)]
 
 steps:
-- script: echo Acceptance Platform Build
-  displayName: 'Start'
+
+- bash: echo $(minor)
 
 - script: |
     ls -al $(Pipeline.Workspace)
@@ -67,8 +67,8 @@ steps:
 - script: |
     cd deployment/static/
     echo 'packaging tarball'
-    tar -czvf SIC-AP-0.0.$(minor).tgz *
-    mv SIC-AP-0.0.$(minor).tgz $(Pipeline.Workspace) 
+    tar -czvf SIC-AP-0.$(minor).tgz *
+    mv SIC-AP-0.$(minor).tgz $(Pipeline.Workspace) 
   displayName: 'Packaging tarball'
   continueOnError: true
 
