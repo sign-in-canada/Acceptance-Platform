@@ -2,12 +2,17 @@
 # Start with a minimal pipeline that you can customize to build and deploy your code.
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
-name: $(TeamProject).$(Build.DefinitionName).$(BuildID).$(Rev:.rr)
+name: $(Build.DefinitionName).$(BuildID).$(Rev:rr)
 trigger:
 - master
 
 pool:
   vmImage: 'ubuntu-latest'
+
+variables:
+  major: 0
+  # define b as a counter with the prefix as variable a, and seed as 100.
+  minor: $[counter(variables['major'], 01)]
 
 steps:
 - script: echo Acceptance Platform Build
@@ -62,8 +67,8 @@ steps:
 - script: |
     cd deployment/static/
     echo 'packaging tarball'
-    tar -czvf SIC-AP-0.0.$(Rev:.rr).tgz *
-    mv SIC-AP-0.0.$(Rev:.rr).tgz $(Pipeline.Workspace) 
+    tar -czvf SIC-AP-0.0.$(minor).tgz *
+    mv SIC-AP-0.0.$(minor).tgz $(Pipeline.Workspace) 
   displayName: 'Packaging tarball'
   continueOnError: true
 
