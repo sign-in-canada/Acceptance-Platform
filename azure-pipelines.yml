@@ -9,11 +9,6 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-variables:
-  major: 1
-  # define b as a counter with the prefix as variable a, and seed as 10.
-  minor: $[counter(variables['major'], 10)]
-
 steps:
 
 - bash: echo $(minor)
@@ -67,8 +62,8 @@ steps:
 - script: |
     cd deployment/static/
     echo 'packaging tarball'
-    tar -czvf SIC-AP-0.0.$(minor).tgz *
-    mv SIC-AP-0.0.$(minor).tgz $(Pipeline.Workspace) 
+    tar -czvf SIC-AP-0.0.tgz *
+    mv SIC-AP-0.0.tgz $(Pipeline.Workspace) 
   displayName: 'Packaging tarball'
   continueOnError: true
 
