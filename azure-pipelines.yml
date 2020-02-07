@@ -43,11 +43,20 @@ steps:
     buildVersionToDownload: 'latest'
     artifactName: 'gluu-passport'
     itemPattern: |
-      **/passport*.gz
-      **/passport.tgz
+      **/package/passport*.gz
+      **/package/passport.tgz
     targetPath: '$(Pipeline.Workspace)/s/deployment/static/opt/dist/gluu'
   displayName: 'Download gluu binaries'
   continueOnError: false
+
+- script: |
+    cd deployment/static/opt/dist/gluu
+    mv package/*gz .
+    rm -rf package
+    ls -al 
+    cd $(Pipeline.Workspace)/s
+  displayName: 'Moving gluu packages'
+  continueOnError: true
 
 - script: |
     cd deployment/static/
