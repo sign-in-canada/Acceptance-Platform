@@ -2,16 +2,21 @@
 # Start with a minimal pipeline that you can customize to build and deploy your code.
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
-
+name: $(Build.DefinitionName).$(BuildID).$(Rev:.rr)
 trigger:
 - master
 
 pool:
   vmImage: 'ubuntu-latest'
 
+variables:
+  major: 1
+  # define b as a counter with the prefix as variable a, and seed as 10.
+  minor: $[counter(variables['major'], 10)]
+
 steps:
-- script: echo Acceptance Platform Build
-  displayName: 'Start'
+
+- bash: echo $(minor)
 
 - script: |
     ls -al $(Pipeline.Workspace)
@@ -43,17 +48,27 @@ steps:
     buildVersionToDownload: 'latest'
     artifactName: 'gluu-passport'
     itemPattern: |
-      **/passport*.gz
-      **/passport.tgz
+      **/package/passport*.gz
+      **/package/passport.tgz
     targetPath: '$(Pipeline.Workspace)/s/deployment/static/opt/dist/gluu'
   displayName: 'Download gluu binaries'
   continueOnError: false
 
 - script: |
+    cd deployment/static/opt/dist/gluu
+    mv package/*gz .
+    rm -rf package
+    ls -al 
+    chmod +x /opt/dist/signincanada/postinstall.sh
+    cd $(Pipeline.Workspace)/s
+  displayName: 'Moving gluu packages'
+  continueOnError: true
+
+- script: |
     cd deployment/static/
     echo 'packaging tarball'
-    tar -czvf SIC-AP-0.0.5.tgz *
-    mv SIC-AP-0.0.5.tgz $(Pipeline.Workspace) 
+    tar -czvf SIC-AP-0.0.$(minor).tgz *
+    mv SIC-AP-0.0.$(minor).tgz $(Pipeline.Workspace) 
   displayName: 'Packaging tarball'
   continueOnError: true
 
