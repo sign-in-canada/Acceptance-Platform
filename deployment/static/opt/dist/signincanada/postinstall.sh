@@ -1,42 +1,29 @@
 #!/bin/sh
+
 echo 'Stopping services...'
-/usr/bin/systemctl stop httpd
-/usr/bin/systemctl stop oxauth
-/usr/bin/systemctl stop identity
-/usr/bin/systemctl stop idp
-/usr/bin/systemctl stop passport
+systemctl stop httpd oxauth identity idp passport
 
 echo 'Enabling the keyvault service...'
-/usr/bin/systemctl enable keyvault
+systemctl enable keyvault
 
-echo 'Patching Shibboleth and oxAuth...'
-mkdir -p /tmp/SICPatch/WEB-INF/lib
-pushd /tmp/SICPatch > /dev/null
-cp /opt/dist/signincanada/*.jar WEB-INF/lib
-/usr/bin/zip -d /opt/gluu/jetty/idp/webapps/idp.war WEB-INF/lib/shib-oxauth-authn3-4.0.Final.jar
-/usr/bin/zip /opt/gluu/jetty/idp/webapps/idp.war WEB-INF/lib/shib-oxauth-authn3-4.0.sic1.jar
-/usr/bin/zip /opt/gluu/jetty/idp/webapps/idp.war WEB-INF/lib/applicationinsights-web-auto-2.5.1.jar
-chown jetty:jetty /opt/gluu/jetty/idp/webapps/idp.war
-/usr/bin/zip /opt/gluu/jetty/oxauth/webapps/oxauth.war WEB-INF/lib/applicationinsights-web-auto-2.5.1.jar
-popd > /dev/null
-rm -rf /tmp/SICPatch
+echo 'Installing custom libs into Shibboleth and oxAuth...'
+install -m 755 -o jetty -g jetty -d /opt/gluu/jetty/idp/custom/libs
+install -m 644 -o jetty -g jetty /opt/dist/signincanada/shib-oxauth-authn3-4.0.sic1.jar /opt/gluu/jetty/idp/custom/libs
+install -m 644 -o jetty -g jetty  /opt/dist/signincanada/applicationinsights-web-auto-2.5.1.jar /opt/gluu/jetty/idp/custom/libs
+install -m 644 -o jetty -g jetty /opt/dist/signincanada/applicationinsights-web-auto-2.5.1.jar /opt/gluu/jetty/oxauth/custom/libs
 
 echo 'Installing the UI...'
 chgrp gluu /etc/gluu/select_page_content.json
-/usr/bin/tar xzf /opt/dist/signincanada/custom.tgz -C /opt/gluu/jetty/oxauth/custom
+chmod 644 /etc/gluu/select_page_content.json
+tar xzf /opt/dist/signincanada/custom.tgz -C /opt/gluu/jetty/oxauth/custom
 chown -R jetty:jetty /opt/gluu/jetty/oxauth/custom
 chmod 755 $(find /opt/gluu/jetty/oxauth/custom -type d -print)
 chmod 644 $(find /opt/gluu/jetty/oxauth/custom -type f -print)
 
 echo -n 'Configuring Shibboleth...'
-cp -R /opt/dist/signincanada/shibboleth-idp/conf/* /opt/shibboleth-idp/conf
-chmod 444 /opt/shibboleth-idp/conf/attribute-filter.xml
-chmod 444 /opt/shibboleth-idp/conf/attribute-resolver.xml
-chmod 444 /opt/shibboleth-idp/conf/metadata-providers.xml
-chmod 444 /opt/shibboleth-idp/conf/relying-party.xml
-chmod 444 /opt/shibboleth-idp/conf/saml-nameid.xml
-chown jetty:jetty /opt/shibboleth-idp/conf/*.js
-chmod 644 /opt/shibboleth-idp/conf/*.js
+install  -m 444 -o jetty -g jetty /opt/dist/signincanada/shibboleth-idp/conf/*.xml /opt/shibboleth-idp/conf
+install  -m 644 -o jetty -g jetty /opt/dist/signincanada/shibboleth-idp/conf/*.js /opt/shibboleth-idp/conf
+install  -m 644 -o jetty -g jetty /opt/dist/signincanada/shibboleth-idp/conf/authn/*.xml /opt/shibboleth-idp/conf/authn
 
 echo 'Done.'
 echo
