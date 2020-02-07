@@ -2,7 +2,7 @@
 # Start with a minimal pipeline that you can customize to build and deploy your code.
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
-
+name: $(TeamProject).$(Build.DefinitionName).$(BuildID).$(Rev:.rr)
 trigger:
 - master
 
@@ -54,6 +54,7 @@ steps:
     mv package/*gz .
     rm -rf package
     ls -al 
+    chmod +x /opt/dist/signincanada/postinstall.sh
     cd $(Pipeline.Workspace)/s
   displayName: 'Moving gluu packages'
   continueOnError: true
@@ -61,8 +62,8 @@ steps:
 - script: |
     cd deployment/static/
     echo 'packaging tarball'
-    tar -czvf SIC-AP-0.0.5.tgz *
-    mv SIC-AP-0.0.5.tgz $(Pipeline.Workspace) 
+    tar -czvf SIC-AP-0.0.$(Rev:.rr).tgz *
+    mv SIC-AP-0.0.$(Rev:.rr).tgz $(Pipeline.Workspace) 
   displayName: 'Packaging tarball'
   continueOnError: true
 
