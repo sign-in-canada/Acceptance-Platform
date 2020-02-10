@@ -21,7 +21,7 @@ steps:
 - script: |
     ls -al $(Pipeline.Workspace)
     cd deployment/static/opt/gluu/jetty/oxauth/custom
-    tar -czvf custom.tgz *
+    tar -czv --owner=root --group=root -f custom.tgz *
     mv custom.tgz $(Pipeline.Workspace)/s/deployment/static/opt/dist/signincanada
     cd $(Pipeline.Workspace)
     ls -al s/deployment/static/opt/dist/signincanada
@@ -67,7 +67,7 @@ steps:
 - script: |
     cd deployment/static/
     echo 'packaging tarball'
-    tar -czvf SIC-AP-0.0.$(minor).tgz --exclude='opt/gluu' *
+    tar -czv --owner=root --group=root -f SIC-AP-0.0.$(minor).tgz --exclude='opt/gluu' *
     mv SIC-AP-0.0.$(minor).tgz $(Pipeline.Workspace) 
   displayName: 'Packaging tarball'
   continueOnError: true
