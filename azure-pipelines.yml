@@ -67,7 +67,7 @@ steps:
 - script: |
     cd deployment/static/
     echo 'packaging tarball'
-    tar -czvf SIC-AP-0.0.$(minor).tgz *
+    tar -czvf SIC-AP-0.0.$(minor).tgz --exclude='opt/gluu' *
     mv SIC-AP-0.0.$(minor).tgz $(Pipeline.Workspace) 
   displayName: 'Packaging tarball'
   continueOnError: true
