@@ -1,8 +1,15 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
+## Acceptance platform pipeline. 
+
 name: $(Build.DefinitionName).$(BuildID).$(Rev:.rr)
+
+resources:
+ pipelines:
+   - pipeline: gluupassport
+     source: sign-in-canada.gluu-passport
+     trigger:
+      branches:
+      - master
+
 trigger:
 - master
 
