@@ -75,7 +75,8 @@ steps:
     echo 'packaging tarball'
     chmod 755 $(find . -type d -print)
     chmod 644 $(find . -type f -print)
-    chmod 755 opt/dist/signincanada/postinstall.sh
+    chmod 700 opt/dist/signincanada/postinstall.sh
+    chmod 700 opt/dist/scripts/azure/keyvault.sh
     tar -czv --owner=root --group=root -f SIC-AP-0.0.$(minor).tgz --exclude='opt/gluu' *
     mv SIC-AP-0.0.$(minor).tgz $(Pipeline.Workspace) 
   displayName: 'Packaging tarball'
