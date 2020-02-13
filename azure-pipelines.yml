@@ -9,6 +9,11 @@ resources:
      trigger:
       branches:
       - master
+   - pipeline: shiboxauthauthn3
+     source: sign-in-canada.shib-oxauth-authn3
+     trigger:
+      branches:
+      - version_4.0.sic1
 
 trigger:
 - master
