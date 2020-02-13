@@ -5,17 +5,17 @@ logger = Java.type("org.slf4j.LoggerFactory").getLogger("net.shibboleth.idp.attr
 
 //TODO: test to see if this respects affilliations
 recipientId = resolutionContext.getAttributeRecipientID();
-logger.info("Attribute Recipient ID {} ", recipientId);
+logger.debug("Attribute Recipient ID {} ", recipientId);
 
 persistentIds = persistentId.getValues().iterator();
 
 while (persistentIds.hasNext()) {
    pai = persistentIds.next();
    if (pai.startsWith(recipientId + "|")) {
-   logger.info("Found a persistentId attribute value for {}", recipientId);
+   logger.debug("Found a persistentId attribute value for {}", recipientId);
    matches = pai.match(/^([^\|]+)\|([^\|]+)\|(.*)$/);
 
-   logger.info("Creating a NameID for {}", matches[1]);
+   logger.debug("Creating a NameID for {}", matches[1]);
    nameIdBuilder = new NameIDBuilder();
    nameIdObject = nameIdBuilder.buildObject();
    nameIdObject.setFormat("urn:oasis:names:tc:SAML:2.0:nameid-format:persistent");

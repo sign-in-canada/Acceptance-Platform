@@ -1,7 +1,7 @@
 var logger = Java.type("org.slf4j.LoggerFactory").getLogger("net.shibboleth.idp.attribute");
 
 var recipientId = resolutionContext.getAttributeRecipientID();
-logger.info("Attribute Recipient ID {} ", recipientId);
+logger.debug("Attribute Recipient ID {} ", recipientId);
 
 var transientIds = transientId.getValues().iterator();
 
@@ -17,9 +17,9 @@ while (transientIds.hasNext()) {
    var claimsURL = matches[3];
    var accessToken = matches[4];
 
-   logger.info("Found access token for {} with expiry {}", rpEntity, new Date(expiry));
+   logger.debug("Found access token for {} with expiry {}", rpEntity, new Date(expiry));
    if (rpEntity === recipientId && new Date().getTime() <= expiry) {
-      logger.info("Populating a value for the userInfo reference {}", claimsURL);
+      logger.debug("Populating a value for the userInfo reference {}", claimsURL);
       claimSource.addValue(claimsURL + "|" + accessToken);
       break;
    }
