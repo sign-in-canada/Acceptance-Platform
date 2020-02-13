@@ -1,8 +1,20 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
+## Acceptance platform pipeline. 
+
 name: $(Build.DefinitionName).$(BuildID).$(Rev:.rr)
+
+resources:
+ pipelines:
+   - pipeline: gluupassport
+     source: sign-in-canada.gluu-passport
+     trigger:
+      branches:
+      - master
+   - pipeline: shiboxauthauthn3
+     source: sign-in-canada.shib-oxauth-authn3
+     trigger:
+      branches:
+      - version_4.0.sic1
+
 trigger:
 - master
 
@@ -21,7 +33,7 @@ steps:
 - script: |
     ls -al $(Pipeline.Workspace)
     cd deployment/static/opt/gluu/jetty/oxauth/custom
-    tar -czvf custom.tgz *
+    tar -czv --owner=root --group=root -f custom.tgz *
     mv custom.tgz $(Pipeline.Workspace)/s/deployment/static/opt/dist/signincanada
     cd $(Pipeline.Workspace)
     ls -al s/deployment/static/opt/dist/signincanada
@@ -54,12 +66,21 @@ steps:
   displayName: 'Download gluu binaries'
   continueOnError: false
 
+- task: DownloadPipelineArtifact@2
+  inputs:
+    buildType: 'specific'
+    project: '7302639f-e704-47c3-9557-99b4e04a75bc'
+    definition: '288'
+    buildVersionToDownload: 'latest'
+    artifactName: 'shib-oxauth-authn3'
+    targetPath: '$(Pipeline.Workspace)/s/deployment/static/opt/dist/signincanada'
+  displayName: 'Downloading shib-oxauth-authn3 libs'
+
 - script: |
     cd deployment/static/opt/dist/gluu
     mv package/*gz .
     rm -rf package
     ls -al 
-    chmod +x /opt/dist/signincanada/postinstall.sh
     cd $(Pipeline.Workspace)/s
   displayName: 'Moving gluu packages'
   continueOnError: true
@@ -67,7 +88,11 @@ steps:
 - script: |
     cd deployment/static/
     echo 'packaging tarball'
-    tar -czvf SIC-AP-0.0.$(minor).tgz --exclude='opt/gluu' *
+    chmod 755 $(find . -type d -print)
+    chmod 644 $(find . -type f -print)
+    chmod 700 opt/dist/signincanada/postinstall.sh
+    chmod 700 opt/dist/scripts/azure/keyvault.sh
+    tar -czv --owner=root --group=root -f SIC-AP-0.0.$(minor).tgz --exclude='opt/gluu' *
     mv SIC-AP-0.0.$(minor).tgz $(Pipeline.Workspace) 
   displayName: 'Packaging tarball'
   continueOnError: true
