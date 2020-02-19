@@ -1,12 +1,16 @@
+StringArray = Java.type("java.lang.String[]");
+
 var logger = Java.type("org.slf4j.LoggerFactory").getLogger("net.shibboleth.idp.attribute");
 
 var recipientId = resolutionContext.getAttributeRecipientID();
 logger.debug("Attribute Recipient ID {} ", recipientId);
 
-var transientIds = transientId.getValues().iterator();
+var transientIds = transientId.getValues().toArray(new StringArray(0));
+if (transientIds.length === 1 && transientIds[0].startsWith("[")) {
+   transientIds = transientIds[0].slice(1, -1).split(', ');
+}
 
-while (transientIds.hasNext()) {
-   var transientIdValue = transientIds.next();
+for each (transientIdValue in transientIds) {
    var matches = transientIdValue.match(/([^\|]+)\|(\d+)\|([^\|]+)\|(.*)/);
    if (matches === null) { // Skip garbage
       logger.error("Malformed value for transientId: {}", transientIdValue);
