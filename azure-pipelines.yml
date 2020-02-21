@@ -93,7 +93,7 @@ steps:
     chmod 700 opt/dist/signincanada/postinstall.sh
     chmod 700 opt/dist/scripts/azure/keyvault.sh
     tar -czv --owner=root --group=root -f SIC-AP-0.0.$(minor).tgz --exclude='opt/gluu' *
-    $(sic-version)=SIC-AP-0.0.$(minor).tgz
+    $sic-version='SIC-AP-0.0.$(minor).tgz'
     mv SIC-AP-0.0.$(minor).tgz $(Pipeline.Workspace) 
   displayName: 'Packaging tarball'
   continueOnError: true
