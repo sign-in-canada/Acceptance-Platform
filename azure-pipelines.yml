@@ -98,7 +98,8 @@ steps:
   displayName: 'Packaging tarball'
   continueOnError: true
 
-
+- bash: |
+    echo my pipeline variable is $(sic-version)
 
 - task: PublishPipelineArtifact@1
   inputs:
