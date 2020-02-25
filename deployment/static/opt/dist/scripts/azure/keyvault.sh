@@ -50,6 +50,20 @@ done
 # Get the Application Insights Instrumentation Key
 fetchSecret InstrumentationKey > ${KV_DIR}/secrets/InstrumentationKey
 
-# TODO: Get the Couchbase password
+# Get the Couchbase admin password
+GCB="/etc/gluu/conf/gluu-couchbase.properties"
+if [ -f $GCB ]; then
+   # First time. Strip out the password to create a template
+   sed '/^auth.userPassword:/d' $GCB > ${GCB}.template
+fi
+cp ${GCB}.template ${KV_DIR}/secrets/couchbaseGluuUserPassword
+echo "auth.userPassword:" $(fetchSecret couchbaseGluuUserPassword) \
+     >> ${KV_DIR}/secrets/couchbaseGluuUserPassword
+ln -s -f ${KV_DIR}/secrets/couchbaseGluuUserPassword $GCB
+
+# Get the Couchbase shibboleth password
+echo "idp.attribute.resolver.datasource.password=" \
+     $(fetchSecret couchbaseShibUserPassword) > ${KV_DIR}/secrets/couchbaseShibUserPassword
+ln -s -f ${KV_DIR}/secrets/couchbaseShibUserPassword /opt/shibboleth-idp/conf/secrets.properties
 
 exit 0
