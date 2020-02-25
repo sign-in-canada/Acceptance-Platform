@@ -52,7 +52,7 @@ fetchSecret InstrumentationKey > ${KV_DIR}/secrets/InstrumentationKey
 
 # Get the "salt"
 salt=$(fetchSecret salt)
-if [ salt != "undefined" ] ; then
+if [ "$salt" != "undefined" ] ; then
    echo "encodeSalt =" $(fetchSecret salt) > ${KV_DIR}/secrets/salt
    ln -s -f ${KV_DIR}/secrets/salt /etc/gluu/conf/salt
 
