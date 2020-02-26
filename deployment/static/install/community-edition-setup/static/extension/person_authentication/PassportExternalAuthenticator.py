@@ -21,42 +21,52 @@ from org.gluu.model.custom.script.type.auth import PersonAuthenticationType
 from org.gluu.service.cdi.util import CdiUtil
 from org.gluu.util import StringHelper
 from java.util import ArrayList, Arrays, Collections
-
 from javax.faces.application import FacesMessage
 from javax.faces.context import FacesContext
+
+from java.security import Key
+from javax.crypto import Cipher
+from javax.crypto.spec import SecretKeySpec, IvParameterSpec
+from org.bouncycastle.jce.provider import BouncyCastleProvider
+
 
 import json
 import sys
 import uuid
 import time
+import base64
+import random
+import string
 
 class PersonAuthentication(PersonAuthenticationType):
     def __init__(self, currentTimeMillis):
         self.currentTimeMillis = currentTimeMillis
 
     def init(self, configurationAttributes):
-        print "Passport. init called"
+        print "Passport-social. init called"
 
         self.extensionModule = self.loadExternalModule(configurationAttributes.get("extension_module"))
         extensionResult = self.extensionInit(configurationAttributes)
         if extensionResult != None:
             return extensionResult
 
-        print "Passport. init. Behaviour is social"
+        self.aesKey = b'abcdefghabcdefgh'
+
+        print "Passport-social. init. Behaviour is social"
         success = self.processKeyStoreProperties(configurationAttributes)
 
         if success:
             self.providerKey = "provider"
             self.customAuthzParameter = self.getCustomAuthzParameter(configurationAttributes.get("authz_req_param_provider"))
             self.passportDN = self.getPassportConfigDN()
-            print "Passport. init. Initialization success"
+            print "Passport-social. init. Initialization success"
         else:
-            print "Passport. init. Initialization failed"
+            print "Passport-social. init. Initialization failed"
         return success
 
 
     def destroy(self, configurationAttributes):
-        print "Passport. destroy called"
+        print "Passport-social. destroy called"
         return True
 
 
@@ -65,20 +75,20 @@ class PersonAuthentication(PersonAuthenticationType):
 
 
     def isValidAuthenticationMethod(self, usageType, configurationAttributes):
-        print "Passport. isValidAuthenticationMethod called"
+        print "Passport-social. isValidAuthenticationMethod called"
 
         identity = CdiUtil.bean(Identity)
         sessionAttributes = identity.getSessionId().getSessionAttributes()
-        print "Passport. isValidAuthenticationMethod. got session '%s'"  % identity.getSessionId().toString()
+        print "Passport-social. isValidAuthenticationMethod. got session '%s'"  % identity.getSessionId().toString()
 
         # the authentication did not happen or failed, return to the chooser page
         selectedProvider = sessionAttributes.get("selectedProvider")
         userState = identity.getSessionId().getState()
-        print "Passport. isValidAuthenticationMethod. Found selectedProvider = %s" % selectedProvider
-        print "Passport. isValidAuthenticationMethod. Found state = %s" % userState
+        print "Passport-social. isValidAuthenticationMethod. Found selectedProvider = %s" % selectedProvider
+        print "Passport-social. isValidAuthenticationMethod. Found state = %s" % userState
         # selectedProvider will be None after first passport script execution because it will be removed
         if ( userState == SessionIdState.UNAUTHENTICATED and selectedProvider == None ):
-            print "Passport. isValidAuthenticationMethod. Found unauthenticated sessions after step 1, meaning cancel/failure."
+            print "Passport-social. isValidAuthenticationMethod. Found unauthenticated sessions after step 1, meaning cancel/failure."
             return False
 
         # SWITCH - invalidate this authentication only if the switchFlow is ON
@@ -98,7 +108,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
 
     def getAlternativeAuthenticationMethod(self, usageType, configurationAttributes):
-        print "Passport. getAlternativeAuthenticationMethod called"
+        print "Passport-social. getAlternativeAuthenticationMethod called"
         return "select_loa2"
 
 
@@ -108,14 +118,14 @@ class PersonAuthentication(PersonAuthenticationType):
         if extensionResult != None:
             return extensionResult
 
-        print "Passport. authenticate for step %s called" % str(step)
+        print "Passport-social. authenticate for step %s called" % str(step)
         identity = CdiUtil.bean(Identity)
 
         if step == 1:
             # Get JWT token
             jwt_param = ServerUtil.getFirstValue(requestParameters, "user")
             if jwt_param != None:
-                print "Passport. authenticate for step 1. JWT user profile token found"
+                print "Passport-social. authenticate for step 1. JWT user profile token found"
 
                 # Parse JWT and validate
                 jwt = Jwt.parse(jwt_param)
@@ -136,7 +146,7 @@ class PersonAuthentication(PersonAuthenticationType):
             if StringHelper.isEmpty(provider):
 
                 #it's username + passw auth
-                print "Passport. authenticate for step 1. Basic authentication detected"
+                print "Passport-social. authenticate for step 1. Basic authentication detected"
                 logged_in = False
 
                 credentials = identity.getCredentials()
@@ -147,13 +157,13 @@ class PersonAuthentication(PersonAuthenticationType):
                     authenticationService = CdiUtil.bean(AuthenticationService)
                     logged_in = authenticationService.authenticate(user_name, user_password)
 
-                print "Passport. authenticate for step 1. Basic authentication returned: %s" % logged_in
+                print "Passport-social. authenticate for step 1. Basic authentication returned: %s" % logged_in
                 return logged_in
 
             elif provider in self.registeredProviders:
                 #it's a recognized external IDP
                 identity.setWorkingParameter("selectedProvider", provider)
-                print "Passport. authenticate for step 1. Retrying step 1"
+                print "Passport-social. authenticate for step 1. Retrying step 1"
                 #see prepareForStep (step = 1)
                 return True
 
@@ -170,7 +180,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
                 return self.attemptAuthentication(identity, user_profile, jsonp)
 
-            print "Passport. authenticate for step 2. Failed: expected mail value in HTTP request and json profile in session"
+            print "Passport-social. authenticate for step 2. Failed: expected mail value in HTTP request and json profile in session"
             return False
 
 
@@ -180,8 +190,9 @@ class PersonAuthentication(PersonAuthenticationType):
         if extensionResult != None:
             return extensionResult
 
-        print "Passport. prepareForStep called for step %s" % str(step)
+        print "Passport-social. prepareForStep called for step %s" % str(step)
         identity = CdiUtil.bean(Identity)
+        sessionAttributes = identity.getSessionId().getSessionAttributes()
         sessionId = identity.getSessionId()
 
         if step == 1:
@@ -193,7 +204,7 @@ class PersonAuthentication(PersonAuthenticationType):
             providerFromSession = None
             url = None
 
-            print "Passport. prepareForStep. got session '%s'" % identity.getSessionId().toString()
+            print "Passport-social. prepareForStep. got session '%s'" % identity.getSessionId().toString()
 
             sessionAttributes = identity.getSessionId().getSessionAttributes()
             self.skipProfileUpdate = StringHelper.equalsIgnoreCase(sessionAttributes.get("skipPassportProfileUpdate"), "true")
@@ -217,9 +228,9 @@ class PersonAuthentication(PersonAuthenticationType):
                     for mfaUserOxExternalUid in mfaUserOxExternalUids:
                         if ( mfaUserOxExternalUid.find("passport-mfa:") > -1 ):
                             mfaPai = StringHelper.split(mfaUserOxExternalUid,':')[1]
-                print "Passport. prepareForStep. Using mfaPai = '%s'" % mfaPai
+                print "Passport-social. prepareForStep. Using mfaPai = '%s'" % mfaPai
             elif ( sessionAttributes.get("selectedProvider") == "mfa"):
-                print "Passport. prepareForStep. ERROR: 'selectedProvider' is 'mfa' but not in the MFA flow, Exiting"
+                print "Passport-social. prepareForStep. ERROR: 'selectedProvider' is 'mfa' but not in the MFA flow, Exiting"
                 return False
 
             # This is added to the script by a previous module if the provider is preselected
@@ -227,34 +238,43 @@ class PersonAuthentication(PersonAuthenticationType):
 
             if providerFromSession != None:
                 # Reset the provider in session in case the choice has to be made again
-                print "Passport. prepareForStep. Setting selectedProvider from session  = '%s'" % providerFromSession
+                print "Passport-social. prepareForStep. Setting selectedProvider from session  = '%s'" % providerFromSession
                 identity.setWorkingParameter("selectedProvider", providerFromSession)
                 sessionAttributes.remove("selectedProvider")
                 ## SESSION_SAFE - update
                 CdiUtil.bean(SessionIdService).updateSessionId(sessionId)
 
-            #this param could have been set previously in authenticate step if current step is being retried
+            loginHint = None
+            if (mfaPai != None):
+                entityId = sessionAttributes.get( "entityId" )
+                # concatinate mfaPai and entityId
+                plaintext = mfaPai + '|' + entityId
+                
+                randomSource = string.ascii_letters + string.digits
+                loginHint = self.encryptAES( self.aesKey , plaintext )
+
+            # This param could have been set previously in authenticate step if current step is being retried
             provider = identity.getWorkingParameter("selectedProvider")
             if provider != None:
-                url = self.getPassportRedirectUrl(provider, mfaPai)
+                url = self.getPassportRedirectUrl(provider, loginHint)
                 identity.setWorkingParameter("selectedProvider", None)
 
             elif providerParam != None:
                 paramValue = sessionAttributes.get(providerParam)
 
                 if paramValue != None:
-                    print "Passport. prepareForStep. Found value in custom param of authorization request: %s" % paramValue
+                    print "Passport-social. prepareForStep. Found value in custom param of authorization request: %s" % paramValue
                     provider = self.getProviderFromJson(paramValue)
 
                     if provider == None:
-                        print "Passport. prepareForStep. A provider value could not be extracted from custom authorization request parameter"
+                        print "Passport-social. prepareForStep. A provider value could not be extracted from custom authorization request parameter"
                     elif not provider in self.registeredProviders:
-                        print "Passport. prepareForStep. Provider '%s' not part of known configured IDPs/OPs" % provider
+                        print "Passport-social. prepareForStep. Provider '%s' not part of known configured IDPs/OPs" % provider
                     else:
-                        url = self.getPassportRedirectUrl(provider, mfaPai)
+                        url = self.getPassportRedirectUrl(provider, loginHint)
 
             if url == None:
-                print "Passport. prepareForStep. A page to manually select an identity provider will be shown"
+                print "Passport-social. prepareForStep. A page to manually select an identity provider will be shown"
             else:
                 facesService = CdiUtil.bean(FacesService)
                 facesService.redirectToExternalURL(url)
@@ -263,7 +283,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
 
     def getExtraParametersForStep(self, configurationAttributes, step):
-        print "Passport. getExtraParametersForStep called with step %s" % str(step)
+        print "Passport-social. getExtraParametersForStep called with step %s" % str(step)
         if step == 1:
             return Arrays.asList("selectedProvider", "externalProviders")
         elif step == 2:
@@ -272,22 +292,22 @@ class PersonAuthentication(PersonAuthenticationType):
 
 
     def getCountAuthenticationSteps(self, configurationAttributes):
-        print "Passport. getCountAuthenticationSteps called"
+        print "Passport-social. getCountAuthenticationSteps called"
         identity = CdiUtil.bean(Identity)
         if identity.getWorkingParameter("passport_user_profile") != None:
             return 2
         if identity.getSessionId().getSessionAttributes().get("switchFlowStatus") != None:
-            print "Passport. getCountAuthenticationSteps returning 2 because of switchFlowStatus"
+            print "Passport-social. getCountAuthenticationSteps returning 2 because of switchFlowStatus"
             return 2
         if identity.getSessionId().getSessionAttributes().get("mfaFlowStatus") == "MFA_2_IN_PROGRESS":
-            print "Passport. getCountAuthenticationSteps returning 2 because of mfaFlowStatus MFA_2_IN_PROGRESS"
+            print "Passport-social. getCountAuthenticationSteps returning 2 because of mfaFlowStatus MFA_2_IN_PROGRESS"
             return 2
-        print "Passport. getCountAuthenticationSteps returning 1"
+        print "Passport-social. getCountAuthenticationSteps returning 1"
         return 1
 
 
     def getPageForStep(self, configurationAttributes, step):
-        print "Passport. getPageForStep called with step %s" % str(step)
+        print "Passport-social. getPageForStep called with step %s" % str(step)
 
         extensionResult = self.extensionGetPageForStep(configurationAttributes, step)
         if extensionResult != None:
@@ -299,7 +319,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
 
     def getNextStep(self, configurationAttributes, requestParameters, step):
-        print "Passport. getNextStep called with step %s" % str(step)
+        print "Passport-social. getNextStep called with step %s" % str(step)
 
         if step == 1:
             identity = CdiUtil.bean(Identity)
@@ -350,15 +370,15 @@ class PersonAuthentication(PersonAuthenticationType):
     def loadExternalModule(self, simpleCustProperty):
 
         if simpleCustProperty != None:
-            print "Passport. loadExternalModule. Loading passport extension module..."
+            print "Passport-social. loadExternalModule. Loading passport extension module..."
             moduleName = simpleCustProperty.getValue2()
             try:
                 module = __import__(moduleName)
                 return module
             except:
-                print "Passport. loadExternalModule. Failed to load module %s" % moduleName
+                print "Passport-social. loadExternalModule. Failed to load module %s" % moduleName
                 print "Exception: ", sys.exc_info()[1]
-                print "Passport. loadExternalModule. Flow will be driven entirely by routines of main passport script"
+                print "Passport-social. loadExternalModule. Flow will be driven entirely by routines of main passport script"
         return None
 
 
@@ -375,7 +395,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 self.keyStorePassword = password
                 return True
 
-        print "Passport. readKeyStoreProperties. Properties key_store_file or key_store_password not found or empty"
+        print "Passport-social. readKeyStoreProperties. Properties key_store_file or key_store_password not found or empty"
         return False
 
 
@@ -388,10 +408,10 @@ class PersonAuthentication(PersonAuthenticationType):
                 customAuthzParameter = prop
 
         if customAuthzParameter == None:
-            print "Passport. getCustomAuthzParameter. No custom param for OIDC authz request in script properties"
-            print "Passport. getCustomAuthzParameter. Passport flow cannot be initiated by doing an OpenID connect authorization request"
+            print "Passport-social. getCustomAuthzParameter. No custom param for OIDC authz request in script properties"
+            print "Passport-social. getCustomAuthzParameter. Passport flow cannot be initiated by doing an OpenID connect authorization request"
         else:
-            print "Passport. getCustomAuthzParameter. Custom param for OIDC authz request in script properties: %s" % customAuthzParameter
+            print "Passport-social. getCustomAuthzParameter. Custom param for OIDC authz request in script properties: %s" % customAuthzParameter
 
         return customAuthzParameter
 
@@ -413,7 +433,7 @@ class PersonAuthentication(PersonAuthenticationType):
     def parseAllProviders(self):
 
         registeredProviders = {}
-        print "Passport. parseAllProviders. Adding providers"
+        print "Passport-social. parseAllProviders. Adding providers"
         entryManager = CdiUtil.bean(AppInitializer).createPersistenceEntryManager()
 
         config = LdapOxPassportConfiguration()
@@ -452,11 +472,11 @@ class PersonAuthentication(PersonAuthenticationType):
                 registeredProviders.pop(provider)
 
             if len(registeredProviders.keys()) > 0:
-                print "Passport. parseProviderConfigs. Configured providers:", registeredProviders
+                print "Passport-social. parseProviderConfigs. Configured providers:", registeredProviders
             else:
-                print "Passport. parseProviderConfigs. No providers registered yet"
+                print "Passport-social. parseProviderConfigs. No providers registered yet"
         except:
-            print "Passport. parseProviderConfigs. An error occurred while building the list of supported authentication providers", sys.exc_info()[1]
+            print "Passport-social. parseProviderConfigs. An error occurred while building the list of supported authentication providers", sys.exc_info()[1]
 
         self.registeredProviders = registeredProviders
 
@@ -469,12 +489,12 @@ class PersonAuthentication(PersonAuthenticationType):
             obj = json.loads(Base64Util.base64urldecodeToString(providerJson))
             provider = obj[self.providerKey]
         except:
-            print "Passport. getProviderFromJson. Could not parse provided Json string. Returning None"
+            print "Passport-social. getProviderFromJson. Could not parse provided Json string. Returning None"
 
         return provider
 
 
-    def getPassportRedirectUrl(self, provider, mfaPai):
+    def getPassportRedirectUrl(self, provider, loginHint):
 
         # provider is assumed to exist in self.registeredProviders
         url = None
@@ -485,30 +505,29 @@ class PersonAuthentication(PersonAuthenticationType):
             httpService = CdiUtil.bean(HttpService)
             httpclient = httpService.getHttpsClient()
 
-            print "Passport. getPassportRedirectUrl. Obtaining token from passport at %s" % tokenEndpoint
+            print "Passport-social. getPassportRedirectUrl. Obtaining token from passport at %s" % tokenEndpoint
             resultResponse = httpService.executeGet(httpclient, tokenEndpoint, Collections.singletonMap("Accept", "text/json"))
             httpResponse = resultResponse.getHttpResponse()
             bytes = httpService.getResponseContent(httpResponse)
 
             response = httpService.convertEntityToString(bytes)
-            print "Passport. getPassportRedirectUrl. Response was %s" % httpResponse.getStatusLine().getStatusCode()
+            print "Passport-social. getPassportRedirectUrl. Response was %s" % httpResponse.getStatusLine().getStatusCode()
 
             tokenObj = json.loads(response)
-            # "MA" is value of "0" ASCII in base64
-            if (mfaPai != None):
-                url = "/passport/auth/%s/%s/id/%s" % (provider, tokenObj["token_"], mfaPai)
+            if (loginHint != None):
+                url = "/passport/auth/%s/%s/id/%s" % (provider, tokenObj["token_"], Base64Util.base64urlencode(loginHint))
             else:
                 url = "/passport/auth/%s/%s" % (provider, tokenObj["token_"])
-            print "Passport. getPassportRedirectUrl. Returning URL = %s" % url
+            print "Passport-social. getPassportRedirectUrl. Returning URL = %s" % url
         except:
-            print "Passport. getPassportRedirectUrl. Error building redirect URL: ", sys.exc_info()[1]
+            print "Passport-social. getPassportRedirectUrl. Error building redirect URL: ", sys.exc_info()[1]
 
         return url
 
 
     def validSignature(self, jwt):
 
-        print "Passport. validSignature. Checking JWT token signature"
+        print "Passport-social. validSignature. Checking JWT token signature"
         valid = False
 
         try:
@@ -523,7 +542,7 @@ class PersonAuthentication(PersonAuthenticationType):
         except:
             print "Exception: ", sys.exc_info()[1]
 
-        print "Passport. validSignature. Validation result was %s" % valid
+        print "Passport-social. validSignature. Validation result was %s" % valid
         return valid
 
 
@@ -545,7 +564,7 @@ class PersonAuthentication(PersonAuthenticationType):
         jwt_claims = jwt.getClaims()
         user_profile_json = jwt_claims.getClaimAsString("data")
         if StringHelper.isEmpty(user_profile_json):
-            print "Passport. getUserProfile. User profile missing in JWT token"
+            print "Passport-social. getUserProfile. User profile missing in JWT token"
             user_profile = None
         else:
             user_profile = json.loads(user_profile_json)
@@ -561,7 +580,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
         provider = user_profile[self.providerKey]
         if not provider in self.registeredProviders:
-            print "Passport. attemptAuthentication. Identity Provider %s not recognized" % provider
+            print "Passport-social. attemptAuthentication. Identity Provider %s not recognized" % provider
             return False
         #else:
             # TODO - HANDLE ISSUER NOT SET
@@ -578,7 +597,7 @@ class PersonAuthentication(PersonAuthenticationType):
         mfaFlowStatus = sessionAttributes.get("mfaFlowStatus")
         
         # SWITCH - do NOT generate a new persistentId if the switch flow is being executed
-        if ( newPersistentIdSamlRp != None and switchFlowStatus == None and mfaFlowStatus != "MFA_2_IN_PROGRESS"):
+        if ( newPersistentIdSamlRp != None and StringHelper.isNotEmptyString(newPersistentIdSamlRp) and switchFlowStatus == None and mfaFlowStatus != "MFA_2_IN_PROGRESS"):
             # PERSISTENT_ID - generate the persistentId for the RP in case there is no further processing/collection happening
             newPersistentIdIdp = self.registeredProviders[provider]["samlissuer"]
             newPersistentIdUid = "sic" + uuid.uuid4().hex
@@ -589,9 +608,9 @@ class PersonAuthentication(PersonAuthenticationType):
         if ( user_profile["claims"] != None ):
             # DISTRIBUTED CLAIMS - save the access token and the userInfo URL
             claimsReturn = user_profile["claims"]
-            print "Passport. attemptAuthentication. Claims '%s'" % claimsReturn
+            print "Passport-social. attemptAuthentication. Claims '%s'" % claimsReturn
 
-        print "Passport. attemptAuthentication. Looking for user with oxExternalUid = '%s'" % externalUid
+        print "Passport-social. attemptAuthentication. Looking for user with oxExternalUid = '%s'" % externalUid
         userService = CdiUtil.bean(UserService)
         userByUid = userService.getUserByAttribute("oxExternalUid", externalUid)
         
@@ -600,11 +619,11 @@ class PersonAuthentication(PersonAuthenticationType):
             # get the MFA PAI from the external UID
             if ( userByUid == None ):
                 # the MFA authenticated user is not the same user
-                print "Passport. attemptAuthentication. ERROR for MFA - MFA user cannot be found"
+                print "Passport-social. attemptAuthentication. ERROR for MFA - MFA user cannot be found"
                 return False
             elif ( userByUid.getUserId() != sessionAttributes.get("authenticatedUser") ):
                 # the MFA authenticated user is not the same user
-                print "Passport. attemptAuthentication. ERROR for MFA - The original and MFA users do not match"
+                print "Passport-social. attemptAuthentication. ERROR for MFA - The original and MFA users do not match"
                 return False
             
         email = None
@@ -617,13 +636,13 @@ class PersonAuthentication(PersonAuthenticationType):
                 user_profile["mail"] = [ email ]
 
         if email == None and self.registeredProviders[provider]["requestForEmail"]:
-            print "Passport. attemptAuthentication. Email was not received"
+            print "Passport-social. attemptAuthentication. Email was not received"
 
             if userByUid != None:
                 # This avoids asking for the email over every login attempt
                 email = userByUid.getAttribute("mail")
                 if email != None:
-                    print "Passport. attemptAuthentication. Filling missing email value with %s" % email
+                    print "Passport-social. attemptAuthentication. Filling missing email value with %s" % email
                     user_profile["mail"] = [ email ]
 
             if email == None:
@@ -672,46 +691,46 @@ class PersonAuthentication(PersonAuthenticationType):
         try:
             if doUpdate:
                 username = userByUid.getUserId()
-                print "Passport. attemptAuthentication. Updating user %s" % username
+                print "Passport-social. attemptAuthentication. Updating user %s" % username
                 self.updateUser(userByUid, user_profile, userService)
             elif doAdd:
-                print "Passport. attemptAuthentication. Creating user %s" % externalUid
+                print "Passport-social. attemptAuthentication. Creating user %s" % externalUid
                 user_profile[uidKey][0] = uuid.uuid4().hex
                 newUser = self.addUser(externalUid, user_profile, userService)
                 username = newUser.getUserId()
         except:
             print "Exception: ", sys.exc_info()[1]
-            print "Passport. attemptAuthentication. Authentication failed"
+            print "Passport-social. attemptAuthentication. Authentication failed"
             return False
 
         if username == None:
-            print "Passport. attemptAuthentication. Authentication attempt was rejected"
+            print "Passport-social. attemptAuthentication. Authentication attempt was rejected"
             return False
         else:
             logged_in = CdiUtil.bean(AuthenticationService).authenticate(username)
-            print "Passport. attemptAuthentication. Authentication for %s returned %s" % (username, logged_in)
+            print "Passport-social. attemptAuthentication. Authentication for %s returned %s" % (username, logged_in)
             if ( logged_in == True ):
                 # Save the authenticated data 
                 sessionAttributes.put("authenticatedProvider", "passport_social:" + provider)
                 sessionAttributes.put("authenticatedUser", username)
                 # SWITCH - Save contextual data for the switch flows
                 if (switchFlowStatus == "1_GET_SOURCE"):
-                    print "Passport. attemptAuthentication. SWITCH FLOW: Setting SOURCE provider to %s" % sessionAttributes.get("authenticatedProvider")
+                    print "Passport-social. attemptAuthentication. SWITCH FLOW: Setting SOURCE provider to %s" % sessionAttributes.get("authenticatedProvider")
                     sessionAttributes.put( "switchSourceAuthenticatedProvider", sessionAttributes.get("authenticatedProvider") )
                     sessionAttributes.put( "switchSourceAuthenticatedUser", username)
                 elif (switchFlowStatus == "2_GET_TARGET"):
-                    print "Passport. attemptAuthentication. SWITCH FLOW: Setting TARGET provider to %s" % sessionAttributes.get("authenticatedProvider")
+                    print "Passport-social. attemptAuthentication. SWITCH FLOW: Setting TARGET provider to %s" % sessionAttributes.get("authenticatedProvider")
                     sessionAttributes.put("switchTargetAuthenticatedProvider", sessionAttributes.get("authenticatedProvider") )
                     sessionAttributes.put("switchTargetAuthenticatedUser", username)
                 elif (mfaFlowStatus == "MFA_1_REQUIRED"):
-                    print "Passport. attemptAuthentication. MFA FLOW: starting flow marking status = MFA_2_IN_PROGRESS"
+                    print "Passport-social. attemptAuthentication. MFA FLOW: starting flow marking status = MFA_2_IN_PROGRESS"
                     sessionAttributes.put("mfaFlowStatus", "MFA_2_IN_PROGRESS" )
                     identity.setWorkingParameter("selectedProvider", "mfa")
                 elif ( mfaFlowStatus == "MFA_2_IN_PROGRESS" ):
-                    print "Passport. attemptAuthentication. MFA FLOW: Marking flow as complete"
+                    print "Passport-social. attemptAuthentication. MFA FLOW: Marking flow as complete"
                     sessionAttributes.put("mfaFlowStatus", "MFA_3_COMPLETE" )
             elif ( mfaFlowStatus == "MFA_2_IN_PROGRESS" ):
-                print "Passport. attemptAuthentication. MFA FLOW: Marking flow as FAILED"
+                print "Passport-social. attemptAuthentication. MFA FLOW: Marking flow as FAILED"
                 sessionAttributes.put("mfaFlowStatus", "MFA_3_FAILED" )
                 
             ## SESSION_SAFE - update
@@ -727,11 +746,51 @@ class PersonAuthentication(PersonAuthenticationType):
         facesMessages.add(severity, msg)
 
 
+    def encryptAES(self, key, toEncrypt):
+
+        # make sure key length is 16 bytes (128 bits)
+        if ( len(key) != 16 ):
+            return None
+        # generate a random IV
+        randomSource = string.ascii_letters + string.digits
+        iv = ''.join(random.SystemRandom().choice(randomSource) for i in range(16))
+        # configure IV and key specification
+        skeySpec = SecretKeySpec(key, "AES")
+        ivspec = IvParameterSpec(iv);
+        # setup cipher
+        cipher = Cipher.getInstance("AES/CBC/PKCS5Padding", BouncyCastleProvider())
+        cipher.init(Cipher.ENCRYPT_MODE, skeySpec, ivspec)
+        # encrypt the plaintext
+        encryptedBytes = cipher.doFinal( toEncrypt.encode('utf-8') )
+        encryptedValue = base64.b64encode( encryptedBytes )
+        return iv.encode("ascii") + encryptedValue
+
+
+    def decryptAES(self, key, encryptedStr):
+
+        # make sure key length is 16 bytes (128 bits)
+        if ( len(key) != 16 ):
+            return None
+        # split the encrypted string into IV and ciphertext
+        iv, encrypted = encryptedStr[:16], encryptedStr[16:]
+        # configure IV and key specification
+        skeySpec = SecretKeySpec(key, "AES")
+        ivspec = IvParameterSpec(iv);
+        # setup cipher
+        cipher = Cipher.getInstance("AES/CBC/PKCS5Padding", BouncyCastleProvider())
+        cipher.init(Cipher.DECRYPT_MODE, skeySpec, ivspec)
+        # decrypt the plaintext
+        encodedBytes = base64.b64decode( b'' + encrypted )
+        decodedBytes = cipher.doFinal( encodedBytes )
+        plaintext    = ''.join(chr(i) for i in decodedBytes)
+        return plaintext
+
+
     def checkRequiredAttributes(self, profile, attrs):
 
         for attr in attrs:
             if (not attr in profile) or len(profile[attr]) == 0:
-                print "Passport. checkRequiredAttributes. Attribute '%s' is missing in profile" % attr
+                print "Passport-social. checkRequiredAttributes. Attribute '%s' is missing in profile" % attr
                 return False
         return True
 
@@ -767,7 +826,7 @@ class PersonAuthentication(PersonAuthenticationType):
             # "provider" is disregarded if part of mapping
             if attr != self.providerKey:
                 values = profile[attr]
-                print "Passport. fillUser. %s = %s" % (attr, values)
+                print "Passport-social. fillUser. %s = %s" % (attr, values)
                 # COLLECT - here go through existing PersistentIDs add new ones for RPs that if they are not found
                 if attr == "persistentId":
                     if (values != None):
@@ -779,17 +838,17 @@ class PersonAuthentication(PersonAuthenticationType):
                             for userPersistentId in userPersistentIds:
                                 if ( userPersistentId.find(issuerSpNameQualifier) > -1 ):
                                     values.pop(0)
-                        
+
                         # if there still is a persistentId, then add it to the current user profile
                         if ( len(values) > 0):
-                            print "Passport. fillUser. Updating persistent IDs, original = '%s'" % userPersistentIds
+                            print "Passport-social. fillUser. Updating persistent IDs, original = '%s'" % userPersistentIds
                             # if there are no current Persistent IDs create a new list
                             tmpList = ArrayList(userPersistentIds) if userPersistentIds != None else ArrayList()
                             tmpList.add(newPersistenId)
-                            print "Passport. fillUser. Updating persistent IDs, updated  = '%s'" % tmpList
+                            print "Passport-social. fillUser. Updating persistent IDs, updated  = '%s'" % tmpList
                             foundUser.setAttribute(attr, tmpList)
                         else:
-                            print "Passport. fillUser. PersistentId for RP '%s' already exists, ignoring new RP mapping" % issuerSpNameQualifier
+                            print "Passport-social. fillUser. PersistentId for RP '%s' already exists, ignoring new RP mapping" % issuerSpNameQualifier
 
                 elif attr == "oxExternalUid_newMfa":
                     # The attribute is here so MFA flow is REQUIRED.
@@ -805,14 +864,14 @@ class PersonAuthentication(PersonAuthenticationType):
 
                     # if there still is a value for MFA PAI, then add it to the current user profile because it did not exist
                     if ( len(values) > 0):
-                        print "Passport. fillUser. Updating MFA PAI oxExternalUid, original list = '%s'" % userOxExternalUids
+                        print "Passport-social. fillUser. Updating MFA PAI oxExternalUid, original list = '%s'" % userOxExternalUids
                         # if there are no current Persistent IDs create a new list
                         tmpList = ArrayList(userOxExternalUids) if userOxExternalUids != None else ArrayList()
                         tmpList.add( mfaOxExternalUid )
-                        print "Passport. fillUser. Updating persistent IDs, updated with MFA = '%s'" % tmpList
+                        print "Passport-social. fillUser. Updating persistent IDs, updated with MFA = '%s'" % tmpList
                         foundUser.setAttribute("oxExternalUid", tmpList)
                     else:
-                        print "Passport. fillUser. oxExternalUid for MFA '%s' already exists, ignoring new RP mapping" % mfaOxExternalUid
+                        print "Passport-social. fillUser. oxExternalUid for MFA '%s' already exists, ignoring new RP mapping" % mfaOxExternalUid
 
                 elif attr == "mail":
                     oxtrustMails = []
@@ -827,7 +886,7 @@ class PersonAuthentication(PersonAuthenticationType):
                         claims = json.loads(values[0])
                         # create the access token attribute for Shibboleth IDP to extract the value for SAML and save it in "transientId"
                         accessTokenWithRpAndTimestamp = '%s|%s|%s|%s' % (currentRp, timeSeconds, claims["userinfourl"], claims["accesstoken"] )
-                        print "Passport. updateUser. Claims adding access token (as transientId) '%s'" % accessTokenWithRpAndTimestamp
+                        print "Passport-social. updateUser. Claims adding access token (as transientId) '%s'" % accessTokenWithRpAndTimestamp
                         foundUser.setAttribute( "transientId", accessTokenWithRpAndTimestamp )
                         # Save the claims into the session for distributed claims (USELESS TODAY, TODO: REMOVE)
                         sessionAttributes.put("identityClaimsAccessToken", claims["accesstoken"])
