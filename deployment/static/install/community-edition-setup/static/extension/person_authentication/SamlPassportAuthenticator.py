@@ -35,14 +35,14 @@ class PersonAuthentication(PersonAuthenticationType):
         self.currentTimeMillis = currentTimeMillis
 
     def init(self, configurationAttributes):
-        print "Passport. init called"
+        print "Passport-saml. init called"
 
         self.extensionModule = self.loadExternalModule(configurationAttributes.get("extension_module"))
         extensionResult = self.extensionInit(configurationAttributes)
         if extensionResult != None:
             return extensionResult
 
-        print "Passport. init. Behaviour is inbound SAML"
+        print "Passport-saml. init. Behaviour is inbound SAML"
         success = self.processKeyStoreProperties(configurationAttributes)
 
         #COLLECT - Parse the list of RPs and IDP that we need to collect for
@@ -52,14 +52,14 @@ class PersonAuthentication(PersonAuthenticationType):
             self.providerKey = "provider"
             self.customAuthzParameter = self.getCustomAuthzParameter(configurationAttributes.get("authz_req_param_provider"))
             self.passportDN = self.getPassportConfigDN()
-            print "Passport. init. Initialization success"
+            print "Passport-saml. init. Initialization success"
         else:
-            print "Passport. init. Initialization failed"
+            print "Passport-saml. init. Initialization failed"
         return success
 
 
     def destroy(self, configurationAttributes):
-        print "Passport. destroy called"
+        print "Passport-saml. destroy called"
         return True
 
 
@@ -68,25 +68,25 @@ class PersonAuthentication(PersonAuthenticationType):
 
 
     def isValidAuthenticationMethod(self, usageType, configurationAttributes):
-        print "Passport. isValidAuthenticationMethod called"
+        print "Passport-saml. isValidAuthenticationMethod called"
 
         identity = CdiUtil.bean(Identity)
         sessionAttributes = identity.getSessionId().getSessionAttributes()
-        print "Passport. isValidAuthenticationMethod. got session '%s'"  % identity.getSessionId().toString()
+        print "Passport-saml. isValidAuthenticationMethod. got session '%s'"  % identity.getSessionId().toString()
 
         # MFA - the authentication is complete, MFA has been initiated, redirect to passport_social
         if ( sessionAttributes.get("mfaFlowStatus") == "MFA_2_IN_PROGRESS" ):
-            print "Passport. isValidAuthenticationMethod MFA FLOW set to MFA_2_IN_PROGRESS, auth complete, returning False"
+            print "Passport-saml. isValidAuthenticationMethod MFA FLOW set to MFA_2_IN_PROGRESS, auth complete, returning False"
             return False
 
         # the authentication did not happen or failed, return to the chooser page
         selectedProvider = sessionAttributes.get("selectedProvider")
         userState = identity.getSessionId().getState()
-        print "Passport. isValidAuthenticationMethod. Found selectedProvider = %s" % selectedProvider
-        print "Passport. isValidAuthenticationMethod. Found state = %s" % userState
+        print "Passport-saml. isValidAuthenticationMethod. Found selectedProvider = %s" % selectedProvider
+        print "Passport-saml. isValidAuthenticationMethod. Found state = %s" % userState
         # selectedProvider will be None after first passport script execution because it will be removed
         if ( userState == SessionIdState.UNAUTHENTICATED and selectedProvider == None ):
-            print "Passport. isValidAuthenticationMethod. Found unauthenticated sessions after step 1, meaning cancel/failure."
+            print "Passport-saml. isValidAuthenticationMethod. Found unauthenticated sessions after step 1, meaning cancel/failure."
             return False
 
         # COLLECT - we do not want to interrupt collection if in progress
@@ -104,7 +104,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
 
     def getAlternativeAuthenticationMethod(self, usageType, configurationAttributes):
-        print "Passport. getAlternativeAuthenticationMethod called"
+        print "Passport-saml. getAlternativeAuthenticationMethod called"
         mfaFlowStatus = CdiUtil.bean(Identity).getSessionId().getSessionAttributes().get("mfaFlowStatus")
         if ( mfaFlowStatus == "MFA_2_IN_PROGRESS" ):
             return "passport_social"
@@ -117,20 +117,20 @@ class PersonAuthentication(PersonAuthenticationType):
         if extensionResult != None:
             return extensionResult
 
-        print "Passport. authenticate for step %s called" % str(step)
+        print "Passport-saml. authenticate for step %s called" % str(step)
         identity = CdiUtil.bean(Identity)
 
         if step == 1:
             jwt_param = None
             if self.isInboundFlow(identity):
-                print "Passport. authenticate for step 1. Detected idp-initiated inbound Saml flow"
+                print "Passport-saml. authenticate for step 1. Detected idp-initiated inbound Saml flow"
                 jwt_param = identity.getSessionId().getSessionAttributes().get(AuthorizeRequestParam.STATE)
 
             if jwt_param == None:
                 jwt_param = ServerUtil.getFirstValue(requestParameters, "user")
 
             if jwt_param != None:
-                print "Passport. authenticate for step 1. JWT user profile token found"
+                print "Passport-saml. authenticate for step 1. JWT user profile token found"
 
                 # Parse JWT and validate
                 jwt = Jwt.parse(jwt_param)
@@ -142,7 +142,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
                 (user_profile, jsonp) = self.getUserProfile(jwt)
                 if user_profile == None:
-                    print "Passport. authenticate for step 1. [user_profile] is not found in response!"
+                    print "Passport-saml. authenticate for step 1. [user_profile] is not found in response!"
                     return False
 
                 return self.attemptAuthentication(identity, user_profile, jsonp)
@@ -152,7 +152,7 @@ class PersonAuthentication(PersonAuthenticationType):
             if StringHelper.isEmpty(provider):
 
                 #it's username + passw auth
-                print "Passport. authenticate for step 1. Basic authentication detected"
+                print "Passport-saml. authenticate for step 1. Basic authentication detected"
                 logged_in = False
 
                 credentials = identity.getCredentials()
@@ -163,13 +163,13 @@ class PersonAuthentication(PersonAuthenticationType):
                     authenticationService = CdiUtil.bean(AuthenticationService)
                     logged_in = authenticationService.authenticate(user_name, user_password)
 
-                print "Passport. authenticate for step 1. Basic authentication returned: %s" % logged_in
+                print "Passport-saml. authenticate for step 1. Basic authentication returned: %s" % logged_in
                 return logged_in
 
             elif provider in self.registeredProviders:
                 #it's a recognized external IDP
                 identity.setWorkingParameter("selectedProvider", provider)
-                print "Passport. authenticate for step 1. Retrying step 1"
+                print "Passport-saml. authenticate for step 1. Retrying step 1"
                 #see prepareForStep (step = 1)
                 return True
 
@@ -186,7 +186,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
                 return self.attemptAuthentication(identity, user_profile, jsonp)
 
-            print "Passport. authenticate for step 2. Failed: expected mail value in HTTP request and json profile in session"
+            print "Passport-saml. authenticate for step 2. Failed: expected mail value in HTTP request and json profile in session"
             return False
 
 
@@ -196,7 +196,7 @@ class PersonAuthentication(PersonAuthenticationType):
         if extensionResult != None:
             return extensionResult
 
-        print "Passport. prepareForStep called for step %s"  % str(step)
+        print "Passport-saml. prepareForStep called for step %s"  % str(step)
         identity = CdiUtil.bean(Identity)
 
         if step == 1:
@@ -207,7 +207,7 @@ class PersonAuthentication(PersonAuthenticationType):
             providerParam = self.customAuthzParameter
             url = None
 
-            print "Passport. prepareForStep. got session '%s'"  % identity.getSessionId().toString()
+            print "Passport-saml. prepareForStep. got session '%s'"  % identity.getSessionId().toString()
             
             sessionId = identity.getSessionId()
             sessionAttributes = sessionId.getSessionAttributes()
@@ -216,7 +216,7 @@ class PersonAuthentication(PersonAuthenticationType):
             # This is added to the script by a previous module if the provider is preselected
             providerFromSession = sessionAttributes.get("selectedProvider")
             if providerFromSession != None:
-                print "Passport. prepareForStep. Setting selectedProvider from session  = '%s'" % providerFromSession
+                print "Passport-saml. prepareForStep. Setting selectedProvider from session  = '%s'" % providerFromSession
                 identity.setWorkingParameter("selectedProvider", providerFromSession)            
                 # SWITCH - Reset the provider in session in case the choice has to be made again
                 sessionAttributes.remove("selectedProvider")
@@ -225,7 +225,7 @@ class PersonAuthentication(PersonAuthenticationType):
             
             if issuerSpNameQualifier != None:
                 # Reset the issuer in session in case the choice has to be made again
-                print "Passport. prepareForStep. Setting SAML SP (issuer spNameQualifier) = '%s'" % issuerSpNameQualifier
+                print "Passport-saml. prepareForStep. Setting SAML SP (issuer spNameQualifier) = '%s'" % issuerSpNameQualifier
                 
             # get the switch state
             switchFlowStatus = sessionAttributes.get("switchFlowStatus")
@@ -239,7 +239,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 elif (collectSamlPass == 1):
                     collectSamlPass = 2
                 # save the collection pass marker
-                print "Passport. prepareForStep. COLLECTING - Setting collection pass to '%s'" % collectSamlPass
+                print "Passport-saml. prepareForStep. COLLECTING - Setting collection pass to '%s'" % collectSamlPass
                 sessionAttributes.put("collectSamlPass", collectSamlPass)
             else:
                 sessionAttributes.remove("collectSamlPass")
@@ -252,32 +252,32 @@ class PersonAuthentication(PersonAuthenticationType):
                     # Terimante the flow by removing the selected provider
                     identity.setWorkingParameter("selectedProvider", None)
                     # We are not collecting, just submit the normal default issuer
-                    print "Passport. prepareForStep. NOT COLLECTING, getting the URL for passport"
+                    print "Passport-saml. prepareForStep. NOT COLLECTING, getting the URL for passport"
                     url = self.getPassportRedirectUrl(provider, None)
 
                 elif (collectSamlPass == 1):
                     # First time around collecting, we login as provider without specifying providerIssuer
-                    print "Passport. prepareForStep. COLLECTING - First pass, setting URL to use issuerSpNameQualifier = None"
+                    print "Passport-saml. prepareForStep. COLLECTING - First pass, setting URL to use issuerSpNameQualifier = None"
                     url = self.getPassportRedirectUrl(provider, None)
 
                 elif (collectSamlPass == 2):
                     # SWITCH - Resetting selected provider as its purpose has been used up and in case of switching it needs to be re-selected
                     identity.setWorkingParameter("selectedProvider", None)
                     # During the second pass we check the user identity for 
-                    print "Passport. prepareForStep. COLLECTING - Second pass, setting URL to use issuerSpNameQualifier = '%s'" % issuerSpNameQualifier
+                    print "Passport-saml. prepareForStep. COLLECTING - Second pass, setting URL to use issuerSpNameQualifier = '%s'" % issuerSpNameQualifier
                     url = self.getPassportRedirectUrl(provider, issuerSpNameQualifier)
 
             elif providerParam != None:
                 paramValue = sessionAttributes.get(providerParam)
 
                 if paramValue != None:
-                    print "Passport. prepareForStep. Found value in custom param of authorization request: %s" % paramValue
+                    print "Passport-saml. prepareForStep. Found value in custom param of authorization request: %s" % paramValue
                     provider = self.getProviderFromJson(paramValue)
 
                     if provider == None:
-                        print "Passport. prepareForStep. A provider value could not be extracted from custom authorization request parameter"
+                        print "Passport-saml. prepareForStep. A provider value could not be extracted from custom authorization request parameter"
                     elif not provider in self.registeredProviders:
-                        print "Passport. prepareForStep. Provider '%s' not part of known configured IDPs/OPs" % provider
+                        print "Passport-saml. prepareForStep. Provider '%s' not part of known configured IDPs/OPs" % provider
                     else:
                         url = self.getPassportRedirectUrl(provider, issuerSpNameQualifier)
 
@@ -285,7 +285,7 @@ class PersonAuthentication(PersonAuthenticationType):
             CdiUtil.bean(SessionIdService).updateSessionId(sessionId)
 
             if url == None:
-                print "Passport. prepareForStep. A page to manually select an identity provider will be shown"
+                print "Passport-saml. prepareForStep. A page to manually select an identity provider will be shown"
             else:
                 facesService = CdiUtil.bean(FacesService)
                 facesService.redirectToExternalURL(url)
@@ -294,7 +294,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
 
     def getExtraParametersForStep(self, configurationAttributes, step):
-        print "Passport. getExtraParametersForStep called with step %s" % str(step)
+        print "Passport-saml. getExtraParametersForStep called with step %s" % str(step)
         if step == 1:
             return Arrays.asList("selectedProvider", "selectedProviderIssuer", "externalProviders")
         elif step == 2:
@@ -303,7 +303,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
 
     def getCountAuthenticationSteps(self, configurationAttributes):
-        print "Passport. getCountAuthenticationSteps called"
+        print "Passport-saml. getCountAuthenticationSteps called"
         identity = CdiUtil.bean(Identity)
         if identity.getWorkingParameter("passport_user_profile") != None:
             return 2
@@ -315,7 +315,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
 
     def getPageForStep(self, configurationAttributes, step):
-        print "Passport. getPageForStep called with step %s" % str(step)
+        print "Passport-saml. getPageForStep called with step %s" % str(step)
 
         extensionResult = self.extensionGetPageForStep(configurationAttributes, step)
         if extensionResult != None:
@@ -324,7 +324,7 @@ class PersonAuthentication(PersonAuthenticationType):
         if step == 1:
             identity = CdiUtil.bean(Identity)
             if self.isInboundFlow(identity):
-                print "Passport. getPageForStep for step 1. Detected inbound Saml flow"
+                print "Passport-saml. getPageForStep for step 1. Detected inbound Saml flow"
                 return "/postlogin.xhtml"
 
             return "/auth/passport/passportlogin.xhtml"
@@ -381,15 +381,15 @@ class PersonAuthentication(PersonAuthenticationType):
     def loadExternalModule(self, simpleCustProperty):
 
         if simpleCustProperty != None:
-            print "Passport. loadExternalModule. Loading passport extension module..."
+            print "Passport-saml. loadExternalModule. Loading passport extension module..."
             moduleName = simpleCustProperty.getValue2()
             try:
                 module = __import__(moduleName)
                 return module
             except:
-                print "Passport. loadExternalModule. Failed to load module %s" % moduleName
+                print "Passport-saml. loadExternalModule. Failed to load module %s" % moduleName
                 print "Exception: ", sys.exc_info()[1]
-                print "Passport. loadExternalModule. Flow will be driven entirely by routines of main passport script"
+                print "Passport-saml. loadExternalModule. Flow will be driven entirely by routines of main passport script"
         return None
 
 
@@ -406,7 +406,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 self.keyStorePassword = password
                 return True
 
-        print "Passport. readKeyStoreProperties. Properties key_store_file or key_store_password not found or empty"
+        print "Passport-saml. readKeyStoreProperties. Properties key_store_file or key_store_password not found or empty"
         return False
 
 
@@ -425,11 +425,11 @@ class PersonAuthentication(PersonAuthenticationType):
             if StringHelper.isNotEmpty(idpList) and StringHelper.isNotEmpty(rpList):
                 self.idp_to_collect_old_mappings_from = StringHelper.split(idpList,',')
                 self.rps_to_collect_old_mappings_for  = StringHelper.split(rpList,',')    
-                print "Passport. init. COLLECTING mappings for IDPs [ %s ]" % ', '.join(self.idp_to_collect_old_mappings_from)
-                print "Passport. init. COLLECTING mappings for RPs [ %s ]" % ', '.join(self.rps_to_collect_old_mappings_for)
+                print "Passport-saml. init. COLLECTING mappings for IDPs [ %s ]" % ', '.join(self.idp_to_collect_old_mappings_from)
+                print "Passport-saml. init. COLLECTING mappings for RPs [ %s ]" % ', '.join(self.rps_to_collect_old_mappings_for)
                 return True
 
-        print "Passport. init. NOT COLLECTING any mappings, parameters [idp_to_collect_old_mappings_from] and [rps_to_collect_old_mappings_for] missing/empty."
+        print "Passport-saml. init. NOT COLLECTING any mappings, parameters [idp_to_collect_old_mappings_from] and [rps_to_collect_old_mappings_for] missing/empty."
         return True
 
     def getCustomAuthzParameter(self, simpleCustProperty):
@@ -441,10 +441,10 @@ class PersonAuthentication(PersonAuthenticationType):
                 customAuthzParameter = prop
 
         if customAuthzParameter == None:
-            print "Passport. getCustomAuthzParameter. No custom param for OIDC authz request in script properties"
-            print "Passport. getCustomAuthzParameter. Passport flow cannot be initiated by doing an OpenID connect authorization request"
+            print "Passport-saml. getCustomAuthzParameter. No custom param for OIDC authz request in script properties"
+            print "Passport-saml. getCustomAuthzParameter. Passport flow cannot be initiated by doing an OpenID connect authorization request"
         else:
-            print "Passport. getCustomAuthzParameter. Custom param for OIDC authz request in script properties: %s" % customAuthzParameter
+            print "Passport-saml. getCustomAuthzParameter. Custom param for OIDC authz request in script properties: %s" % customAuthzParameter
 
         return customAuthzParameter
 
@@ -466,7 +466,7 @@ class PersonAuthentication(PersonAuthenticationType):
     def parseAllProviders(self):
 
         registeredProviders = {}
-        print "Passport. parseAllProviders. Adding providers"
+        print "Passport-saml. parseAllProviders. Adding providers"
         entryManager = CdiUtil.bean(AppInitializer).createPersistenceEntryManager()
 
         config = LdapOxPassportConfiguration()
@@ -505,11 +505,11 @@ class PersonAuthentication(PersonAuthenticationType):
                 registeredProviders.pop(provider)
 
             if len(registeredProviders.keys()) > 0:
-                print "Passport. parseProviderConfigs. Configured providers:", registeredProviders
+                print "Passport-saml. parseProviderConfigs. Configured providers:", registeredProviders
             else:
-                print "Passport. parseProviderConfigs. No providers registered yet"
+                print "Passport-saml. parseProviderConfigs. No providers registered yet"
         except:
-            print "Passport. parseProviderConfigs. An error occurred while building the list of supported authentication providers", sys.exc_info()[1]
+            print "Passport-saml. parseProviderConfigs. An error occurred while building the list of supported authentication providers", sys.exc_info()[1]
 
         self.registeredProviders = registeredProviders
 
@@ -522,7 +522,7 @@ class PersonAuthentication(PersonAuthenticationType):
             obj = json.loads(Base64Util.base64urldecodeToString(providerJson))
             provider = obj[self.providerKey]
         except:
-            print "Passport. getProviderFromJson. Could not parse provided Json string. Returning None"
+            print "Passport-saml. getProviderFromJson. Could not parse provided Json string. Returning None"
 
         return provider
 
@@ -538,33 +538,33 @@ class PersonAuthentication(PersonAuthenticationType):
             httpService = CdiUtil.bean(HttpService)
             httpclient = httpService.getHttpsClient()
 
-            print "Passport. getPassportRedirectUrl. Obtaining token from passport at %s" % tokenEndpoint
+            print "Passport-saml. getPassportRedirectUrl. Obtaining token from passport at %s" % tokenEndpoint
             resultResponse = httpService.executeGet(httpclient, tokenEndpoint, Collections.singletonMap("Accept", "text/json"))
             httpResponse = resultResponse.getHttpResponse()
             bytes = httpService.getResponseContent(httpResponse)
 
             response = httpService.convertEntityToString(bytes)
-            print "Passport. getPassportRedirectUrl. Response was %s" % httpResponse.getStatusLine().getStatusCode()
+            print "Passport-saml. getPassportRedirectUrl. Response was %s" % httpResponse.getStatusLine().getStatusCode()
 
-            print "Passport. getPassportRedirectUrl. Loading response %s" % response
+            print "Passport-saml. getPassportRedirectUrl. Loading response %s" % response
             tokenObj = json.loads(response)
-            print "Passport. getPassportRedirectUrl. Building URL: provider:  %s" % provider
-            print "Passport. getPassportRedirectUrl. Building URL: token:     %s" % tokenObj["token_"]
-            print "Passport. getPassportRedirectUrl. Building URL: spNameQfr: %s" % issuerSpNameQualifier
+            print "Passport-saml. getPassportRedirectUrl. Building URL: provider:  %s" % provider
+            print "Passport-saml. getPassportRedirectUrl. Building URL: token:     %s" % tokenObj["token_"]
+            print "Passport-saml. getPassportRedirectUrl. Building URL: spNameQfr: %s" % issuerSpNameQualifier
             # Check if the samlissuer is there so to use the old endpoint if no collection needed
             if ( issuerSpNameQualifier != None ):
                 url = "/passport/auth/%s/%s/saml/%s" % (provider, tokenObj["token_"], Base64Util.base64urlencode(issuerSpNameQualifier))
             else:
                 url = "/passport/auth/%s/%s" % (provider, tokenObj["token_"])
         except:
-            print "Passport. getPassportRedirectUrl. Error building redirect URL: ", sys.exc_info()[1]
+            print "Passport-saml. getPassportRedirectUrl. Error building redirect URL: ", sys.exc_info()[1]
 
         return url
 
 
     def validSignature(self, jwt):
 
-        print "Passport. validSignature. Checking JWT token signature"
+        print "Passport-saml. validSignature. Checking JWT token signature"
         valid = False
 
         try:
@@ -579,7 +579,7 @@ class PersonAuthentication(PersonAuthenticationType):
         except:
             print "Exception: ", sys.exc_info()[1]
 
-        print "Passport. validSignature. Validation result was %s" % valid
+        print "Passport-saml. validSignature. Validation result was %s" % valid
         return valid
 
     def jwtHasExpired(self, jwt):
@@ -599,7 +599,7 @@ class PersonAuthentication(PersonAuthenticationType):
         jwt_claims = jwt.getClaims()
         user_profile_json = jwt_claims.getClaimAsString("data")
         if StringHelper.isEmpty(user_profile_json):
-            print "Passport. getUserProfile. User profile missing in JWT token"
+            print "Passport-saml. getUserProfile. User profile missing in JWT token"
             user_profile = None
         else:
             user_profile = json.loads(user_profile_json)
@@ -611,7 +611,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
         uidKey = "uid"
 
-        print "Passport. attemptAuthentication. got session '%s'"  % identity.getSessionId().toString()
+        print "Passport-saml. attemptAuthentication. got session '%s'"  % identity.getSessionId().toString()
         sessionId = identity.getSessionId()
         sessionAttributes = sessionId.getSessionAttributes()
         collectSamlPass = sessionAttributes.get("collectSamlPass")
@@ -624,7 +624,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
         provider = user_profile[self.providerKey]
         if not provider in self.registeredProviders:
-            print "Passport. attemptAuthentication. Identity Provider %s not recognized" % provider
+            print "Passport-saml. attemptAuthentication. Identity Provider %s not recognized" % provider
             return False
 
         # We assign the UID from the response as the SAML uid by default
@@ -635,15 +635,18 @@ class PersonAuthentication(PersonAuthenticationType):
         # PERSISTENT_ID - generate the persistentId for the RP in case there is no further processing/collection happening (SAML only)
         newPersistentId = None
         newPersistentIdRp = sessionAttributes.get("spNameQualifier")
-        if ( newPersistentIdRp != None ):
+        if ( newPersistentIdRp != None and StringHelper.isNotEmptyString(newPersistentIdRp) ):
             newPersistentIdIdp = self.registeredProviders[provider]["issuer"]
             newPersistentIdUid = "sic" + uuid.uuid4().hex
             newPersistentId = '%s|%s|%s' % (newPersistentIdRp, newPersistentIdIdp, newPersistentIdUid )
         else:
             print "WARNING! The 'spNameQualifier' attribute from SHIBBOLETH is empty, no persistentId will be generated"
 
-        # SWITCH - do NOT generate a new persistentId if the switch flow is being executed and not collecting
-        if  ( switchFlowStatus == None or collectSamlPass != None ):
+        # COLLECT - do NOT generate a new persistentId if collecting
+        if  ( collectSamlPass != None and newPersistentId != None  ):
+            user_profile["persistentId"][0] = newPersistentId
+        # SWITCH - do NOT generate a new persistentId if the switch flow is being executed
+        elif( switchFlowStatus == None and newPersistentId != None ):
             user_profile["persistentId"][0] = newPersistentId
         else:
             user_profile.pop("persistentId");
@@ -652,42 +655,42 @@ class PersonAuthentication(PersonAuthenticationType):
         if (collectSamlPass == 1):
 
             # The first time around we save the UID in the session parameter
-            print "Passport. attemptAuthentication. COLLECTING - First Pass. Saving original UID in session as '%s'"  % uid
+            print "Passport-saml. attemptAuthentication. COLLECTING - First Pass. Saving original UID in session as '%s'"  % uid
             sessionAttributes.put("collect_originalUid", uid)
 
             # Removing persistentId from initial save because we need to run collection first
-            print "Passport. attemptAuthentication. COLLECTING - First Pass. Saving generated PersistentId for second pass to '%s'"  % user_profile["persistentId"][0]
+            print "Passport-saml. attemptAuthentication. COLLECTING - First Pass. Saving generated PersistentId for second pass to '%s'"  % user_profile["persistentId"][0]
             sessionAttributes.put("collect_generatedPersistentId", user_profile["persistentId"][0])
             user_profile.pop("persistentId")
 
         elif (collectSamlPass == 2):
             # The second time around we retrieve the saved UID
-            print "Passport. attemptAuthentication. COLLECTING - Second Pass. Authenticated for collection as '%s'"  % uid
+            print "Passport-saml. attemptAuthentication. COLLECTING - Second Pass. Authenticated for collection as '%s'"  % uid
 
             # Here we verify if there was no answer (GCKey) because allowCreate=false
             if (user_profile == None):
-                print "Passport. attemptAuthentication. Aw Crap, user_profile in response is None for original UID '%s'"  % uid
+                print "Passport-saml. attemptAuthentication. Aw Crap, user_profile in response is None for original UID '%s'"  % uid
             elif (user_profile[uidKey] == None):
-                print "Passport. attemptAuthentication. Aw Crap, user_profile[uidKey] in response is None for original UID '%s'"  % uid
+                print "Passport-saml. attemptAuthentication. Aw Crap, user_profile[uidKey] in response is None for original UID '%s'"  % uid
                 #user_profile[persistentId] = []
                 #user_profile[persistentId].append(generatedPersistentId)
             elif (user_profile[uidKey][0] == None):
-                print "Passport. attemptAuthentication. Aw Crap, user_profile[uidKey][0] in response is None for original UID '%s'"  % uid
+                print "Passport-saml. attemptAuthentication. Aw Crap, user_profile[uidKey][0] in response is None for original UID '%s'"  % uid
             else:
                 # COLLECT - Collect the persistent ID / PAI for the RP here
                 # 1. take old persistentId and split by |
                 # 2. replace the RP and keep provider and the PAI UID
                 # 3. lastly put it back into the profile mapping and put the original UID back into the profile
-                print "Passport. attemptAuthentication. COLLECTING - Second Pass. Original persistentId from passport '%s'"  %  user_profile["persistentId"][0]
+                print "Passport-saml. attemptAuthentication. COLLECTING - Second Pass. Original persistentId from passport '%s'"  %  user_profile["persistentId"][0]
                 rpPersistentId = passportPersistentId.split('|')
                 newPersistentIdIdp = rpPersistentId[1]
                 newPersistentIdUid = rpPersistentId[2]
                 user_profile["persistentId"][0] = '%s|%s|%s' % (newPersistentIdRp, newPersistentIdIdp, newPersistentIdUid )
-                print "Passport. attemptAuthentication. COLLECTING - Second Pass. Collected persistentId '%s'"  % user_profile["persistentId"][0]
+                print "Passport-saml. attemptAuthentication. COLLECTING - Second Pass. Collected persistentId '%s'"  % user_profile["persistentId"][0]
 
                 uid = sessionAttributes.get("collect_originalUid")
                 user_profile[uidKey][0] = uid
-                print "Passport. attemptAuthentication. COLLECTING - Second Pass. Setting profile to original UID '%s'"  % uid
+                print "Passport-saml. attemptAuthentication. COLLECTING - Second Pass. Setting profile to original UID '%s'"  % uid
 
             sessionAttributes.remove("collectSamlPass")                
             sessionAttributes.remove("collect_originalUid")
@@ -695,7 +698,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
         externalUid = "passport-%s:%s:%s" % ("saml", provider, uid)
 
-        print "Passport. attemptAuthentication. Searching for user ExternalUID '%s'" % externalUid
+        print "Passport-saml. attemptAuthentication. Searching for user ExternalUID '%s'" % externalUid
 
         # MFA - save external UID to retrieve the user later
         sessionAttributes.put("auth_user_externalUid", externalUid)
@@ -715,7 +718,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 user_profile["mail"] = [ email ]
 
         if email == None and self.registeredProviders[provider]["requestForEmail"]:
-            print "Passport. attemptAuthentication. Email was not received"
+            print "Passport-saml. attemptAuthentication. Email was not received"
 
             if userByUid != None:
                 # COLLECT - if collecting we check for existing persistentIds for RP to skip second call
@@ -733,7 +736,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 # This avoids asking for the email over every login attempt
                 email = userByUid.getAttribute("mail")
                 if email != None:
-                    print "Passport. attemptAuthentication. Filling missing email value with %s" % email
+                    print "Passport-saml. attemptAuthentication. Filling missing email value with %s" % email
                     user_profile["mail"] = [ email ]
 
             if email == None:
@@ -786,39 +789,39 @@ class PersonAuthentication(PersonAuthenticationType):
             if doUpdate:
                 username = userByUid.getUserId()
                 user_profile[uidKey][0] = username
-                print "Passport. attemptAuthentication. Updating user %s" % username
+                print "Passport-saml. attemptAuthentication. Updating user %s" % username
                 self.updateUser(userByUid, user_profile, userService)
             elif doAdd:
-                print "Passport. attemptAuthentication. Creating user %s" % externalUid
+                print "Passport-saml. attemptAuthentication. Creating user %s" % externalUid
                 user_profile[uidKey][0] = uuid.uuid4().hex
                 newUser = self.addUser(externalUid, user_profile, userService)
                 username = newUser.getUserId()
         except:
             print "Exception: ", sys.exc_info()[1]
-            print "Passport. attemptAuthentication. Authentication failed"
+            print "Passport-saml. attemptAuthentication. Authentication failed"
             return False
 
         if username == None:
-            print "Passport. attemptAuthentication. Authentication attempt was rejected"
+            print "Passport-saml. attemptAuthentication. Authentication attempt was rejected"
             return False
         else:
             logged_in = CdiUtil.bean(AuthenticationService).authenticate(username)
-            print "Passport. attemptAuthentication. Authentication for %s returned %s" % (username, logged_in)
+            print "Passport-saml. attemptAuthentication. Authentication for %s returned %s" % (username, logged_in)
             if ( logged_in == True ):
                 # Save the authenticated data 
                 sessionAttributes.put("authenticatedProvider", "passport_saml:" + provider)
                 sessionAttributes.put("authenticatedUser", username)
                 # SWITCH - Save contextual data for the switch flows
                 if (switchFlowStatus == "1_GET_SOURCE"):
-                    print "Passport. attemptAuthentication. SWITCH FLOW: Setting SOURCE provider to %s" % sessionAttributes.get("authenticatedProvider")
+                    print "Passport-saml. attemptAuthentication. SWITCH FLOW: Setting SOURCE provider to %s" % sessionAttributes.get("authenticatedProvider")
                     sessionAttributes.put( "switchSourceAuthenticatedProvider", sessionAttributes.get("authenticatedProvider") )
                     sessionAttributes.put( "switchSourceAuthenticatedUser", username)
                 elif (switchFlowStatus == "2_GET_TARGET"):
-                    print "Passport. attemptAuthentication. SWITCH FLOW: Setting TARGET provider to %s" % sessionAttributes.get("authenticatedProvider")
+                    print "Passport-saml. attemptAuthentication. SWITCH FLOW: Setting TARGET provider to %s" % sessionAttributes.get("authenticatedProvider")
                     sessionAttributes.put("switchTargetAuthenticatedProvider", sessionAttributes.get("authenticatedProvider") )
                     sessionAttributes.put("switchTargetAuthenticatedUser", username)
                 elif (sessionAttributes.get("mfaFlowStatus") == "MFA_1_REQUIRED"):
-                    print "Passport. attemptAuthentication. MFA FLOW: starting flow marking status = MFA_2_IN_PROGRESS"
+                    print "Passport-saml. attemptAuthentication. MFA FLOW: starting flow marking status = MFA_2_IN_PROGRESS"
                     sessionAttributes.put("mfaFlowStatus", "MFA_2_IN_PROGRESS")
                     sessionAttributes.put("selectedProvider", "mfa")
 
@@ -859,7 +862,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
         for attr in attrs:
             if (not attr in profile) or len(profile[attr]) == 0:
-                print "Passport. checkRequiredAttributes. Attribute '%s' is missing in profile" % attr
+                print "Passport-saml. checkRequiredAttributes. Attribute '%s' is missing in profile" % attr
                 return False
         return True
 
@@ -888,7 +891,7 @@ class PersonAuthentication(PersonAuthenticationType):
             if attr != self.providerKey:
                 values = profile[attr]
                 # COLLECT - here go through existing PersistentIDs add new ones for RPs that if they are not found
-                print "Passport. fillUser. %s = %s" % (attr, values)
+                print "Passport-saml. fillUser. %s = %s" % (attr, values)
                 if attr == "persistentId":
                     if (values != None):
                         # The format is rp|idp|uid, so we split by '|' and take the first element of the array
@@ -902,14 +905,14 @@ class PersonAuthentication(PersonAuthenticationType):
 
                         # if there still is a persistentId, then add it to the current user profile
                         if ( len(values) > 0):
-                            print "Passport. fillUser. Updating persistent IDs, original = '%s'" % userPersistentIds
+                            print "Passport-saml. fillUser. Updating persistent IDs, original = '%s'" % userPersistentIds
                             # if there are no current Persistent IDs create a new list
                             tmpList = ArrayList(userPersistentIds) if userPersistentIds != None else ArrayList()
                             tmpList.add( values[0] )
-                            print "Passport. fillUser. Updating persistent IDs, updated  = '%s'" % tmpList
+                            print "Passport-saml. fillUser. Updating persistent IDs, updated  = '%s'" % tmpList
                             foundUser.setAttribute(attr, tmpList)
                         else:
-                            print "Passport. fillUser. PersistentId for RP '%s' already exists, ignoring new RP mapping" % currentRp
+                            print "Passport-saml. fillUser. PersistentId for RP '%s' already exists, ignoring new RP mapping" % currentRp
 
                 elif attr == "oxExternalUid_newMfa":
                     # The attribute is here so MFA flow is REQUIRED.
@@ -925,14 +928,14 @@ class PersonAuthentication(PersonAuthenticationType):
 
                     # if there still is a value for MFA PAI, then add it to the current user profile because it did not exist
                     if ( len(values) > 0):
-                        print "Passport. fillUser. Updating MFA PAI oxExternalUid, original list = '%s'" % userOxExternalUids
+                        print "Passport-saml. fillUser. Updating MFA PAI oxExternalUid, original list = '%s'" % userOxExternalUids
                         # if there are no current Persistent IDs create a new list
                         tmpList = ArrayList(userOxExternalUids) if userOxExternalUids != None else ArrayList()
                         tmpList.add( mfaOxExternalUid )
-                        print "Passport. fillUser. Updating persistent IDs, updated with MFA = '%s'" % tmpList
+                        print "Passport-saml. fillUser. Updating persistent IDs, updated with MFA = '%s'" % tmpList
                         foundUser.setAttribute("oxExternalUid", tmpList)
                     else:
-                        print "Passport. fillUser. oxExternalUid for MFA '%s' already exists, ignoring new MFA mapping" % mfaOxExternalUid
+                        print "Passport-saml. fillUser. oxExternalUid for MFA '%s' already exists, ignoring new MFA mapping" % mfaOxExternalUid
             
                 elif attr == "mail":
                     oxtrustMails = []
