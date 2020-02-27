@@ -28,8 +28,6 @@ variables:
 
 steps:
 
-- bash: echo $(minor)
-
 - script: |
     ls -al $(Pipeline.Workspace)
     cd deployment/static/opt/gluu/jetty/oxauth/custom
@@ -77,6 +75,14 @@ steps:
   displayName: 'Downloading shib-oxauth-authn3 libs'
 
 - script: |
+    cd deployment/static/opt/dist/signincanada
+    mkdir shibjar && tar -C shibjar -xvf shib-oxauth-authn3-4.0.sic1.tar
+    cp shibjar/shib-oxauth-authn3-4.0.sic1/edit-webapp/WEB-INF/lib/shib-oxauth-authn3-4.0.sic1.jar .
+    rm -rf shib-oxauth-authn3-4.0.sic1.tar && rm -rf shib-oxauth-authn3-4.0.sic1.zip && rm -rf shibjar
+    ls -al 
+  displayName: 'Moving Shiboleth Jar'
+
+- script: |
     cd deployment/static/opt/dist/gluu
     mv package/*gz .
     rm -rf package
@@ -97,13 +103,6 @@ steps:
     mv SIC-AP-0.0.$(minor).tgz $(Pipeline.Workspace) 
   displayName: 'Packaging tarball'
   continueOnError: true
-
-- bash: |
-    echo my pipeline variable is $(sic-version)
-    echo assign variable again
-    $(sic-version)=$(minor).tgz
-    echo $(minor)
-    echo $(sic-version)
 
 - task: PublishPipelineArtifact@1
   inputs:
