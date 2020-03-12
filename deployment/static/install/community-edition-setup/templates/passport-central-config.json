@@ -3,8 +3,8 @@
         "serverURI": "https://%(hostname)s",
         "serverWebPort": 8090,
         "postProfileEndpoint": "https://%(hostname)s/oxauth/postlogin.htm",
-        "spTLSCert": "%(passportSpTLSCert)s",
-        "spTLSKey": "%(passportSpTLSKey)s",
+        "spTLSCert": "/etc/certs/passport-sp-enc.crt",
+        "spTLSKey": "/etc/certs/passport-sp-enc.key",
         "logging": {
             "level": "info",
             "consoleLogOnly" : false,
