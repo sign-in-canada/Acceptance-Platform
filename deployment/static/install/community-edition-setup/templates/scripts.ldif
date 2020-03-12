@@ -32,9 +32,9 @@ oxConfigurationProperty: {"value1":"key_store_file","value2":"%(passport_rp_clie
 oxConfigurationProperty: {"value1":"key_store_password","value2":"%(passport_rp_client_jks_pass)s","hide":false,"description":""}
 oxLevel: 50
 oxModuleProperty: {"value1":"usage_type","value2":"interactive","description":""}
-oxModuleProperty: {"value1":"location_type","value2":"ldap","description":""}
+oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
+oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/PassportExternalAuthenticator.py","description":""}
 oxRevision: 1
-oxScript::%(person_authentication_passportexternalauthenticator)s
 oxScriptType: person_authentication
 programmingLanguage: python
 
@@ -265,7 +265,8 @@ oxConfigurationProperty: {"value1":"label","value2":"Gluu OTP","description":""}
 oxConfigurationProperty: {"value1":"qr_options","value2":"{ size: 400, mSize: 0.05 }","description":""}
 oxConfigurationProperty: {"value1":"registration_uri","value2":"https://%(hostname)s/identity/register","description":""}
 oxLevel: 40
-oxModuleProperty: {"value1":"location_type","value2":"ldap","description":""}
+oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
+oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/OtpExternalAuthenticator.py","description":""}
 oxModuleProperty: {"value1":"usage_type","value2":"interactive","description":""}
 oxRevision: 1
 oxScript::%(person_authentication_otpexternalauthenticator)s
@@ -450,9 +451,9 @@ oxConfigurationProperty: {"value1":"rps_to_collect_old_mappings_from","value2":"
 oxConfigurationProperty: {"value1":"rps_to_collect_old_mappings_to","value2":"none","description":""}
 oxLevel: 50
 oxModuleProperty: {"value1":"usage_type","value2":"interactive","description":""}
-oxModuleProperty: {"value1":"location_type","value2":"ldap","description":""}
+oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
+oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/SamlPassportAuthenticator.py","description":""}
 oxRevision: 1
-oxScript::%(person_authentication_samlpassportauthenticator)s
 oxScriptType: person_authentication
 programmingLanguage: python
 
@@ -528,10 +529,10 @@ oxConfigurationProperty: {"value1":"selector_page_content_file","value2":"/etc/g
 oxConfigurationProperty: {"value1":"entityids_with_mfa","value2":"none","description":""}
 oxLevel: 50
 oxModuleProperty: {"value1":"usage_type","value2":"interactive","description":""}
-oxModuleProperty: {"value1":"location_type","value2":"ldap","description":""}
-oxAlias: oxAlias: urn:gc-ca:cyber-auth:assurance:loa2
+oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
+oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/SignInCanadaSelectorLoA2.py","description":""}
+oxAlias: urn:gc-ca:cyber-auth:assurance:loa2
 oxRevision: 1
-oxScript::%(person_authentication_signincanadaselectorloa2)s
 oxScriptType: person_authentication
 programmingLanguage: python
 
@@ -543,9 +544,9 @@ displayName: claims
 oxEnabled: true
 inum: 031C-5621
 oxLevel: 50
-oxModuleProperty: {"value1":"location_type","value2":"ldap","description":""}
+oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
+oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/dynamic_scope/sic_dist_claim.py","description":""}
 oxRevision: 1
-oxScript::%(dynamic_scope_sic_dist_claim)s
 oxScriptType: dynamic_scope
 programmingLanguage: python
 
@@ -557,8 +558,8 @@ displayName: saml_nameid
 oxEnabled: true
 inum: 031C-5621
 oxLevel: 50
-oxModuleProperty: {"value1":"location_type","value2":"ldap","description":""}
+oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
+oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/dynamic_scope/sic_saml_nameid.py","description":""}
 oxRevision: 1
-oxScript::%(dynamic_scope_sic_saml_nameid)s
 oxScriptType: dynamic_scope
 programmingLanguage: python
