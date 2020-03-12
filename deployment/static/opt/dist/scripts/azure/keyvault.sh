@@ -50,6 +50,9 @@ done
 # Get the Application Insights Instrumentation Key
 fetchSecret InstrumentationKey > ${KV_DIR}/secrets/InstrumentationKey
 
+# Get the encrption key for MFA
+fetchSecret MFAKey > ${KV_DIR}/secrets/MFAKey
+
 # Get the "salt"
 salt=$(fetchSecret salt)
 if [ "$salt" != "undefined" ] ; then
