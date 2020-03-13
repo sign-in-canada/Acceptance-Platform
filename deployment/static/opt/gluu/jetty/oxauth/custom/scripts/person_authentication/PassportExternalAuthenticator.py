@@ -50,7 +50,18 @@ class PersonAuthentication(PersonAuthenticationType):
         if extensionResult != None:
             return extensionResult
 
-        self.aesKey = b'abcdefghabcdefgh'
+        # Load customization content from file
+        login_hint_key_file = configurationAttributes.get("login_hint_key").getValue2()
+        print "Passport-social. init. Initialization success"
+        f = open( login_hint_key_file, 'r' )
+        try:
+            key = f.read()
+            self.aesKey = key[:16]
+        except:
+            print "Passport-social. Initialization. Failed reading login_hint AES key file: %s" % login_hint_key_file
+            return False
+        finally:
+            f.close()
 
         print "Passport-social. init. Behaviour is social"
         success = self.processKeyStoreProperties(configurationAttributes)
