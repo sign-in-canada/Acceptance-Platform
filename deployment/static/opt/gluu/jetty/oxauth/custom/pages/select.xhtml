@@ -1,376 +1,291 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd" >
-
 <html lang="en" xml:lang="en"
-xmlns="http://www.w3.org/1999/xhtml"
-xmlns:a4j="http://richfaces.org/a4j"
-xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-xmlns:f="http://xmlns.jcp.org/jsf/core"
-xmlns:h="http://xmlns.jcp.org/jsf/html">
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+  xmlns:f="http://xmlns.jcp.org/jsf/core"
+  xmlns:h="http://xmlns.jcp.org/jsf/html">
 
+  <f:view locale="#{language.localeCode}">
+  <h:head lang="en" dir="ltr" xmlns="http://www.w3.org/1999/xhtml">
+    <f:metadata>
+      <f:viewAction action="#{authenticator.prepareAuthenticationForStep}"/>
+    </f:metadata>
 
-<f:view locale="#{language.localeCode}">
-<h:head lang="en" dir="ltr" xmlns="http://www.w3.org/1999/xhtml">
-<f:metadata>
-<f:viewAction action="#{authenticator.prepareAuthenticationForStep}"/>
-</f:metadata>
+    <meta content="width=device-width,initial-scale=1" name="viewport" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="description" content="TBS Sign in Canada to obtain a cyber authentication login" />
+    <meta name="keywords" content="Data Transfer" />
+    <meta name="author" content="Treasury Board of Canada" />
+    <meta name="dcterms.creator" content="Treasury Board of Canada"/>
+    <meta name="dcterms.language" content="eng"/>
+    <meta name="dcterms.subject" content="Sign In Canada Credential Selection"/>
+    <meta name="dcterms.issued" content="2020-02-21"/>
+    <meta name="dcterms.modified" content="2020-02-21"/>
+    <meta name="dcterms.spatial" content="Canada"/>
+    <meta name="dcterms.type" content="navigation page - topic page"/>
+    <meta name="dcterms.source" content="aem"/>
+    <meta name="dcterms.identifier" content="Sign In Canada Credential Selection"/>
+    <title>Sign in to your ATIP online request service</title>
 
-<!-- updated metadata-->
-<meta content="width=device-width,initial-scale=1" name="viewport" />
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="description" content="TBS Sign in Canada to obtain a cyber authentication login" />
-<meta name="keywords" content="Data Transfer" />
-<meta name="author" content="Treasury Board of Canada-ATIP Online Request Service (AORS)" />
-<meta name="dcterms.creator" content="Treasury Board of Canada"/>
-<meta name="dcterms.language" content="eng"/>
-<meta name="dcterms.subject" content="ATIP Online Request Service (AORS)"/>
-<meta name="dcterms.issued" content="2020-02-21"/>
-<meta name="dcterms.modified" content="2020-02-21"/>
-<meta name="dcterms.spatial" content="Canada"/>
-<meta name="dcterms.type" content="navigation page - topic page"/>
-<meta name="dcterms.source" content="aem"/>
-<meta name="dcterms.identifier" content="ATIP Online Request Service (AORS)"/>
-<title>Sign in to your ATIP online request service</title>
+    <link href="https://www.canada.ca/etc/designs/canada/wet-boew/assets/favicon.ico" rel="icon" type="image/x-icon" />
+    <link rel="stylesheet" href="https://www.canada.ca/etc/designs/canada/wet-boew/css/theme.min.css" />
+    <link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
+    <noscript>
+      <link rel="stylesheet" href="https://www.canada.ca/etc/designs/canada/wet-boew/css/noscript.min.css" />
+    </noscript>
 
-
-<link href="https://www.canada.ca/etc/designs/canada/wet-boew/assets/favicon.ico" rel="icon" type="image/x-icon" />
-<link rel="stylesheet" href="https://www.canada.ca/etc/designs/canada/wet-boew/css/theme.min.css" />
-<link rel="schema.dcterms" href="http://purl.org/dc/terms/"/>
-<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous" />
-
-<link property="logo" href="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg" />
-
-
-<noscript><link rel="stylesheet" href="https://www.canada.ca/etc/designs/canada/wet-boew/css/noscript.min.css" /></noscript>
-</h:head>
-<h:body class="page-type-nav" vocab="http://schema.org/" typeof="WebPage">
- <div class="global-header">
- <nav><ul id="wb-tphp">
-        <li class="wb-slc"><a class="wb-sl" href="#wb-cont">Skip to main content</a></li>
-        <li class="wb-slc"><a class="wb-sl" href="#wb-info">Skip to &#34;About government&#34;</a></li>
-
-</ul></nav>
-</div>
-<header>
-<div id="wb-bnr" class="container">
-<section id="wb-lng" class="text-right">
-<h2 class="wb-inv">Language selection</h2>
-<ul class="list-inline margin-bottom-none">
-      <li>
-                    <a lang="fr" xml:lang="fr" href="/fr/services/impots.html">
-                        Fran&ccedil;ais
-                    </a>
-                </li>
-</ul>
-</section>
-<div class="row">
-<div class="brand col-xs-5 col-md-4" property="publisher" typeof="GovernmentOrganization">
-<a href="https://www.canada.ca/en.html" property="url"><img src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/sig-blk-en.svg" alt="" property="logo" /><span class="wb-inv" property="name"> Government of Canada / <span lang="fr" xml:lang="fr" >Gouvernement du Canada</span></span></a>
-<meta property="areaServed" typeof="Country" content="Canada" />
-
-</div>
-<section id="wb-srch" class="col-lg-8 text-right">
-<h2>Search</h2>
-<form action="#" method="post" name="cse-search-box" role="search" class="form-inline">
-<div class="form-group">
-<label for="wb-srch-q" class="wb-inv">Search Canada.ca</label>
-<input id="wb-srch-q" list="wb-srch-q-ac" class="wb-srch-q form-control" name="q" type="search" value="" size="34" maxlength="170" placeholder="Search Canada.ca" />
-<datalist id="wb-srch-q-ac">
-</datalist>
-</div>
-<div class="form-group submit">
-<button type="submit" id="wb-srch-sub" class="btn btn-primary btn-small" name="wb-srch-sub"><span class="glyphicon-search glyphicon"></span><span class="wb-inv">Search</span></button>
-</div>
-</form>
-</section>
-</div>
-</div>
-<nav class="gcweb-menu" typeof="SiteNavigationElement">
-<div class="container">
-<h2 class="wb-inv">Menu</h2>
-<button type="button" aria-haspopup="true" aria-expanded="false"><span class="wb-inv">Main </span>Menu <span class="expicon glyphicon glyphicon-chevron-down"></span></button>
-<ul role="menu" aria-orientation="vertical" data-ajax-replace="//cdn.canada.ca/gcweb-cdn-live/sitemenu/sitemenu-v5-en.html">
-<li role="presentation"><a role="menuitem" href="https://www.canada.ca/en/services/jobs.html">Jobs and the workplace</a></li>
-<li role="presentation"><a role="menuitem" href="https://www.canada.ca/en/services/immigration-citizenship.html">Immigration and citizenship</a></li>
-<li role="presentation"><a role="menuitem" href="https://travel.gc.ca/">Travel and tourism</a></li>
-<li role="presentation"><a role="menuitem" href="https://www.canada.ca/en/services/business.html">Business and industry</a></li>
-<li role="presentation"><a role="menuitem" href="https://www.canada.ca/en/services/benefits.html">Benefits</a></li>
-<li role="presentation"><a role="menuitem" href="https://www.canada.ca/en/services/health.html">Health</a></li>
-<li role="presentation"><a role="menuitem" href="https://www.canada.ca/en/services/taxes.html">Taxes</a></li>
-<li role="presentation"><a role="menuitem" href="https://www.canada.ca/en/services/environment.html">Environment and natural resources</a></li>
-<li role="presentation"><a role="menuitem" href="https://www.canada.ca/en/services/defence.html">National security and defence</a></li>
-<li role="presentation"><a role="menuitem" href="https://www.canada.ca/en/services/culture.html">Culture, history and sport</a></li>
-<li role="presentation"><a role="menuitem" href="https://www.canada.ca/en/services/policing.html">Policing, justice and emergencies</a></li>
-<li role="presentation"><a role="menuitem" href="https://www.canada.ca/en/services/transport.html">Transport and infrastructure</a></li>
-<li role="presentation"><a role="menuitem" href="https://international.gc.ca/world-monde/index.aspx?lang=eng">Canada and the world</a></li>
-<li role="presentation"><a role="menuitem" href="https://www.canada.ca/en/services/finance.html">Money and finances</a></li>
-<li role="presentation"><a role="menuitem" href="https://www.canada.ca/en/services/science.html">Science and innovation</a></li>
-</ul>
-</div>
-</nav>
-<nav id="wb-bc" property="breadcrumb">
-<h2>You are here:</h2>
-<div class="container">
-<ol class="breadcrumb">
-<li><a href="https://www.canada.ca/en.html">Home</a></li>
-</ol>
-</div>
-</nav>
-</header>
-
-
-<main property="mainContentOfPage" class="container" typeof="WebPageElement">
-<div style="float:right; margin-top:20px;"><a href="#" class="btn btn-primary"><span style="padding-right:5px;" class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>&nbsp;Help</a></div>
-<h1 property="name" id="wb-cont">Sign in to your <abbr title="Access to Information and Privacy">ATIP</abbr> online request services</h1>
-<p>Your account lets you start an application, and get messages related to your application, check the status of your ATIP requests and allow you to receive your requests electronically.</p>
-<h2 class="mrgn-bttm-lg">Please choose an option to sign in to use your ATIP account: </h2>
-<div class="row wb-eqht">
-  <h:form id="loginForm" action="#{authenticator.authenticate}" class="form" >
-    <div>
-
-
-    <h:messages style="color:red;"/>
-    <h:inputHidden id="acrname" value="#{acrname}" styleClass="form-control" autocomplete="off" />
-    <h:inputHidden id="switchCredentialBox" value="off" styleClass="form-control" autocomplete="off" />
-
-
-    <div class="col-md-6">
-      <section class="panel panel-default hght-inhrt">
-        <div class="panel-heading">
-          <h3 class="mrgn-tp-sm" style="font-size:1.65em">
-             <svg width="30px" height="30px" viewBox="0 0 30 33" version="1.1" >
-                <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                    <g transform="translate(-257.000000, -573.000000)" fill="#000000" fill-rule="nonzero">
-                        <g transform="translate(194.000000, 429.000000)">
-                            <g transform="translate(0.000000, 131.000000)">
-                                <path d="M86.2274678,35.6681641 C86.388412,35.5070312 93,29.7126953 93,29.7126953 L91.8733906,29.2292969 C91.2296137,28.9134766 91.3969957,28.4880859 91.5515021,28.1078125 C91.7060086,27.6179687 92.8454936,23.7701172 92.8454936,23.7701172 C92.8454936,23.7701172 89.7746781,24.4146484 89.1309013,24.5757812 C88.6480687,24.7304688 88.4871245,24.4146484 88.3261803,24.0923828 C88.1652361,23.7701172 87.360515,22.0041016 87.360515,22.0041016 C87.360515,22.0041016 83.9742489,25.8648437 83.8133047,26.0195312 C83.1695279,26.5029297 82.5193133,26.0195312 82.6802575,25.375 C82.6802575,24.7304687 84.4570815,17.021875 84.4570815,17.021875 C84.4570815,17.021875 82.5193133,18.1433594 81.8755365,18.465625 C81.3927039,18.7878906 81.0643777,18.7878906 80.7424893,18.1433594 C80.4141631,17.6599609 77.9935622,13 77.9935622,13 C77.9935622,13 75.5793991,17.6599609 75.2575107,18.1433594 C74.9356223,18.7878906 74.6137339,18.7878906 74.1244635,18.465625 C73.4806867,18.1433594 71.5429185,17.021875 71.5429185,17.021875 C71.5429185,17.021875 73.3197425,24.7304688 73.3197425,25.375 C73.4806867,26.0195312 72.8369099,26.5029297 72.1866953,26.0195312 C72.0257511,25.8583984 68.639485,22.0041016 68.639485,22.0041016 C68.639485,22.0041016 67.8347639,23.7636719 67.6738197,24.0859375 C67.5128755,24.4082031 67.3519313,24.7240234 66.8690987,24.5693359 C66.2188841,24.4082031 63.1545064,23.7636719 63.1545064,23.7636719 C63.1545064,23.7636719 64.2875536,27.6115234 64.4484979,28.1013672 C64.6030043,28.4880859 64.7703863,28.9070313 64.1266094,29.2228516 L63,29.7126953 C63,29.7126953 69.6051502,35.5070313 69.7725322,35.6681641 C70.1008584,35.9904297 70.416309,36.1515625 70.1008584,37.1183594 C69.7725322,38.0851563 69.4506438,39.3806641 69.4506438,39.3806641 C69.4506438,39.3806641 75.5793991,38.0851563 76.2296137,37.9240234 C76.7896996,37.8660156 77.4077253,38.0851563 77.4077253,38.7296875 C77.4077253,39.3806641 77.0343348,46 77.0343348,46 L78.9656652,46 C78.9656652,46 78.5922747,39.3806641 78.5922747,38.7296875 C78.5922747,38.0851562 79.2038627,37.8660156 79.776824,37.9240234 C80.4206009,38.0851562 86.5493562,39.3806641 86.5493562,39.3806641 C86.5493562,39.3806641 86.2274678,38.0851562 85.9055794,37.1183594 C85.583691,36.1515625 85.9055794,35.9904297 86.2274678,35.6681641 L86.2274678,35.6681641 Z" id="Path"></path>
-                            </g>
-                        </g>
-                    </g>
-                </g>
-             </svg> &nbsp; Option 1: GCKey
-          </h3>
-        </div>
-        <div class="panel-body">
-          <p>Sign in with your GCKey username and password.</p>
-
-          <!-- Links for Gluu to GCKEY -->
-            <p class="text-center">
-                    <h:commandButton id="loginButton1" styleClass="btn btn-primary mrgn-tp-lg btn-lg" value="Sign in with GCKey" action="#{authenticator.authenticate}" type="submit" onclick="fillInAcrOnSubmit('passport_saml:gckey')"></h:commandButton>
-                        </p>
-
-        </div>
-      </section>
-    </div></div>
-    <div class="col-md-6">
-      <section class="panel panel-default hght-inhrt">
-        <div class="panel-heading">
-          <h3 class="mrgn-tp-sm" style="font-size:1.65em">
-            <svg version="1.1" width="30px" height="30px" x="0px" y="0px" viewBox="0 0 1000 1000" enable-background="new 0 0 1000 1000" xml:space="preserve">
-<metadata> Svg Vector Icons : http://www.onlinewebfonts.com/icon </metadata>
-<g><g transform="translate(0.000000,511.000000) scale(0.100000,-0.100000)"><path d="M2570.9,3908.2C1292.3,3292.1,226.3,2773.6,204.2,2751.4c-68.7-62.1-104.2-150.7-104.2-259.3c0-124.1,51-219.4,150.7-281.4l73.1-46.5h4673.7h4671.5l75.4,46.5c183.9,115.2,210.5,394.5,48.8,540.7c-24.4,19.9-1090.3,540.7-2373.5,1156.8C5412,4874.4,5075.1,5029.6,4993.1,5027.3C4913.4,5027.3,4496.7,4832.3,2570.9,3908.2z M5248,3881.6c363.4-195,352.4-720.2-17.7-910.8c-480.9-248.2-972.9,330.2-653.7,769C4731.6,3954.8,5004.2,4012.4,5248,3881.6z"/><path d="M1287.8,1302.1c-31-44.3-35.5-301.4-35.5-2324.7c0-2267.1,0-2273.7,46.5-2333.6l44.3-57.6h476.5c445.4,0,476.5,2.2,518.6,44.3c44.3,44.3,44.3,73.1,44.3,2333.5c0,2034.4-4.4,2293.7-35.5,2338c-33.2,48.8-42.1,48.8-529.6,48.8C1329.9,1350.8,1321.1,1350.8,1287.8,1302.1z"/><path d="M3459.6,1302.1c-31-44.3-35.5-301.4-35.5-2318c0-2282.6,2.2-2331.3,75.3-2380.1c13.3-8.9,234.9-17.7,494.2-17.7h469.8l44.3,57.6c46.5,59.8,46.5,66.5,46.5,2333.6c0,2023.3-4.4,2280.4-35.5,2324.7c-33.2,48.8-42.1,48.8-529.6,48.8S3492.8,1350.8,3459.6,1302.1z"/><path d="M5600.4,1324.3c-20-19.9-26.6-571.7-26.6-2346.8v-2322.5l48.8-33.2c42.1-28.8,128.5-35.4,509.7-35.4c432.1,0,463.2,2.2,505.3,44.3c44.3,44.3,44.3,73.1,44.3,2344.6c0,2202.8-2.2,2304.7-39.9,2338c-35.5,33.2-106.4,37.7-527.4,37.7C5764.3,1350.8,5620.3,1344.2,5600.4,1324.3z"/><path d="M7781,1302.1c-31-44.3-35.4-301.4-35.4-2324.7c0-2267.1,0-2273.7,46.5-2333.6l44.3-57.6h476.5c445.4,0,476.5,2.2,518.6,44.3c44.3,44.3,44.3,73.1,44.3,2333.5c0,2034.4-4.4,2293.7-35.4,2338c-33.2,48.8-42.1,48.8-529.6,48.8S7814.2,1350.8,7781,1302.1z"/><path d="M277.3-4162.8c-113-55.4-177.3-164-177.3-301.4c0-148.5,59.8-246,186.1-303.6c95.3-42.1,186.2-42.1,4738-37.7l4638.3,6.6l77.6,48.8c219.4,137.4,208.3,463.1-22.1,585c-73.1,39.9-243.8,42.1-4720.3,42.1C620.8-4122.9,350.4-4125.1,277.3-4162.8z"/></g></g>
-            </svg> &nbsp; Option 2: Canadian banks
-          </h3>
-        </div>
-        <div class="panel-body">
-<p>Sign in with your online Canadian banking information.</p>
-              <p class="text-center">
-              <h:commandButton id="loginButton2" styleClass="btn btn-primary mrgn-tp-lg btn-lg" value="Sign in with Sign-In Partner"
-                    action="#{authenticator.authenticate}" type="submit" onclick="fillInAcrOnSubmit('passport_saml:cbs')">
-                     </h:commandButton></p>
-<!--          <br/><ul style="z-index:150000;" class="list-unstyled">
-    <li>
-      <details>
-        <summary>View list of Sign-In Partners</summary>
-          <li>Affinity Credit Union</li>
-    <li>ATB Financial</li>
-    <li>BMO Financial Group - Debit Card</li>
-    <li>CIBC-Banking that fits your life.</li>
-    <li>Caisses Populaires</li>
-    <li>Conexus</li>
-    <li>Desjardins</li>
-    <li>National Bank</li>
-    <li>RBC Royal Bank</li>
-    <li>Scotia Bank</li>
-    <li>Servus Credit Union</li>
-    <li>Tangerine - Forward Banking</li>
-    <li>TD Canada Trust EasyWeb</li>
-    <li>UNI FINANCIAL COOPERATION</li>
-     <li>Vancity</li>
-      </details>
-</li>
-</ul>-->
-
-        </div>
-      </section>
+    <link property="logo" href="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg" />
+  </h:head>
+  <h:body class="page-type-nav" vocab="http://schema.org/" typeof="WebPage">
+    <div class="global-header">
+      <nav>
+        <ul id="wb-tphp">
+          <li class="wb-slc"><a class="wb-sl" href="#wb-cont">Skip to main content</a></li>
+          <li class="wb-slc"><a class="wb-sl" href="#wb-info">Skip to &#34;About government&#34;</a></li>
+        </ul>
+      </nav>
     </div>
+    <header>
+      <div id="wb-bnr" class="container">
+        <section id="wb-lng" class="text-right">
+        <h2 class="wb-inv">Language selection</h2>
+        <ul class="list-inline margin-bottom-none">
+          <li><a lang="fr" xml:lang="fr" href="/fr/#.html">Fran&ccedil;ais</a></li>
+        </ul>
+        </section>
+        <div class="row">
+          <div class="brand col-xs-5 col-md-4" property="publisher" typeof="GovernmentOrganization">
+            <a href="https://www.canada.ca/en.html" property="url">
+              <img src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/sig-blk-en.svg" alt="" property="logo" />
+              <span class="wb-inv" property="name"> Government of Canada / <span lang="fr" xml:lang="fr" >Gouvernement du Canada</span></span>
+            </a>
+            <meta property="areaServed" typeof="Country" content="Canada" />
+          </div>
+        </div>
+      </div>
+    </header>
 
-   </h:form>
-
-  </div>
-  <div class="row text-center">
-    <h2 class="mrgn-tp-md">Don't have a username or password?</h2>
-    <p><a href="https://qa.access.tbs-sct.gc.ca/oxauth/auth/idp_chooser_loa2/register.html"
-            class="btn btn-default btn-full mrgn-bttm-md mrgn-tp-md" style=" background-color:#26374a; color:#fff; border: 1px solid grey;">Sign up with GCKey</a>
-            </p>
-  </div>
-<div class="pagedetails">
-<div class="row">
-<div class="col-sm-6 col-md-5 col-lg-4">
-<details class="brdr-0">
-<summary class="btn btn-default text-center">Report a problem on this page</summary>
-<div class="well row">
-<div class="gc-rprt-prblm">
-<div class="gc-rprt-prblm-frm gc-rprt-prblm-tggl">
-                        <form id="gc-rprt-prblm-form" action="/gc/services/generateemail" method="post">
-            <input type="hidden" name="pageTitle" value="Immigration and citizenship" />
-            <input type="hidden" name="submissionPage" value="/content/canadasite/en/services/immigration-citizenship.html" />
-            <input type="hidden" name="lang" value="en" />
-            <input type="hidden" name="pageOwner" value="gc:institutions/department-of-citizenship-and-immigration" />
-            <input id="emailTemplate" name="emailTemplate" type="hidden" value="reportaproblem/rap" />
-            <input name="subject" type="hidden" value="Report a problem or mistake on this page" />
-            <fieldset>
-                <legend><span class="field-name">Please select all that apply:</span></legend>
-                 <div class="checkbox">
-                    <label for="problem1">
-                    <input name="problem1" id="problem1" type="checkbox" value="Yes" data-reveal="#broken" data-gc-analytics-rap="A link, button or video is not working-Un lien, un bouton ou une vidéo ne fonctionne pas" />A link, button or video is not working</label>
-                    <input name="problem1" type="hidden" value="No" />
-                </div>
-                <div class="checkbox">
-                    <label for="problem2">
-                    <input name="problem2" id="problem2" type="checkbox" value="Yes" data-reveal="#spelling" data-gc-analytics-rap="It has a spelling mistake-Il y a une erreur d'orthographe ou de grammaire" />It has a spelling mistake
-                    <input name="problem2" type="hidden" value="No"/>
-                </label></div>
-                <div class="checkbox">
-                    <label for="problem3">
-                    <input name="problem3" id="problem3" type="checkbox" value="Yes" data-reveal="#wrong" data-gc-analytics-rap="Information is missing-Les renseignements sont incomplets" />Information is missing</label>
-                    <input name="problem3" type="hidden" value="No" />
-               </div>
-                <div class="checkbox">
-                    <label for="problem4">
-                    <input name="problem4" id="problem4" type="checkbox" value="Yes" data-reveal="#outdated" data-gc-analytics-rap="Information is outdated or wrong-L'information n'est plus à jour ou est erronée" />Information is outdated or wrong</label>
-                    <input name="problem4" type="hidden" value="No" />
-                </div>
-                <div class="checkbox">
-                    <label for="problem5"><input name="problem5" id="problem5" type="checkbox" value="Yes" data-reveal="#find" data-gc-analytics-rap=" Login error when trying to access an account (e.g. My Service Canada Account)-Message d'erreur à l'ouverture de la session lorsque je tente d'accéder à un compte (ex. Mon dossier Service Canada)" />Login error when trying to access an account (e.g. My Service Canada Account)</label>
-                    <input name="problem5" type="hidden" value="No" />
-                </div>
-                                        <ul>
-                                        <li class="checkbox">
-                        <label for="problem6"><input name="problem6" id="problem6" type="checkbox" value="Yes" data-reveal="#find" data-gc-analytics-rap="GC Key access-Accès CléGC" />GC Key access</label>
-                        <input name="problem6" type="hidden" value="No" />
-                     </li>
-                                        <li class="checkbox">
-                        <label for="problem7"><input name="problem7" id="problem7" type="checkbox" value="Yes" data-reveal="#find" data-gc-analytics-rap="SecureKey Concierge (Banking Credential) access-Accès SecureKey Service de Concierge (justificatifs d'identité bancaires)" />SecureKey Concierge (Banking Credential) access </label>
-                        <input name="problem7" type="hidden" value="No" />
-                     </li>
-                                        <li class="checkbox">
-                        <label for="problem8"><input name="problem8" id="problem8" type="checkbox" value="Yes" data-reveal="#find" data-gc-analytics-rap="Personal Access Code (PAC) problems or EI Access Code (AC) problems-Problème avec le Code d'accès personnel (CAP) ou avec le Code d'accès (CA) de l'assurance emploi" />Personal Access Code (PAC) problems or EI Access Code (AC) problems</label>
-                        <input name="problem8" type="hidden" value="No" />
-                     </li>
-                                        <li class="checkbox">
-                        <label for="problem9"><input name="problem9" id="problem9" type="checkbox" value="Yes" data-reveal="#find" data-gc-analytics-rap="Social Insurance Number (SIN) validation problems-Problème lié à la validation du numéro d'assurance sociale (NAS)" />Social Insurance Number (SIN) validation problems</label>
-                        <input name="problem9" type="hidden" value="No" />
-                     </li>
-                                        <li class="checkbox">
-                        <label for="problem10"><input name="problem10" id="problem10" type="checkbox" value="Yes" data-reveal="#find" data-gc-analytics-rap="Other login error not in this list-Autre erreur lors de l'ouverture de session qui ne figure pas sur cette liste" />Other login error not in this list</label>
-                        <input name="problem10" type="hidden" value="No" />
-                     </li>
-                     </ul>
-                                    <div class="checkbox">
-                    <label for="problem11"><input name="problem11" id="problem11" type="checkbox" value="Yes" data-reveal="#find" data-gc-analytics-rap="I can't find what I'm looking for-Je n'arrive pas à trouver ce que je cherche" />I can't find what I'm looking for</label>
-                    <input name="problem11" type="hidden" value="No" />
-                </div>
+    <main property="mainContentOfPage" class="container" typeof="WebPageElement">
+      <div style="float:right; margin-top:20px;">
+	    <a href="#" class="btn btn-primary"><span style="padding-right:5px;" class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>&nbsp;Help</a>
+	  </div>
+      <h1 property="name" id="wb-cont">Sign in to your <abbr title="Access to Information and Privacy">ATIP</abbr> online request services</h1>
+      <p>Your account lets you start an application, and get messages related to your application, check the status of your ATIP requests and allow you to receive your requests electronically.</p>
+      <h2 class="mrgn-bttm-lg">Please choose an option to sign in to use your ATIP account: </h2>
+      <h:form id="loginForm" action="#{authenticator.authenticate}" class="form" >
+        <div class="row wb-eqht">
+          <h:messages style="color:red;"/>
+          <h:inputHidden id="acrname" value="#{acrname}" styleClass="form-control" autocomplete="off" />
+          <h:inputHidden id="switchCredentialBox" value="off" styleClass="form-control" autocomplete="off" />
+          <div class="col-md-6">
+            <section class="panel panel-default hght-inhrt">
+              <div class="panel-heading">
+                <h3 class="mrgn-tp-sm" style="font-size:1.65em">
+                  <svg width="30px" height="30px" viewBox="0 0 30 33" version="1.1" >
+                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                      <g transform="translate(-257.000000, -573.000000)" fill="#000000" fill-rule="nonzero">
+                        <g transform="translate(194.000000, 429.000000)">
+                          <g transform="translate(0.000000, 131.000000)">
+                            <path d="M86.2274678,35.6681641 C86.388412,35.5070312 93,29.7126953 93,29.7126953 L91.8733906,29.2292969 C91.2296137,28.9134766 91.3969957,28.4880859 91.5515021,28.1078125 C91.7060086,27.6179687 92.8454936,23.7701172 92.8454936,23.7701172 C92.8454936,23.7701172 89.7746781,24.4146484 89.1309013,24.5757812 C88.6480687,24.7304688 88.4871245,24.4146484 88.3261803,24.0923828 C88.1652361,23.7701172 87.360515,22.0041016 87.360515,22.0041016 C87.360515,22.0041016 83.9742489,25.8648437 83.8133047,26.0195312 C83.1695279,26.5029297 82.5193133,26.0195312 82.6802575,25.375 C82.6802575,24.7304687 84.4570815,17.021875 84.4570815,17.021875 C84.4570815,17.021875 82.5193133,18.1433594 81.8755365,18.465625 C81.3927039,18.7878906 81.0643777,18.7878906 80.7424893,18.1433594 C80.4141631,17.6599609 77.9935622,13 77.9935622,13 C77.9935622,13 75.5793991,17.6599609 75.2575107,18.1433594 C74.9356223,18.7878906 74.6137339,18.7878906 74.1244635,18.465625 C73.4806867,18.1433594 71.5429185,17.021875 71.5429185,17.021875 C71.5429185,17.021875 73.3197425,24.7304688 73.3197425,25.375 C73.4806867,26.0195312 72.8369099,26.5029297 72.1866953,26.0195312 C72.0257511,25.8583984 68.639485,22.0041016 68.639485,22.0041016 C68.639485,22.0041016 67.8347639,23.7636719 67.6738197,24.0859375 C67.5128755,24.4082031 67.3519313,24.7240234 66.8690987,24.5693359 C66.2188841,24.4082031 63.1545064,23.7636719 63.1545064,23.7636719 C63.1545064,23.7636719 64.2875536,27.6115234 64.4484979,28.1013672 C64.6030043,28.4880859 64.7703863,28.9070313 64.1266094,29.2228516 L63,29.7126953 C63,29.7126953 69.6051502,35.5070313 69.7725322,35.6681641 C70.1008584,35.9904297 70.416309,36.1515625 70.1008584,37.1183594 C69.7725322,38.0851563 69.4506438,39.3806641 69.4506438,39.3806641 C69.4506438,39.3806641 75.5793991,38.0851563 76.2296137,37.9240234 C76.7896996,37.8660156 77.4077253,38.0851563 77.4077253,38.7296875 C77.4077253,39.3806641 77.0343348,46 77.0343348,46 L78.9656652,46 C78.9656652,46 78.5922747,39.3806641 78.5922747,38.7296875 C78.5922747,38.0851562 79.2038627,37.8660156 79.776824,37.9240234 C80.4206009,38.0851562 86.5493562,39.3806641 86.5493562,39.3806641 C86.5493562,39.3806641 86.2274678,38.0851562 85.9055794,37.1183594 C85.583691,36.1515625 85.9055794,35.9904297 86.2274678,35.6681641 L86.2274678,35.6681641 Z" id="Path"></path>
+                          </g>
+                        </g>
+                      </g>
+                    </g>
+                  </svg> &nbsp; Option 1: GCKey
+                </h3>
+              </div>
+              <div class="panel-body">
+                <p>Sign in with your GCKey username and password.</p>
+                <!-- Links for Gluu to GCKEY -->
+                <p class="text-center">
+                  <h:commandButton id="loginButton1" styleClass="btn btn-primary mrgn-tp-lg btn-lg" value="Sign in with GCKey" action="#{authenticator.authenticate}" type="submit" onclick="fillInAcrOnSubmit('passport_saml:gckey')"></h:commandButton>
+                </p>
+              </div>
+            </section>
+          </div>
+          <div class="col-md-6">
+            <section class="panel panel-default hght-inhrt">
+              <div class="panel-heading">
+                <h3 class="mrgn-tp-sm" style="font-size:1.65em">
+                  <svg version="1.1" width="30px" height="30px" x="0px" y="0px" viewBox="0 0 1000 1000" enable-background="new 0 0 1000 1000" xml:space="preserve">
+                    <metadata> Svg Vector Icons : http://www.onlinewebfonts.com/icon </metadata>
+                    <g><g transform="translate(0.000000,511.000000) scale(0.100000,-0.100000)"><path d="M2570.9,3908.2C1292.3,3292.1,226.3,2773.6,204.2,2751.4c-68.7-62.1-104.2-150.7-104.2-259.3c0-124.1,51-219.4,150.7-281.4l73.1-46.5h4673.7h4671.5l75.4,46.5c183.9,115.2,210.5,394.5,48.8,540.7c-24.4,19.9-1090.3,540.7-2373.5,1156.8C5412,4874.4,5075.1,5029.6,4993.1,5027.3C4913.4,5027.3,4496.7,4832.3,2570.9,3908.2z M5248,3881.6c363.4-195,352.4-720.2-17.7-910.8c-480.9-248.2-972.9,330.2-653.7,769C4731.6,3954.8,5004.2,4012.4,5248,3881.6z"/><path d="M1287.8,1302.1c-31-44.3-35.5-301.4-35.5-2324.7c0-2267.1,0-2273.7,46.5-2333.6l44.3-57.6h476.5c445.4,0,476.5,2.2,518.6,44.3c44.3,44.3,44.3,73.1,44.3,2333.5c0,2034.4-4.4,2293.7-35.5,2338c-33.2,48.8-42.1,48.8-529.6,48.8C1329.9,1350.8,1321.1,1350.8,1287.8,1302.1z"/><path d="M3459.6,1302.1c-31-44.3-35.5-301.4-35.5-2318c0-2282.6,2.2-2331.3,75.3-2380.1c13.3-8.9,234.9-17.7,494.2-17.7h469.8l44.3,57.6c46.5,59.8,46.5,66.5,46.5,2333.6c0,2023.3-4.4,2280.4-35.5,2324.7c-33.2,48.8-42.1,48.8-529.6,48.8S3492.8,1350.8,3459.6,1302.1z"/><path d="M5600.4,1324.3c-20-19.9-26.6-571.7-26.6-2346.8v-2322.5l48.8-33.2c42.1-28.8,128.5-35.4,509.7-35.4c432.1,0,463.2,2.2,505.3,44.3c44.3,44.3,44.3,73.1,44.3,2344.6c0,2202.8-2.2,2304.7-39.9,2338c-35.5,33.2-106.4,37.7-527.4,37.7C5764.3,1350.8,5620.3,1344.2,5600.4,1324.3z"/><path d="M7781,1302.1c-31-44.3-35.4-301.4-35.4-2324.7c0-2267.1,0-2273.7,46.5-2333.6l44.3-57.6h476.5c445.4,0,476.5,2.2,518.6,44.3c44.3,44.3,44.3,73.1,44.3,2333.5c0,2034.4-4.4,2293.7-35.4,2338c-33.2,48.8-42.1,48.8-529.6,48.8S7814.2,1350.8,7781,1302.1z"/><path d="M277.3-4162.8c-113-55.4-177.3-164-177.3-301.4c0-148.5,59.8-246,186.1-303.6c95.3-42.1,186.2-42.1,4738-37.7l4638.3,6.6l77.6,48.8c219.4,137.4,208.3,463.1-22.1,585c-73.1,39.9-243.8,42.1-4720.3,42.1C620.8-4122.9,350.4-4125.1,277.3-4162.8z"/></g></g>
+                  </svg> &nbsp; Option 2: Canadian banks
+                </h3>
+              </div>
+              <div class="panel-body">
+                <p>Sign in with your online Canadian banking information.</p>
+                <p class="text-center">
+                  <h:commandButton id="loginButton2" styleClass="btn btn-primary mrgn-tp-lg btn-lg" value="Sign in with Sign-In Partner" action="#{authenticator.authenticate}" type="submit" onclick="fillInAcrOnSubmit('passport_saml:cbs')"></h:commandButton>
+			    </p>
+              </div>
+            </section>
+          </div>
+        </div>
+        <div class="row text-center">
+          <h2 class="mrgn-tp-md">Don't have a username or password?</h2>
+          <p>
+			<h:commandButton id="loginButton3" styleClass="btn btn-primary mrgn-tp-lg btn-lg" value="Sign up with GCKey" action="#{authenticator.authenticate}" type="submit" onclick="fillInAcrOnSubmit('passport_saml:gckey')"></h:commandButton>
+          </p>
+        </div>
+      </h:form>
+      <div class="pagedetails">
+        <div class="row">
+          <div class="col-sm-6 col-md-5 col-lg-4">
+            <details class="brdr-0">
+              <summary class="btn btn-default text-center">Report a problem on this page</summary>
+              <div class="well row">
+                <div class="gc-rprt-prblm">
+                  <div class="gc-rprt-prblm-frm gc-rprt-prblm-tggl">
+                    <form id="gc-rprt-prblm-form" action="/gc/services/generateemail" method="post">
+                      <input type="hidden" name="pageTitle" value="Immigration and citizenship" />
+                      <input type="hidden" name="submissionPage" value="/content/canadasite/en/services/immigration-citizenship.html" />
+                      <input type="hidden" name="lang" value="en" />
+                      <input type="hidden" name="pageOwner" value="gc:institutions/department-of-citizenship-and-immigration" />
+                      <input id="emailTemplate" name="emailTemplate" type="hidden" value="reportaproblem/rap" />
+                      <input name="subject" type="hidden" value="Report a problem or mistake on this page" />
+                      <fieldset>
+                        <legend><span class="field-name">Please select all that apply:</span></legend>
                         <div class="checkbox">
-                    <label for="problem12">
-                    <input name="problem12" id="problem12" type="checkbox" value="Yes" data-reveal="#find" data-gc-analytics-rap="Other issue not in this list-Autre problème qui ne figure pas sur cette liste" />
-                    Other issue not in this list</label>
-                    <input name="problem12" type="hidden" value="No" />
+                          <label for="problem1">
+                            <input name="problem1" id="problem1" type="checkbox" value="Yes" data-reveal="#broken" data-gc-analytics-rap="A link, button or video is not working-Un lien, un bouton ou une vidéo ne fonctionne pas" />A link, button or video is not working
+                          </label>
+                          <input name="problem1" type="hidden" value="No" />
+                        </div>
+                        <div class="checkbox">
+                          <label for="problem2">
+                            <input name="problem2" id="problem2" type="checkbox" value="Yes" data-reveal="#spelling" data-gc-analytics-rap="It has a spelling mistake-Il y a une erreur d'orthographe ou de grammaire" />It has a spelling mistake
+                            <input name="problem2" type="hidden" value="No"/>
+                          </label>
+                        </div>
+                        <div class="checkbox">
+                          <label for="problem3">
+                            <input name="problem3" id="problem3" type="checkbox" value="Yes" data-reveal="#wrong" data-gc-analytics-rap="Information is missing-Les renseignements sont incomplets" />Information is missing
+                          </label>
+                          <input name="problem3" type="hidden" value="No" />
+                        </div>
+                        <div class="checkbox">
+                          <label for="problem4">
+                          <input name="problem4" id="problem4" type="checkbox" value="Yes" data-reveal="#outdated" data-gc-analytics-rap="Information is outdated or wrong-L'information n'est plus à jour ou est erronée" />Information is outdated or wrong</label>
+                          <input name="problem4" type="hidden" value="No" />
+                        </div>
+                        <div class="checkbox">
+                          <label for="problem5"><input name="problem5" id="problem5" type="checkbox" value="Yes" data-reveal="#find" data-gc-analytics-rap=" Login error when trying to access an account (e.g. My Service Canada Account)-Message d'erreur à l'ouverture de la session lorsque je tente d'accéder à un compte (ex. Mon dossier Service Canada)" />Login error when trying to access an account (e.g. My Service Canada Account)</label>
+                          <input name="problem5" type="hidden" value="No" />
+                        </div>
+                        <ul>
+                        <li class="checkbox">
+                          <label for="problem6">
+                            <input name="problem6" id="problem6" type="checkbox" value="Yes" data-reveal="#find" data-gc-analytics-rap="GC Key access-Accès CléGC" />GC Key access
+                          </label>
+                          <input name="problem6" type="hidden" value="No" />
+                          </li>
+                          <li class="checkbox">
+                            <label for="problem7"><input name="problem7" id="problem7" type="checkbox" value="Yes" data-reveal="#find" data-gc-analytics-rap="SecureKey Concierge (Banking Credential) access-Accès SecureKey Service de Concierge (justificatifs d'identité bancaires)" />SecureKey Concierge (Banking Credential) access
+                            </label>
+                            <input name="problem7" type="hidden" value="No" />
+                          </li>
+                          <li class="checkbox">
+                            <label for="problem8"><input name="problem8" id="problem8" type="checkbox" value="Yes" data-reveal="#find" data-gc-analytics-rap="Personal Access Code (PAC) problems or EI Access Code (AC) problems-Problème avec le Code d'accès personnel (CAP) ou avec le Code d'accès (CA) de l'assurance emploi" />Personal Access Code (PAC) problems or EI Access Code (AC) problems</label>
+                            <input name="problem8" type="hidden" value="No" />
+                          </li>
+                          <li class="checkbox">
+                            <label for="problem9"><input name="problem9" id="problem9" type="checkbox" value="Yes" data-reveal="#find" data-gc-analytics-rap="Social Insurance Number (SIN) validation problems-Problème lié à la validation du numéro d'assurance sociale (NAS)" />Social Insurance Number (SIN) validation problems</label>
+                            <input name="problem9" type="hidden" value="No" />
+                          </li>
+                          <li class="checkbox">
+                            <label for="problem10"><input name="problem10" id="problem10" type="checkbox" value="Yes" data-reveal="#find" data-gc-analytics-rap="Other login error not in this list-Autre erreur lors de l'ouverture de session qui ne figure pas sur cette liste" />Other login error not in this list</label>
+                            <input name="problem10" type="hidden" value="No" />
+                          </li>
+                        </ul>
+                        <div class="checkbox">
+                          <label for="problem11"><input name="problem11" id="problem11" type="checkbox" value="Yes" data-reveal="#find" data-gc-analytics-rap="I can't find what I'm looking for-Je n'arrive pas à trouver ce que je cherche" />I can't find what I'm looking for</label>
+                          <input name="problem11" type="hidden" value="No" />
+                        </div>
+                        <div class="checkbox">
+                          <label for="problem12">
+                            <input name="problem12" id="problem12" type="checkbox" value="Yes" data-reveal="#find" data-gc-analytics-rap="Other issue not in this list-Autre problème qui ne figure pas sur cette liste" />Other issue not in this list
+                          </label>
+                          <input name="problem12" type="hidden" value="No" />
+                        </div>
+                      </fieldset>
+                      <h:outputText escape="false" value="&lt;button data-wb5-click=&quot;postback@#gc-rprt-prblm-form@&quot; type=&quot;submit&quot; class=&quot;btn btn-primary wb-toggle wb-init wb-toggle-inited&quot; data-toggle='{&quot;stateOff&quot;: &quot;hide&quot;, &quot;stateOn&quot;: &quot;show&quot;, &quot;selector&quot;: &quot;.gc-rprt-prblm-tggl&quot;}' aria-controls=&quot;wb-auto-7 wb-auto-8&quot;&gt;Submit&lt;/button&gt;" />
+                    </form>
+                  </div>
+                  <div class="gc-rprt-prblm-thnk gc-rprt-prblm-tggl hide">
+                    <h3>Thank you for your help!</h3>
+                    <p>You will not receive a reply. For enquiries, please <a title="Contact for page issues" href="https://www.canada.ca/en/contact.html">contact us</a>.</p>
+                  </div>
                 </div>
-                   </fieldset>
-            <h:outputText escape="false" value="&lt;button data-wb5-click=&quot;postback@#gc-rprt-prblm-form@&quot; type=&quot;submit&quot; class=&quot;btn btn-primary wb-toggle wb-init wb-toggle-inited&quot; data-toggle='{&quot;stateOff&quot;: &quot;hide&quot;, &quot;stateOn&quot;: &quot;show&quot;, &quot;selector&quot;: &quot;.gc-rprt-prblm-tggl&quot;}' aria-controls=&quot;wb-auto-7 wb-auto-8&quot;&gt;Submit&lt;/button&gt;" />
-
-
-    </form>
-
-</div>
-
-<div class="gc-rprt-prblm-thnk gc-rprt-prblm-tggl hide">
-<h3>Thank you for your help!</h3>
-<p>You will not receive a reply. For enquiries, please <a title="Contact for page issues" href="https://www.canada.ca/en/contact.html">contact us</a>.</p>
-</div>
-</div>
-</div>
-</details>
-</div>
-<h:outputText escape="false" value="&lt;div class=&quot;wb-share col-sm-4 col-md-3 col-sm-offset-2 col-md-offset-4 col-lg-offset-5&quot; data-wb-share='{&quot;lnkClass&quot;:&quot;btn btn-default btn-block&quot;}'&gt;&lt;/div&gt;" />
-</div>
-<dl id="wb-dtmd">
-<dt>Date modified:&#32;</dt>
-<dd><time property="dateModified">2017-09-29</time></dd>
-</dl>
-</div>
-</main>
-<footer id="wb-info">
-<div class="landscape">
-<nav class="container wb-navcurr">
-<h2 class="wb-inv">About government</h2>
-<ul class="list-unstyled colcount-sm-2 colcount-md-3">
-<li><a href="https://www.canada.ca/en/contact.html">Contact us</a></li>
-<li><a href="https://www.canada.ca/en/government/dept.html">Departments and agencies</a></li>
-<li><a href="https://www.canada.ca/en/government/publicservice.html">Public service and military</a></li>
-<li><a href="https://www.canada.ca/en/news.html">News</a></li>
-<li><a href="https://www.canada.ca/en/government/system/laws.html">Treaties, laws and regulations</a></li>
-<li><a href="https://www.canada.ca/en/transparency/reporting.html">Government-wide reporting</a></li>
-<li><a href="https://pm.gc.ca/eng">Prime Minister</a></li>
-<li><a href="https://www.canada.ca/en/government/system.html">How government works</a></li>
-<li><a href="https://open.canada.ca/en/">Open government</a></li>
-</ul>
-</nav>
-</div>
-<div class="brand">
-<div class="container">
-<div class="row">
-<nav class="col-md-9 col-lg-10 ftr-urlt-lnk">
-<h2 class="wb-inv">About this site</h2>
-<ul>
-<li><a href="https://www.canada.ca/en/social.html">Social media</a></li>
-<li><a href="https://www.canada.ca/en/mobile.html">Mobile applications</a></li>
-<li><a href="https://www1.canada.ca/en/newsite.html">About Canada.ca</a></li>
-<li><a href="https://www.canada.ca/en/transparency/terms.html">Terms and conditions</a></li>
-<li><a href="https://www.canada.ca/en/transparency/privacy.html">Privacy</a></li>
-</ul>
-</nav>
-<div class="col-xs-6 visible-sm visible-xs tofpg">
-<a href="#wb-cont">Top of Page <span class="glyphicon glyphicon-chevron-up"></span></a>
-</div>
-<div class="col-xs-6 col-md-3 col-lg-2 text-right">
-<img src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg" alt="Symbol of the Government of Canada" />
-</div>
-</div>
-</div>
-</div>
-</footer>
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.js"></script>
-<script src="https://www.canada.ca/etc/designs/canada/wet-boew/js/wet-boew.min.js"></script>
-<script src="https://www.canada.ca/etc/designs/canada/wet-boew/js/theme.min.js" type="text/x-javascript"></script>
-  <script  type="text/x-javascript">
-    function fillInAcrOnSubmit(acrButtonValue) {
-      document.getElementById("loginForm:acrname").value = acrButtonValue;
-    }
-    $(document).ready(function() {
-      $.ajax({
-         url: 'https://lang-canada.fjgc-gccf.gc.ca/v1/lang',
-         type: 'PUT',
-         datatype: 'application/json',
-         contentType: 'application/json',
-         data: '{"lang": "eng"}',
-         xhrFields: {withCredentials: true}
-         });
-      })
-  </script>
-
+              </div>
+            </details>
+          </div>
+        </div>
+        <dl id="wb-dtmd">
+          <dt>Date modified:&#32;</dt>
+          <dd><time property="dateModified">2020-03-13</time></dd>
+        </dl>
+      </div>
+    </main>
+    <footer id="wb-info">
+      <div class="landscape">
+        <nav class="container wb-navcurr">
+          <h2 class="wb-inv">About government</h2>
+          <ul class="list-unstyled colcount-sm-2 colcount-md-3">
+            <li><a href="https://www.canada.ca/en/contact.html">Contact us</a></li>
+            <li><a href="https://www.canada.ca/en/government/dept.html">Departments and agencies</a></li>
+            <li><a href="https://www.canada.ca/en/government/publicservice.html">Public service and military</a></li>
+            <li><a href="https://www.canada.ca/en/news.html">News</a></li>
+            <li><a href="https://www.canada.ca/en/government/system/laws.html">Treaties, laws and regulations</a></li>
+            <li><a href="https://www.canada.ca/en/transparency/reporting.html">Government-wide reporting</a></li>
+            <li><a href="https://pm.gc.ca/eng">Prime Minister</a></li>
+            <li><a href="https://www.canada.ca/en/government/system.html">How government works</a></li>
+            <li><a href="https://open.canada.ca/en/">Open government</a></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="brand">
+        <div class="container">
+          <div class="row">
+            <nav class="col-md-9 col-lg-10 ftr-urlt-lnk">
+              <h2 class="wb-inv">About this site</h2>
+              <ul>
+                <li><a href="https://www.canada.ca/en/social.html">Social media</a></li>
+                <li><a href="https://www.canada.ca/en/mobile.html">Mobile applications</a></li>
+                <li><a href="https://www1.canada.ca/en/newsite.html">About Canada.ca</a></li>
+                <li><a href="https://www.canada.ca/en/transparency/terms.html">Terms and conditions</a></li>
+                <li><a href="https://www.canada.ca/en/transparency/privacy.html">Privacy</a></li>
+              </ul>
+            </nav>
+            <div class="col-xs-6 visible-sm visible-xs tofpg">
+              <a href="#wb-cont">Top of Page <span class="glyphicon glyphicon-chevron-up"></span></a>
+            </div>
+            <div class="col-xs-6 col-md-3 col-lg-2 text-right">
+              <img src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg" alt="Symbol of the Government of Canada" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.js"></script>
+    <script src="https://www.canada.ca/etc/designs/canada/wet-boew/js/wet-boew.min.js"></script>
+    <script src="https://www.canada.ca/etc/designs/canada/wet-boew/js/theme.min.js" type="text/x-javascript"></script>
+    <script  type="text/x-javascript">
+        function fillInAcrOnSubmit(acrButtonValue) {
+          document.getElementById("loginForm:acrname").value = acrButtonValue;
+        }
+        $(document).ready(function() {
+          $.ajax({
+             url: 'https://te-lang-tbs.fjgc-gccf.gc.ca/v1/lang',
+             type: 'PUT',
+             datatype: 'application/json',
+             contentType: 'application/json',
+             data: '{"lang": "eng"}',
+             xhrFields: {withCredentials: true}
+             });
+          })
+    </script>
   </h:body>
   </f:view>
-
 </html>
