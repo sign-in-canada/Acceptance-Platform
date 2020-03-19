@@ -10,6 +10,7 @@ from org.gluu.oxauth.security import Identity
 from org.gluu.util import StringHelper
 from org.gluu.oxauth.util import ServerUtil
 from org.gluu.oxauth.service import AuthenticationService, UserService, ClientService, SessionIdService
+from org.gluu.oxauth.i18n import LanguageBean
 from java.util import ArrayList, Arrays
 
 import sys
@@ -324,6 +325,13 @@ class PersonAuthentication(PersonAuthenticationType):
     def getPageForStep(self, configurationAttributes, step):
         print "IDP Chooser. getPageForStep called for step '%s'" % step
 
+        # Get the locale/language from the browser
+        locale = CdiUtil.bean(LanguageBean).getLocaleCode()[:2]
+        print "MFA Chooser. getPageForStep called for step '%s' and locale '%s'" % (step, locale)
+        # Make sure it matches "en" or "fr"
+        if (locale != "en" and locale != "fr"):
+            locale = "en"
+
         if ( CdiUtil.bean(Identity).getSessionId() != None ):
             switchFlowStatus = CdiUtil.bean(Identity).getSessionId().getSessionAttributes().get("switchFlowStatus")
             print "IDP Chooser. getPageForStep session found, switchFlowStatus = '%s'" % switchFlowStatus
@@ -331,7 +339,12 @@ class PersonAuthentication(PersonAuthenticationType):
                 return "/select2.xhtml"
             if ( switchFlowStatus != None and switchFlowStatus == "2_GET_TARGET" ):
                 return "/switch.xhtml"
-        return "/select.xhtml"
+
+        # determine what page to display
+        if locale == "en":
+            return "/en/select.xhtml"
+        if locale == "fr":
+            return "/fr/choisir.xhtml"
 
 
     def logout(self, configurationAttributes, requestParameters):
