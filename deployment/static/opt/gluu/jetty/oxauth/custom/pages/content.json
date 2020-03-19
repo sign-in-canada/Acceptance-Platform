@@ -6,28 +6,14 @@
         "client.header.fr" : "L'authenticifcation chez Sign In Canada ",
         "credentials" : "passport_saml:cra,passport_saml:gckey,passport_saml:cbs,passport_saml:madi,passport_social:bcsc,passport_social:google,passport_social:microsoft"
     },
-    "oidc:atip_aors_local" : {
+    "oidc:tbs_atip_aors_" : {
         "client.longname.en" : "ATIP Online Request Service (AORS)",
         "client.longname.fr" : "ATIP Online Request Service (AORS)",
         "client.header.en" : "<abbr title=\"Access to Information and Privacy\">ATIP</abbr> Online Request Service (AORS)",
         "client.header.fr" : "<abbr title=\"Access to Information and Privacy\">ATIP</abbr> Online Request Service (AORS)",
         "credentials" : "passport_saml:gckey,passport_saml:cbs"
     },
-    "oidc:atip_aors_dev" : {
-        "client.longname.en" : "ATIP Online Request Service (AORS)",
-        "client.longname.fr" : "ATIP Online Request Service (AORS)",
-        "client.header.en" : "<abbr title=\"Access to Information and Privacy\">ATIP</abbr> Online Request Service (AORS)",
-        "client.header.fr" : "<abbr title=\"Access to Information and Privacy\">ATIP</abbr> Online Request Service (AORS)",
-        "credentials" : "passport_saml:gckey,passport_saml:cbs"
-    },
-    "oidc:atip_aomt_local" : {
-        "client.longname.en" : "ATIP Online Management Tool (AOMT)",
-        "client.longname.fr" : "ATIP Online Management Tool (AOMT)",
-        "client.header.en" : "<abbr title=\"Access to Information and Privacy\">ATIP</abbr> Online Management Tool (AOMT)",
-        "client.header.fr" : "<abbr title=\"Access to Information and Privacy\">ATIP</abbr> Online Management Tool (AOMT)",
-        "credentials" : "passport_saml:gckey,passport_saml:cbs"
-    },
-    "oidc:atip_aomt_dev" : {
+    "oidc:tbs_atip_aomt_" : {
         "client.longname.en" : "ATIP Online Management Tool (AOMT)",
         "client.longname.fr" : "ATIP Online Management Tool (AOMT)",
         "client.header.en" : "<abbr title=\"Access to Information and Privacy\">ATIP</abbr> Online Management Tool (AOMT)",
