@@ -1,0 +1,191 @@
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                template="/WEB-INF/incl/layout/login-template.TBS.xhtml">
+
+    <f:metadata>
+        <f:viewAction action="#{authenticator.prepareAuthenticationForStep}" if="#{sessionIdService.notSessionIdAuthenticated}" />
+        <f:viewParam name="login_hint" value="#{loginAction.loginHint}" />
+    </f:metadata>
+
+    <ui:define name="head">
+        <meta name="description" content="Gluu, Inc." />
+    </ui:define>
+
+    <ui:define name="pageTitle">
+        <h:outputText value="#{msgs['login.pageTitle']}" />
+    </ui:define>
+
+    <ui:define name="body">
+        <header class="bs-docs-nav navbar navbar-static-top" id="top">
+            <div class="container">
+                <h1 class="text-center">Login</h1>
+            </div>
+        </header>
+        <div class="bs-docs-section" style="!important;">
+            <div class="container">
+                <h:panelGroup rendered="true">
+                    <div class="login_bx_1" style="border-radius:10px; margin-top:0px; background: white;">
+                        <div class="row">
+                            <div class="col-md-6_1 col-sm-5_1 ">
+                                <div class="left_form_bx" style="padding-top: 20px; padding-left: 10px;padding-right: 5px; padding-bottom: 20px;">
+                                    <h:form id="loginForm" class="form-horizontal">
+                                        <h:messages class="text-center" infoClass="text-center" errorClass="text-center" />
+                                        <h:inputHidden id="platform" />
+                                        <h:panelGroup rendered="#{sessionIdService.notSessionIdAuthenticated}">
+                                            <div class="form-group">
+                                                <h:outputLabel styleClass="col-sm-5 control-label" for="username" value="#{msgs['login.username']}" />
+                                                <div class="col-sm-7">
+                                                    <h:inputText id="username" value="#{credentials.username}" styleClass="form-control" autocomplete="off" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <h:outputLabel styleClass="col-sm-5 control-label" for="password" value="#{msgs['login.password']}" />
+                                                <div class="col-sm-7">
+                                                    <h:inputSecret id="password" value="#{credentials.password}" styleClass="form-control" autocomplete="off" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <h:outputLabel styleClass="col-sm-5 control-label" for="rememberme" value="#{msgs['login.rememberMe']}" />
+                                                <div class="col-sm-7">
+                                                    <input type="checkbox" value="rememberme" id="rememberme" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="col-sm-offset-5 col-sm-7">
+                                                    <h:commandButton id="loginButton" styleClass="btn btn-primary col-sm-3" value="#{msgs['login.login']}" onclick="checkRemembeMe()" action="#{authenticator.authenticate}" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="col-sm-offset-5 col-sm-4">
+                                                    <div class="forgot_link">
+                                                        <a href="/identity/person/passwordReminder.htm" style="color:blue;">
+                                                            <h:outputText value="#{msgs['login.forgotYourPassword']}" />
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </h:panelGroup>
+                                    </h:form>
+                                    <div align="center" class="col-sm-offset-4 col-sm-9">
+                                        <ui:repeat value="#{identity.getWorkingParameter('download_url').entrySet().toArray()}" var="_entry">
+                                            <ui:param name="app_name" value="#{_entry.key}" />
+                                            <ui:param name="app_link" value="#{_entry.value}" />
+                                            <h:outputLink style="margin-right:5px;" value="#{app_link}" title="#{app_name}"><h:graphicImage value="img/#{app_name}.png" /></h:outputLink>
+                                        </ui:repeat>
+                                    </div>
+                                </div>
+                                <h:panelGroup layout="block" rendered="#{external_registration_uri != Null}">
+                                    <div class="reg_link">
+                                        <a href="#{external_registration_uri}">
+                                            <h:outputText value="Register Now " />
+                                        </a>
+                                    </div>
+                                </h:panelGroup>
+                            </div>
+                        </div>
+                    </div>
+                </h:panelGroup>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+
+            window.onload = function () {
+                var userNameField = document.getElementById("loginForm:username");
+                var passwordField = document.getElementById("loginForm:password");
+                var userName = '#{!empty loginAction.loginHint ? loginAction.loginHint : ""}';
+                if (userName) {
+                    userNameField.value = userName;
+                    passwordField.focus();
+                } else {
+                    userNameField.focus();
+                }
+
+                var displayRegister = #{display_register_action or identity.sessionId.sessionAttributes["display_register_action"]};
+                if (displayRegister) {
+                    var registerButton = document.getElementById("loginForm:registerId");
+                    if (registerButton != null) {
+                        registerButton.style.display = 'inline';
+                    }
+                }
+            };
+
+            function checkRemembeMe() {
+                if ($('#rememberme').is(':checked')) {
+                    // save username
+                    localStorage.usrname = document.getElementById("loginForm:username").value;
+                    //localStorage.password = document.getElementById("loginForm:password").value;
+                    localStorage.chkbx = $('#rememberme').val();
+                } else {
+                    localStorage.usrname = '';
+                    //localStorage.password = '';
+                    localStorage.chkbx = '';
+                }
+            }
+
+            function fillPlatformField() {
+                //Fix browser version to contain major.minor portion only
+                try {
+                    re = /^([^\.]+\.[^\.]+)\..+/;
+                    //This will remember "33.0" in "33.0.1.2.3"
+                    result = re.exec(platform.version);
+                    if (result != null) {
+                        //There was a match against the regexp
+                        platform.version = result[1];
+                    }
+                    document.getElementById("loginForm:platform").value = JSON.stringify(platform);
+                } catch (e) {
+                }
+            }
+
+            function initHandler() {
+                $('.other').click(function () {
+                    $('#social_new').toggle();
+                });
+
+                // Remember me
+                if (localStorage.chkbx &amp;&amp; localStorage.chkbx != '') {
+                    $('#rememberme').attr('checked', 'checked')
+                    document.getElementById("loginForm:username").value = localStorage.usrname;
+                    //document.getElementById("loginForm:password").value = localStorage.password;
+
+                } else {
+                    $('#rememberme').removeAttr('checked');
+                    document.getElementById("loginForm:username").value = "";
+                    //document.getElementById("loginForm:password").value = "";
+                }
+
+                $('#rememberme').click(function () {
+                    checkRemembeMe();
+                });
+
+                fillPlatformField();
+            }
+
+            function addWBReadyEventListener_FP() {
+
+                //Wet has not even initialized
+                if (typeof wb === 'undefined') {
+                    setTimeout(function () { addWBReadyEventListener_FP(); }, 100);
+                } else {
+                    //event to listen to WET ready event
+                    wb.doc.on("wb-ready.wb", function (evt) {
+                        initHandler();
+                    });
+
+                    //if Wet Event has fired already, this will detect that and trigger init
+                    if ($._data(document, "events")["wb-ready"].length >= 2) {
+                        initHandler();
+                    }
+                }
+            };
+
+            addWBReadyEventListener_FP();
+
+        </script>
+    </ui:define>
+</ui:composition>
