@@ -205,12 +205,27 @@ class PersonAuthentication(PersonAuthenticationType):
 
         # CUSTOMIZATION - Select which page body elements will be rendered
         if (sessionAttributes.get("pageContent") == None):
+            # CUSTOMIZATION - FIRST try direct match
             pageContent = self.selectorPageContent.get(entityId)
-            if ( self.selectorPageContent.get(entityId) != None ):
-                sessionAttributes.put("pageContent", self.selectorPageContent[entityId])
-            else:
-                sessionAttributes.put("pageContent", self.selectorPageContent["_default"])
 
+            # CUSTOMIZATION - SECOND try prefix match
+            if ( pageContent == None ):
+                for contentKey in self.selectorPageContent.keys():
+                    if ( entityId.find(contentKey) == 0 ):
+                        pageContent = self.selectorPageContent.get(contentKey)
+
+            # CUSTOMIZATION - LASTLY go to default content
+            if ( pageContent == None ):
+                pageContent = self.selectorPageContent.get( "_default" )
+
+            # CUSTOMIZATION - save the page content in session for reference in xhtml pages
+            if ( pageContent != None ):
+                sessionAttributes.put( "pageContent", pageContent )
+            else:
+                # We have an error - log it and fail
+                print "IDP Chooser. prepareForStep ERROR: '_default' and '%s' page content missing in file " % (entityId, configurationAttributes.get("selector_page_content_file").getValue2() )
+                return False
+            
             # CUSTOMIZATION - Select which credential buttons will show up
             showCredentials = sessionAttributes.get("pageContent")["credentials"]
             allCredentials = self.selectorPageContent["_default"]["credentials"]
