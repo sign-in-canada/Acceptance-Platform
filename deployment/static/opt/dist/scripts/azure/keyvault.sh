@@ -19,14 +19,22 @@ fetchSecret () {
       | extractJSONValue value
 }
 
+# Obtain an access token
+TOKEN=$(curl -s 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fvault.azure.net' -H Metadata:true | extractJSONValue access_token)
+
+# Verify connectivity before going any further
+if fetchSecret 'x' > /dev/null 2>&1 ; then
+   echo "Connected to Keyvault ${KEYVAULT}"
+else
+   echo "Connection to Keyvault ${KEYVAULT} failed. Aborting."
+   exit 1
+fi
+
 # Create a ramfs directory to hold the secrets
 umask 227
 mkdir $KV_DIR
 mount -t ramfs ramfs $KV_DIR
 mkdir ${KV_DIR}/certs ${KV_DIR}/secrets
-
-# Obtain an access token
-TOKEN=$(curl -s 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fvault.azure.net' -H Metadata:true | extractJSONValue access_token)
 
 # Get the certificates and their private keys
 certs=$(curl -s -H "Authorization: Bearer ${TOKEN}" ${KEYVAULT}/certificates?api-version=${API_VER} \
