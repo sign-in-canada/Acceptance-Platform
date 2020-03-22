@@ -1,0 +1,8 @@
+UPSERT INTO `gluu` (KEY _k, VALUE _v)
+   SELECT 'configuration' _k, _v FROM `gluu` _v
+    WHERE objectClass='gluuConfiguration'
+      AND META().id='configuration_backup'
+     AND EXISTS (SELECT 1 FROM `gluu`
+                  WHERE objectClass='gluuConfiguration'
+                  AND META().id='configuration'
+                  AND gluuSamlEnabled=false);
