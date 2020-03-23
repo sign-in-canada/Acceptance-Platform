@@ -140,7 +140,7 @@
         "passClaimsInfo": "true",
         "samlissuer": "https://dev.signin.canada.ca",
         "tokenURL": "https://dev-mfa.id.tbs-sct.gc.ca/oxauth/restv1/token",
-        "clientID": "ccccccccccccccccccccccccccccccccccccc",
+        "clientID": "dhpp3640-fa7d-474d-bd9f-705c30b52dd0",
         "authorizationURL": "https://dev-mfa.id.tbs-sct.gc.ca/oxauth/restv1/authorize",
         "scope": "openid",
         "clientSecret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
