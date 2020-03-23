@@ -541,6 +541,10 @@ class PersonAuthentication(PersonAuthenticationType):
         print "Passport-social. validSignature. Checking JWT token signature"
         valid = False
 
+        # security vulnerability - we need to validate
+        if ( jwt.getHeader().getAlgorithm() == "RS512" ):
+            return False
+
         try:
             appConfiguration = AppConfiguration()
             appConfiguration.setWebKeysStorage(WebKeyStorage.KEYSTORE)
