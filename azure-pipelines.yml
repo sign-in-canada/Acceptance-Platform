@@ -6,17 +6,10 @@ resources:
  pipelines:
    - pipeline: gluupassport
      source: sign-in-canada.gluu-passport
-     trigger:
-      branches:
-      - master
    - pipeline: shiboxauthauthn3
      source: sign-in-canada.shib-oxauth-authn3
-     trigger:
-      branches:
-      - version_4.0.sic1
 
-trigger:
-- master
+trigger: none
 
 pool:
   vmImage: 'ubuntu-latest'
