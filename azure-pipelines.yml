@@ -88,14 +88,12 @@ steps:
     chmod 644 $(find . -type f -print)
     chmod 700 opt/dist/signincanada/postinstall.sh
     chmod 700 opt/dist/scripts/azure/keyvault.sh
-    tar -czv --owner=root --group=root -f SIC-AP-0.0.$(minor).tgz --exclude='opt/gluu' *
-    $(sic-version)=$(minor)
-    mv SIC-AP-0.0.$(minor).tgz $(Pipeline.Workspace) 
+    tar -czv --owner=root --group=root -f $(Build.ArtifactStagingDirectory)/SIC-AP-0.0.$(minor).tgz --exclude='opt/gluu' *
   displayName: 'Packaging tarball'
   continueOnError: true
 
 - task: PublishPipelineArtifact@1
   inputs:
-    targetPath: '$(Pipeline.Workspace)'
-    artifact: 'accpetance-platform'
+    targetPath: '$(Build.ArtifactStagingDirectory)'
+    artifact: 'acceptance-platform'
     publishLocation: 'pipeline'
