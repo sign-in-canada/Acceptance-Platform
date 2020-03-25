@@ -50,11 +50,8 @@ steps:
     definition: '285'
     buildVersionToDownload: 'latest'
     artifactName: 'gluu-passport'
-    itemPattern: |
-      **/package/passport*.gz
-      **/package/passport.tgz
     targetPath: '$(Pipeline.Workspace)/s/deployment/static/opt/dist/gluu'
-  displayName: 'Download gluu binaries'
+  displayName: 'Download gluu-passport tarballs'
   continueOnError: false
 
 - task: DownloadPipelineArtifact@2
