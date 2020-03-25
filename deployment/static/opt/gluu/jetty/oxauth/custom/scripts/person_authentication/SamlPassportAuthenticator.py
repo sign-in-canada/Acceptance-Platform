@@ -17,6 +17,7 @@ from org.gluu.oxauth.model.authorize import AuthorizeRequestParam
 from org.gluu.oxauth.service.net import HttpService
 from org.gluu.oxauth.security import Identity
 from org.gluu.oxauth.util import ServerUtil
+from org.gluu.oxauth.i18n import LanguageBean
 from org.gluu.config.oxtrust import LdapOxPassportConfiguration
 from org.gluu.model.custom.script.type.auth import PersonAuthenticationType
 from org.gluu.service.cdi.util import CdiUtil
@@ -208,7 +209,7 @@ class PersonAuthentication(PersonAuthenticationType):
             url = None
 
             print "Passport-saml. prepareForStep. got session '%s'"  % identity.getSessionId().toString()
-            
+
             sessionId = identity.getSessionId()
             sessionAttributes = sessionId.getSessionAttributes()
             self.skipProfileUpdate = StringHelper.equalsIgnoreCase(sessionAttributes.get("skipPassportProfileUpdate"), "true")
@@ -217,19 +218,19 @@ class PersonAuthentication(PersonAuthenticationType):
             providerFromSession = sessionAttributes.get("selectedProvider")
             if providerFromSession != None:
                 print "Passport-saml. prepareForStep. Setting selectedProvider from session  = '%s'" % providerFromSession
-                identity.setWorkingParameter("selectedProvider", providerFromSession)            
+                identity.setWorkingParameter("selectedProvider", providerFromSession)
                 # SWITCH - Reset the provider in session in case the choice has to be made again
                 sessionAttributes.remove("selectedProvider")
 
             issuerSpNameQualifier = sessionAttributes.get("spNameQualifier")
-            
+
             if issuerSpNameQualifier != None:
                 # Reset the issuer in session in case the choice has to be made again
                 print "Passport-saml. prepareForStep. Setting SAML SP (issuer spNameQualifier) = '%s'" % issuerSpNameQualifier
-                
+
             # get the switch state
             switchFlowStatus = sessionAttributes.get("switchFlowStatus")
-            
+
             # COLLECT - make sure we collect only if provider and spNameQualifier (RP) are both on the list
             collectSamlPass = sessionAttributes.get("collectSamlPass")
             if ( switchFlowStatus != "2_GET_TARGET" and providerFromSession in self.idp_to_collect_old_mappings_from and issuerSpNameQualifier in self.rps_to_collect_old_mappings_for):
@@ -263,7 +264,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 elif (collectSamlPass == 2):
                     # SWITCH - Resetting selected provider as its purpose has been used up and in case of switching it needs to be re-selected
                     identity.setWorkingParameter("selectedProvider", None)
-                    # During the second pass we check the user identity for 
+                    # During the second pass we check the user identity for
                     print "Passport-saml. prepareForStep. COLLECTING - Second pass, setting URL to use issuerSpNameQualifier = '%s'" % issuerSpNameQualifier
                     url = self.getPassportRedirectUrl(provider, issuerSpNameQualifier)
 
@@ -424,7 +425,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
             if StringHelper.isNotEmpty(idpList) and StringHelper.isNotEmpty(rpList):
                 self.idp_to_collect_old_mappings_from = StringHelper.split(idpList,',')
-                self.rps_to_collect_old_mappings_for  = StringHelper.split(rpList,',')    
+                self.rps_to_collect_old_mappings_for  = StringHelper.split(rpList,',')
                 print "Passport-saml. init. COLLECTING mappings for IDPs [ %s ]" % ', '.join(self.idp_to_collect_old_mappings_from)
                 print "Passport-saml. init. COLLECTING mappings for RPs [ %s ]" % ', '.join(self.rps_to_collect_old_mappings_for)
                 return True
@@ -551,11 +552,16 @@ class PersonAuthentication(PersonAuthenticationType):
             print "Passport-saml. getPassportRedirectUrl. Building URL: provider:  %s" % provider
             print "Passport-saml. getPassportRedirectUrl. Building URL: token:     %s" % tokenObj["token_"]
             print "Passport-saml. getPassportRedirectUrl. Building URL: spNameQfr: %s" % issuerSpNameQualifier
+
+            locale = CdiUtil.bean(LanguageBean).getLocaleCode()[:2]
+            if (locale != "en" and locale != "fr"):
+                locale = "en"
+
             # Check if the samlissuer is there so to use the old endpoint if no collection needed
             if ( issuerSpNameQualifier != None ):
-                url = "/passport/auth/%s/%s/saml/%s" % (provider, tokenObj["token_"], Base64Util.base64urlencode(issuerSpNameQualifier))
+                url = "/passport/auth/%s/%s/locale/%s/saml/%s" % (provider, tokenObj["token_"], locale, Base64Util.base64urlencode(issuerSpNameQualifier))
             else:
-                url = "/passport/auth/%s/%s" % (provider, tokenObj["token_"])
+                url = "/passport/auth/%s/%s/locale/%s" % ( provider, tokenObj["token_"], locale )
         except:
             print "Passport-saml. getPassportRedirectUrl. Error building redirect URL: ", sys.exc_info()[1]
 
@@ -696,7 +702,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 user_profile[uidKey][0] = uid
                 print "Passport-saml. attemptAuthentication. COLLECTING - Second Pass. Setting profile to original UID '%s'"  % uid
 
-            sessionAttributes.remove("collectSamlPass")                
+            sessionAttributes.remove("collectSamlPass")
             sessionAttributes.remove("collect_originalUid")
             sessionAttributes.remove("collect_generatedPersistentId")
 
@@ -787,7 +793,7 @@ class PersonAuthentication(PersonAuthenticationType):
             # generate a new MFA PAI in case there is none in the user profile
             mfaUid = "mfa" + uuid.uuid4().hex
             user_profile[ "oxExternalUid_newMfa" ] = [ "passport-mfa:" + mfaUid ]
-        
+
         username = None
         try:
             if doUpdate:
@@ -812,7 +818,7 @@ class PersonAuthentication(PersonAuthenticationType):
             logged_in = CdiUtil.bean(AuthenticationService).authenticate(username)
             print "Passport-saml. attemptAuthentication. Authentication for %s returned %s" % (username, logged_in)
             if ( logged_in == True ):
-                # Save the authenticated data 
+                # Save the authenticated data
                 sessionAttributes.put("authenticatedProvider", "passport_saml:" + provider)
                 sessionAttributes.put("authenticatedUser", username)
                 # SWITCH - Save contextual data for the switch flows
@@ -889,7 +895,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
 
     def fillUser(self, foundUser, profile):
-    
+
         for attr in profile:
             # "provider" is disregarded if part of mapping
             if attr != self.providerKey:
@@ -940,7 +946,7 @@ class PersonAuthentication(PersonAuthenticationType):
                         foundUser.setAttribute("oxExternalUid", tmpList)
                     else:
                         print "Passport-saml. fillUser. oxExternalUid for MFA '%s' already exists, ignoring new MFA mapping" % mfaOxExternalUid
-            
+
                 elif attr == "mail":
                     oxtrustMails = []
                     for mail in values:
