@@ -20,6 +20,7 @@ from org.gluu.config.oxtrust import LdapOxPassportConfiguration
 from org.gluu.model.custom.script.type.auth import PersonAuthenticationType
 from org.gluu.service.cdi.util import CdiUtil
 from org.gluu.util import StringHelper
+from org.gluu.oxauth.i18n import LanguageBean
 from java.util import ArrayList, Arrays, Collections
 from javax.faces.application import FacesMessage
 from javax.faces.context import FacesContext
@@ -524,11 +525,15 @@ class PersonAuthentication(PersonAuthenticationType):
             response = httpService.convertEntityToString(bytes)
             print "Passport-social. getPassportRedirectUrl. Response was %s" % httpResponse.getStatusLine().getStatusCode()
 
+            locale = CdiUtil.bean(LanguageBean).getLocaleCode()[:2]
+            if (locale != "en" and locale != "fr"):
+                locale = "en"
+
             tokenObj = json.loads(response)
             if (loginHint != None):
-                url = "/passport/auth/%s/%s/id/%s" % (provider, tokenObj["token_"], Base64Util.base64urlencode(loginHint))
+                url = "/passport/auth/%s/%s/locale/%s/id/%s" % (provider, tokenObj["token_"], locale, Base64Util.base64urlencode(loginHint))
             else:
-                url = "/passport/auth/%s/%s" % (provider, tokenObj["token_"])
+                url = "/passport/auth/%s/%s/locale/%s" % (provider, tokenObj["token_"], locale )
             print "Passport-social. getPassportRedirectUrl. Returning URL = %s" % url
         except:
             print "Passport-social. getPassportRedirectUrl. Error building redirect URL: ", sys.exc_info()[1]
