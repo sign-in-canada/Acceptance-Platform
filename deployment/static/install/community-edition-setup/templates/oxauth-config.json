@@ -195,7 +195,7 @@
     "defaultSignatureAlgorithm":"RS256",
     "oxOpenIdConnectVersion":"openidconnect-1.0",
     "oxId":"https://%(hostname)s/oxid/service/gluu/inum",
-    "dynamicRegistrationEnabled":true,
+    "dynamicRegistrationEnabled":false,
     "dynamicRegistrationExpirationTime":-1,
     "dynamicRegistrationPersistClientAuthorizations":true,
     "trustedClientEnabled":true,
