@@ -151,6 +151,13 @@ class PersonAuthentication(PersonAuthenticationType):
                 if user_profile == None:
                     return False
 
+                jwt_param = ServerUtil.getFirstValue(requestParameters, "user")
+
+                # passing language fix - makes language available through user profile data
+                ui_locale = ServerUtil.getFirstValue(requestParameters, "ui_locale")
+                if ui_locale != None:
+                    user_profile["locale"] = [ ui_locale ]
+
                 return self.attemptAuthentication(identity, user_profile, jsonp)
 
             #See passportlogin.xhtml
@@ -547,7 +554,8 @@ class PersonAuthentication(PersonAuthenticationType):
         valid = False
 
         # security vulnerability - we need to validate
-        if ( jwt.getHeader().getAlgorithm() == "RS512" ):
+        sigAlgorithm = "%s" % jwt.getHeader().getAlgorithm()
+        if ( sigAlgorithm != "RS512" ):
             return False
 
         try:
