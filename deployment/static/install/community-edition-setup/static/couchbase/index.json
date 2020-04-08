@@ -4,24 +4,22 @@
       ["objectClass"], 
       ["creationDate"], 
       ["inum"], 
-      ["del","exp"] 
+      ["del","exp"], 
+      ["uid"], 
+      ["mail"], 
+      ["oxStatus"], 
+      ["oxApplication"], 
+      ["oxDeviceHashCode"], 
+      ["oxDeviceKeyHandle"],
+      ["oxAuthClientId"],
+      ["oxAuthUserId"]
+
     ],
     "static" : [
       [["LOWER(`uid`)"], "objectClass = \"gluuPerson\""], 
       [["LOWER(`mail`)"], "objectClass = \"gluuPerson\""], 
       [["oxExternalUid"], "objectClass = \"gluuPerson\""], 
       [["exp", "oxAuthExpiration"], "del=true"] 
-    ]
-  },
-
-  "gluu_authorization": {
-     "attributes": [
-        ["oxAuthExpiration"],
-        ["del"],
-        ["oxAuthClientId"],
-        ["oxAuthUserId"]
-      ],
-    "static" : [
     ]
   },
 
@@ -37,10 +35,10 @@
       ["inum"], 
       ["displayName"], 
       ["oxAuthRegistrationAccessToken"], 
-      ["oxAuthClaimName"], 
+      ["oxAuthUmaScope"], 
+      ["oxTicket"], 
       ["mail"], 
       ["oxId"], 
-      ["oxTicket"], 
       ["del"],
       ["ssnId"],
       ["oxAuthClientId"],
@@ -79,11 +77,9 @@
 
   "gluu_cache": {
     "attributes":[
-      ["del","exp"]
     ],
     "static" : [
-      [["exp", "oxAuthExpiration"], "del=true"],
-      [["oxAuthExpiration"], "objectClass = \"cache\""]
+      [["exp"], "objectClass = \"cache\" and del=true"]
     ]
   },
 
