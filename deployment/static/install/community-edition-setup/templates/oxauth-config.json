@@ -124,7 +124,9 @@
         "client_secret_basic",
         "client_secret_post",
         "client_secret_jwt",
-        "private_key_jwt"
+        "private_key_jwt",
+        "tls_client_auth",
+        "self_signed_tls_client_auth"
     ],
     "tokenEndpointAuthSigningAlgValuesSupported":[
         "HS256",
@@ -176,7 +178,8 @@
     "authorizationCodeLifetime":15,
     "refreshTokenLifetime":14400,
     "idTokenLifetime":3600,
-    "accessTokenLifetime":900,
+    "spontaneousScopeLifetime":86400,
+    "accessTokenLifetime":300,
     "umaResourceLifetime":2592000,
     "sessionAsJwt":false,
     "umaRptLifetime": 3600,
@@ -188,8 +191,8 @@
     "umaRestrictResourceToAssociatedClient":false,
     "umaKeepClientDuringResourceSetRegistration":true,
     "umaRptAsJwt":false,
-    "cleanServiceInterval":600,
-    "cleanServiceBatchChunkSize": 1000,
+    "cleanServiceInterval":60,
+    "cleanServiceBatchChunkSize": 10000,
     "keyRegenerationEnabled":false,
     "keyRegenerationInterval":48,
     "defaultSignatureAlgorithm":"RS256",
@@ -233,8 +236,8 @@
             "baseDn":"ou=clients,o=gluu"
         }
     ],
-    "sessionIdUnusedLifetime":1800,
-    "sessionIdUnauthenticatedUnusedLifetime":900,
+    "sessionIdUnusedLifetime":86400,
+    "sessionIdUnauthenticatedUnusedLifetime":120,
     "sessionIdEnabled":true,
     "sessionIdPersistOnPromptNone":true,
     "sessionIdLifetime": 0,
@@ -244,7 +247,6 @@
     "imgLocation":"",
     "metricReporterInterval":300,
     "metricReporterKeepDataDays":15,
-    "metricReporterEnabled":true,
     "pairwiseIdType":"persistent",
     "pairwiseCalculationKey":"%(pairwiseCalculationKey)s",
     "pairwiseCalculationSalt": "%(pairwiseCalculationSalt)s",
@@ -253,13 +255,13 @@
     "dnName": "%(default_openid_jks_dn_name)s",
     "keyStoreFile": "%(oxauth_openid_jks_fn)s",
     "keyStoreSecret": "%(oxauth_openid_jks_pass)s",
-    "endSessionWithAccessToken": false,
+    "endSessionWithAccessToken":false,
     "clientWhiteList": ["*"],
     "clientBlackList": ["*.attacker.com/*"],
     "legacyIdTokenClaims": %(oxauth_legacyIdTokenClaims)s,
     "customHeadersWithAuthorizationResponse": true,
     "frontChannelLogoutSessionSupported":true,
-    "updateUserLastLogonTime": true,
+    "updateUserLastLogonTime":true,
     "updateClientAccessTime":true,
     "enableClientGrantTypeUpdate": true,
     "corsConfigurationFilters": [
@@ -284,8 +286,7 @@
     "authorizationRequestCustomAllowedParameters" : [
         "entityId",
         "spNameQualifier",
-        "customParam1"
-    ],
+        "customParam1"    ],
     "legacyDynamicRegistrationScopeParam": false,
     "openidScopeBackwardCompatibility": %(oxauth_openidScopeBackwardCompatibility)s,
     "useCacheForAllImplicitFlowObjects":true,
@@ -307,5 +308,6 @@
         "disableFido2":true
     },
    "loggingLevel": "INFO",
+   "useLocalCache":true,
    "errorHandlingMethod":"internal"
 }
