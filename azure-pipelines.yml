@@ -66,9 +66,9 @@ steps:
 
 - script: |
     cd deployment/static/opt/dist/signincanada
-    mkdir shibjar && tar -C shibjar -xvf shib-oxauth-authn3-4.0.sic1.tar
-    cp shibjar/shib-oxauth-authn3-4.0.sic1/edit-webapp/WEB-INF/lib/shib-oxauth-authn3-4.0.sic1.jar .
-    rm -rf shib-oxauth-authn3-4.0.sic1.tar && rm -rf shib-oxauth-authn3-4.0.sic1.zip && rm -rf shibjar
+    mkdir shibjar && tar -C shibjar -xvf shib-oxauth-authn3-4.1.0.sic1.tar
+    cp shibjar/shib-oxauth-authn3-4.1.0.sic1/edit-webapp/WEB-INF/lib/shib-oxauth-authn3-4.1.0.sic1.jar .
+    rm -rf shib-oxauth-authn3-4.1.0.sic1.tar && rm -rf shib-oxauth-authn3-4.1.0.sic1.zip && rm -rf shibjar
     ls -al 
   displayName: 'Moving Shiboleth Jar'
 
