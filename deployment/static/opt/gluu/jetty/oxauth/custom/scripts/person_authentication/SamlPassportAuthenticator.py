@@ -611,7 +611,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
         return hasExpired
 
-     def getUserProfile(self, jwt):
+    def getUserProfile(self, jwt):
         jwt_claims = jwt.getClaims()
         user_profile_json = None
 
