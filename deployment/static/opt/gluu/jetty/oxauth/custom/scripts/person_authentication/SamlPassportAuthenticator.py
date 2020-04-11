@@ -54,6 +54,7 @@ class PersonAuthentication(PersonAuthenticationType):
             self.providerKey = "provider"
             self.customAuthzParameter = self.getCustomAuthzParameter(configurationAttributes.get("authz_req_param_provider"))
             self.passportDN = self.getPassportConfigDN()
+            self.parseProviderConfigs()
             print "Passport-saml. init. Initialization success"
         else:
             print "Passport-saml. init. Initialization failed"
@@ -207,8 +208,6 @@ class PersonAuthentication(PersonAuthenticationType):
         identity = CdiUtil.bean(Identity)
 
         if step == 1:
-            #re-read the strategies config (for instance to know which strategies have enabled the email account linking)
-            self.parseProviderConfigs()
             identity.setWorkingParameter("externalProviders", json.dumps(self.registeredProviders))
 
             providerParam = self.customAuthzParameter
