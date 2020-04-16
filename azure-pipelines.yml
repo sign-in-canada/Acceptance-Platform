@@ -52,7 +52,7 @@ steps:
     echo 'Checking file integritiy'
     gpg --import deployment/static/opt/dist/corretto/B04F24E3.pub
     gpg deployment/static/opt/dist/corretto/amazon-corretto-8-x64-linux-jdk.tar.gz.sig
-      displayName: 'Downloading Latest Amazon Corretto'
+  displayName: 'Downloading Latest Amazon Corretto'
   continueOnError: false
 
 
