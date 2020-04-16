@@ -47,9 +47,9 @@ steps:
     mkdir deployment/static/opt/dist/coretto
     echo 'Downloading Latest Amazon Corretto'
     wget https://corretto.aws/downloads/latest/amazon-corretto-8-x64-linux-jdk.tar.gz \
-      -p deployment/static/opt/dist/coretto
+      -P deployment/static/opt/dist/coretto
     wget https://corretto.aws/downloads/latest_checksum/amazon-corretto-8-x64-linux-jdk.tar.gz \
-      -p deployment/static/opt/dist/coretto
+      -P deployment/static/opt/dist/coretto
   displayName: 'Downloading Latest Amazon Corretto'
   continueOnError: false
 
