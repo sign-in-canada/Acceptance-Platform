@@ -34,14 +34,25 @@ steps:
 
 - script: |
     echo 'Downloading AppInsights SDK'
-    wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.5.1/applicationinsights-web-auto-2.5.1.jar
-    mv applicationinsights-web-auto-2.5.1.jar deployment/static/opt/dist/signincanada
+    wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.5.1/applicationinsights-web-auto-2.5.1.jar \
+       -P deployment/static/opt/dist/signincanada
     echo 'Downloading AppInsights Agent'
-    wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.5.1/applicationinsights-agent-2.5.1.jar
-    mv applicationinsights-agent-2.5.1.jar deployment/static/opt/azure
+    wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.5.1/applicationinsights-agent-2.5.1.jar \
+       -P deployment/static/opt/azure
     ls -al 
   displayName: 'Downloading AppInsights'
   continueOnError: false
+
+- script: |
+    mkdir deployment/static/opt/dist/coretto
+    echo 'Downloading Latest Amazon Corretto'
+    wget https://corretto.aws/downloads/latest/amazon-corretto-8-x64-linux-jdk.tar.gz \
+      -p deployment/static/opt/dist/coretto
+    wget https://corretto.aws/downloads/latest_checksum/amazon-corretto-8-x64-linux-jdk.tar.gz \
+      -p deployment/static/opt/dist/coretto
+  displayName: 'Downloading Latest Amazon Corretto'
+  continueOnError: false
+
 
 - task: DownloadPipelineArtifact@2
   inputs:

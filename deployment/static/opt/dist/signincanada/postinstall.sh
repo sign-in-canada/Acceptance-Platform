@@ -12,6 +12,12 @@ install -m 644 -o jetty -g jetty /opt/dist/signincanada/shib-oxauth-authn3-4.1.0
 install -m 644 -o jetty -g jetty  /opt/dist/signincanada/applicationinsights-web-auto-2.5.1.jar /opt/gluu/jetty/idp/custom/libs
 install -m 644 -o jetty -g jetty /opt/dist/signincanada/applicationinsights-web-auto-2.5.1.jar /opt/gluu/jetty/oxauth/custom/libs
 
+echo 'Updating Corretto...'
+rm -f /opt/jre
+rm -rf /opt/amazon-corretto-*
+tar xf /opt/dist/corretto/amazon-corretto-8-x64-linux-jdk.tar.gz -C /opt
+ln -s /opt/amazon-corretto-* /opt/jre
+
 echo 'Installing the UI...'
 chgrp gluu /etc/gluu/select_page_content.json
 chmod 644 /etc/gluu/select_page_content.json
