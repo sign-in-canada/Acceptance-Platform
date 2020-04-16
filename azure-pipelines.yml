@@ -44,13 +44,15 @@ steps:
   continueOnError: false
 
 - script: |
-    mkdir deployment/static/opt/dist/coretto
     echo 'Downloading Latest Amazon Corretto'
     wget https://corretto.aws/downloads/latest/amazon-corretto-8-x64-linux-jdk.tar.gz \
-      -P deployment/static/opt/dist/coretto
-    wget https://corretto.aws/downloads/latest_checksum/amazon-corretto-8-x64-linux-jdk.tar.gz \
-      -O deployment/static/opt/dist/corretto/checksum.md5
-  displayName: 'Downloading Latest Amazon Corretto'
+      -P deployment/static/opt/dist/corretto
+    wget https://corretto.aws/downloads/latest/amazon-corretto-8-x64-linux-jdk.tar.gz.sig \
+      -P deployment/static/opt/dist/corretto
+    echo 'Checking file integritiy'
+    gpg --import deployment/static/opt/dist/corretto/B04F24E3.pub
+    gpg deployment/static/opt/dist/corretto/amazon-corretto-8-x64-linux-jdk.tar.gz.sig
+      displayName: 'Downloading Latest Amazon Corretto'
   continueOnError: false
 
 
