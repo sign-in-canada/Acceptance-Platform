@@ -8,7 +8,7 @@ systemctl enable keyvault
 
 echo 'Installing custom libs into Shibboleth and oxAuth...'
 install -m 755 -o jetty -g jetty -d /opt/gluu/jetty/idp/custom/libs
-install -m 644 -o jetty -g jetty /opt/dist/signincanada/shib-oxauth-authn3-4.0.sic1.jar /opt/gluu/jetty/idp/custom/libs
+install -m 644 -o jetty -g jetty /opt/dist/signincanada/shib-oxauth-authn3-4.1.0.sic1.jar /opt/gluu/jetty/idp/custom/libs
 install -m 644 -o jetty -g jetty  /opt/dist/signincanada/applicationinsights-web-auto-2.5.1.jar /opt/gluu/jetty/idp/custom/libs
 install -m 644 -o jetty -g jetty /opt/dist/signincanada/applicationinsights-web-auto-2.5.1.jar /opt/gluu/jetty/oxauth/custom/libs
 

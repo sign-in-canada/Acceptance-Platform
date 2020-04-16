@@ -12,7 +12,7 @@ from org.gluu.oxauth.model.configuration import AppConfiguration
 from org.gluu.oxauth.model.crypto import CryptoProviderFactory
 from org.gluu.oxauth.model.jwt import Jwt, JwtClaimName
 from org.gluu.oxauth.model.util import Base64Util
-from org.gluu.oxauth.service import AppInitializer, AuthenticationService, UserService, SessionIdService
+from org.gluu.oxauth.service import AppInitializer, AuthenticationService, UserService, SessionIdService, EncryptionService
 from org.gluu.oxauth.service.net import HttpService
 from org.gluu.oxauth.security import Identity
 from org.gluu.oxauth.util import ServerUtil
@@ -33,6 +33,7 @@ from org.bouncycastle.jce.provider import BouncyCastleProvider
 
 import json
 import sys
+import datetime
 import uuid
 import time
 import base64
@@ -71,6 +72,7 @@ class PersonAuthentication(PersonAuthenticationType):
             self.providerKey = "provider"
             self.customAuthzParameter = self.getCustomAuthzParameter(configurationAttributes.get("authz_req_param_provider"))
             self.passportDN = self.getPassportConfigDN()
+            self.parseProviderConfigs()
             print "Passport-social. init. Initialization success"
         else:
             print "Passport-social. init. Initialization failed"
@@ -215,8 +217,6 @@ class PersonAuthentication(PersonAuthenticationType):
         sessionId = identity.getSessionId()
 
         if step == 1:
-            #re-read the strategies config (for instance to know which strategies have enabled the email account linking)
-            self.parseProviderConfigs()
             identity.setWorkingParameter("externalProviders", json.dumps(self.registeredProviders))
 
             providerParam = self.customAuthzParameter
@@ -563,6 +563,7 @@ class PersonAuthentication(PersonAuthenticationType):
             appConfiguration.setWebKeysStorage(WebKeyStorage.KEYSTORE)
             appConfiguration.setKeyStoreFile(self.keyStoreFile)
             appConfiguration.setKeyStoreSecret(self.keyStorePassword)
+            appConfiguration.setKeyRegenerationEnabled(False)
 
             cryptoProvider = CryptoProviderFactory.getCryptoProvider(appConfiguration)
             valid = cryptoProvider.verifySignature(jwt.getSigningInput(), jwt.getEncodedSignature(), jwt.getHeader().getKeyId(),
@@ -579,7 +580,7 @@ class PersonAuthentication(PersonAuthenticationType):
         jwt_claims = jwt.getClaims()
         try:
             exp_date = jwt_claims.getClaimAsDate(JwtClaimName.EXPIRATION_TIME)
-            hasExpired = exp_date < datetime.now()
+            hasExpired = exp_date < datetime.datetime.now()
         except:
             print "Exception: The JWT does not have '%s' attribute" % JwtClaimName.EXPIRATION_TIME
             return False
@@ -588,14 +589,14 @@ class PersonAuthentication(PersonAuthenticationType):
 
 
     def getUserProfile(self, jwt):
-        # Check if there is user profile
         jwt_claims = jwt.getClaims()
-        user_profile_json = jwt_claims.getClaimAsString("data")
-        if StringHelper.isEmpty(user_profile_json):
-            print "Passport-social. getUserProfile. User profile missing in JWT token"
-            user_profile = None
-        else:
+        user_profile_json = None
+
+        try:
+            user_profile_json = CdiUtil.bean(EncryptionService).decrypt(jwt_claims.getClaimAsString("data"))
             user_profile = json.loads(user_profile_json)
+        except:
+            print "Passport. getUserProfile. Problem obtaining user profile json representation"
 
         return (user_profile, user_profile_json)
 
