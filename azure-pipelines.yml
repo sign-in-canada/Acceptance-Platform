@@ -49,7 +49,7 @@ steps:
     wget https://corretto.aws/downloads/latest/amazon-corretto-8-x64-linux-jdk.tar.gz \
       -P deployment/static/opt/dist/coretto
     wget https://corretto.aws/downloads/latest_checksum/amazon-corretto-8-x64-linux-jdk.tar.gz \
-      -P deployment/static/opt/dist/coretto
+      -O deployment/static/opt/dist/corretto/checksum.md5
   displayName: 'Downloading Latest Amazon Corretto'
   continueOnError: false
 
