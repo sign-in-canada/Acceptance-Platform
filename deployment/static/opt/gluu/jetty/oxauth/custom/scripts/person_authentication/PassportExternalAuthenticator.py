@@ -453,23 +453,33 @@ class PersonAuthentication(PersonAuthenticationType):
 
         registeredProviders = {}
         print "Passport-social. parseAllProviders. Adding providers"
-        entryManager = CdiUtil.bean(AppInitializer).createPersistenceEntryManager()
+        entryManager = None
 
-        config = LdapOxPassportConfiguration()
-        config = entryManager.find(config.getClass(), self.passportDN).getPassportConfiguration()
-        config = config.getProviders() if config != None else config
+        try:
+            entryManager = CdiUtil.bean(AppInitializer).createPersistenceEntryManager()
 
-        if config != None and len(config) > 0:
-            for prvdetails in config:
-                if prvdetails.isEnabled():
-                    registeredProviders[prvdetails.getId()] = {
-                        "emailLinkingSafe": prvdetails.isEmailLinkingSafe(),
-                        "requestForEmail" : prvdetails.isRequestForEmail(),
-                        "logo_img": prvdetails.getLogoImg(),
-                        "displayName": prvdetails.getDisplayName(),
-                        "type": prvdetails.getType(),
-                        "samlissuer": prvdetails.getOptions().get("samlissuer")
-                    }
+            config = LdapOxPassportConfiguration()
+            config = entryManager.find(config.getClass(), self.passportDN).getPassportConfiguration()
+            config = config.getProviders() if config != None else config
+
+            if config != None and len(config) > 0:
+                for prvdetails in config:
+                    if prvdetails.isEnabled():
+                        registeredProviders[prvdetails.getId()] = {
+                            "emailLinkingSafe": prvdetails.isEmailLinkingSafe(),
+                            "requestForEmail" : prvdetails.isRequestForEmail(),
+                            "logo_img": prvdetails.getLogoImg(),
+                            "displayName": prvdetails.getDisplayName(),
+                            "type": prvdetails.getType(),
+                            "issuer": prvdetails.getOptions().get("issuer")
+                        }
+
+        except:
+            print "Passport-social. parseAllProviders. An error occurred while reading the list of supported authentication providers", sys.exc_info()[1]
+
+        finally:
+            if entryManager != None:
+                entryManager.destroy()
 
         return registeredProviders
 
