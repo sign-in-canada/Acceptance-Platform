@@ -95,6 +95,11 @@ steps:
   continueOnError: true
 
 - script: |
+    cp administration/software/* $(Build.ArtifactStagingDirectory)
+  displayName: 'Packaging Install script'
+  continueOnError: true
+
+- script: |
     cd deployment/static/
     echo 'packaging tarball'
     chmod 755 $(find . -type d -print)
