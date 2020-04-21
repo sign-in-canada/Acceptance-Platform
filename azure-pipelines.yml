@@ -106,6 +106,7 @@ steps:
     chmod 644 $(find . -type f -print)
     chmod 700 opt/dist/signincanada/postinstall.sh
     chmod 700 opt/dist/scripts/azure/keyvault.sh
+    chmod 700 install/community-edition-setup/setup.py
     tar -czv --owner=root --group=root -f $(Build.ArtifactStagingDirectory)/SIC-AP-0.0.$(minor).tgz --exclude='opt/gluu' *
     openssl sha256 $(Build.ArtifactStagingDirectory)/SIC-AP-0.0.$(minor).tgz > $(Build.ArtifactStagingDirectory)/SIC-AP-0.0.$(minor).tgz.sha
   displayName: 'Packaging tarball'
