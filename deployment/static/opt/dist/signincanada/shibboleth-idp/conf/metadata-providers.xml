@@ -24,7 +24,7 @@
 
    <MetadataProvider id="SIC-Nonprod" xsi:type="FileBackedHTTPMetadataProvider"
                   backingFile="/opt/shibboleth-idp/metadata/SIC-Nonprod.xml"
-                  metadataURL="https://[hostname]/saml/SIC-Nonprod-signed.xml"/>
+                  metadataURL="[URL]"/>
 
 
 </MetadataProvider>

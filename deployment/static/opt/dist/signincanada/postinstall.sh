@@ -35,8 +35,3 @@ echo "Configuring httpd chain certificate..."
 sed -i "17i\ \ \ \ \ \ \ \ SSLCertificateChainFile /etc/certs/httpd.chain" /etc/httpd/conf.d/https_gluu.conf
 
 echo 'Done.'
-echo
-echo 'To complete configuration...'
-echo '  1) edit the keyvault name in /etc/default/azure'
-echo '  2) configure the SAML RPs in /opt/shibboleth-idp/conf/metadata-providers.xml'
-echo '  3) log out and restart the container'

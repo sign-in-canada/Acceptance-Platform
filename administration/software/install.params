@@ -1,0 +1,5 @@
+# Environment-specific configuration parameters for install.sh
+
+STAGING_URL=
+KEYVAULT_URL=
+METADATA_URL=
