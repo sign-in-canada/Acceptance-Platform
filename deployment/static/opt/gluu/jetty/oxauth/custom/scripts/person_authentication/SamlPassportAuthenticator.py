@@ -20,6 +20,7 @@ from org.gluu.oxauth.util import ServerUtil
 from org.gluu.oxauth.i18n import LanguageBean
 from org.gluu.config.oxtrust import LdapOxPassportConfiguration
 from org.gluu.model.custom.script.type.auth import PersonAuthenticationType
+from org.gluu.persist import PersistenceEntryManager
 from org.gluu.service.cdi.util import CdiUtil
 from org.gluu.util import StringHelper
 from java.util import ArrayList, Arrays, Collections, HashSet
@@ -473,33 +474,23 @@ class PersonAuthentication(PersonAuthenticationType):
 
         registeredProviders = {}
         print "Passport-saml. parseAllProviders. Adding providers"
-        entryManager = None
+        entryManager = CdiUtil.bean(PersistenceEntryManager)
 
-        try:
-            entryManager = CdiUtil.bean(AppInitializer).createPersistenceEntryManager()
+        config = LdapOxPassportConfiguration()
+        config = entryManager.find(config.getClass(), self.passportDN).getPassportConfiguration()
+        config = config.getProviders() if config != None else config
 
-            config = LdapOxPassportConfiguration()
-            config = entryManager.find(config.getClass(), self.passportDN).getPassportConfiguration()
-            config = config.getProviders() if config != None else config
-
-            if config != None and len(config) > 0:
-                for prvdetails in config:
-                    if prvdetails.isEnabled():
-                        registeredProviders[prvdetails.getId()] = {
-                            "emailLinkingSafe": prvdetails.isEmailLinkingSafe(),
-                            "requestForEmail" : prvdetails.isRequestForEmail(),
-                            "logo_img": prvdetails.getLogoImg(),
-                            "displayName": prvdetails.getDisplayName(),
-                            "type": prvdetails.getType(),
-                            "issuer": prvdetails.getOptions().get("issuer")
-                        }
-
-        except:
-            print "Passport-saml. parseAllProviders. An error occurred while reading the list of supported authentication providers", sys.exc_info()[1]
-
-        finally:
-            if entryManager != None:
-                entryManager.destroy()
+        if config != None and len(config) > 0:
+            for prvdetails in config:
+                if prvdetails.isEnabled():
+                    registeredProviders[prvdetails.getId()] = {
+                        "emailLinkingSafe": prvdetails.isEmailLinkingSafe(),
+                        "requestForEmail" : prvdetails.isRequestForEmail(),
+                        "logo_img": prvdetails.getLogoImg(),
+                        "displayName": prvdetails.getDisplayName(),
+                        "type": prvdetails.getType(),
+                        "issuer": prvdetails.getOptions().get("issuer")
+                    }
 
         return registeredProviders
 
