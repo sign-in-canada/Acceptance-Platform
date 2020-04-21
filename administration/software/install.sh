@@ -5,7 +5,8 @@ source install.params
 read -p "Please enter the configuration decryption passaword => " -e -s PASSWORD
 
 rm -f ${1}*
-Dowloading ${1}...
+
+echo Downloading ${1}...
 wget ${STAGING_URL}/${1}.tgz
 wget ${STAGING_URL}/${1}.tgz.sha
 echo -n "Checking download integrity..."
