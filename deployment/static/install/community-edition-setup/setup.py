@@ -2600,7 +2600,7 @@ class Setup(object):
         self.copyFile('%s/oxauth-rp.war' % self.distGluuFolder, jettyServiceWebapps)
 
     def generate_passport_configuration(self):
-        if passport_rs_client_jks_pass == None:
+        if self.passport_rs_client_jks_pass == None:
             self.passport_rs_client_jks_pass = self.getPW()
             self.passport_rs_client_jks_pass_encoded = self.obscure(self.passport_rs_client_jks_pass)
 
