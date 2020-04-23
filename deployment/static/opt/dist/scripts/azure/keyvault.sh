@@ -73,15 +73,15 @@ if [ "$salt" != "undefined" ] ; then
       # First time. Strip out the password to create a template
       sed '/^auth.userPassword:/d' $GCB > ${GCB}.template
    fi
-   cp ${GCB}.template ${KV_DIR}/secrets/couchbaseGluuUserPassword
-   echo "auth.userPassword:" $(fetchSecret couchbaseGluuUserPassword) \
-      >> ${KV_DIR}/secrets/couchbaseGluuUserPassword
-   ln -s -f ${KV_DIR}/secrets/couchbaseGluuUserPassword $GCB
+   cp ${GCB}.template ${KV_DIR}/secrets/gluu-couchbase.properties
+   echo "auth.userPassword:" $(fetchSecret APGluuPW) \
+      >> ${KV_DIR}/secrets/gluu-couchbase.properties
+   ln -s -f ${KV_DIR}/secrets/gluu-couchbase.properties $GCB
 
    # Get the Couchbase shibboleth password
    echo "idp.attribute.resolver.datasource.password=" \
-      $(fetchSecret couchbaseShibUserPassword) > ${KV_DIR}/secrets/couchbaseShibUserPassword
-   ln -s -f ${KV_DIR}/secrets/couchbaseShibUserPassword /opt/shibboleth-idp/conf/secrets.properties
+      $(fetchSecret APShibPW) > ${KV_DIR}/secrets/secrets.properties
+   ln -s -f ${KV_DIR}/secrets/secrets.properties /opt/shibboleth-idp/conf/secrets.properties
 fi
 
 exit 0
