@@ -100,7 +100,7 @@ steps:
   continueOnError: true
 
 - script: |
-    cd deployment/static/
+    pushd cd deployment/static/
     echo 'packaging tarball'
     chmod 755 $(find . -type d -print)
     chmod 644 $(find . -type f -print)
@@ -109,6 +109,8 @@ steps:
     chmod 700 install/community-edition-setup/setup.py
     tar -czv --owner=root --group=root -f $(Build.ArtifactStagingDirectory)/SIC-AP-0.0.$(minor).tgz --exclude='opt/gluu' *
     openssl sha256 $(Build.ArtifactStagingDirectory)/SIC-AP-0.0.$(minor).tgz > $(Build.ArtifactStagingDirectory)/SIC-AP-0.0.$(minor).tgz.sha
+    popd
+    tar -czv --owner=root --group=root -f $(Build.ArtifactStagingDirectory)/SIC-Admintools-0.0.$(minor).tgz administration
   displayName: 'Packaging tarball'
   continueOnError: true
 
