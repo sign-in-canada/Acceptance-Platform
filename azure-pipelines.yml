@@ -95,7 +95,7 @@ steps:
   continueOnError: true
 
 - script: |
-    pushd cd deployment/static/
+    pushd deployment/static/
     echo 'packaging tarball'
     chmod 755 $(find . -type d -print)
     chmod 644 $(find . -type f -print)
