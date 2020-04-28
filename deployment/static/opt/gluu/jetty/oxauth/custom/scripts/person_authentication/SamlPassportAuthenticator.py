@@ -150,9 +150,9 @@ class PersonAuthentication(PersonAuthenticationType):
                     return False
 
                 # passing language fix - makes language available through user profile data
-                ui_locale = ServerUtil.getFirstValue(requestParameters, "ui_locale")
-                if ui_locale != None:
-                    user_profile["locale"] = [ ui_locale ]
+                locale = CdiUtil.bean(LanguageBean).getLocaleCode()[:2]
+                if locale != None and locale in ["en", "fr"]:
+                    user_profile["locale"] = [ locale ]
 
                 return self.attemptAuthentication(identity, user_profile, jsonp)
 
