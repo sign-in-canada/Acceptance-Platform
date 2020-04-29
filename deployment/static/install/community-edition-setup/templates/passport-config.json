@@ -1,6 +1,7 @@
 {
     "configurationEndpoint": "https://%(hostname)s/identity/restv1/passport/config",
     "failureRedirectUrl": "https://%(hostname)s/oxauth/auth/passport/passportlogin.htm",
+    "partialLogoutRedirectUrl": "https://%(hostname)s/oxauth/partial.htm"
     "languageAPI": "https://lang-canada.fjgc-gccf.gc.ca/v1/lang",
     "logLevel": "info",
     "consoleLogOnly": false,
