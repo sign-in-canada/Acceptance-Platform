@@ -17,10 +17,15 @@ else
    exit 1
 fi
 
+if [ ! -f ./oxauth-keys.jks ] ; then
+   echo "Backing up the oxAuth keystore"
+   cp /opt/gluu-server/etc/certs/oxauth-keys.jks .
+fi
+
 echo "Re-installing Gluu"
 yum remove -y gluu-server
 rm -rf /opt/gluu-server*
-yum localinstall -y ./gluu-server-4.1.0-centos7.x86_64.rpm
+yum localinstall -y ./gluu-server-4.1.0-*.x86_64.rpm
 
 echo "Adding Sign In Canada customizations..."
 tar xvzf ${1}.tgz -C /opt/gluu-server/
@@ -39,6 +44,11 @@ ssh  -o IdentityFile=/etc/gluu/keys/gluu-console -o Port=60022 -o LogLevel=QUIET
                 -o PubkeyAuthentication=yes root@localhost \
    "/install/community-edition-setup/setup.py -n -f /install/community-edition-setup/setup.properties.enc -properties-password $PASSWORD ; \
     /opt/dist/signincanada/postinstall.sh"
+
+if [ -f ./oxauth-keys.jks ] ; then
+   echo "Restoring the oxAuth keystore."
+   cp /opt/gluu-server/etc/certs/oxauth-keys.jks .
+fi
 
 echo "Restarting..."
 /sbin/gluu-serverd restart
