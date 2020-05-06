@@ -564,3 +564,17 @@ oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/cus
 oxRevision: 1
 oxScriptType: dynamic_scope
 programmingLanguage: python
+
+dn: inum=A3DC-5D03,ou=scripts,o=gluu
+objectClass: top
+objectClass: oxCustomScript
+description: Changes the value of the session_id cookie
+displayName: rotate_sessionid
+oxEnabled: true
+inum: DAA9-B789
+oxLevel: 1
+oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
+oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/application_session/RotateSessionId.py","description":""}
+oxRevision: 1
+oxScriptType: application_session
+programmingLanguage: python

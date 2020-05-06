@@ -1,0 +1,37 @@
+# oxAuth is available under the MIT License (2008). See http://opensource.org/licenses/MIT for full text.
+# Copyright (c) 2016, Gluu
+#
+# Author: Doug Harris
+#
+
+from org.gluu.model.custom.script.type.session import ApplicationSessionType
+from org.gluu.service.cdi.util import CdiUtil
+from org.gluu.oxauth.security import Identity
+from org.gluu.oxauth.service import SessionIdService
+
+import uuid
+
+class ApplicationSession(ApplicationSessionType):
+    def __init__(self, currentTimeMillis):
+        self.currentTimeMillis = currentTimeMillis
+
+    def init(self, configurationAttributes):
+        return True
+
+    def destroy(self, configurationAttributes):
+        return True
+
+    def getApiVersion(self):
+        return 2
+
+    def startSession(self, httpRequest, sessionId, configurationAttributes):
+        sessionService = CdiUtil.bean(SessionIdService)
+        session = identity = CdiUtil.bean(Identity).getSessionId()
+
+        # Change the Session ID value to thwart session fixation attacks
+        session.setId(str(uuid.uuid4()))
+        sessionService.updateSessionId(session)
+        return True
+
+    def endSession(self, httpRequest, sessionId, configurationAttributes):
+        return True
