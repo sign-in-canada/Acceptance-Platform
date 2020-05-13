@@ -22,9 +22,20 @@ if [ ! -f ./oxauth-keys.jks ] ; then
    cp /opt/gluu-server/etc/certs/oxauth-keys.jks .
 fi
 
-echo "Re-installing Gluu"
+echo "Uninstalling Gluu..."
 yum remove -y gluu-server
 rm -rf /opt/gluu-server*
+
+echo "Checking integrity of the Gluu RPM..."
+rpm -K ./gluu-server-4.1.0-*.x86_64.rpm
+if [ $? -eq 0 ] ; then
+   echo "Passed."
+else
+   echo "Failed. Aborting!"
+   exit
+fi
+
+echo "Reinstalling Gluu..."
 yum localinstall -y ./gluu-server-4.1.0-*.x86_64.rpm
 
 echo "Adding Sign In Canada customizations..."
