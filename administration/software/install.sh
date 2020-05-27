@@ -58,7 +58,7 @@ cp setup.properties.last.enc /opt/gluu-server/install/community-edition-setup/se
 ssh  -o IdentityFile=/etc/gluu/keys/gluu-console -o Port=60022 -o LogLevel=QUIET \
                 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
                 -o PubkeyAuthentication=yes root@localhost \
-   "/install/community-edition-setup/setup.py -n -f /install/community-edition-setup/setup.properties.enc -properties-password $PASSWORD --import-ldif=/opt/dist/signincanada/ldif ; \
+   "/install/community-edition-setup/setup.py -n -f /install/community-edition-setup/setup.properties.enc -properties-password '$PASSWORD' --import-ldif=/opt/dist/signincanada/ldif ; \
     /opt/dist/signincanada/postinstall.sh"
 
 if [ -f ./oxauth-keys.jks ] ; then
