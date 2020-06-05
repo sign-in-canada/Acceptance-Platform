@@ -44,9 +44,11 @@ tar xvzf ${1}.tgz -C /opt/gluu-server/
 echo "Configuring Keyvault URL..."
 echo "KEYVAULT=${KEYVAULT_URL}" > /opt/gluu-server/etc/default/azure
 
-echo "Configuring SAML metadata URL..."
-sed -i "s|\[URL\]|${METADATA_URL}|g" \
-   /opt/gluu-server/opt/dist/signincanada/shibboleth-idp/conf/metadata-providers.xml
+if [ ! -z "$METADATA_URL" ] ; then
+   echo "Configuring SAML metadata URL..."
+   sed -i "s|\[URL\]|${METADATA_URL}|g" \
+      /opt/gluu-server/opt/dist/signincanada/shibboleth-idp/conf/metadata-providers.xml
+fi
 
 if [ -f ./passport-central-config.json ] ; then
    echo "Restoring CSP and IDP configurations"
