@@ -1,0 +1,97 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:jsf="http://xmlns.jcp.org/jsf"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+  <f:view locale="#{language.localeCode}">
+
+    <head lang="#{language.localeCode}" dir="ltr">
+      <ui:include src="/WEB-INF/incl/components/head-#{language.localeCode}.xhtml" />
+    </head>
+
+    <body class="page-type-nav" vocab="http://schema.org/" typeof="WebPage">
+
+      <ui:include src="/WEB-INF/incl/components/header-#{language.localeCode}.xhtml" />
+
+      <main property="mainContentOfPage" class="container" typeof="WebPageElement">
+
+        <div style="margin-top: 20px; float: right;">
+          <a onClick="help()" class="btn btn-primary" style="color:#FFF">
+            <span class="glyphicon glyphicon-question-sign" aria-hidden="true" style="padding-right: 5px;"></span>
+            Help
+          </a>
+        </div>
+
+        <div style="display:none; border:thin; border-color:#000; z-index:1000;" id="help">
+          <ui:insert name="help" />
+        </div>
+        <style>
+          #help {
+            width: 80%;
+            padding: 50px 0;
+            text-align: left;
+            background-color: #fff;
+            margin-top: 20px;
+          }
+      </style>
+        <script>
+          function help() {
+              var x = document.getElementById("help");
+              if (x.style.display === "none") {
+                x.style.display = "block";
+            } else {
+                x.style.display = "none";
+            }
+          }
+          function empty() {
+            var x = document.getElementById("empty");
+             if (x.style.display === "none") {
+                 x.style.display = "block";
+             } else {
+                 x.style.display = "none";
+             }
+          }
+      </script>
+
+        <div>
+          <h1 property="name" id="wb-cont">
+            <ui:insert name="name" />
+          </h1>
+          <p>
+            <ui:insert name="description" />
+          </p>
+        </div>
+
+        <ui:insert name="chooser" />
+
+        <div class="pagedetails">
+
+          <ui:include src="/WEB-INF/incl/components/problem-#{language.localeCode}.xhtml" />
+
+          <dl id="wb-dtmd">
+            <dt>Date modified:&#32;</dt>
+            <dd>
+              <time property="dateModified">2020-06-11</time>
+            </dd>
+          </dl>
+        </div>
+
+      </main>
+
+      <ui:include src="/WEB-INF/incl/components/footer-#{language.localeCode}.xhtml" />
+
+    </body>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.js"></script>
+    <script src="https://www.canada.ca/etc/designs/canada/wet-boew/js/wet-boew.min.js"></script>
+    <script src="https://www.canada.ca/etc/designs/canada/wet-boew/js/theme.min.js" type="text/x-javascript"></script>
+    <script src="/oxauth/ext/resources/js/languageAPI.js" type="text/x-javascript"></script>
+    <script>
+      $(document).ready(setLanguage('#{language.localeCode eq "en" ? "eng" : "fra"}', function() {}));
+    </script>
+
+  </f:view>
+</html>

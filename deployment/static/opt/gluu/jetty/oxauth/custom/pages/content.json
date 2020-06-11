@@ -1,51 +1,44 @@
 {
     "_default" : {
-        "client.longname.en" : "Sign In Canada",
-        "client.longname.fr" : "Le Sign In Canada",
-        "client.header.en" : "Authenticate with Sign In Canada",
-        "client.header.fr" : "L'authenticifcation chez Sign In Canada ",
+        "content" : "default",
+        "layout" : "ATIP",
+        "chooser": "gccf",
         "credentials" : "passport_saml:cra,passport_saml:gckey,passport_saml:cbs,passport_saml:madi,passport_social:bcsc,passport_social:google,passport_social:microsoft"
     },
     "oidc:tbs_atip_aors_" : {
-        "client.longname.en" : "ATIP Online Request Service (AORS)",
-        "client.longname.fr" : "ATIP Online Request Service (AORS)",
-        "client.header.en" : "<abbr title=\"Access to Information and Privacy\">ATIP</abbr> Online Request Service (AORS)",
-        "client.header.fr" : "<abbr title=\"Access to Information and Privacy\">ATIP</abbr> Online Request Service (AORS)",
+        "content" : "tbs_atip_aors",
+        "layout" : "ATIP",
+        "chooser": "gccf",
         "credentials" : "passport_saml:gckey,passport_saml:cbs"
     },
     "oidc:tbs_atip_aomt_" : {
-        "client.longname.en" : "ATIP Online Management Tool (AOMT)",
-        "client.longname.fr" : "ATIP Online Management Tool (AOMT)",
-        "client.header.en" : "<abbr title=\"Access to Information and Privacy\">ATIP</abbr> Online Management Tool (AOMT)",
-        "client.header.fr" : "<abbr title=\"Access to Information and Privacy\">ATIP</abbr> Online Management Tool (AOMT)",
+        "content" : "tbs_atip_aors",
+        "layout" : "ATIP",
+        "chooser": "gccf",
         "credentials" : "passport_saml:gckey,passport_saml:cbs"
     },
     "https://rp4.tbstest.catslab.ca" : {
-        "client.longname.en" : "ATIP Online Request Service (AORS)",
-        "client.longname.fr" : "L'ATIP Online Request Service (AORS)",
-        "client.header.en" : "<abbr title=\"Access to Information and Privacy\">ATIP</abbr> Online Request Service (AORS)",
-        "client.header.fr" : "Chez <abbr title=\"Access to Information and Privacy\">ATIP</abbr> Online Request Service (AORS)",
+        "content" : "default",
+        "layout" : "ATIP",
+        "chooser": "gccf",
         "credentials" : "passport_saml:gckey,passport_saml:cbs,passport_saml:madi,passport_social:bcsc,passport_social:google,passport_social:microsoft"
     },
     "https://rp1.tbstest.catslab.ca" : {
-        "client.longname.en" : "Sign In Canada",
-        "client.longname.fr" : "Le Sign In Canada",
-        "client.header.en" : "Sign In Canada",
-        "client.header.fr" : "Le Sign In Canada",
+        "content" : "default",
+        "layout" : "ATIP",
+        "chooser": "gccf",
         "credentials" : "passport_saml:gckey,passport_saml:cbs,passport_saml:madi,passport_social:bcsc,passport_social:google,passport_social:microsoft"
     },
     "https://rp2.tbstest.catslab.ca" : {
-        "client.longname.en" : "Service Canada Account",
-        "client.longname.fr" : "Service Canada Account",
-        "client.header.en" : "Service Canada Account",
-        "client.header.fr" : "Service Canada Account",
+        "content" : "tbs_atip_aors",
+        "layout" : "ATIP",
+        "chooser": "gccf",
         "credentials" : "passport_saml:gckey,passport_saml:cbs,passport_saml:madi"
     },
     "https://rp3.tbstest.catslab.ca" : {
-        "client.longname.en" : "CRA Account For Individuals",
-        "client.longname.fr" : "CRA Account For Individuals",
-        "client.header.en" : "CRA Account For Individuals",
-        "client.header.fr" : "CRA Account For Individuals",
+        "content" : "default",
+        "layout" : "ATIP",
+        "chooser": "gccf",
         "credentials" : "passport_saml:cra,passport_saml:cbs,passport_social:bcsc"
     }
 }
