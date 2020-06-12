@@ -72,7 +72,7 @@
           <ui:include src="/WEB-INF/incl/components/problem-#{language.localeCode}.xhtml" />
 
           <dl id="wb-dtmd">
-            <dt>Date modified:&#32;</dt>
+            <dt>#{language.localeCode eq "en" ? "Date modified:&#32;" : "Date de modification&#160;:&#32;"}</dt>
             <dd>
               <time property="dateModified">2020-06-12</time>
             </dd>
