@@ -580,7 +580,7 @@ class PersonAuthentication(PersonAuthenticationType):
         valid = False
 
         # security vulnerability - we need to validate
-        sigAlgorithm = "%s" % jwt.getHeader().getAlgorithm()
+        sigAlgorithm = jwt.getHeader().getAlgorithm().getName()
         if ( sigAlgorithm != "RS512" ):
             return False
 
