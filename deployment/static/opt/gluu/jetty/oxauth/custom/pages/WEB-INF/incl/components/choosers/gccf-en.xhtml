@@ -37,8 +37,31 @@
             <p class="text-center">
               <button jsf:id="loginButton1" jsf:action="#{authenticator.authenticate}" styleClass="btn btn-primary mrgn-tp-lg btn-lg" value="Sign in with GCKey" type="submit" onclick="fillInAcrOnSubmit('passport_saml:gckey')">Sign in with GCKey</button>
             </p>
-          </div>
-        </section>
+           </div>
+           <details>
+            <summary>Tell me more about GCKey</summary>
+            <p>
+              A GCKey lets you securely access Government of Canada online services.
+            </p>
+            <p>
+             It includes a username and password that you choose. You must also
+             create security questions. These steps help to keep your data secure
+             and lets you recover your password.
+            </p>
+            <h4>To create a GCKey:</h4>
+            <ol>
+              <li>Select <strong>Sign up with GCKey</strong></li>
+              <li>Select <strong>Sign Up</strong></li>
+              <li>Read and accept the Terms and Conditions of Use</li>
+              <li>Follow the instructions to create a username and password</li>
+              <li>Create your security questions and responses, then select <strong>Continue</strong>.</li>
+            </ol>
+            <p>
+              Once the Sign Up is complete, you can start to use your GCKey right
+              away.
+            </p>
+          </details>
+         </section>
       </div>
       <div class="col-md-6">
         <section class="panel panel-default hght-inhrt">
@@ -66,6 +89,23 @@
               <button jsf:id="loginButton2" jsf:action="#{authenticator.authenticate}" styleClass="btn btn-primary mrgn-tp-lg btn-lg" value="Sign in with Sign-In Partner" type="submit" onclick="fillInAcrOnSubmit('passport_saml:cbs')">Sign in with Sign-In Partner</button>
             </p>
           </div>
+          <details>
+            <summary>Tell me more about Sign-In Partners</summary>
+            <p>
+              Sign-In Partners are Canadian financial institutions such as banks
+              and credit unions. If you already have an online banking account
+              with one of the Sign-In Partners, you can use the same sign-in to
+              access Government of Canada services.
+            </p>
+            <h4>To use a Sign-in Partner:</h4>
+            <ol>
+              <li>Select <strong>Sign in with Sign-In Partner</strong></li>
+              <li>Choose your financial institution
+                <div class="alert alert-info"><p>If you don’t see your financial institution listed, you will need to use a GCKey.</p></div>
+              </li>
+              <li>Enter your banking sign-in information and select <strong>Continue</strong> or <strong>Login</strong></li>
+            </ol>
+          </details>
         </section>
       </div>
     </div>
