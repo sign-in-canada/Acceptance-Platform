@@ -6,7 +6,6 @@
 
 from org.gluu.model.custom.script.type.session import ApplicationSessionType
 from org.gluu.service.cdi.util import CdiUtil
-from org.gluu.oxauth.security import Identity
 from org.gluu.oxauth.service import SessionIdService
 
 import uuid
@@ -26,11 +25,15 @@ class ApplicationSession(ApplicationSessionType):
 
     def startSession(self, httpRequest, sessionId, configurationAttributes):
         sessionService = CdiUtil.bean(SessionIdService)
-        session = identity = CdiUtil.bean(Identity).getSessionId()
 
+        # Remove session from the cache
+        sessionService.remove(sessionId)
         # Change the Session ID value to thwart session fixation attacks
-        session.setId(str(uuid.uuid4()))
-        sessionService.updateSessionId(session)
+        sessionId.setId(str(uuid.uuid4()))
+        sessionId.setDn(sessionId.getId())
+        # Put it back in the cache
+        sessionService.updateSessionId(sessionId)
+        
         return True
 
     def endSession(self, httpRequest, sessionId, configurationAttributes):

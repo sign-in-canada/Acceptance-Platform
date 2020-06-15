@@ -23,22 +23,22 @@ steps:
 
 - script: |
     ls -al $(Pipeline.Workspace)
-    cd deployment/static/opt/gluu/jetty/oxauth/custom
+    cd gluu-server/opt/gluu/jetty/oxauth/custom
     tar -czv --owner=root --group=root -f custom.tgz *
-    mv custom.tgz $(Pipeline.Workspace)/s/deployment/static/opt/dist/signincanada
+    mv custom.tgz $(Pipeline.Workspace)/s/gluu-server/opt/dist/signincanada
     cd $(Pipeline.Workspace)
-    ls -al s/deployment/static/opt/dist/signincanada
-    tar -tvf s/deployment/static/opt/dist/signincanada/custom.tgz
+    ls -al s/gluu-server/opt/dist/signincanada
+    tar -tvf s/gluu-server/opt/dist/signincanada/custom.tgz
   displayName: 'Packaging UI'
   continueOnError: false
 
 - script: |
     echo 'Downloading AppInsights SDK'
     wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.5.1/applicationinsights-web-auto-2.5.1.jar \
-       -P deployment/static/opt/dist/signincanada
+       -P gluu-server/opt/dist/signincanada
     echo 'Downloading AppInsights Agent'
     wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.5.1/applicationinsights-agent-2.5.1.jar \
-       -P deployment/static/opt/azure
+       -P gluu-server/opt/azure
     ls -al 
   displayName: 'Downloading AppInsights'
   continueOnError: false
@@ -46,12 +46,12 @@ steps:
 - script: |
     echo 'Downloading Latest Amazon Corretto'
     wget https://corretto.aws/downloads/resources/8.242.08.1/amazon-corretto-8.242.08.1-linux-x64.tar.gz \
-      -O deployment/static/opt/dist/corretto/amazon-corretto-8-x64-linux-jdk.tar.gz
+      -O gluu-server/opt/dist/corretto/amazon-corretto-8-x64-linux-jdk.tar.gz
     wget https://corretto.aws/downloads/resources/8.242.08.1/amazon-corretto-8.242.08.1-linux-x64.tar.gz.sig \
-      -O deployment/static/opt/dist/corretto/amazon-corretto-8-x64-linux-jdk.tar.gz.sig
+      -O gluu-server/opt/dist/corretto/amazon-corretto-8-x64-linux-jdk.tar.gz.sig
     echo 'Checking file integritiy'
-    gpg --import deployment/static/opt/dist/corretto/B04F24E3.pub
-    gpg deployment/static/opt/dist/corretto/amazon-corretto-8-x64-linux-jdk.tar.gz.sig
+    gpg --import gluu-server/opt/dist/corretto/B04F24E3.pub
+    gpg gluu-server/opt/dist/corretto/amazon-corretto-8-x64-linux-jdk.tar.gz.sig
   displayName: 'Downloading Latest Amazon Corretto'
   continueOnError: false
 
@@ -63,7 +63,7 @@ steps:
     definition: '285'
     buildVersionToDownload: 'latest'
     artifactName: 'gluu-passport'
-    targetPath: '$(Pipeline.Workspace)/s/deployment/static/opt/dist/gluu'
+    targetPath: '$(Pipeline.Workspace)/s/gluu-server/opt/dist/gluu'
   displayName: 'Download gluu-passport tarballs'
   continueOnError: false
 
@@ -74,11 +74,11 @@ steps:
     definition: '288'
     buildVersionToDownload: 'latest'
     artifactName: 'shib-oxauth-authn3'
-    targetPath: '$(Pipeline.Workspace)/s/deployment/static/opt/dist/signincanada'
+    targetPath: '$(Pipeline.Workspace)/s/gluu-server/opt/dist/signincanada'
   displayName: 'Downloading shib-oxauth-authn3 libs'
 
 - script: |
-    cd deployment/static/opt/dist/signincanada
+    cd gluu-server/opt/dist/signincanada
     mkdir shibjar && tar -C shibjar -xvf shib-oxauth-authn3-4.1.0.sic1.tar
     cp shibjar/shib-oxauth-authn3-4.1.0.sic1/edit-webapp/WEB-INF/lib/shib-oxauth-authn3-4.1.0.sic1.jar .
     rm -rf shib-oxauth-authn3-4.1.0.sic1.tar && rm -rf shib-oxauth-authn3-4.1.0.sic1.zip && rm -rf shibjar
@@ -86,7 +86,7 @@ steps:
   displayName: 'Moving Shiboleth Jar'
 
 - script: |
-    cd deployment/static/opt/dist/gluu
+    cd gluu-server/opt/dist/gluu
     mv package/*gz .
     rm -rf package
     ls -al 
@@ -95,7 +95,7 @@ steps:
   continueOnError: true
 
 - script: |
-    pushd deployment/static/
+    pushd gluu-server/
     echo 'packaging tarball'
     chmod 755 $(find . -type d -print)
     chmod 644 $(find . -type f -print)
