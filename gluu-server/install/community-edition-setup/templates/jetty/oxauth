@@ -10,7 +10,7 @@ TMPDIR=%(jetty_dist)s/temp
 
 export PYTHON_HOME=%(jython_home)s
 
-JAVA_OPTIONS="$JAVA_OPTIONS -javaagent:/opt/azure/applicationinsights-agent-2.5.1.jar"
+JAVA_OPTIONS="$JAVA_OPTIONS -javaagent:/opt/azure/applicationinsights-agent-2.6.1.jar"
 JAVA_OPTIONS="$JAVA_OPTIONS -Dapplicationinsights.configurationDirectory=/opt/azure"
 
 export APPINSIGHTS_INSTRUMENTATIONKEY=$(< /run/keyvault/secrets/InstrumentationKey)
