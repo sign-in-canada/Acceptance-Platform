@@ -19,42 +19,20 @@
       <main property="mainContentOfPage" class="container" typeof="WebPageElement">
 
         <div style="margin-top: 20px; float: right;">
-          <a onClick="help()" class="btn btn-primary" style="color:#FFF">
+          <a href="#help" aria-controls="centred-popup" role="button" class="btn btn-primary wb-lbx" style="color:#FFF">
             <span class="glyphicon glyphicon-question-sign" aria-hidden="true" style="padding-right: 5px;"></span>
             Help
           </a>
         </div>
 
-        <div style="display:none; border:thin; border-color:#000; z-index:1000;" id="help">
-          <ui:insert name="help" />
-        </div>
-        <style>
-          #help {
-            width: 80%;
-            padding: 50px 0;
-            text-align: left;
-            background-color: #fff;
-            margin-top: 20px;
-          }
-      </style>
-        <script>
-          function help() {
-              var x = document.getElementById("help");
-              if (x.style.display === "none") {
-                x.style.display = "block";
-            } else {
-                x.style.display = "none";
-            }
-          }
-          function empty() {
-            var x = document.getElementById("empty");
-             if (x.style.display === "none") {
-                 x.style.display = "block";
-             } else {
-                 x.style.display = "none";
-             }
-          }
-      </script>
+        <section id="help" class="mfp-hide modal-dialog modal-content overlay-def">
+          <header class="modal-header">
+            <h2 class="modal-title">Help</h2>
+          </header>
+          <div class="modal-body">
+            <ui:insert name="help" />
+          </div>
+        </section>
 
         <div>
           <h1 property="name" id="wb-cont">
