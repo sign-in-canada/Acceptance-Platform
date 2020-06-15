@@ -342,7 +342,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
         # Get the locale/language from the browser
         locale = CdiUtil.bean(LanguageBean).getLocaleCode()[:2]
-        print "MFA Chooser. getPageForStep called for step '%s' and locale '%s'" % (step, locale)
+        print "IDP Chooser. getPageForStep called for step '%s' and locale '%s'" % (step, locale)
         # Make sure it matches "en" or "fr"
         if (locale != "en" and locale != "fr"):
             locale = "en"
