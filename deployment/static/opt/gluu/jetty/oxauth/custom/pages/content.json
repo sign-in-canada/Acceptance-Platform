@@ -36,9 +36,9 @@
         "credentials" : "passport_saml:gckey,passport_saml:cbs,passport_saml:madi"
     },
     "https://rp3.tbstest.catslab.ca" : {
-        "content" : "default",
-        "layout" : "ATIP",
-        "chooser": "gccf",
+        "content" : "esdc_msca",
+        "layout" : "Canada",
+        "chooser": "Canada",
         "credentials" : "passport_saml:cra,passport_saml:cbs,passport_social:bcsc"
     }
 }

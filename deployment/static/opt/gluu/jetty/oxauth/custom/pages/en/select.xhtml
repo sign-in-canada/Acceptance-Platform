@@ -2,11 +2,16 @@
 <!DOCTYPE html>
 <ui:composition xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
                 template="/WEB-INF/incl/layouts/#{sessionIdService.sessionId.sessionAttributes.pageContent.layout}.xhtml">
 
   <f:metadata>
     <f:viewAction action="#{authenticator.prepareAuthenticationForStep}" />
   </f:metadata>
+
+  <ui:define name="styles">
+    <ui:include src="/WEB-INF/incl/content/#{sessionIdService.sessionId.sessionAttributes.pageContent.content}/styles.xhtml" />
+  </ui:define>
 
   <ui:define name="name">
     <ui:include src="/WEB-INF/incl/content/#{sessionIdService.sessionId.sessionAttributes.pageContent.content}/name-#{language.localeCode}.xhtml" />
@@ -16,8 +21,16 @@
     <ui:include src="/WEB-INF/incl/content/#{sessionIdService.sessionId.sessionAttributes.pageContent.content}/description-#{language.localeCode}.xhtml" />
   </ui:define>
 
+  <ui:define name="services">
+    <ui:include src="/WEB-INF/incl/content/#{sessionIdService.sessionId.sessionAttributes.pageContent.content}/services-#{language.localeCode}.xhtml" />
+  </ui:define>
+
   <ui:define name="help">
     <ui:include src="/WEB-INF/incl/content/#{sessionIdService.sessionId.sessionAttributes.pageContent.content}/help-#{language.localeCode}.xhtml" />
+  </ui:define>
+
+  <ui:define name="register">
+    <ui:include src="/WEB-INF/incl/content/#{sessionIdService.sessionId.sessionAttributes.pageContent.content}/register-#{language.localeCode}.xhtml" />
   </ui:define>
 
   <ui:define name="chooser">
