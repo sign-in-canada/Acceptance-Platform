@@ -9,4 +9,13 @@
         <Set name="extractWAR">true</Set>
 
         <Set name="extraClasspath">custom/libs/applicationinsights-web-auto-2.6.1.jar</Set>
+
+        <Get name="errorHandler">
+                <Call name="addErrorPage">
+                  <Arg type="int">400</Arg>
+                  <Arg type="int">599</Arg>
+                  <Arg type="String">/error.htm</Arg>
+                </Call>
+        </Get>
+      
 </Configure>
