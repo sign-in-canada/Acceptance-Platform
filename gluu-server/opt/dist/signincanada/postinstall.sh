@@ -19,8 +19,6 @@ tar xf /opt/dist/corretto/amazon-corretto-8-x64-linux-jdk.tar.gz -C /opt
 ln -s /opt/amazon-corretto-* /opt/jre
 
 echo 'Installing the UI...'
-chgrp gluu /etc/gluu/select_page_content.json
-chmod 644 /etc/gluu/select_page_content.json
 tar xzf /opt/dist/signincanada/custom.tgz -C /opt/gluu/jetty/oxauth/custom
 chown -R jetty:jetty /opt/gluu/jetty/oxauth/custom
 chmod 755 $(find /opt/gluu/jetty/oxauth/custom -type d -print)
