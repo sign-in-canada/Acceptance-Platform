@@ -24,6 +24,9 @@ chown -R jetty:jetty /opt/gluu/jetty/oxauth/custom
 chmod 755 $(find /opt/gluu/jetty/oxauth/custom -type d -print)
 chmod 644 $(find /opt/gluu/jetty/oxauth/custom -type f -print)
 
+echo 'Removing unused Gluu authentication pages...'
+zip -d -q /opt/gluu/jetty/oxauth/webapps/oxauth.war "/auth/*"
+
 echo 'Configuring Shibboleth...'
 install  -m 444 -o jetty -g jetty /opt/dist/signincanada/shibboleth-idp/conf/*.xml /opt/shibboleth-idp/conf
 install  -m 644 -o jetty -g jetty /opt/dist/signincanada/shibboleth-idp/conf/*.js /opt/shibboleth-idp/conf
