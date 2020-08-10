@@ -1,5 +1,8 @@
 <!DOCTYPE html>
-<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://xmlns.jcp.org/jsf/html" xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:jsf="http://xmlns.jcp.org/jsf">
     <div class="global-header">
         <nav>
             <ul id="wb-tphp">
@@ -18,7 +21,7 @@
                 <h2 class="wb-inv">Sélection de la langue</h2>
                 <ul class="list-inline margin-bottom-none">
                     <li>
-                        <a lang="en" hreflang="en" href="/oxauth/en/select.htm">English</a>
+                        <a lang="en" hreflang="en" href="/oxauth/en/select.htm"  jsf:action="#{language.setLocaleCode('en')}">English</a>
                     </li>
                 </ul>
             </section>

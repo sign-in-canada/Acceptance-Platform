@@ -123,6 +123,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
         print "Passport-saml. authenticate for step %s called" % str(step)
         identity = CdiUtil.bean(Identity)
+        languageBean = CdiUtil.bean(LanguageBean)
 
         if step == 1:
             jwt_param = None
@@ -149,10 +150,11 @@ class PersonAuthentication(PersonAuthenticationType):
                     print "Passport-saml. authenticate for step 1. [user_profile] is not found in response!"
                     return False
 
-                # passing language fix - makes language available through user profile data
-                locale = CdiUtil.bean(LanguageBean).getLocaleCode()[:2]
-                if locale != None and locale in ["en", "fr"]:
-                    user_profile["locale"] = [ locale ]
+                # language switch
+                newLocale = ServerUtil.getFirstValue(requestParameters, "ui_locale")
+                if newLocale in ["en", "fr"]:
+                    languageBean.setLocaleCode(newLocale)
+                    user_profile["locale"] = [ newLocale ]
 
                 return self.attemptAuthentication(identity, user_profile, jsonp)
 
