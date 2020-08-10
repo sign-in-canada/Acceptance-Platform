@@ -11,6 +11,7 @@ from org.gluu.util import StringHelper
 from org.gluu.oxauth.util import ServerUtil
 from org.gluu.oxauth.service import AuthenticationService, UserService, ClientService, SessionIdService
 from org.gluu.oxauth.i18n import LanguageBean
+from org.gluu.jsf2.service import FacesResources
 from java.util import ArrayList, Arrays
 
 import sys
@@ -340,8 +341,10 @@ class PersonAuthentication(PersonAuthenticationType):
     def getPageForStep(self, configurationAttributes, step):
         print "IDP Chooser. getPageForStep called for step '%s'" % step
 
-        # Get the locale/language from the browser
-        locale = CdiUtil.bean(LanguageBean).getLocaleCode()[:2]
+        facesResources = CdiUtil.bean(FacesResources)
+
+        # Get the locale/language TODO: Redo this when upgrading to Gluu 4.2
+        locale = facesResources.getFacesContext().getViewRoot().getLocale().getLanguage()
         print "IDP Chooser. getPageForStep called for step '%s' and locale '%s'" % (step, locale)
         # Make sure it matches "en" or "fr"
         if (locale != "en" and locale != "fr"):
