@@ -12,7 +12,7 @@
         "credentials" : "passport_saml:gckey,passport_saml:cbs"
     },
     "oidc:tbs_atip_aomt_" : {
-        "content" : "tbs_atip_aors",
+        "content" : "tbs_atip_aomt",
         "layout" : "ATIP",
         "chooser": "gccf",
         "credentials" : "passport_saml:gckey,passport_saml:cbs"
