@@ -19,4 +19,7 @@ export CB_REST_PASSWORD=$2
   --enable-failover-of-server-groups 1 \
   --max-failovers 2 \
   --can-abort-rebalance 1
-  
+
+curl -X POST -u ${1}:${2} \
+  http://localhost:8091/settings/security \
+  -d "uiSessionTimeout=600"
