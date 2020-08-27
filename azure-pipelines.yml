@@ -55,6 +55,14 @@ steps:
   displayName: 'Downloading Latest Amazon Corretto'
   continueOnError: false
 
+- script: |
+    echo 'Downloading Gluu 4.1.3 patches'
+    wget https://ox.gluu.org/maven/org/gluu/oxauth-server/4.1.3.Final/oxauth-server-4.1.3.Final.war \
+      -O gluu-server/opt/dist/gluu/oxauth.war
+    wget https://ox.gluu.org/maven/org/gluu/oxtrust-server/4.1.3.Final/oxtrust-server-4.1.3.Final.war \
+      -O gluu-server/opt/dist/gluu/identity.war
+  displayName: 'Downloading Latest Gluu patches'
+  continueOnError: false
 
 - task: DownloadPipelineArtifact@2
   inputs:
