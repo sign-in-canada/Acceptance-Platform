@@ -57,6 +57,7 @@ steps:
 
 - script: |
     echo 'Downloading Gluu 4.1.3 patches'
+    mkdir gluu-server/opt/dist/gluu/
     wget https://ox.gluu.org/maven/org/gluu/oxauth-server/4.1.3.Final/oxauth-server-4.1.3.Final.war \
       -O gluu-server/opt/dist/gluu/oxauth.war
     wget https://ox.gluu.org/maven/org/gluu/oxtrust-server/4.1.3.Final/oxtrust-server-4.1.3.Final.war \
