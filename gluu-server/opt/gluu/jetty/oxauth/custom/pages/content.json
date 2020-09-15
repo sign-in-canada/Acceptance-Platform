@@ -18,7 +18,7 @@
         "credentials" : "passport_saml:gckey,passport_saml:cbs"
     },
     "https://rp4.tbstest.catslab.ca" : {
-        "content" : "default",
+        "content" : "tbs_atip_aors",
         "layout" : "ATIP",
         "chooser": "gccf",
         "credentials" : "passport_saml:gckey,passport_saml:cbs,passport_saml:madi,passport_social:bcsc,passport_social:google,passport_social:microsoft"
