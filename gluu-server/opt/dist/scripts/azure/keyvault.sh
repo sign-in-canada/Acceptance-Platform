@@ -61,6 +61,9 @@ fetchSecret InstrumentationKey > ${KV_DIR}/secrets/InstrumentationKey
 # Get the encrption key for MFA
 fetchSecret MFAKey > ${KV_DIR}/secrets/MFAKey
 
+# Get the API key for notify
+fetchSecret NotifyKey > ${KV_DIR}/secrets/NotifyKey
+
 # Get the "salt"
 salt=$(fetchSecret APsalt)
 if [ "$salt" != "undefined" ] ; then
