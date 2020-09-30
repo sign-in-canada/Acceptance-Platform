@@ -1,0 +1,7 @@
+{
+    "apiUrl": "https://api.notification.alpha.canada.ca",
+    "emailAddress": "SignIn-AuthentiCanada@tbs-sct.gc.ca",
+    "emailTemplateId": "70cbe6d4-bfbd-4f11-9e0c-a17cac87ad16",
+    "logLevel": "info",
+    "consoleLogOnly": false
+}
