@@ -147,6 +147,7 @@
         "scope": "openid",
         "clientSecret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
         "skipUserProfile": "true",
+        "nonce": "true",
         "issuer": "https://dev-mfa.id.tbs-sct.gc.ca"
       }
     }
