@@ -12,6 +12,11 @@ install -m 644 -o jetty -g jetty /opt/dist/signincanada/shib-oxauth-authn3-4.1.0
 install -m 644 -o jetty -g jetty  /opt/dist/signincanada/applicationinsights-web-auto-2.6.1.jar /opt/gluu/jetty/idp/custom/libs
 install -m 644 -o jetty -g jetty /opt/dist/signincanada/applicationinsights-web-auto-2.6.1.jar /opt/gluu/jetty/oxauth/custom/libs
 
+echo 'Installing audit logging patch...'
+pushd /opt/dist/gluu/patch > /dev/null 2>&1
+zip -u /opt/gluu/jetty/oxauth/webapps/oxauth.war WEB-INF/classes/org/gluu/oxauth/audit/ApplicationAuditLogger.class
+popd > /dev/null 2>&1
+
 echo 'Updating Corretto...'
 rm -f /opt/jre
 rm -rf /opt/amazon-corretto-*
