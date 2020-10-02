@@ -6,7 +6,7 @@ systemctl stop httpd oxauth identity idp passport
 echo 'Enabling the keyvault service...'
 systemctl enable keyvault
 
-if [ -d /opt/shibboleth_idp ] ; then
+if [ -d /opt/shibboleth-idp ] ; then
 echo 'Installing custom libs into Shibboleth...'
     install -m 755 -o jetty -g jetty -d /opt/gluu/jetty/idp/custom/libs
     install -m 644 -o jetty -g jetty /opt/dist/signincanada/shib-oxauth-authn3-4.1.0.sic1.jar /opt/gluu/jetty/idp/custom/libs
@@ -39,7 +39,7 @@ zip -d -q /opt/gluu/jetty/oxauth/webapps/oxauth.war "/auth/*"
 echo 'Removing oxTrust log settings page...'
 zip -d -q /opt/gluu/jetty/identity/webapps/identity.war "/logviewer/configureLogViewer.xhtml"
 
-if [ -d /opt/shibboleth_idp ] ; then
+if [ -d /opt/shibboleth-idp ] ; then
     echo 'Configuring Shibboleth...'
     install  -m 444 -o jetty -g jetty /opt/dist/signincanada/shibboleth-idp/conf/*.xml /opt/shibboleth-idp/conf
     install  -m 644 -o jetty -g jetty /opt/dist/signincanada/shibboleth-idp/conf/*.js /opt/shibboleth-idp/conf
