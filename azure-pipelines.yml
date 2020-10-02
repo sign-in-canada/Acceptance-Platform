@@ -123,7 +123,6 @@ steps:
     tar -czv --owner=root --group=root -f $(Build.ArtifactStagingDirectory)/SIC-AP-0.0.$(minor).tgz --exclude='opt/gluu' *
     openssl sha256 $(Build.ArtifactStagingDirectory)/SIC-AP-0.0.$(minor).tgz > $(Build.ArtifactStagingDirectory)/SIC-AP-0.0.$(minor).tgz.sha
     popd
-    tar -czv --owner=root --group=root -f $(Build.ArtifactStagingDirectory)/SIC-Admintools-0.0.$(minor).tgz administration
   displayName: 'Packaging tarball'
   continueOnError: true
 
