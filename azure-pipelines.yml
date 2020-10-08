@@ -45,13 +45,13 @@ steps:
 
 - script: |
     echo 'Downloading Latest Amazon Corretto'
-    wget https://corretto.aws/downloads/resources/8.242.08.1/amazon-corretto-8.242.08.1-linux-x64.tar.gz \
-      -O gluu-server/opt/dist/corretto/amazon-corretto-8-x64-linux-jdk.tar.gz
-    wget https://corretto.aws/downloads/resources/8.242.08.1/amazon-corretto-8.242.08.1-linux-x64.tar.gz.sig \
-      -O gluu-server/opt/dist/corretto/amazon-corretto-8-x64-linux-jdk.tar.gz.sig
+    wget https://corretto.aws/downloads/latest/amazon-corretto-11-x64-linux-jdk.tar.gz \
+      -P gluu-server/opt/dist/app
+    wget  https://corretto.aws/downloads/latest/amazon-corretto-11-x64-linux-jdk.tar.gz.sig \
+      -P gluu-server/opt/dist/app
     echo 'Checking file integritiy'
     gpg --import gluu-server/opt/dist/corretto/B04F24E3.pub
-    gpg gluu-server/opt/dist/corretto/amazon-corretto-8-x64-linux-jdk.tar.gz.sig
+    gpg gluu-server/opt/dist/corretto/amazon-corretto-11-x64-linux-jdk.tar.gz.sig
   displayName: 'Downloading Latest Amazon Corretto'
   continueOnError: false
 
