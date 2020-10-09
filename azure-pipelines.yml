@@ -50,7 +50,7 @@ steps:
     wget  https://corretto.aws/downloads/latest/amazon-corretto-11-x64-linux-jdk.tar.gz.sig \
       -P gluu-server/opt/dist/app
     echo 'Checking file integritiy'
-    gpg --import gluu-server/opt/dist/corretto/B04F24E3.pub
+    gpg --import gluu-server/opt/dist/app/B04F24E3.pub
     gpg gluu-server/opt/dist/app/amazon-corretto-11-x64-linux-jdk.tar.gz.sig
   displayName: 'Downloading Latest Amazon Corretto'
   continueOnError: false
