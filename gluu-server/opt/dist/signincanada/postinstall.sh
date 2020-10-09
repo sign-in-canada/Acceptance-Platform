@@ -15,7 +15,7 @@ install -m 644 -o jetty -g jetty /opt/dist/signincanada/applicationinsights-web-
 echo 'Updating Corretto...'
 rm -f /opt/jre
 rm -rf /opt/amazon-corretto-*
-tar xf /opt/dist/corretto/amazon-corretto-11-x64-linux-jdk.tar.gz -C /opt
+tar xf /opt/dist/app/amazon-corretto-11-x64-linux-jdk.tar.gz -C /opt
 ln -s /opt/amazon-corretto-* /opt/jre
 
 echo 'Installing the UI...'
