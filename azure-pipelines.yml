@@ -88,6 +88,7 @@ steps:
     cd gluu-server/opt/dist/gluu
     mv package/*gz .
     rm -rf package
+    mv passport-version_4.1.0-node_modules.tar.gz passport-version_4.2.1-node_modules.tar.gz
     ls -al 
     cd $(Pipeline.Workspace)/s
   displayName: 'Moving gluu packages'
