@@ -34,6 +34,17 @@ import sys
 import datetime
 import uuid
 
+REMOTE_DEBUG = False
+
+if REMOTE_DEBUG:
+    try:
+        import sys
+        sys.path.append("/opt/libs/pydevd")
+        import pydevd
+    except ImportError as ex:
+        print "Failed to import pydevd: %s" % ex
+        raise
+    
 class PersonAuthentication(PersonAuthenticationType):
     def __init__(self, currentTimeMillis):
         self.currentTimeMillis = currentTimeMillis
@@ -583,7 +594,7 @@ class PersonAuthentication(PersonAuthenticationType):
         valid = False
 
         # security vulnerability - we need to validate
-        sigAlgorithm = jwt.getHeader().getAlgorithm().getName()
+        sigAlgorithm = jwt.getHeader().getSignatureAlgorithm().getName()
         if ( sigAlgorithm != "RS512" ):
             return False
 
@@ -596,7 +607,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
             cryptoProvider = CryptoProviderFactory.getCryptoProvider(appConfiguration)
             valid = cryptoProvider.verifySignature(jwt.getSigningInput(), jwt.getEncodedSignature(), jwt.getHeader().getKeyId(),
-                                                        None, None, jwt.getHeader().getAlgorithm())
+                                                        None, None, jwt.getHeader().getSignatureAlgorithm())
         except:
             print "Exception: ", sys.exc_info()[1]
 
