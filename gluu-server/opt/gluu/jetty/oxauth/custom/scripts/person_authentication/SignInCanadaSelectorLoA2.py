@@ -18,6 +18,17 @@ import sys
 import java
 import json
 
+REMOTE_DEBUG = False
+
+if REMOTE_DEBUG:
+    try:
+        import sys
+        sys.path.append("/opt/libs/pydevd")
+        import pydevd
+    except ImportError as ex:
+        print "Failed to import pydevd: %s" % ex
+        raise
+    
 class PersonAuthentication(PersonAuthenticationType):
     def __init__(self, currentTimeMillis):
         self.currentTimeMillis = currentTimeMillis
@@ -56,6 +67,9 @@ class PersonAuthentication(PersonAuthenticationType):
         return 2
 
     def isValidAuthenticationMethod(self, usageType, configurationAttributes):
+        if REMOTE_DEBUG:
+            pydevd.settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
+            
         print "IDP Chooser. isValidAuthenticationMethod called"
 
         identity = CdiUtil.bean(Identity)
@@ -67,6 +81,9 @@ class PersonAuthentication(PersonAuthenticationType):
         return True
 
     def getAlternativeAuthenticationMethod(self, usageType, configurationAttributes):
+        if REMOTE_DEBUG:
+            pydevd.settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
+
         print "IDP Chooser. getAlternativeAuthenticationMethod called"
         identity = CdiUtil.bean(Identity)
         new_acr_value = identity.getWorkingParameter("new_acr_value")
@@ -74,6 +91,9 @@ class PersonAuthentication(PersonAuthenticationType):
         return new_acr_value
 
     def authenticate(self, configurationAttributes, requestParameters, step):
+        if REMOTE_DEBUG:
+            pydevd.settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
+
         print "IDP Chooser. authenticate called for step '%s'" % step
 
         identity = CdiUtil.bean(Identity)
@@ -173,6 +193,9 @@ class PersonAuthentication(PersonAuthenticationType):
             return False
 
     def prepareForStep(self, configurationAttributes, requestParameters, step):
+        if REMOTE_DEBUG:
+            pydevd.settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
+
         print "IDP Chooser. prepareForStep called for step '%s'" % step
 
         identity = CdiUtil.bean(Identity)
@@ -339,6 +362,9 @@ class PersonAuthentication(PersonAuthenticationType):
 
 
     def getPageForStep(self, configurationAttributes, step):
+        if REMOTE_DEBUG:
+            pydevd.settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
+
         print "IDP Chooser. getPageForStep called for step '%s'" % step
 
         facesResources = CdiUtil.bean(FacesResources)
