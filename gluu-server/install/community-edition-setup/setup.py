@@ -4643,7 +4643,6 @@ class Setup(object):
 
     def couchebaseCreateIndexes(self, bucket):
         
-        self.couchbaseBuckets.append(bucket)
         couchbase_index_str = self.readFile(self.couchbaseIndexJson)
         couchbase_index_str = couchbase_index_str.replace('!bucket_prefix!', self.couchbase_bucket_prefix)
         couchbase_index = json.loads(couchbase_index_str)
@@ -4929,6 +4928,8 @@ class Setup(object):
         self.couchbaseSSL()
 
         couchbase_mappings = self.getMappingType('couchbase')
+        for group in couchbase_mappings:
+            self.couchbaseBuckets.append('{}_{}'.format(self.couchbase_bucket_prefix, group))
 
         if self.loadData:
             self.create_couchbase_buckets()
