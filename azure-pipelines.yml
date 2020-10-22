@@ -88,8 +88,9 @@ steps:
   inputs:
     buildType: 'specific'
     project: '7302639f-e704-47c3-9557-99b4e04a75bc'
-    definition: '288'
-    buildVersionToDownload: 'latest'
+    pipeline: '288'
+    runVersion: 'latestFromBranch'
+    runBranch: "refs/head/version_4.2.1"
     artifactName: 'shib-oxauth-authn3'
     targetPath: '$(Pipeline.Workspace)/s/gluu-server/opt/dist/signincanada'
   displayName: 'Downloading shib-oxauth-authn3 libs'
