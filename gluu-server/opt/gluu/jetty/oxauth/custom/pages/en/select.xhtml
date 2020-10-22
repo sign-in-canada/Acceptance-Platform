@@ -7,34 +7,37 @@
 
   <f:metadata>
     <f:viewAction action="#{authenticator.prepareAuthenticationForStep}" />
+    <f:viewAction action="#{language.setLocaleCode('en')}" />
   </f:metadata>
+
+  <ui:param name="locale" value="en" />
 
   <ui:define name="styles">
     <ui:include src="/WEB-INF/incl/content/#{not empty identity.sessionId.sessionAttributes.pageContent.content ? identity.sessionId.sessionAttributes.pageContent.content : 'default'}/styles.xhtml" />
   </ui:define>
 
   <ui:define name="name">
-    <ui:include src="/WEB-INF/incl/content/#{not empty identity.sessionId.sessionAttributes.pageContent.content ? identity.sessionId.sessionAttributes.pageContent.content : 'default'}/name-#{language.localeCode}.xhtml" />
+    <ui:include src="/WEB-INF/incl/content/#{not empty identity.sessionId.sessionAttributes.pageContent.content ? identity.sessionId.sessionAttributes.pageContent.content : 'default'}/name-#{view.locale.language}.xhtml" />
   </ui:define>
 
   <ui:define name="description">
-    <ui:include src="/WEB-INF/incl/content/#{not empty identity.sessionId.sessionAttributes.pageContent.content ? identity.sessionId.sessionAttributes.pageContent.content : 'default'}/description-#{language.localeCode}.xhtml" />
+    <ui:include src="/WEB-INF/incl/content/#{not empty identity.sessionId.sessionAttributes.pageContent.content ? identity.sessionId.sessionAttributes.pageContent.content : 'default'}/description-#{view.locale.language}.xhtml" />
   </ui:define>
 
   <ui:define name="services">
-    <ui:include src="/WEB-INF/incl/content/#{not empty identity.sessionId.sessionAttributes.pageContent.content ? identity.sessionId.sessionAttributes.pageContent.content : 'default'}/services-#{language.localeCode}.xhtml" />
+    <ui:include src="/WEB-INF/incl/content/#{not empty identity.sessionId.sessionAttributes.pageContent.content ? identity.sessionId.sessionAttributes.pageContent.content : 'default'}/services-#{view.locale.language}.xhtml" />
   </ui:define>
 
   <ui:define name="help">
-    <ui:include src="/WEB-INF/incl/content/#{not empty identity.sessionId.sessionAttributes.pageContent.content ? identity.sessionId.sessionAttributes.pageContent.content : 'default'}/help-#{language.localeCode}.xhtml" />
+    <ui:include src="/WEB-INF/incl/content/#{not empty identity.sessionId.sessionAttributes.pageContent.content ? identity.sessionId.sessionAttributes.pageContent.content : 'default'}/help-#{view.locale.language}.xhtml" />
   </ui:define>
 
   <ui:define name="register">
-    <ui:include src="/WEB-INF/incl/content/#{not empty identity.sessionId.sessionAttributes.pageContent.content ? identity.sessionId.sessionAttributes.pageContent.content : 'default'}/register-#{language.localeCode}.xhtml" />
+    <ui:include src="/WEB-INF/incl/content/#{not empty identity.sessionId.sessionAttributes.pageContent.content ? identity.sessionId.sessionAttributes.pageContent.content : 'default'}/register-#{view.locale.language}.xhtml" />
   </ui:define>
 
   <ui:define name="chooser">
-    <ui:include src="/WEB-INF/incl/components/choosers/#{not empty identity.sessionId.sessionAttributes.pageContent.chooser ? identity.sessionId.sessionAttributes.pageContent.chooser : 'gccf'}-#{language.localeCode}.xhtml" />
+    <ui:include src="/WEB-INF/incl/components/choosers/#{not empty identity.sessionId.sessionAttributes.pageContent.chooser ? identity.sessionId.sessionAttributes.pageContent.chooser : 'gccf'}-#{view.locale.language}.xhtml" />
   </ui:define>
 
 </ui:composition>

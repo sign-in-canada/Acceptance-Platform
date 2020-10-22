@@ -168,7 +168,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 jwt_param = ServerUtil.getFirstValue(requestParameters, "user")
 
                 # passing language fix - makes language available through user profile data
-                locale = CdiUtil.bean(LanguageBean).getLocaleCode()[:2]
+                locale = CdiUtil.bean(LanguageBean).getLocale().toLanguageTag()
                 if locale != None and locale in ["en", "fr"]:
                     user_profile["locale"] = [ locale ]
 
@@ -544,7 +544,7 @@ class PersonAuthentication(PersonAuthenticationType):
             response = httpService.convertEntityToString(bytes)
             print "Passport-social. getPassportRedirectUrl. Response was %s" % httpResponse.getStatusLine().getStatusCode()
 
-            locale = CdiUtil.bean(LanguageBean).getLocaleCode()[:2]
+            locale = CdiUtil.bean(LanguageBean).getLocale().toLanguageTag()
             if (locale != "en" and locale != "fr"):
                 locale = "en"
 

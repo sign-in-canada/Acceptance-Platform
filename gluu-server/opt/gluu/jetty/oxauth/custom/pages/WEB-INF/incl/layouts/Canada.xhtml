@@ -2,18 +2,18 @@
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:ui="http://xmlns.jcp.org/jsf/facelets" xmlns:f="http://xmlns.jcp.org/jsf/core">
 
-  <f:view locale="#{language.localeCode}">
+  <f:view locale="#{language.locale}">
 
     <ui:debug />
 
-    <head lang="#{language.localeCode}" dir="ltr">
-      <ui:include src="/WEB-INF/incl/components/head-#{language.localeCode}.xhtml" />
+    <head lang="#{language.locale}" dir="ltr">
+      <ui:include src="/WEB-INF/incl/components/head-#{language.locale}.xhtml" />
       <ui:insert name="styles" />
     </head>
 
     <body class="page-type-nav" vocab="http://schema.org/" typeof="WebPage">
 
-      <ui:include src="/WEB-INF/incl/components/header-#{language.localeCode}.xhtml" />
+      <ui:include src="/WEB-INF/incl/components/header-#{language.locale}.xhtml" />
 
       <main property="mainContentOfPage" class="container" typeof="WebPageElement">
 
@@ -48,10 +48,10 @@
 
         <div class="pagedetails">
 
-          <ui:include src="/WEB-INF/incl/components/problem-#{language.localeCode}.xhtml" />
+          <ui:include src="/WEB-INF/incl/components/problem-#{language.locale}.xhtml" />
 
           <dl id="wb-dtmd">
-            <dt>#{language.localeCode eq "en" ? "Date modified:&#32;" : "Date de modification&#160;:&#32;"}</dt>
+            <dt>#{language.locale eq "en" ? "Date modified:&#32;" : "Date de modification&#160;:&#32;"}</dt>
             <dd>
               <time property="dateModified">2020-06-12</time>
             </dd>
@@ -60,7 +60,7 @@
 
       </main>
 
-      <ui:include src="/WEB-INF/incl/components/footer-#{language.localeCode}.xhtml" />
+      <ui:include src="/WEB-INF/incl/components/footer-#{language.locale}.xhtml" />
 
     </body>
 
@@ -69,7 +69,7 @@
     <script src="https://www.canada.ca/etc/designs/canada/wet-boew/js/theme.min.js" type="text/x-javascript"></script>
     <script src="/oxauth/ext/resources/js/languageAPI.js" type="text/x-javascript"></script>
     <script>
-      $(document).ready(setLanguage('#{language.localeCode eq "en" ? "eng" : "fra"}', function() {}));
+      $(document).ready(setLanguage('#{language.locale eq "en" ? "eng" : "fra"}', function() {}));
     </script>
 
   </f:view>

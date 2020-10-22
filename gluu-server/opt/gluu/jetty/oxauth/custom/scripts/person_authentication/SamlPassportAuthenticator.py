@@ -573,7 +573,7 @@ class PersonAuthentication(PersonAuthenticationType):
             print "Passport-saml. getPassportRedirectUrl. Building URL: token:     %s" % tokenObj["token_"]
             print "Passport-saml. getPassportRedirectUrl. Building URL: spNameQfr: %s" % issuerSpNameQualifier
 
-            locale = CdiUtil.bean(LanguageBean).getLocaleCode()[:2]
+            locale = CdiUtil.bean(LanguageBean).getLocale().toLanguageTag()
             if (locale != "en" and locale != "fr"):
                 locale = "en"
 
