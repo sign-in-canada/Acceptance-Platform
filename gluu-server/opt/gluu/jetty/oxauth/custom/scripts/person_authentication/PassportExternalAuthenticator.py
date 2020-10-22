@@ -12,7 +12,8 @@ from org.gluu.oxauth.model.configuration import AppConfiguration
 from org.gluu.oxauth.model.crypto import CryptoProviderFactory
 from org.gluu.oxauth.model.jwt import Jwt, JwtClaimName
 from org.gluu.oxauth.model.util import Base64Util
-from org.gluu.oxauth.service import AppInitializer, AuthenticationService, UserService, SessionIdService, EncryptionService
+from org.gluu.oxauth.service import AppInitializer, AuthenticationService, UserService, SessionIdService
+from org.gluu.oxauth.service.common import EncryptionService
 from org.gluu.oxauth.service.net import HttpService
 from org.gluu.oxauth.security import Identity
 from org.gluu.oxauth.util import ServerUtil
@@ -29,7 +30,19 @@ from javax.faces.context import FacesContext
 from java.security import Key
 from javax.crypto import Cipher
 from javax.crypto.spec import SecretKeySpec, IvParameterSpec
+from org.bouncycastle.jce.provider import BouncyCastleProvider
 
+REMOTE_DEBUG = False
+
+if REMOTE_DEBUG:
+    try:
+        import sys
+        sys.path.append("/opt/libs/pydevd")
+        import pydevd
+    except ImportError as ex:
+        print "Failed to import pydevd: %s" % ex
+        raise
+    
 import json
 import sys
 import datetime
@@ -155,7 +168,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 jwt_param = ServerUtil.getFirstValue(requestParameters, "user")
 
                 # passing language fix - makes language available through user profile data
-                locale = CdiUtil.bean(LanguageBean).getLocaleCode()[:2]
+                locale = CdiUtil.bean(LanguageBean).getLocale().toLanguageTag()
                 if locale != None and locale in ["en", "fr"]:
                     user_profile["locale"] = [ locale ]
 
@@ -531,7 +544,7 @@ class PersonAuthentication(PersonAuthenticationType):
             response = httpService.convertEntityToString(bytes)
             print "Passport-social. getPassportRedirectUrl. Response was %s" % httpResponse.getStatusLine().getStatusCode()
 
-            locale = CdiUtil.bean(LanguageBean).getLocaleCode()[:2]
+            locale = CdiUtil.bean(LanguageBean).getLocale().toLanguageTag()
             if (locale != "en" and locale != "fr"):
                 locale = "en"
 
@@ -553,7 +566,7 @@ class PersonAuthentication(PersonAuthenticationType):
         valid = False
 
         # security vulnerability - we need to validate
-        sigAlgorithm = jwt.getHeader().getAlgorithm().getName()
+        sigAlgorithm = jwt.getHeader().getSignatureAlgorithm().getName()
         if ( sigAlgorithm != "RS512" ):
             return False
 
@@ -566,7 +579,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
             cryptoProvider = CryptoProviderFactory.getCryptoProvider(appConfiguration)
             valid = cryptoProvider.verifySignature(jwt.getSigningInput(), jwt.getEncodedSignature(), jwt.getHeader().getKeyId(),
-                                                        None, None, jwt.getHeader().getAlgorithm())
+                                                        None, None, jwt.getHeader().getSignatureAlgorithm())
         except:
             print "Exception: ", sys.exc_info()[1]
 
@@ -784,9 +797,9 @@ class PersonAuthentication(PersonAuthenticationType):
         iv = ''.join(random.SystemRandom().choice(randomSource) for i in range(16))
         # configure IV and key specification
         skeySpec = SecretKeySpec(key, "AES")
-        ivspec = IvParameterSpec(iv)
+        ivspec = IvParameterSpec(iv);
         # setup cipher
-        cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+        cipher = Cipher.getInstance("AES/CBC/PKCS5Padding", BouncyCastleProvider())
         cipher.init(Cipher.ENCRYPT_MODE, skeySpec, ivspec)
         # encrypt the plaintext
         encryptedBytes = cipher.doFinal( toEncrypt.encode('utf-8') )
@@ -803,9 +816,9 @@ class PersonAuthentication(PersonAuthenticationType):
         iv, encrypted = encryptedStr[:16], encryptedStr[16:]
         # configure IV and key specification
         skeySpec = SecretKeySpec(key, "AES")
-        ivspec = IvParameterSpec(iv)
+        ivspec = IvParameterSpec(iv);
         # setup cipher
-        cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+        cipher = Cipher.getInstance("AES/CBC/PKCS5Padding", BouncyCastleProvider())
         cipher.init(Cipher.DECRYPT_MODE, skeySpec, ivspec)
         # decrypt the plaintext
         encodedBytes = base64.b64decode( b'' + encrypted )

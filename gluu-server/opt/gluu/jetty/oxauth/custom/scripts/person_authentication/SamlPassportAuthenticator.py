@@ -12,7 +12,8 @@ from org.gluu.oxauth.model.configuration import AppConfiguration
 from org.gluu.oxauth.model.crypto import CryptoProviderFactory
 from org.gluu.oxauth.model.jwt import Jwt, JwtClaimName
 from org.gluu.oxauth.model.util import Base64Util
-from org.gluu.oxauth.service import AppInitializer, AuthenticationService, UserService, SessionIdService, EncryptionService
+from org.gluu.oxauth.service import AppInitializer, AuthenticationService, UserService, SessionIdService
+from org.gluu.oxauth.service.common import EncryptionService
 from org.gluu.oxauth.model.authorize import AuthorizeRequestParam
 from org.gluu.oxauth.service.net import HttpService
 from org.gluu.oxauth.security import Identity
@@ -33,6 +34,17 @@ import sys
 import datetime
 import uuid
 
+REMOTE_DEBUG = False
+
+if REMOTE_DEBUG:
+    try:
+        import sys
+        sys.path.append("/opt/libs/pydevd")
+        import pydevd
+    except ImportError as ex:
+        print "Failed to import pydevd: %s" % ex
+        raise
+    
 class PersonAuthentication(PersonAuthenticationType):
     def __init__(self, currentTimeMillis):
         self.currentTimeMillis = currentTimeMillis
@@ -561,7 +573,7 @@ class PersonAuthentication(PersonAuthenticationType):
             print "Passport-saml. getPassportRedirectUrl. Building URL: token:     %s" % tokenObj["token_"]
             print "Passport-saml. getPassportRedirectUrl. Building URL: spNameQfr: %s" % issuerSpNameQualifier
 
-            locale = CdiUtil.bean(LanguageBean).getLocaleCode()[:2]
+            locale = CdiUtil.bean(LanguageBean).getLocale().toLanguageTag()
             if (locale != "en" and locale != "fr"):
                 locale = "en"
 
@@ -582,7 +594,7 @@ class PersonAuthentication(PersonAuthenticationType):
         valid = False
 
         # security vulnerability - we need to validate
-        sigAlgorithm = jwt.getHeader().getAlgorithm().getName()
+        sigAlgorithm = jwt.getHeader().getSignatureAlgorithm().getName()
         if ( sigAlgorithm != "RS512" ):
             return False
 
@@ -595,7 +607,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
             cryptoProvider = CryptoProviderFactory.getCryptoProvider(appConfiguration)
             valid = cryptoProvider.verifySignature(jwt.getSigningInput(), jwt.getEncodedSignature(), jwt.getHeader().getKeyId(),
-                                                        None, None, jwt.getHeader().getAlgorithm())
+                                                        None, None, jwt.getHeader().getSignatureAlgorithm())
         except:
             print "Exception: ", sys.exc_info()[1]
 
