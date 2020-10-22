@@ -98,7 +98,7 @@ steps:
 - script: |
     pushd gluu-server/
     echo 'packaging tarball'
-    tar xvzf opt/dist/signincanada/custom.tgz --strip-components=1 -C /install/community-edition-setup/static/extension scripts
+    tar xvzf opt/dist/signincanada/custom.tgz --strip-components=1 -C install/community-edition-setup/static/extension scripts
     chmod 755 $(find . -type d -print)
     chmod 644 $(find . -type f -print)
     chmod 700 opt/dist/signincanada/postinstall.sh
