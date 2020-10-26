@@ -102,15 +102,16 @@ steps:
     ls -al 
   displayName: 'Moving Shiboleth Jar'
 
-- script: |
-    cd gluu-server/opt/dist/gluu
-    mv package/*gz .
-    rm -rf package
-    ls -al 
-    cd $(Pipeline.Workspace)/s
-  displayName: 'Moving gluu packages'
-  continueOnError: true
-
+- task: DownloadPipelineArtifact@2
+  inputs:
+    buildType: 'specific'
+    project: '7302639f-e704-47c3-9557-99b4e04a75bc'
+    pipeline: '351'
+    buildVersionToDownload: 'latest'
+    artifactName: 'node-services'
+    targetPath: '$(Pipeline.Workspace)/s/gluu-server/opt/dist/signincanada'
+  displayName: 'Downloading node-services tarball'
+  
 - script: |
     pushd gluu-server/
     echo 'packaging tarball'
