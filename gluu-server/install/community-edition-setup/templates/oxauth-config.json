@@ -309,5 +309,6 @@
     },
    "loggingLevel": "INFO",
    "useLocalCache":true,
-   "errorHandlingMethod":"internal"
+   "errorHandlingMethod":"internal",
+   "enabledOAuthAuditLogging": "true"
 }

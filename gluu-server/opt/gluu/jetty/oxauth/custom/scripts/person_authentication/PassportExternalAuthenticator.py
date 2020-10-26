@@ -29,8 +29,6 @@ from javax.faces.context import FacesContext
 from java.security import Key
 from javax.crypto import Cipher
 from javax.crypto.spec import SecretKeySpec, IvParameterSpec
-from org.bouncycastle.jce.provider import BouncyCastleProvider
-
 
 import json
 import sys
@@ -786,9 +784,9 @@ class PersonAuthentication(PersonAuthenticationType):
         iv = ''.join(random.SystemRandom().choice(randomSource) for i in range(16))
         # configure IV and key specification
         skeySpec = SecretKeySpec(key, "AES")
-        ivspec = IvParameterSpec(iv);
+        ivspec = IvParameterSpec(iv)
         # setup cipher
-        cipher = Cipher.getInstance("AES/CBC/PKCS5Padding", BouncyCastleProvider())
+        cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
         cipher.init(Cipher.ENCRYPT_MODE, skeySpec, ivspec)
         # encrypt the plaintext
         encryptedBytes = cipher.doFinal( toEncrypt.encode('utf-8') )
@@ -805,9 +803,9 @@ class PersonAuthentication(PersonAuthenticationType):
         iv, encrypted = encryptedStr[:16], encryptedStr[16:]
         # configure IV and key specification
         skeySpec = SecretKeySpec(key, "AES")
-        ivspec = IvParameterSpec(iv);
+        ivspec = IvParameterSpec(iv)
         # setup cipher
-        cipher = Cipher.getInstance("AES/CBC/PKCS5Padding", BouncyCastleProvider())
+        cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
         cipher.init(Cipher.DECRYPT_MODE, skeySpec, ivspec)
         # decrypt the plaintext
         encodedBytes = base64.b64decode( b'' + encrypted )

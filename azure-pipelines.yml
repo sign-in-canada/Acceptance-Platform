@@ -55,6 +55,24 @@ steps:
   displayName: 'Downloading Latest Amazon Corretto'
   continueOnError: false
 
+- script: |
+    echo 'Downlaoding the Gluu 4.1.3 patch'
+    wget https://ox.gluu.org/maven/org/gluu/oxauth-server/4.1.3.Final/oxauth-server-4.1.3.Final.war \
+      -O $(Agent.TempDirectory)/oxauth.war
+    echo 'Checking download integrity'
+    echo "2f8fb580257ed4076291f96fe79eec3fcb303d710eae3cad1500de0e6d189aaf" $(Agent.TempDirectory)/oxauth.war | sha256sum -c
+    result=$?
+    if [ $result -ne 0 ] ; then
+       echo "Failed"
+       exit 1
+    fi
+    echo 'Passed'
+    mkdir -p gluu-server/opt/dist/gluu/patch
+    echo 'Extracting the fixed Audit Logger'
+    unzip $(Agent.TempDirectory)/oxauth.war WEB-INF/classes/org/gluu/oxauth/audit/ApplicationAuditLogger.class -d gluu-server/opt/dist/gluu/patch
+  displayName: 'Obtaining audit log patch'
+  continueOnError: false
+
 - task: DownloadPipelineArtifact@2
   inputs:
     buildType: 'specific'
@@ -105,7 +123,6 @@ steps:
     tar -czv --owner=root --group=root -f $(Build.ArtifactStagingDirectory)/SIC-AP-0.0.$(minor).tgz --exclude='opt/gluu' *
     openssl sha256 $(Build.ArtifactStagingDirectory)/SIC-AP-0.0.$(minor).tgz > $(Build.ArtifactStagingDirectory)/SIC-AP-0.0.$(minor).tgz.sha
     popd
-    tar -czv --owner=root --group=root -f $(Build.ArtifactStagingDirectory)/SIC-Admintools-0.0.$(minor).tgz administration
   displayName: 'Packaging tarball'
   continueOnError: true
 
