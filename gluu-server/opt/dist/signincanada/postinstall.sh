@@ -35,7 +35,7 @@ chmod 644 $(find /opt/gluu/jetty/oxauth/custom -type f -print)
 
 echo 'Installing the Notify service...'
 mkdir -p /opt/gluu/node/gc/notify
-tar xzf /opt/dist/signincanada/notify-service.tgz -C /opt/gluu/node/gc/notify
+tar xzf /opt/dist/signincanada/node-services.tgz -C /opt/gluu/node/gc/notify
 cp /opt/dist/signincanada/notify-config.json /etc/gluu/conf
 systemctl enable notify
 
