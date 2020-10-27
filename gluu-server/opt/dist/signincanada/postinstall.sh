@@ -33,6 +33,13 @@ chown -R jetty:jetty /opt/gluu/jetty/oxauth/custom
 chmod 755 $(find /opt/gluu/jetty/oxauth/custom -type d -print)
 chmod 644 $(find /opt/gluu/jetty/oxauth/custom -type f -print)
 
+echo 'Installing the Notify service...'
+mkdir -p /opt/gluu/node/gc/notify/logs
+tar xzf /opt/dist/signincanada/node-services.tgz -C /opt/gluu/node/gc/notify
+chown -R node:node /opt/gluu/node/gc
+cp /opt/dist/signincanada/notify-config.json /etc/gluu/conf
+systemctl enable notify
+
 echo 'Removing unused Gluu authentication pages...'
 zip -d -q /opt/gluu/jetty/oxauth/webapps/oxauth.war "/auth/*"
 

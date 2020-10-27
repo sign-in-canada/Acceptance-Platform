@@ -8,7 +8,7 @@
         <div class="well row">
           <div class="gc-rprt-prblm">
             <div class="gc-rprt-prblm-frm gc-rprt-prblm-tggl">
-              <form action="#">
+              <form action="/gc/services/notify" method="post">
                 <fieldset>
                   <legend>
                     <span class="field-name">Please select all that apply: </span>
@@ -56,7 +56,7 @@
                     <input name="problem6" type="hidden" value="No" />
                   </div>
                 </fieldset>
-                <button type="submit" class="btn btn-primary wb-toggle" data-toggle='{"stateOff": "hide", "stateOn": "show", "selector": ".gc-rprt-prblm-tggl"}'>Submit</button>
+                <button id="reportPbSubmit" type="submit" class="btn btn-primary wb-toggle" data-toggle='{"stateOff": "hide", "stateOn": "show", "selector": ".gc-rprt-prblm-tggl"}'>Submit</button>
               </form>
             </div>
             <div class="gc-rprt-prblm-thnk gc-rprt-prblm-tggl hide">

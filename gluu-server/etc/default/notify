@@ -1,0 +1,14 @@
+NODE_HOME=/opt/node
+NODE=$NODE_HOME/bin/node
+
+NODE_BASE=/opt/gluu/node/gc/notify
+NODE_LOGS=${NODE_BASE}/logs
+NODE_APP=app.js
+NODE_OPTIONS="PORT=8097 NODE_ENV=unknown NODE_CONFIG_DIR=$NODE_BASE HOSTNAME=localhost"
+#NODE_ARGS="--max-old-space-size=384"
+APP_ARGS=""
+
+NODE_USER=node
+TMPDIR=/opt/node/temp
+
+NOTIFY_KEY=$(< /run/keyvault/secrets/NotifyKey)

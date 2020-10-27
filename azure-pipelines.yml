@@ -60,7 +60,7 @@ steps:
     wget https://ox.gluu.org/maven/org/gluu/oxauth-server/4.1.3.Final/oxauth-server-4.1.3.Final.war \
       -O $(Agent.TempDirectory)/oxauth.war
     echo 'Checking download integrity'
-    echo "2f8fb580257ed4076291f96fe79eec3fcb303d710eae3cad1500de0e6d189aaf" $(Agent.TempDirectory)/oxauth.war | sha256sum -c
+    echo "2ead69f20ad03be242fc85bfb24583e04ca26f479b7b77a0a3abe0d8d37c08b2" $(Agent.TempDirectory)/oxauth.war | sha256sum -c
     result=$?
     if [ $result -ne 0 ] ; then
        echo "Failed"
@@ -89,7 +89,8 @@ steps:
     buildType: 'specific'
     project: '7302639f-e704-47c3-9557-99b4e04a75bc'
     definition: '288'
-    buildVersionToDownload: 'latest'
+    runVersion: 'latestFromBranch'
+    runBranch: "refs/heads/version_4.1sic1"
     artifactName: 'shib-oxauth-authn3'
     targetPath: '$(Pipeline.Workspace)/s/gluu-server/opt/dist/signincanada'
   displayName: 'Downloading shib-oxauth-authn3 libs'
@@ -102,15 +103,16 @@ steps:
     ls -al 
   displayName: 'Moving Shiboleth Jar'
 
-- script: |
-    cd gluu-server/opt/dist/gluu
-    mv package/*gz .
-    rm -rf package
-    ls -al 
-    cd $(Pipeline.Workspace)/s
-  displayName: 'Moving gluu packages'
-  continueOnError: true
-
+- task: DownloadPipelineArtifact@2
+  inputs:
+    buildType: 'specific'
+    project: '7302639f-e704-47c3-9557-99b4e04a75bc'
+    pipeline: '351'
+    buildVersionToDownload: 'latest'
+    artifactName: 'node-services'
+    targetPath: '$(Pipeline.Workspace)/s/gluu-server/opt/dist/signincanada'
+  displayName: 'Downloading node-services tarball'
+  
 - script: |
     pushd gluu-server/
     echo 'packaging tarball'
@@ -118,6 +120,7 @@ steps:
     chmod 644 $(find . -type f -print)
     chmod 700 opt/dist/signincanada/postinstall.sh
     chmod 700 opt/dist/scripts/azure/keyvault.sh
+    chmod 755 opt/dist/scripts/notify
     chmod 700 opt/dist/scripts/crlcheck.sh
     chmod 700 install/community-edition-setup/setup.py
     tar -czv --owner=root --group=root -f $(Build.ArtifactStagingDirectory)/SIC-AP-0.0.$(minor).tgz --exclude='opt/gluu' *
