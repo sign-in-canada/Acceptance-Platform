@@ -3,6 +3,7 @@
 #
 
 from org.gluu.model.custom.script.type.logout import EndSessionType
+from org.gluu.util import StringHelper
 from java.lang import String
 
 class EndSession(EndSessionType):
@@ -30,12 +31,24 @@ class EndSession(EndSessionType):
     def getFrontchannelHtml(self, context):
         print "EndSession: getFrontchannelHtml called."
 
+        partialPage = context.getScript().getConfigurationAttributes().get("partial_logout_page")
+
+        if partialPage == None:
+            print "EndSession: Property partial_logout_page not found"
+            return ""
+
+        partialPage = partialPage.getValue2()
+
+        if StringHelper.isEmpty(partialPage):
+            print "EndSession: Property partial_logout_page empty"
+            return ""
+        
         page = "<!DOCTYPE html> \
                 <html> \
                     <head> \
                         <script> \
                            window.onload=function() \
-                                {if (document.getElementById('passport').contentDocument.getElementsByTagName('body')[0].textContent == 'Success') { window.location='" + context.getPostLogoutRedirectUri() + "'} else { window.location='https://dev3-auth.id.catslab.ca/oxauth/partial.htm' }} \
+                                {if (document.getElementById('passport').contentDocument.getElementsByTagName('body')[0].textContent == 'Success') { window.location='" + context.getPostLogoutRedirectUri() + "'} else { window.location='" + partialPage + "' }} \
                         </script> \
                         <title>Logout / D\u00e9connecter</title> \
                     </head> \
