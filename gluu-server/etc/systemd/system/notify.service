@@ -1,6 +1,6 @@
 [Unit]
 Description=Notify service
-After=identity.service
+After=keyvault.service
 
 [Service]
 Type=forking
