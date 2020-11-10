@@ -38,7 +38,7 @@ class EndSession(EndSessionType):
                 "\t\twindow.onload=function()\n" \
                 "\t\t{if (document.getElementById('passport').contentDocument.getElementsByTagName('body')[0].textContent == 'Success') { window.location.replace('" + context.getPostLogoutRedirectUri() + "')} else { window.location.replace('/oxauth/partial.htm') }}\n" \
                 "\t</script>\n" \
-                "\t<title>Logout / D\u00e9connecter</title>\n" \
+                "\t<title>Logout / D&eacute;connecter</title>\n" \
                 "</head>\n" \
                 "<body>\n" \
                 "\t<img style='display:block;margin-left:auto;margin-right:auto;width:20;padding:10% 0;' src='/oxauth/ext/resources/assets/icon_flag_rotation_080x080.gif'/>\n"
