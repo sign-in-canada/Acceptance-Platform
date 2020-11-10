@@ -30,38 +30,25 @@ class EndSession(EndSessionType):
     # context is reference of org.gluu.oxauth.service.external.context.EndSessionContext (in https://github.com/GluuFederation/oxauth project, )
     def getFrontchannelHtml(self, context):
         print "EndSession: getFrontchannelHtml called."
-
-        partialPage = context.getScript().getConfigurationAttributes().get("partial_logout_page")
-
-        if partialPage == None:
-            print "EndSession: Property partial_logout_page not found"
-            return ""
-
-        partialPage = partialPage.getValue2()
-
-        if StringHelper.isEmpty(partialPage):
-            print "EndSession: Property partial_logout_page empty"
-            return ""
         
-        page = "<!DOCTYPE html> \
-                <html> \
-                    <head> \
-                        <script> \
-                           window.onload=function() \
-                                {if (document.getElementById('passport').contentDocument.getElementsByTagName('body')[0].textContent == 'Success') { window.location='" + context.getPostLogoutRedirectUri() + "'} else { window.location='" + partialPage + "' }} \
-                        </script> \
-                        <title>Logout / D\u00e9connecter</title> \
-                    </head> \
-                    <body> \
-                        <img style='display:block;margin-left:auto;margin-right:auto;width:20;padding:10% 0;' src='/oxauth/ext/resources/assets/icon_flag_rotation_080x080.gif'/>"
+        page = "<!DOCTYPE html>\n" \
+                "<html>\n" \
+                "<head>\n" \
+                "\t<script>\n" \
+                "\t\twindow.onload=function()\n" \
+                "\t\t{if (document.getElementById('passport').contentDocument.getElementsByTagName('body')[0].textContent == 'Success') { window.location.replace('" + context.getPostLogoutRedirectUri() + "')} else { window.location.replace('/oxauth/partial.htm') }}\n" \
+                "\t</script>\n" \
+                "\t<title>Logout / D\u00e9connecter</title>\n" \
+                "</head>\n" \
+                "<body>\n" \
+                "\t<img style='display:block;margin-left:auto;margin-right:auto;width:20;padding:10% 0;' src='/oxauth/ext/resources/assets/icon_flag_rotation_080x080.gif'/>\n"
 
         for frontchannelLogoutUri in context.getFrontchannelLogoutUris() :
-            page = page + "<iframe height='0' width='0' src='%s' sandbox='allow-same-origin allow-scripts allow-popups allow-forms'></iframe>" % frontchannelLogoutUri
+            page = page + "\t<iframe height='0' width='0' src='%s' sandbox='allow-same-origin allow-scripts allow-popups allow-forms'></iframe>\n" % frontchannelLogoutUri
 
-        page = page + "<iframe id='passport' height='0' width='0' src='/passport/logout/request' sandbox='allow-same-origin allow-scripts allow-popups allow-forms'></iframe>"
+        page = page + "\t<iframe id='passport' height='0' width='0' src='/passport/logout/request' sandbox='allow-same-origin allow-scripts allow-popups allow-forms'></iframe>\n"
 
-        page = page + "     </body> \
-                        </html>"
+        page = page + "</body>\n</html>"
 
         print "EndSession page: %s" % page
 
