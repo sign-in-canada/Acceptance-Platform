@@ -33,14 +33,16 @@ fi
 
 # Create a ramfs directory to hold the secrets
 umask 227
+mkdir $KV_DIR
 mount -t ramfs ramfs $KV_DIR
-${KV_DIR}/secrets
+mkdir ${KV_DIR}/secrets ${KV_DIR}/certs
 
 # Get the certificates and their private keys
 #openssl x509 -outform pem  > ${KV_DIR}/certs/$certname_prefix.crt
 #openssl rsa -outform PEM > ${KV_DIR}/certs/$certname_prefix.key
 #sed '1,/-----END CERTIFICATE-----/d' > ${KV_DIR}/certs/${cert}.chain
-   
+cp /install/keyvault/certs/* $KV_DIR/certs
+
 ln -s -f ${KV_DIR}/certs/$certname_prefix.crt /etc/certs/$certname_prefix.crt
 ln -s -f ${KV_DIR}/certs/fullchain.cer /etc/certs/fullchain.cer
 ln -s -f ${KV_DIR}/certs/$certname_prefix.key /etc/certs/$certname_prefix.key
