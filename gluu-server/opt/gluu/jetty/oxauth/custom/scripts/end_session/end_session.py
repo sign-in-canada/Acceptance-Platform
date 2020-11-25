@@ -31,13 +31,24 @@ class EndSession(EndSessionType):
     def getFrontchannelHtml(self, context):
         print "EndSession: getFrontchannelHtml called."
         
-        page = "<!DOCTYPE html>\n" \
-                "<html>\n" \
-                "<head>\n" \
-                "\t<script>\n" \
-                "\t\twindow.onload=function()\n" \
-                "\t\t{if (document.getElementById('passport').contentDocument.getElementsByTagName('body')[0].textContent == 'Success') { window.location.replace('" + context.getPostLogoutRedirectUri() + "')} else { window.location.replace('/oxauth/partial.htm') }}\n" \
-                "\t</script>\n" \
+        notIssuedByPassport = context.getPostLogoutRedirectUri().lower().find("/passport/logout/response") == -1
+
+        page = "<!DOCTYPE html>\n<html>\n<head>\n\t<script>\n" \
+                "\t\twindow.onload = function() {\n"
+
+        if notIssuedByPassport:
+            page = page + "\t\t\tif (document.getElementById('passport').contentDocument.getElementsByTagName('body')[0].textContent == 'Success') { window.location.replace('" + context.getPostLogoutRedirectUri() + "')} else { window.location.replace('/oxauth/partial.htm') }\n\t\t}\n"
+        else: 
+            page = page + "\t\t\twindow.location.replace('" + context.getPostLogoutRedirectUri() + "');\n\t\t}\n"
+
+        page = page + "\t\twindow.onerror = function() {\n" 
+
+        if notIssuedByPassport:
+            page = page + "\t\t\twindow.location.replace('/oxauth/partial.htm');\n\t\t}\n"
+        else: 
+            page = page + "\t\t\twindow.location.replace('/passport/logout/response/responder');\n\t\t}\n"
+
+        page = page + "\t</script>\n" \
                 "\t<title>Logout / D&eacute;connecter</title>\n" \
                 "</head>\n" \
                 "<body>\n" \
@@ -46,7 +57,8 @@ class EndSession(EndSessionType):
         for frontchannelLogoutUri in context.getFrontchannelLogoutUris() :
             page = page + "\t<iframe height='0' width='0' src='%s' sandbox='allow-same-origin allow-scripts allow-popups allow-forms'></iframe>\n" % frontchannelLogoutUri
 
-        page = page + "\t<iframe id='passport' height='0' width='0' src='/passport/logout/request' sandbox='allow-same-origin allow-scripts allow-popups allow-forms'></iframe>\n"
+        if notIssuedByPassport:
+            page = page + "\t<iframe id='passport' height='0' width='0' src='/passport/logout/request' sandbox='allow-same-origin allow-scripts allow-popups allow-forms'></iframe>\n"
 
         page = page + "</body>\n</html>"
 
