@@ -10,7 +10,7 @@
 
   <form jsf:id="loginForm" jsf:action="#{authenticator.authenticate}" class="form">
     <div class="row wb-eqht">
-      <h:messages style="color:red;" />
+      <h:messages styleClass="list-unstyled label label-danger wb-server-error" />
       <input type="hidden" jsf:id="acrname" jsf:value="#{acrname}" styleClass="form-control" autocomplete="off" />
       <input type="hidden" jsf:id="switchCredentialBox" jsf:value="off" styleClass="form-control" autocomplete="off" />
       <div class="col-md-6">

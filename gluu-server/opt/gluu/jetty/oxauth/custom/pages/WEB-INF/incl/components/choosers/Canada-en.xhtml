@@ -8,7 +8,7 @@
                 xmlns:p="http://xmlns.jcp.org/jsf/passthrough">
     <h2 class="mini-h2s" style="margin-top:0em;">Use the sign-in option you registered with:</h2>
     <form jsf:id="loginForm" jsf:action="#{authenticator.authenticate}" class="form">
-        <h:messages style="color:red;" />
+        <h:messages styleClass="list-unstyled label label-danger wb-server-error" />
         <input type="hidden" jsf:id="acrname" jsf:value="#{acrname}" styleClass="form-control" autocomplete="off" />
         <input type="hidden" jsf:id="switchCredentialBox" jsf:value="off" styleClass="form-control" autocomplete="off" />
         <button jsf:id="loginButton1" jsf:action="#{authenticator.authenticate}" class="btn btn-primary btn-call-to-action btn-1" style="color: #333 !important;" value="passport_saml:gckey" type="submit" onclick="fillInAcrOnSubmit('passport_saml:gckey')">
