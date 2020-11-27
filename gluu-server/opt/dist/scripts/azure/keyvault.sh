@@ -9,7 +9,7 @@
 KEYVAULT=$1
 API_VER='7.0'
 KV_DIR=/run/keyvault
-certname_prefix=$(cat ${KV_DIR}/certs/hostname)
+certname_prefix=$(cat /install/keyvault/certs/hostname_)
 
 extractJSONValue () {
    /opt/node/bin/node -e "console.log(JSON.parse(require('fs').readFileSync(0, 'utf8'))[process.argv[1]])" $1
