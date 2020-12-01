@@ -46,6 +46,7 @@ cp /install/keyvault/certs/* $KV_DIR/certs
 ln -s -f ${KV_DIR}/certs/$certname_prefix.crt /etc/certs/$certname_prefix.crt
 ln -s -f ${KV_DIR}/certs/fullchain.cer /etc/certs/fullchain.cer
 ln -s -f ${KV_DIR}/certs/$certname_prefix.key /etc/certs/$certname_prefix.key
+ln -s -f ${KV_DIR}/certs/fullchain.cer /etc/certs/httpd.chain
 
 
 # Get the Application Insights Instrumentation Key
