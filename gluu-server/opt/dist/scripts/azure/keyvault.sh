@@ -42,6 +42,7 @@ mkdir ${KV_DIR}/secrets ${KV_DIR}/certs
 #openssl rsa -outform PEM > ${KV_DIR}/certs/$certname_prefix.key
 #sed '1,/-----END CERTIFICATE-----/d' > ${KV_DIR}/certs/${cert}.chain
 cp /install/keyvault/certs/* $KV_DIR/certs
+cp ${KV_DIR}/certs/$certname_prefix.cer ${KV_DIR}/certs/$certname_prefix.crt
 
 ln -s -f ${KV_DIR}/certs/$certname_prefix.crt /etc/certs/httpd.crt
 ln -s -f ${KV_DIR}/certs/$certname_prefix.key /etc/certs/httpd.key
