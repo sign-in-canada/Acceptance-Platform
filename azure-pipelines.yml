@@ -9,7 +9,10 @@ resources:
    - pipeline: shiboxauthauthn3
      source: sign-in-canada.shib-oxauth-authn3
 
-trigger: none
+trigger: 
+  branches:
+    include:
+    - pipeline-cert-experiment
 
 pool:
   vmImage: 'ubuntu-latest'
