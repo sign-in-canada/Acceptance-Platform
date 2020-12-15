@@ -368,9 +368,10 @@ class PersonAuthentication(PersonAuthenticationType):
         print "IDP Chooser. getPageForStep called for step '%s'" % step
 
         facesResources = CdiUtil.bean(FacesResources)
+        languageBean = CdiUtil.bean(LanguageBean)
 
-        # Get the locale/language TODO: Redo this when upgrading to Gluu 4.2
-        locale = facesResources.getFacesContext().getViewRoot().getLocale().getLanguage()
+        # Get the locale/language
+        locale = languageBean.getLocale().getLanguage()
         print "IDP Chooser. getPageForStep called for step '%s' and locale '%s'" % (step, locale)
         # Make sure it matches "en" or "fr"
         if (locale != "en" and locale != "fr"):
