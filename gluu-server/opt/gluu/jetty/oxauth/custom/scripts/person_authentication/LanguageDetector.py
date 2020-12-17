@@ -11,6 +11,7 @@ from org.gluu.oxauth.service import ClientService
 from org.gluu.oxauth.security import Identity
 from org.gluu.oxauth.util import ServerUtil
 from org.gluu.oxauth.i18n import LanguageBean
+from org.gluu.jsf2.service import FacesResources
 
 from java.util import Arrays
 
@@ -102,6 +103,7 @@ class PersonAuthentication(PersonAuthenticationType):
         # Inject dependencies
         identity = CdiUtil.bean(Identity)
         clientService = CdiUtil.bean(ClientService)
+        facesResources = CdiUtil.bean(FacesResources)
 
         # Obtain the client URI of the current client from the client configuration
         session = identity.getSessionId()
@@ -112,6 +114,10 @@ class PersonAuthentication(PersonAuthenticationType):
 
         # Make it available to the language detection page
         identity.setWorkingParameter("client_uri", clientUri)
+
+        # Add the RP Site to the Content Security Policy
+        externalContext = facesResources.getFacesContext().getExternalContext()
+        externalContext.addResponseHeader("Content-Security-Policy", "connect-src 'self' " + clientUri)
 
         # TODO: Also get the RP page content settings to support multiple detection mechanisms
         
