@@ -564,7 +564,7 @@ objectClass: oxCustomScript
 description: Distributes Claims for OpenID Trusted Identity Providers
 displayName: claims
 oxEnabled: true
-inum: 031C-5621
+inum: A31C-5D01
 oxLevel: 50
 oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
 oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/dynamic_scope/sic_dist_claim.py","description":""}
@@ -579,11 +579,26 @@ objectClass: oxCustomScript
 description: SAML NameID claim for SAML to OIDC RP migration / co-existence
 displayName: saml_nameid
 oxEnabled: true
-inum: 031C-5621
+inum: A3DC-5D02
 oxLevel: 50
 oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
 oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/dynamic_scope/sic_saml_nameid.py","description":""}
 oxRevision: 1
 oxScript::%(dynamic_scope_sic_saml_nameid)s
 oxScriptType: dynamic_scope
+programmingLanguage: python
+
+dn: inum=A3DC-MR01,ou=scripts,o=gluu
+objectClass: top
+objectClass: oxCustomScript
+description: SAML NameID claim for SAML to OIDC RP migration / co-existence
+displayName: end_session
+oxEnabled: true
+inum: A3DC-MR01
+oxLevel: 50
+oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
+oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/end_session/end_session.py","description":""}
+oxRevision: 1
+oxScript::%(end_session_end_session)s
+oxScriptType: end_session
 programmingLanguage: python
