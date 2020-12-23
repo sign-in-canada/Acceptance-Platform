@@ -282,7 +282,7 @@
     "logClientNameOnClientAuthentication": true,
     "httpLoggingEnabled": false,
     "httpLoggingExludePaths": [],
-    "externalLoggerConfiguration": "",
+    "externalLoggerConfiguration": "/opt/gluu/jetty/oxauth/custom/log4j2.xml",
     "authorizationRequestCustomAllowedParameters" : [
         "entityId",
         "spNameQualifier",
