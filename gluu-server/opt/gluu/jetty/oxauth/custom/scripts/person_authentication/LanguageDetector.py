@@ -112,6 +112,10 @@ class PersonAuthentication(PersonAuthenticationType):
         client = clientService.getClient(clientId)
         clientUri = client.getClientUri()
 
+        if (clientUri is None):
+            print("LanguageDetector: clientUri is missing for client " + client.getClientName())
+            return False
+
         # Make it available to the language detection page
         identity.setWorkingParameter("client_uri", clientUri)
 
