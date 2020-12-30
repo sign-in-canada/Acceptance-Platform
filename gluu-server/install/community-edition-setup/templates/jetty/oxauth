@@ -6,6 +6,7 @@ JETTY_HOME=%(jetty_home)s
 JETTY_BASE=%(jetty_base)s/oxauth
 JETTY_USER=jetty
 JETTY_ARGS="jetty.http.host=localhost jetty.http.port=8081"
+JETTY_START_TIMEOUT=180
 TMPDIR=%(jetty_dist)s/temp
 
 export PYTHON_HOME=%(jython_home)s
