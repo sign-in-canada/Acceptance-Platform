@@ -69,6 +69,8 @@ from pylib.jproperties import Properties
 from pylib.printVersion import get_war_info
 from pylib.ldif3.ldif3 import LDIFWriter
 from pylib.schema import ObjectClass
+from pylib.messages import msg
+
 
 cur_dir = os.path.dirname(os.path.realpath(__file__))
 
@@ -1592,6 +1594,28 @@ class Setup(object):
         else:
             return self.determineApacheVersion("apache2")
 
+
+    def fix_java_security(self):
+        # https://github.com/OpenIdentityPlatform/OpenDJ/issues/78
+        java_security_fn = os.path.join(self.jre_home, 'conf/security/java.security')
+
+        p = Properties()
+        with open(java_security_fn, 'rb') as f:
+            p.load(f, 'utf-8')
+
+        if not 'TLSv1.3' in p['jdk.tls.disabledAlgorithms'].data:
+            java_security = self.readFile(java_security_fn).splitlines()
+            for i, l in enumerate(java_security[:]):
+                if l.strip().startswith('jdk.tls.disabledAlgorithms'):
+                   n = l.find('=')
+                   k = l[:n].strip()
+                   v = l[n+1:].strip()
+                   java_security[i] = k + '=' + 'TLSv1.3, ' + v + '\n'
+                   break
+
+        self.writeFile(java_security_fn, '\n'.join(java_security))
+
+
     def installJRE(self):
 
         jre_arch_list = glob.glob(os.path.join(self.distAppFolder, 'amazon-corretto-*.tar.gz'))
@@ -1638,6 +1662,8 @@ class Setup(object):
         if self.java_type == 'jre':
             for jsfn in Path('/opt/jre').rglob('java.security'):
                 self.run(['sed', '-i', '/^#crypto.policy=unlimited/s/^#//', jsfn._str])
+
+        self.fix_java_security()
 
     def extractOpenDJ(self):        
 
@@ -3262,7 +3288,7 @@ class Setup(object):
                     if self.checkPassword(cbPass):
                         break
                     else:
-                        print("Password must be at least 6 characters and include one uppercase letter, one lowercase letter, one digit, and one special character.")
+                        print(gluu_utils.colors.WARNING, msg.weak_password.format("Couchbase Admin"), gluu_utils.colors.ENDC)
 
                 self.cb_password = cbPass
             self.cbm = CBM(self.couchbase_hostname, self.couchebaseClusterAdmin, self.cb_password)
@@ -3405,7 +3431,7 @@ class Setup(object):
 
         if self.installOxd:
 
-            promptForOxdGluuStorage = self.getPrompt("  Use Gluu Storage for Oxd?",
+            promptForOxdGluuStorage = self.getPrompt("  Use Authorization Server's native persistence for oxd?",
                                                 self.getDefaultOption(self.oxd_use_gluu_storage)
                                                 )[0].lower()
             if promptForOxdGluuStorage == 'y':
@@ -4413,7 +4439,7 @@ class Setup(object):
                 'ubuntu 20': {'mondatory': 'apache2 curl wget xz-utils unzip rsyslog python3-ldap3 net-tools python3-requests python3-ruamel.yaml bzip2', 'optional': ''},
                 'centos 7': {'mondatory': 'httpd mod_ssl curl wget tar xz unzip rsyslog bzip2', 'optional': ''},
                 'centos 8': {'mondatory': 'httpd mod_ssl curl wget tar xz unzip rsyslog bzip2', 'optional': ''},
-                'red 7': {'mondatory': 'httpd httpd-mod_ssl curl wget tar xz unzip rsyslog bzip2', 'optional': ''},
+                'red 7': {'mondatory': 'httpd mod_ssl curl wget tar xz unzip rsyslog bzip2', 'optional': ''},
                 'red 8': {'mondatory': 'httpd mod_ssl curl wget tar xz unzip rsyslog python3-ldap3 python3-requests python3-ruamel-yaml bzip2', 'optional': ''},
                 'fedora 22': {'mondatory': 'httpd mod_ssl curl wget tar xz unzip rsyslog python3-ldap3 python3-requests python3-ruamel-yaml bzip2', 'optional': ''},
                 }
@@ -5657,6 +5683,11 @@ class Setup(object):
             self.post_install_tasks()
 
             self.pbar.progress("gluu", "Completed")
+            
+            self.logIt('######### post setup messages #########')
+            post_messages_text = '\n'.join(self.post_messages)
+            self.logIt(post_messages_text.replace(self.oxtrust_admin_password, '<oxtrust_admin_password>'))
+
             if not self.thread_queue:
                 print()
                 self.print_post_messages()
@@ -5671,9 +5702,12 @@ class Setup(object):
                 print(traceback.format_exc())
 
     def print_post_messages(self):
+        
         print()
         for m in self.post_messages:
             print(m)
+            
+            
 
 ############################   Main Loop   #################################################
 
