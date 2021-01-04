@@ -30,6 +30,9 @@ echo "Configuring httpd chain certificate..."
 sed -i "17i\ \ \ \ \ \ \ \ SSLCertificateChainFile /etc/certs/httpd.chain" /etc/httpd/conf.d/https_gluu.conf
 
 echo "Updating packages..."
+if grep Red /etc/redhat-release ; then
+   yum remove -y epel-release
+fi
 yum clean all
 yum update -y
 echo 'Done.'
