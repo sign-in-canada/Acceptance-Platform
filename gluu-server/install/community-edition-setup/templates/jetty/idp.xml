@@ -8,5 +8,5 @@
         </Set>
         <Set name="extractWAR">true</Set>
 
-        <Set name="extraClasspath">custom/libs/shib-oxauth-authn3-4.2.1.sic1.jar,custom/libs/applicationinsights-web-auto-2.6.1.jar</Set>
+        <Set name="extraClasspath">custom/libs/shib-oxauth-authn3-4.2.2.sic1.jar,custom/libs/applicationinsights-web-auto-2.6.1.jar</Set>
 </Configure>
