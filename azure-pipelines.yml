@@ -55,6 +55,21 @@ steps:
   displayName: 'Downloading Latest Amazon Corretto'
   continueOnError: false
 
+- script: |
+    echo 'Downlaoding the oxTrust 4.2.2.sp1 patch'
+    wget https://ox.gluu.org/maven/org/gluu/oxtrust-server/4.2.2.sp1/oxtrust-server-4.2.2.sp1.war \
+      -O gluu-server/opt/dist/gluu/identity.war
+    echo 'Checking download integrity'
+    echo "7342bffa41d71bc8657eaa75421ea9229b9979585a4bda301e1242b3849f9af6" gluu-server/opt/dist/gluu/identity.war | sha256sum -c
+    result=$?
+    if [ $result -ne 0 ] ; then
+       echo "Failed"
+       exit 1
+    fi
+    echo 'Passed'
+  displayName: 'Obtaining oxTrust Client update patch'
+  continueOnError: false
+
 - task: DownloadPipelineArtifact@2
   inputs:
     buildType: 'specific'
