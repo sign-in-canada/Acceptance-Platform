@@ -57,6 +57,7 @@ steps:
 
 - script: |
     echo 'Downlaoding the oxTrust 4.2.2.sp1 patch'
+    mkdir gluu-server/opt/dist/gluu
     wget https://ox.gluu.org/maven/org/gluu/oxtrust-server/4.2.2.sp1/oxtrust-server-4.2.2.sp1.war \
       -O gluu-server/opt/dist/gluu/identity.war
     echo 'Checking download integrity'
