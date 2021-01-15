@@ -320,6 +320,7 @@
     },
     "loggingLevel": "INFO",
     "loggingLayout": "text",
+   "enabledOAuthAuditLogging": "true",
     "errorHandlingMethod":"internal",
     "useLocalCache":true,
     "backchannelTokenDeliveryModesSupported": [],
