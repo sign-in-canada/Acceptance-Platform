@@ -1,0 +1,14 @@
+[Unit]
+Description=Notify service
+After=keyvault.service
+
+[Service]
+Type=forking
+EnvironmentFile=/etc/default/notify
+ExecStart=/opt/dist/scripts/notify start
+ExecStop=/opt/dist/scripts/notify stop
+User=node
+Group=node
+
+[Install]
+WantedBy=multi-user.target

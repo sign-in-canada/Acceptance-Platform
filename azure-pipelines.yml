@@ -101,15 +101,15 @@ steps:
     ls -al 
   displayName: 'Moving Shiboleth Jar'
 
-- script: |
-    cd gluu-server/opt/dist/gluu
-    mv package/*gz .
-    rm -rf package
-    mv passport-version_4.1.0-node_modules.tar.gz passport-version_4.2.2-node_modules.tar.gz
-    ls -al 
-    cd $(Pipeline.Workspace)/s
-  displayName: 'Moving gluu packages'
-  continueOnError: true
+- task: DownloadPipelineArtifact@2
+  inputs:
+    buildType: 'specific'
+    project: '7302639f-e704-47c3-9557-99b4e04a75bc'
+    pipeline: '351'
+    buildVersionToDownload: 'latest'
+    artifactName: 'node-services'
+    targetPath: '$(Pipeline.Workspace)/s/gluu-server/opt/dist/signincanada'
+  displayName: 'Downloading node-services tarball'
 
 - script: |
     pushd gluu-server/
@@ -120,6 +120,7 @@ steps:
     chmod 644 $(find . -type f -print)
     chmod 700 opt/dist/signincanada/postinstall.sh
     chmod 700 opt/dist/scripts/azure/keyvault.sh
+    chmod 755 opt/dist/scripts/notify
     chmod 700 opt/dist/scripts/crlcheck.sh
     chmod 700 install/community-edition-setup/setup.py
     tar -czv --owner=root --group=root -f $(Build.ArtifactStagingDirectory)/SIC-AP-0.0.$(minor).tgz --exclude='opt/gluu' *
