@@ -82,6 +82,12 @@ steps:
   displayName: 'Download gluu-passport tarballs'
   continueOnError: false
 
+- script: |
+    cd gluu-server/opt/dist/gluu
+    mv passport-version_4.1.0-node_modules.tar.gz passport-version_4.2.2-node_modules.tar.gz
+  displayName: 'Renaming node modules'
+  continueOnError: true
+
 - task: DownloadPipelineArtifact@2
   inputs:
     buildType: 'specific'
