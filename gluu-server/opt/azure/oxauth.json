@@ -1,0 +1,19 @@
+{
+    "role": {
+        "name": "oxAuth"
+    },
+    "instrumentation": {
+        "logging": {
+            "level": "INFO"
+        }
+    },
+    "selfDiagnostics": {
+        "destination": "file",
+        "level": "INFO",
+        "file": {
+            "path": "/opt/gluu/jetty/oxauth/logs/applicationinsights.log",
+            "maxSizeMb": 5,
+            "maxHistory": 1
+        }
+    }
+}

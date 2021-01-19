@@ -1,0 +1,19 @@
+{
+  "role": {
+    "name": "Shibboleth"
+  },
+  "instrumentation": {
+    "logging": {
+      "level": "INFO"
+    }
+  },
+  "selfDiagnostics": {
+    "destination": "file",
+    "level": "INFO",
+    "file": {
+      "path": "/opt/shibboleth-idp/logs/applicationinsights.log",
+      "maxSizeMb": 5,
+      "maxHistory": 1
+    }
+  }
+}
