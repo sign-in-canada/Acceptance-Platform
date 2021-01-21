@@ -34,10 +34,10 @@ steps:
 
 - script: |
     echo 'Downloading AppInsights SDK'
-    wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.6.1/applicationinsights-web-auto-2.6.1.jar \
+    wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.6.2/applicationinsights-core-2.6.2.jar \
        -P gluu-server/opt/dist/signincanada
     echo 'Downloading AppInsights Agent'
-    wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.6.1/applicationinsights-agent-2.6.1.jar \
+    wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.0.1/applicationinsights-agent-3.0.1.jar \
        -P gluu-server/opt/azure
     ls -al 
   displayName: 'Downloading AppInsights'
@@ -81,6 +81,12 @@ steps:
     targetPath: '$(Pipeline.Workspace)/s/gluu-server/opt/dist/gluu'
   displayName: 'Download gluu-passport tarballs'
   continueOnError: false
+
+- script: |
+    cd gluu-server/opt/dist/gluu
+    mv passport-version_4.1.0-node_modules.tar.gz passport-version_4.2.2-node_modules.tar.gz
+  displayName: 'Renaming node modules'
+  continueOnError: true
 
 - task: DownloadPipelineArtifact@2
   inputs:
