@@ -61,7 +61,7 @@ steps:
     wget https://ox.gluu.org/maven/org/gluu/oxtrust-server/4.2.2.sp1/oxtrust-server-4.2.2.sp1.war \
       -O gluu-server/opt/dist/gluu/identity.war
     echo 'Checking download integrity'
-    echo "7342bffa41d71bc8657eaa75421ea9229b9979585a4bda301e1242b3849f9af6" gluu-server/opt/dist/gluu/identity.war | sha256sum -c
+    echo "d13ee6dac508e3c8441b4e6c2e469be06f9ab0d98064b28181bdfdb02bb48aed" gluu-server/opt/dist/gluu/identity.war | sha256sum -c
     result=$?
     if [ $result -ne 0 ] ; then
        echo "Failed"
