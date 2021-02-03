@@ -15,9 +15,9 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  major: 1
+  major_minor: '1.0'
   # define b as a counter with the prefix as variable a, and seed as 10.
-  minor: $[counter(variables['major'], 10)]
+  build: $[counter(variables['major_minor'], 0)]
 
 steps:
 
@@ -129,8 +129,8 @@ steps:
     chmod 755 opt/dist/scripts/notify
     chmod 700 opt/dist/scripts/crlcheck.sh
     chmod 700 install/community-edition-setup/setup.py
-    tar -czv --owner=root --group=root -f $(Build.ArtifactStagingDirectory)/SIC-AP-0.0.$(minor).tgz --exclude='opt/gluu' *
-    openssl sha256 $(Build.ArtifactStagingDirectory)/SIC-AP-0.0.$(minor).tgz > $(Build.ArtifactStagingDirectory)/SIC-AP-0.0.$(minor).tgz.sha
+    tar -czv --owner=root --group=root -f $(Build.ArtifactStagingDirectory)/SIC-AP-1.0.$(build).tgz --exclude='opt/gluu' *
+    openssl sha256 $(Build.ArtifactStagingDirectory)/SIC-AP-0.0.$(build).tgz > $(Build.ArtifactStagingDirectory)/SIC-AP-0.0.$(build).tgz.sha
     popd
   displayName: 'Packaging tarball'
   continueOnError: true
