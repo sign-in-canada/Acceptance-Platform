@@ -130,7 +130,7 @@ steps:
     chmod 700 opt/dist/scripts/crlcheck.sh
     chmod 700 install/community-edition-setup/setup.py
     tar -czv --owner=root --group=root -f $(Build.ArtifactStagingDirectory)/SIC-AP-1.0.$(build).tgz --exclude='opt/gluu' *
-    openssl sha256 $(Build.ArtifactStagingDirectory)/SIC-AP-0.0.$(build).tgz > $(Build.ArtifactStagingDirectory)/SIC-AP-0.0.$(build).tgz.sha
+    openssl sha256 $(Build.ArtifactStagingDirectory)/SIC-AP-1.0.$(build).tgz > $(Build.ArtifactStagingDirectory)/SIC-AP-1.0.$(build).tgz.sha
     popd
   displayName: 'Packaging tarball'
   continueOnError: true
