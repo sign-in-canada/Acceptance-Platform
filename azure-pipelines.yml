@@ -71,7 +71,7 @@ steps:
   displayName: 'Obtaining oxTrust Client update patch'
   continueOnError: false
 
-  - script: |
+- script: |
     echo 'Downlaoding the Gluu 4.2.3 WAR'
     wget https://ox.gluu.org/maven/org/gluu/oxauth-server/4.2.3.Final/oxauth-server-4.2.3.Final.war \
       -O $(Agent.TempDirectory)/oxauth.war
