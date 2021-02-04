@@ -85,7 +85,7 @@ steps:
     echo 'Passed'
     mkdir -p gluu-server/opt/dist/gluu/patch
     echo 'Extracting the fixed Audit Logger'
-    unzip $(Agent.TempDirectory)/oxauth.war \ 
+    unzip $(Agent.TempDirectory)/oxauth.war \
        WEB-INF/classes/org/gluu/oxauth/service/PairwiseIdentifierService.class \
        WEB-INF/classes/org/gluu/oxauth/service/SectorIdentifierService.class \
        -d gluu-server/opt/dist/gluu/patch
