@@ -71,6 +71,27 @@ steps:
   displayName: 'Obtaining oxTrust Client update patch'
   continueOnError: false
 
+  - script: |
+    echo 'Downlaoding the Gluu 4.2.3 WAR'
+    wget https://ox.gluu.org/maven/org/gluu/oxauth-server/4.2.3.Final/oxauth-server-4.2.3.Final.war \
+      -O $(Agent.TempDirectory)/oxauth.war
+    echo 'Checking download integrity'
+    echo "6c617e9143ed15963056e7f4111c6d332854b9fab347a3584f74736a7a3b33a3" $(Agent.TempDirectory)/oxauth.war | sha256sum -c
+    result=$?
+    if [ $result -ne 0 ] ; then
+      echo "Failed"
+      exit 1
+    fi
+    echo 'Passed'
+    mkdir -p gluu-server/opt/dist/gluu/patch
+    echo 'Extracting the fixed Audit Logger'
+    unzip $(Agent.TempDirectory)/oxauth.war \ 
+       WEB-INF/classes/org/gluu/oxauth/service/PairwiseIdentifierService.class \
+       WEB-INF/classes/org/gluu/oxauth/service/SectorIdentifierService.class \
+       -d gluu-server/opt/dist/gluu/patch
+displayName: 'Obtaining pairwise identifier patch'
+continueOnError: false
+
 - task: DownloadPipelineArtifact@2
   inputs:
     buildType: 'specific'

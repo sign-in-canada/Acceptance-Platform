@@ -12,6 +12,13 @@ install -m 644 -o jetty -g jetty /opt/dist/signincanada/shib-oxauth-authn3-4.2.2
 install -m 644 -o jetty -g jetty /opt/dist/signincanada/applicationinsights-core-2.6.2.jar /opt/gluu/jetty/idp/custom/libs
 install -m 644 -o jetty -g jetty /opt/dist/signincanada/applicationinsights-core-2.6.2.jar /opt/gluu/jetty/oxauth/custom/libs
 
+echo 'Installing pairwise identifier patch...'
+pushd /opt/dist/gluu/patch > /dev/null 2>&1
+zip -u /opt/gluu/jetty/oxauth/webapps/oxauth.war \
+   WEB-INF/classes/org/gluu/oxauth/service/PairwiseIdentifierService.class \
+   WEB-INF/classes/org/gluu/oxauth/service/SectorIdentifierService.class
+popd > /dev/null 2>&1
+
 echo 'Installing the UI...'
 tar xzf /opt/dist/signincanada/custom.tgz -C /opt/gluu/jetty/oxauth/custom
 chown -R jetty:jetty /opt/gluu/jetty/oxauth/custom
