@@ -89,8 +89,8 @@ steps:
        WEB-INF/classes/org/gluu/oxauth/service/PairwiseIdentifierService.class \
        WEB-INF/classes/org/gluu/oxauth/service/SectorIdentifierService.class \
        -d gluu-server/opt/dist/gluu/patch
-displayName: 'Obtaining pairwise identifier patch'
-continueOnError: false
+  displayName: 'Obtaining pairwise identifier patch'
+  continueOnError: false
 
 - task: DownloadPipelineArtifact@2
   inputs:
