@@ -76,7 +76,7 @@ steps:
     wget https://ox.gluu.org/maven/org/gluu/oxauth-server/4.2.3.Final/oxauth-server-4.2.3.Final.war \
       -O $(Agent.TempDirectory)/oxauth.war
     echo 'Checking download integrity'
-    echo "6c617e9143ed15963056e7f4111c6d332854b9fab347a3584f74736a7a3b33a3" $(Agent.TempDirectory)/oxauth.war | sha256sum -c
+    echo "9d035a81fcf9cf9e5af24005a762f25fe21654298936ca2dca48409fec4ab723" $(Agent.TempDirectory)/oxauth.war | sha256sum -c
     result=$?
     if [ $result -ne 0 ] ; then
       echo "Failed"
