@@ -99,6 +99,23 @@ class PersonAuthentication(PersonAuthenticationType):
         identity = CdiUtil.bean(Identity)
         sessionId = identity.getSessionId()
         sessionAttributes = sessionId.getSessionAttributes()
+
+        if (not requestParameters.containsKey("loginForm")):
+            # Unexpected navigation. Redirect back to the RP or error page
+            facesResources = CdiUtil.bean(FacesResources)
+            facesContext = facesResources.getFacesContext()
+            externalContext = facesContext.getCurrentInstance().getExternalContext()
+            print ("IDP Chooser. authenticate called from the wrong page: " + externalContext.getRequestServletPath())
+            clientId = sessionAttributes.get("client_id")
+            clientService = CdiUtil.bean(ClientService)
+            client = clientService.getClient(clientId)
+            clientUri = client.getClientUri()
+            if (clientUri is not None):
+                externalContext.redirect(clientUri)
+            else:
+                externalContext.redirect("error.htm")
+            return False
+
         # SWITCH - if the switch credential is in 3_DO_SWITCH state, then do the switch
         if ( sessionAttributes.get("switchFlowStatus") == "3_DO_SWITCH" ):
             # first get the target user
