@@ -18,6 +18,17 @@ import sys
 import java
 import json
 
+REMOTE_DEBUG = False
+
+if REMOTE_DEBUG:
+    try:
+        import sys
+        sys.path.append("/opt/libs/pydevd")
+        import pydevd
+    except ImportError as ex:
+        print "Failed to import pydevd: %s" % ex
+        raise
+    
 class PersonAuthentication(PersonAuthenticationType):
     def __init__(self, currentTimeMillis):
         self.currentTimeMillis = currentTimeMillis
@@ -56,6 +67,9 @@ class PersonAuthentication(PersonAuthenticationType):
         return 2
 
     def isValidAuthenticationMethod(self, usageType, configurationAttributes):
+        if REMOTE_DEBUG:
+            pydevd.settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
+            
         print "IDP Chooser. isValidAuthenticationMethod called"
 
         identity = CdiUtil.bean(Identity)
@@ -67,6 +81,9 @@ class PersonAuthentication(PersonAuthenticationType):
         return True
 
     def getAlternativeAuthenticationMethod(self, usageType, configurationAttributes):
+        if REMOTE_DEBUG:
+            pydevd.settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
+
         print "IDP Chooser. getAlternativeAuthenticationMethod called"
         identity = CdiUtil.bean(Identity)
         new_acr_value = identity.getWorkingParameter("new_acr_value")
@@ -74,11 +91,31 @@ class PersonAuthentication(PersonAuthenticationType):
         return new_acr_value
 
     def authenticate(self, configurationAttributes, requestParameters, step):
+        if REMOTE_DEBUG:
+            pydevd.settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
+
         print "IDP Chooser. authenticate called for step '%s'" % step
 
         identity = CdiUtil.bean(Identity)
         sessionId = identity.getSessionId()
         sessionAttributes = sessionId.getSessionAttributes()
+
+        if (not requestParameters.containsKey("loginForm")):
+            # Unexpected navigation. Redirect back to the RP or error page
+            facesResources = CdiUtil.bean(FacesResources)
+            facesContext = facesResources.getFacesContext()
+            externalContext = facesContext.getCurrentInstance().getExternalContext()
+            print ("IDP Chooser. authenticate called from the wrong page: " + externalContext.getRequestServletPath())
+            clientId = sessionAttributes.get("client_id")
+            clientService = CdiUtil.bean(ClientService)
+            client = clientService.getClient(clientId)
+            clientUri = client.getClientUri()
+            if (clientUri is not None):
+                externalContext.redirect(clientUri)
+            else:
+                externalContext.redirect("error.htm")
+            return False
+
         # SWITCH - if the switch credential is in 3_DO_SWITCH state, then do the switch
         if ( sessionAttributes.get("switchFlowStatus") == "3_DO_SWITCH" ):
             # first get the target user
@@ -173,6 +210,9 @@ class PersonAuthentication(PersonAuthenticationType):
             return False
 
     def prepareForStep(self, configurationAttributes, requestParameters, step):
+        if REMOTE_DEBUG:
+            pydevd.settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
+
         print "IDP Chooser. prepareForStep called for step '%s'" % step
 
         identity = CdiUtil.bean(Identity)
@@ -339,12 +379,16 @@ class PersonAuthentication(PersonAuthenticationType):
 
 
     def getPageForStep(self, configurationAttributes, step):
+        if REMOTE_DEBUG:
+            pydevd.settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
+
         print "IDP Chooser. getPageForStep called for step '%s'" % step
 
         facesResources = CdiUtil.bean(FacesResources)
+        languageBean = CdiUtil.bean(LanguageBean)
 
-        # Get the locale/language TODO: Redo this when upgrading to Gluu 4.2
-        locale = facesResources.getFacesContext().getViewRoot().getLocale().getLanguage()
+        # Get the locale/language
+        locale = languageBean.getLocale().getLanguage()
         print "IDP Chooser. getPageForStep called for step '%s' and locale '%s'" % (step, locale)
         # Make sure it matches "en" or "fr"
         if (locale != "en" and locale != "fr"):

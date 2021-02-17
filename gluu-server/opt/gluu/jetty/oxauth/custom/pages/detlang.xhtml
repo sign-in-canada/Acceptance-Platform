@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:jsf="http://xmlns.jcp.org/jsf">
+
+	<f:metadata>
+		<f:viewAction action="#{authenticator.prepareAuthenticationForStep}" />
+	</f:metadata>
+
+	<form jsf:id="rplang">
+		<input type="hidden" jsf:id="rplocale" />
+		<a jsf:id="submit" jsf:action="#{authenticator.authenticate}" type="submit" class="wb-inv"/>
+	</form>
+	<img style='display:block;margin-left:auto;margin-right:auto;width:20;padding:10% 0;' src='/oxauth/ext/resources/assets/icon_flag_rotation_080x080.gif'/>
+
+	<script src="/oxauth/ext/resources/wet-boew/js/jquery/2.2.4/jquery.js"></script>
+
+	<script>
+		$(document).ready(function() {
+			var url = '#{identity.getWorkingParameter("client_uri")}';
+			$.ajax({
+				url: url,
+				type: 'GET',
+				contentType: 'application/json',
+				xhrFields: {
+					withCredentials: true
+				},
+				complete: function (data) {
+					var lanCaptureRegExp = / data-lang="([^"]*)"/;
+					var language = lanCaptureRegExp.exec(data.responseText);
+					if ( language ) {
+						language = language[1];
+							var lanCodeFormatRegExp = /^[a-z]{2}-[A-Z]{2}$/;
+							if ( lanCodeFormatRegExp.test(language) ) document.getElementById("rplang:rplocale").value = language;
+						}
+					document.getElementById("rplang:submit").click()
+				}
+			});
+		});
+	</script>
+</html>

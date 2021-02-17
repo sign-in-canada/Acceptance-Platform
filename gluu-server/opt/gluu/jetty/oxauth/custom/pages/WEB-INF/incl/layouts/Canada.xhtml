@@ -2,18 +2,18 @@
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:ui="http://xmlns.jcp.org/jsf/facelets" xmlns:f="http://xmlns.jcp.org/jsf/core">
 
-  <f:view locale="#{language.localeCode}">
+  <f:view locale="#{view.locale.language}">
 
     <ui:debug />
 
-    <head lang="#{language.localeCode}" dir="ltr">
-      <ui:include src="/WEB-INF/incl/components/head-#{language.localeCode}.xhtml" />
+    <head lang="#{view.locale.language}" dir="ltr">
+      <ui:include src="/WEB-INF/incl/components/head-#{view.locale.language}.xhtml" />
       <ui:insert name="styles" />
     </head>
 
     <body class="page-type-nav" vocab="http://schema.org/" typeof="WebPage">
 
-      <ui:include src="/WEB-INF/incl/components/header-#{language.localeCode}.xhtml" />
+      <ui:include src="/WEB-INF/incl/components/header-#{view.locale.language}.xhtml" />
 
       <main property="mainContentOfPage" class="container" typeof="WebPageElement">
 
@@ -48,19 +48,19 @@
 
         <div class="pagedetails">
 
-          <ui:include src="/WEB-INF/incl/components/problem-#{language.localeCode}.xhtml" />
+          <ui:include src="/WEB-INF/incl/components/problem-#{view.locale.language}.xhtml" />
 
           <dl id="wb-dtmd">
-            <dt>#{language.localeCode eq "en" ? "Date modified:&#32;" : "Date de modification&#160;:&#32;"}</dt>
+            <dt>#{view.locale.language eq "en" ? "Date modified:&#32;" : "Date de modification&#160;:&#32;"}</dt>
             <dd>
-              <time property="dateModified">2020-11-27</time>
+              <time property="dateModified">2021-02-17</time>
             </dd>
           </dl>
         </div>
 
       </main>
 
-      <ui:include src="/WEB-INF/incl/components/footer-#{language.localeCode}.xhtml" />
+      <ui:include src="/WEB-INF/incl/components/footer-#{view.locale.language}.xhtml" />
 
     </body>
 
@@ -70,7 +70,7 @@
     <script src="/oxauth/ext/resources/js/languageAPI.js" type="text/x-javascript"></script>
     <script src="/oxauth/ext/resources/js/utils.js" type="text/x-javascript"></script>
     <script>
-      $(document).ready(setLanguage('#{language.localeCode eq "en" ? "eng" : "fra"}', function() {}));
+      $(document).ready(setLanguage('#{view.locale.language eq "en" ? "eng" : "fra"}', function() {}));
     </script>
 
   </f:view>

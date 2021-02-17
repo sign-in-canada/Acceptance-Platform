@@ -21,6 +21,9 @@
     "oxElevenVerifySignatureEndpoint":"https://%(hostname)s/oxeleven/rest/oxeleven/verifySignature",
     "oxElevenDeleteKeyEndpoint":"https://%(hostname)s/oxeleven/rest/oxeleven/deleteKey",
     "oxElevenJwksEndpoint":"https://%(hostname)s/oxeleven/rest/oxeleven/jwks",
+    "backchannelAuthenticationEndpoint":"https://%(hostname)s/oxauth/restv1/bc-authorize",
+    "backchannelDeviceRegistrationEndpoint":"https://%(hostname)s/oxauth/restv1/bc-deviceRegistration",
+    "deviceAuthzEndpoint":"https://%(hostname)s/oxauth/restv1/device_authorization",
     "openidSubAttribute":"inum",
     "responseTypesSupported":[
         ["code"],
@@ -42,7 +45,8 @@
         "password",
         "client_credentials",
         "refresh_token",
-        "urn:ietf:params:oauth:grant-type:uma-ticket"
+        "urn:ietf:params:oauth:grant-type:uma-ticket",
+        "urn:ietf:params:oauth:grant-type:device_code"
     ],
     "subjectTypesSupported":[
         "public",
@@ -108,6 +112,19 @@
         "ES384",
         "ES512"
     ],
+    "jwksAlgorithmsSupported":[
+        "RS256",
+        "RS384",
+        "RS512",
+        "ES256",
+        "ES384",
+        "ES512",
+        "PS256",
+        "PS384",
+        "PS512",
+        "RSA1_5",
+        "RSA-OAEP"
+    ],
     "requestObjectEncryptionAlgValuesSupported":[
         "RSA1_5",
         "RSA-OAEP",
@@ -151,7 +168,8 @@
     ],
     "serviceDocumentation":"http://gluu.org/docs",
     "claimsLocalesSupported":[
-        "en"
+        "en",
+        "fr"
     ],
     "idTokenTokenBindingCnfValuesSupported":[
         "tbh"
@@ -165,7 +183,8 @@
         "implicit",
         "client_credentials",
         "refresh_token",
-        "urn:ietf:params:oauth:grant-type:uma-ticket"
+        "urn:ietf:params:oauth:grant-type:uma-ticket",
+        "urn:ietf:params:oauth:grant-type:device_code"
     ],
     "claimsParameterSupported":true,
     "requestParameterSupported":true,
@@ -214,6 +233,7 @@
     "authenticationFiltersEnabled":false,
     "invalidateSessionCookiesAfterAuthorizationFlow":false,
     "clientAuthenticationFiltersEnabled":false,
+    "clientRegDefaultToCodeFlowWithRefresh": true,
     "authenticationFilters":[
         {
             "filter":"(&(mail=*{0}*)(inum={1}))",
@@ -239,6 +259,8 @@
     "sessionIdUnusedLifetime":86400,
     "sessionIdUnauthenticatedUnusedLifetime":1200,
     "sessionIdEnabled":true,
+    "changeSessionIdOnAuthentication":true,
+    "returnClientSecretOnRead": true,
     "sessionIdPersistOnPromptNone":true,
     "sessionIdLifetime": 0,
     "configurationUpdateInterval":3600,
@@ -275,21 +297,20 @@
             "corsLoggingEnabled": false,
             "corsPreflightMaxAge": 1800,
             "corsRequestDecorate": true,
-            "corsEnabled": true
+            "corsEnabled": false
         }
     ],
     "logClientIdOnClientAuthentication": true,
     "logClientNameOnClientAuthentication": true,
     "httpLoggingEnabled": false,
     "httpLoggingExludePaths": [],
-    "externalLoggerConfiguration": "",
+    "externalLoggerConfiguration": "/opt/gluu/jetty/oxauth/custom/log4j2.xml",
     "authorizationRequestCustomAllowedParameters" : [
         "entityId",
-        "spNameQualifier",
-        "customParam1"    ],
+        "spNameQualifier"],
     "legacyDynamicRegistrationScopeParam": false,
     "openidScopeBackwardCompatibility": %(oxauth_openidScopeBackwardCompatibility)s,
-    "useCacheForAllImplicitFlowObjects":true,
+    "useCacheForAllImplicitFlowObjects":false,
     "disableU2fEndpoint":false,
     "authenticationProtectionConfiguration": {
         "attemptExpiration": 15,
@@ -297,18 +318,38 @@
         "delayTime": 2,
         "bruteForceProtectionEnabled": true
     },
-    "fido2Configuration":{
-        "authenticatorCertsFolder":"%(fido2ConfigFolder)s/authenticator_cert",
-        "mdsCertsFolder":"%(fido2ConfigFolder)s/mds/cert",
-        "mdsTocsFolder":"%(fido2ConfigFolder)s/mds/toc",
-        "serverMetadataFolder":"%(fido2ConfigFolder)s/server_metadata",
-        "userAutoEnrollment":false,
-        "unfinishedRequestExpiration":120,
-        "authenticationHistoryExpiration":1296000,
-        "disableFido2":true
+    "loggingLevel": "INFO",
+    "loggingLayout": "text",
+   "enabledOAuthAuditLogging": "true",
+    "errorHandlingMethod":"internal",
+    "useLocalCache":true,
+    "backchannelTokenDeliveryModesSupported": [],
+    "backchannelAuthenticationRequestSigningAlgValuesSupported": [],
+    "backchannelClientId": "",
+    "backchannelRedirectUri": "",
+    "backchannelUserCodeParameterSupported": false,
+    "backchannelBindingMessagePattern": "^[a-zA-Z0-9]{4,8}$",
+    "backchannelAuthenticationResponseExpiresIn": 3600,
+    "backchannelAuthenticationResponseInterval": 2,
+    "backchannelRequestsProcessorJobIntervalSec": 0,
+    "backchannelRequestsProcessorJobChunkSize": 100,
+    "cibaGrantLifeExtraTimeSec": 180,
+    "cibaMaxExpirationTimeAllowedSec": 1800,
+    "backchannelLoginHintClaims": ["inum", "uid", "mail"],
+    "cibaEndUserNotificationConfig": {
+        "apiKey": "",
+        "authDomain": "",
+        "databaseURL": "",
+        "projectId": "",
+        "storageBucket": "",
+        "messagingSenderId": "",
+        "appId": "",
+        "notificationUrl": "",
+        "notificationKey": "",
+        "publicVapidKey": ""
     },
-   "loggingLevel": "INFO",
-   "useLocalCache":true,
-   "errorHandlingMethod":"internal",
-   "enabledOAuthAuditLogging": "true"
+    "deviceAuthzRequestExpiresIn": 1800,
+    "deviceAuthzTokenPollInterval": 5,
+    "deviceAuthzResponseTypeToProcessAuthz": "code"
+
 }
