@@ -21,18 +21,18 @@ cp /opt/dist/app/core-io-1.7.19.jar /tmp/patch/WEB-INF/lib
 cp /opt/dist/app/java-client-2.7.19.jar /tmp/patch/WEB-INF/lib
 pushd /tmp/patch 2>&1
 zip -d /opt/gluu/jetty/oxauth/webapps/oxauth.war \
-   WEB-INF/lib/java-client/core-io-1.7.16.jar \
-   WEB-INF/lib/java-client/java-client-2.7.16.jar
+   WEB-INF/lib/core-io-1.7.16.jar \
+   WEB-INF/lib/java-client-2.7.16.jar
 zip -u /opt/gluu/jetty/oxauth/webapps/oxauth.war WEB-INF/lib/*
 zip -d /opt/gluu/jetty/identity/webapps/identity.war \
-   WEB-INF/lib/java-client/core-io-1.7.16.jar \
-   WEB-INF/lib/java-client/java-client-2.7.16.jar
+   WEB-INF/lib/core-io-1.7.16.jar \
+   WEB-INF/lib/java-client-2.7.16.jar
 zip -u /opt/gluu/jetty/identity/webapps/identity.war WEB-INF/lib/*
 if [ -d /opt/gluu/jetty/idp ] ; then
-   zip -d /opt/gluu/jetty/idp/webapps/idp.war \
-      WEB-INF/lib/java-client/core-io-1.7.16.jar \
-      WEB-INF/lib/java-client/java-client-2.7.16.jar
-   zip -u /opt/gluu/jetty/idp/webapps/idp.war WEB-INF/lib/*
+   zip -qd /opt/gluu/jetty/idp/webapps/idp.war \
+      WEB-INF/lib/core-io-1.7.16.jar \
+      WEB-INF/lib/java-client-2.7.16.jar
+   zip -qu /opt/gluu/jetty/idp/webapps/idp.war WEB-INF/lib/*
 fi
 popd > /dev/null 2>&1
 
