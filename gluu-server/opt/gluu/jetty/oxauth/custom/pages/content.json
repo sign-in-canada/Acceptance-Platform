@@ -17,6 +17,12 @@
         "chooser": "gccf",
         "credentials" : "passport_saml:gckey,passport_saml:cbs"
     },
+    "oidc:wd_" : {
+        "content" : "wd_portal",
+        "layout" : "ATIP",
+        "chooser": "gccf",
+        "credentials" : "passport_saml:gckey,passport_saml:cbs"
+    },
     "https://rp4.tbstest.catslab.ca" : {
         "content" : "tbs_atip_aors",
         "layout" : "ATIP",
