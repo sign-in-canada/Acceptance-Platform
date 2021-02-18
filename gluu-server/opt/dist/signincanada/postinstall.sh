@@ -16,7 +16,7 @@ if [ -d /opt/gluu/jetty/idp ] ; then
 fi
 
 echo 'Updating the Couchbase client...'
-mkdir -p /tmp/patch/WEB-INF
+mkdir -p /tmp/patch/WEB-INF/lib
 cp /opt/dist/app/core-io-1.7.19.jar /tmp/patch/WEB-INF/lib
 cp /opt/dist/app/java-client-2.7.19.jar /tmp/patch/WEB-INF/lib
 pushd /tmp/patch 2>&1
