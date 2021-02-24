@@ -52,6 +52,9 @@
         "public",
         "pairwise"
     ],
+    "metricReporterEnabled":false,
+    "statEnabled":false,
+    "statWebServiceIntervalLimitInSeconds":60,
     "defaultSubjectType": "pairwise",
     "userInfoSigningAlgValuesSupported":[
         "HS256",
