@@ -169,7 +169,6 @@
     "claimTypesSupported":[
         "normal"
     ],
-    "legacyIdTokenClaims": true,
     "serviceDocumentation":"http://gluu.org/docs",
     "claimsLocalesSupported":[
         "en",
