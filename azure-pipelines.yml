@@ -141,7 +141,7 @@ steps:
     -d '{
       "id": "$296",
       "type": "Vsts",
-      "name": "common",
+      "name": "APlatform-version",
       "variables": {
         "ac-version": {
           "isSecret": false,
