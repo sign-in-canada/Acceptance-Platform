@@ -136,6 +136,22 @@ steps:
   displayName: 'Packaging tarball'
   continueOnError: true
 
+- bash: |
+    curl -fL -XPUT -H "Authorization:Bearer $(System.AccessToken)" -H "Content-Type:application/json" \
+    -d '{
+      "id": "$296",
+      "type": "Vsts",
+      "name": "common",
+      "variables": {
+        "ac-version": {
+          "isSecret": false,
+          "value": "SIC-AP-1.0.$(build)"
+        }
+      }
+    }' \
+    $(System.TeamFoundationCollectionUri)/Sign%20in%20Canada/_apis/distributedtask/variablegroups/296?api-version=5.0-preview.1
+  displayName: Update APlatform-version variablegroup 
+  
 - task: PublishPipelineArtifact@1
   inputs:
     targetPath: '$(Build.ArtifactStagingDirectory)'
