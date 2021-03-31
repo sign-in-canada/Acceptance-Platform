@@ -4734,6 +4734,11 @@ class Setup(object):
         return True, None
 
     def import_ldif_couchebase(self, ldif_file_list=[], bucket=None):
+        
+        #We won't load data to secondary cluster nodes
+        if not self.loadData:
+            return
+
         self.logIt("Importing ldif files to couchbase: ", ','.join(ldif_file_list))
         self.processedKeys = []
 
