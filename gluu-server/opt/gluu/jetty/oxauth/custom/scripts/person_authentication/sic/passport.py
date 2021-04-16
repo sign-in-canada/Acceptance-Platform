@@ -1,11 +1,6 @@
-# oxAuth is available under the MIT License (2008). See http://opensource.org/licenses/MIT for full text.
-# Copyright (c) 2019, Gluu
+# Module for interacting with gluu_passport
 #
-# Author: Jose Gonzalez
-# Author: Yuriy Movchan
-# Author: Christian Eland
 # Author: Doug Harris
-#
 
 from org.gluu.jsf2.service import FacesService
 
