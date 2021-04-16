@@ -41,7 +41,7 @@ class PersonAuthentication(PersonAuthenticationType):
         if REMOTE_DEBUG:
             pydevd.settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
         
-        print ("LoA2: Initializing")
+        print ("LoA2 Direct: Initializing")
 
         self.passport = passport.Passport()
         self.passport.init(configurationAttributes)
@@ -50,11 +50,11 @@ class PersonAuthentication(PersonAuthenticationType):
         
         self.provider = configurationAttributes.get("provider").getValue2()
 
-        print ("LoA2: Initialized")
+        print ("LoA2 Direct: Initialized")
         return True
 
     def destroy(self, configurationAttributes):
-        print ("LoA2: Destroyed")
+        print ("LoA2 Direct: Destroyed")
         return True
 
     def getApiVersion(self):
@@ -97,7 +97,7 @@ class PersonAuthentication(PersonAuthenticationType):
             client = clientService.getClient(clientId)
             clientUri = client.getClientUri()
             if (clientUri is None):
-                print("LoA2: clientUri is missing for client " + client.getClientName())
+                print("LoA2 Direct: clientUri is missing for client " + client.getClientName())
                 return False
             else:
                 identity.setWorkingParameter("client_uri", clientUri)
