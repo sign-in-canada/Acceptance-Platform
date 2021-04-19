@@ -123,7 +123,7 @@ steps:
     pushd gluu-server/
     echo 'packaging tarball'
     mkdir -p install/community-edition-setup/static/extension
-    tar xvzf opt/dist/signincanada/custom.tgz --strip-components=1 -C install/community-edition-setup/static/extension scripts
+    tar xvzf opt/dist/signincanada/custom.tgz --strip-components=1 -C install/community-edition-setup/static/extension scripts/*/*.py
     chmod 755 $(find . -type d -print)
     chmod 644 $(find . -type f -print)
     chmod 700 opt/dist/signincanada/postinstall.sh
