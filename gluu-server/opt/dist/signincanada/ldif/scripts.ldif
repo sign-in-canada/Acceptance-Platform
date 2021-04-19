@@ -24,6 +24,8 @@ description: Direct GCKey authentication
 displayName: gckey_loa2
 oxEnabled: true
 inum: AFSC-CS02
+oxConfigurationProperty: {"value1":"key_store_file","value2":"%(passport_rp_client_jks_fn)s","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"key_store_password","value2":"%(passport_rp_client_jks_pass)s","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"selector_page_content_file","value2":"/opt/gluu/jetty/oxauth/custom/pages/content.json","description":""}
 oxConfigurationProperty: {"value1":"provider","value2":"gckey","description":""}
 oxLevel: 50
