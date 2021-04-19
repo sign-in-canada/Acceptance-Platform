@@ -77,7 +77,8 @@ steps:
     buildType: 'specific'
     project: '7302639f-e704-47c3-9557-99b4e04a75bc'
     definition: '285'
-    buildVersionToDownload: 'latest'
+    runVersion: 'latestFromBranch'
+    runBranch: "refs/heads/develop_4.3.0"
     artifactName: 'gluu-passport'
     targetPath: '$(Pipeline.Workspace)/s/gluu-server/opt/dist/gluu'
   displayName: 'Download gluu-passport tarballs'
@@ -85,7 +86,7 @@ steps:
 
 - script: |
     cd gluu-server/opt/dist/gluu
-    mv passport-version_4.1.0-node_modules.tar.gz passport-version_4.2.3-node_modules.tar.gz
+    mv passport-version_4.4.0-node_modules.tar.gz passport-version_4.2.3-node_modules.tar.gz
   displayName: 'Renaming node modules'
   continueOnError: true
 
