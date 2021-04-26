@@ -2,6 +2,7 @@
     "configurationEndpoint": "https://%(hostname)s/identity/restv1/passport/config",
     "failureRedirectUrl": "https://%(hostname)s/oxauth/auth/passport/passportlogin.htm",
     "languageAPI": "https://lang-canada.fjgc-gccf.gc.ca/v1/lang",
+    "languageCookieService": "https://lang-canada.fjgc-gccf.gc.ca/v1/lcs",
     "logLevel": "info",
     "consoleLogOnly": false,
     "clientId": "%(passport_rp_client_id)s",

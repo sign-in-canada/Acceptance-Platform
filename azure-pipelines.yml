@@ -77,7 +77,8 @@ steps:
     buildType: 'specific'
     project: '7302639f-e704-47c3-9557-99b4e04a75bc'
     definition: '285'
-    buildVersionToDownload: 'latest'
+    runVersion: 'latestFromBranch'
+    runBranch: "refs/heads/develop_4.3.0"
     artifactName: 'gluu-passport'
     targetPath: '$(Pipeline.Workspace)/s/gluu-server/opt/dist/gluu'
   displayName: 'Download gluu-passport tarballs'
@@ -85,7 +86,7 @@ steps:
 
 - script: |
     cd gluu-server/opt/dist/gluu
-    mv passport-version_4.1.0-node_modules.tar.gz passport-version_4.2.3-node_modules.tar.gz
+    mv passport-version_4.4.0-node_modules.tar.gz passport-version_4.2.3-node_modules.tar.gz
   displayName: 'Renaming node modules'
   continueOnError: true
 
@@ -122,7 +123,7 @@ steps:
     pushd gluu-server/
     echo 'packaging tarball'
     mkdir -p install/community-edition-setup/static/extension
-    tar xvzf opt/dist/signincanada/custom.tgz --strip-components=1 -C install/community-edition-setup/static/extension scripts
+    tar xvzf opt/dist/signincanada/custom.tgz --strip-components=1 --exclude scripts/person_authentication/sic -C install/community-edition-setup/static/extension scripts
     chmod 755 $(find . -type d -print)
     chmod 644 $(find . -type f -print)
     chmod 700 opt/dist/signincanada/postinstall.sh

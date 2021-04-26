@@ -1,62 +1,3 @@
-dn: inum=2FDB-CF02,ou=scripts,o=gluu
-objectClass: oxCustomScript
-objectClass: top
-description: Passport authentication module
-displayName: passport_social
-oxEnabled: true
-inum: 2FDB-CF02
-oxConfigurationProperty: {"value1":"key_store_file","value2":"%(passport_rp_client_jks_fn)s","hide":false,"description":""}
-oxConfigurationProperty: {"value1":"key_store_password","value2":"%(passport_rp_client_jks_pass)s","hide":false,"description":""}
-oxConfigurationProperty: {"value1":"login_hint_key","value2":"/run/keyvault/secrets/MFAKey","hide":false,"description":""}
-oxLevel: 50
-oxModuleProperty: {"value1":"usage_type","value2":"interactive","description":""}
-oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
-oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/PassportExternalAuthenticator.py","description":""}
-oxRevision: 1
-oxScriptType: person_authentication
-programmingLanguage: python
-
-dn: inum=5018-D4BF,ou=scripts,o=gluu
-objectClass: top
-objectClass: oxCustomScript
-description: HOTP/TOPT authentication module
-displayName: otp
-oxEnabled: false
-inum: 5018-D4BF
-oxConfigurationProperty: {"value1":"otp_type","value2":"totp","description":""}
-oxConfigurationProperty: {"value1":"otp_conf_file","value2":"/etc/certs/otp_configuration.json","description":""}
-oxConfigurationProperty: {"value1":"issuer","value2":"Gluu Inc","description":""}
-oxConfigurationProperty: {"value1":"label","value2":"Gluu OTP","description":""}
-oxConfigurationProperty: {"value1":"qr_options","value2":"{ size: 400, mSize: 0.05 }","description":""}
-oxConfigurationProperty: {"value1":"registration_uri","value2":"https://%(hostname)s/identity/register","description":""}
-oxLevel: 40
-oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
-oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/OtpExternalAuthenticator.py","description":""}
-oxModuleProperty: {"value1":"usage_type","value2":"interactive","description":""}
-oxRevision: 1
-oxScript::%(person_authentication_otpexternalauthenticator)s
-oxScriptType: person_authentication
-programmingLanguage: python
-
-dn: inum=D40C-1CA4,ou=scripts,o=gluu
-objectClass: oxCustomScript
-objectClass: top
-description: Passport SAML authentication module
-displayName: passport_saml
-oxEnabled: true
-inum: D40C-1CA4
-oxConfigurationProperty: {"value1":"key_store_file","value2":"%(passport_rp_client_jks_fn)s","hide":false,"description":""}
-oxConfigurationProperty: {"value1":"key_store_password","value2":"%(passport_rp_client_jks_pass)s","hide":false,"description":""}
-oxConfigurationProperty: {"value1":"rps_to_collect_old_mappings_from","value2":"none","description":""}
-oxConfigurationProperty: {"value1":"rps_to_collect_old_mappings_to","value2":"none","description":""}
-oxLevel: 50
-oxModuleProperty: {"value1":"usage_type","value2":"interactive","description":""}
-oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
-oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/SamlPassportAuthenticator.py","description":""}
-oxRevision: 1
-oxScriptType: person_authentication
-programmingLanguage: python
-
 dn: inum=AFSC-CS01,ou=scripts,o=gluu
 objectClass: oxCustomScript
 objectClass: top
@@ -72,6 +13,44 @@ oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
 oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/SignInCanadaSelectorLoA2.py","description":""}
 oxAlias: urn:gc-ca:cyber-auth:assurance:loa2
 oxRevision: 1
+oxScript::%(person_authentication_signincanadaselectorloa2)s
+oxScriptType: person_authentication
+programmingLanguage: python
+
+dn: inum=AFSC-CS02,ou=scripts,o=gluu
+objectClass: oxCustomScript
+objectClass: top
+description: Direct GCKey authentication
+displayName: gckey_loa2
+oxEnabled: true
+inum: AFSC-CS02
+oxConfigurationProperty: {"value1":"key_store_file","value2":"%(passport_rp_client_jks_fn)s","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"key_store_password","value2":"%(passport_rp_client_jks_pass)s","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"selector_page_content_file","value2":"/opt/gluu/jetty/oxauth/custom/pages/content.json","description":""}
+oxConfigurationProperty: {"value1":"provider","value2":"gckey","description":""}
+oxLevel: 50
+oxModuleProperty: {"value1":"usage_type","value2":"interactive","description":""}
+oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
+oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/SignInCanadaDirectLoA2.py","description":""}
+oxRevision: 1
+oxScript::%(person_authentication_signincanadadirectloa2)s
+oxScriptType: person_authentication
+programmingLanguage: python
+
+dn: inum=AFSC-CS05,ou=scripts,o=gluu
+objectClass: oxCustomScript
+objectClass: top
+description: Language Detection or Manual Selection
+displayName: detect_language
+oxEnabled: true
+inum: AFSC-CS05
+oxConfigurationProperty: {"value1":"selector_page_content_file","value2":"/opt/gluu/jetty/oxauth/custom/pages/content.json","description":""}
+oxLevel: 5
+oxModuleProperty: {"value1":"usage_type","value2":"interactive","description":""}
+oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
+oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/LanguageDetector.py","description":""}
+oxRevision: 1
+oxScript::%(person_authentication_languagedetector)s
 oxScriptType: person_authentication
 programmingLanguage: python
 
@@ -81,11 +60,12 @@ objectClass: oxCustomScript
 description: Distributes Claims for OpenID Trusted Identity Providers
 displayName: claims
 oxEnabled: true
-inum: 031C-5621
+inum: A31C-5D01
 oxLevel: 50
 oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
 oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/dynamic_scope/sic_dist_claim.py","description":""}
 oxRevision: 1
+oxScript::%(dynamic_scope_sic_dist_claim)s
 oxScriptType: dynamic_scope
 programmingLanguage: python
 
@@ -95,24 +75,26 @@ objectClass: oxCustomScript
 description: SAML NameID claim for SAML to OIDC RP migration / co-existence
 displayName: saml_nameid
 oxEnabled: true
-inum: 031C-5621
+inum: A3DC-5D02
 oxLevel: 50
 oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
 oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/dynamic_scope/sic_saml_nameid.py","description":""}
 oxRevision: 1
+oxScript::%(dynamic_scope_sic_saml_nameid)s
 oxScriptType: dynamic_scope
 programmingLanguage: python
 
-dn: inum=A3DC-5D03,ou=scripts,o=gluu
+dn: inum=A3DC-MR01,ou=scripts,o=gluu
 objectClass: top
 objectClass: oxCustomScript
-description: Changes the value of the session_id cookie
-displayName: rotate_sessionid
+description: SAML NameID claim for SAML to OIDC RP migration / co-existence
+displayName: end_session
 oxEnabled: true
-inum: DAA9-B789
-oxLevel: 1
+inum: A3DC-MR01
+oxLevel: 50
 oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
-oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/application_session/RotateSessionId.py","description":""}
+oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/end_session/end_session.py","description":""}
 oxRevision: 1
-oxScriptType: application_session
+oxScript::%(end_session_end_session)s
+oxScriptType: end_session
 programmingLanguage: python
