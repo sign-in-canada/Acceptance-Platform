@@ -33,14 +33,11 @@ class Passport:
     def __init__(self):
         return None
 
-    def init(self, configurationAttributes):
+    def init(self, configurationAttributes, scriptName, providers):
 
-        print ("Passport. init called")
+        print ("Passport. init called from " + scriptName)
 
         try:
-            # Not sure what the point is for this:
-            self.providerKey = "provider"
-
             # Instantiate a Crypto Provider to verify token signatures
             self.keyStoreFile = configurationAttributes.get("key_store_file").getValue2()
             self.keyStorePassword = configurationAttributes.get("key_store_password").getValue2()
@@ -58,18 +55,18 @@ class Passport:
             with open('/etc/gluu/conf/passport-config.json', 'r') as configFile:
                 self.passportConfig = json.load(configFile)
                 if StringHelper.isEmpty(self.passportConfig["keyAlg"]) or StringHelper.isEmpty(self.passportConfig["keyId"]):
-                    print ("Passport. init. Failed to read key information from passport-config")
+                    print ("Passport. init for %s. Failed to read key information from passport-config" % scriptName)
                     return False
 
             # Load all provider configurations
-            self.registeredProviders = self.parseProviders()
+            self.registeredProviders = self.parseProviders(providers)
 
         except:
-            print ("Passport. init. Initialization failed:")
+            print ("Passport. init for %s. Initialization failed:" % scriptName)
             print (sys.exc_info())
             return False
 
-        print ("Passport. init. Initialization success")
+        print ("Passport. init for %s. Initialization success" % scriptName)
         return True
 
     def createRequest(self, providerId, locale, options):
@@ -182,7 +179,7 @@ class Passport:
         f.close()
         return "=".join(prop).strip()
 
-    def parseProviders(self):
+    def parseProviders(self, allowedProviders):
         print ("Passport. parseProviders. Adding providers")
 
         registeredProviders = {}
@@ -202,15 +199,12 @@ class Passport:
 
         if providers != None and len(providers) > 0:
             for provider in providers:
-                if provider.isEnabled():
+                if provider.isEnabled() and provider.getId() in allowedProviders:
                     registeredProviders[provider.getId()] = {
-                        "emailLinkingSafe": provider.isEmailLinkingSafe(),
-                        "requestForEmail" : provider.isRequestForEmail(),
-                        "logo_img": provider.getLogoImg(),
-                        "displayName": provider.getDisplayName(),
                         "type": provider.getType(),
                         "options": provider.getOptions()
                     }
+                    print("Configured %s provider %s" % (provider.getType(), provider.getId()))
 
         return registeredProviders
 

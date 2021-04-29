@@ -55,17 +55,14 @@ class PersonAuthentication(PersonAuthenticationType):
         if REMOTE_DEBUG:
             pydevd.settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
         
-        print ("LoA2: Initializing")
+        self.name = customScript.getName()
+        
+        print ("%s: Initializing" % self.name)
 
-        self.passport = passport.Passport()
-        self.passport.init(configurationAttributes)
-        
-        self.account = account.Account()
-        
         # Get the list of providers and parse into a set for quick membership tests
         providersParam = configurationAttributes.get("providers").getValue2()
         if providersParam is None:
-            print ("LoA2: Providers parameter is missing from config!")
+            print ("%s: Providers parameter is missing from config!"  % self.name)
             return False
         else:
             self.providers = set([item.strip() for item in providersParam.split(",")])
@@ -73,23 +70,28 @@ class PersonAuthentication(PersonAuthenticationType):
         # Get the defaults for RP business rule & UI configuration
         defaultsParam = configurationAttributes.get("rp_defaults").getValue2()
         if defaultsParam is None:
-            print ("LoA2: RP defaults (rp_defaults) are missing from config!")
+            print ("%s: RP defaults (rp_defaults) are missing from config!" % self.name)
             return False
         else:
             try:
                 self.rpDefaults = json.loads(defaultsParam)
             except ValueError:
-                print ("LoA2: failed to parse RP defaults!")
+                print ("%s: failed to parse RP defaults!" % self.name)
                 return False
 
         # Keep an in-memory cache of RP Configs
         self.rpConfigCache = {}
 
-        print ("LoA2: Initialized")
+        self.passport = passport.Passport()
+        self.passport.init(configurationAttributes, self.name, self.providers)
+        
+        self.account = account.Account()
+
+        print ("%s: Initialized" % self.name)
         return True
 
     def destroy(self, configurationAttributes):
-        print ("LoA2: Destroyed")
+        print ("%s: Destroyed" % self.name)
         return True
 
     def getApiVersion(self):
@@ -99,7 +101,17 @@ class PersonAuthentication(PersonAuthenticationType):
         return None
 
     def isValidAuthenticationMethod(self, usageType, configurationAttributes):
-        return True
+        # Inject dependencies
+        identity = CdiUtil.bean(Identity)
+
+        client = self.getClient(identity.getSessionId())
+        defaultAcrValues = client.getDefaultAcrValues()
+        # If any default ACR values are explicitly configured on the client,
+        # then don't allow any others
+        if defaultAcrValues is None or self.name in defaultAcrValues:
+            return True
+        else:
+            return False
 
     def getAlternativeAuthenticationMethod(self, usageType, configurationAttributes):
         return None
@@ -129,7 +141,7 @@ class PersonAuthentication(PersonAuthenticationType):
             # Obtain the client URI of the current client from the client configuration
             clientUri = self.getClientUri(session)
             if (clientUri is None):
-                print("LoA2: clientUri is missing for client " + self.getClient(session).getClientName())
+                print("%s: clientUri is missing for client %s" %self.name, self.getClient(session).getClientName())
                 return False
 
         if abort:
