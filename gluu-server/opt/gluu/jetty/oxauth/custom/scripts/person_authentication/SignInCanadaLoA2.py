@@ -355,7 +355,13 @@ class PersonAuthentication(PersonAuthenticationType):
         return CdiUtil.bean(ClientService).getClient(clientId)
 
     def getClientUri(self, session):
-        return self.getClient(session).getClientUri()
+        
+        clientUri = self.getClient(session).getClientUri()
+        if clientUri is None:
+            sessionAttributes = session.getSessionAttributes()
+            clientUri = sessionAttributes.get("spNameQualifier") # Hack!
+
+        return clientUri
 
     def getRPConfig(self, session):
         clientService = CdiUtil.bean(ClientService)
