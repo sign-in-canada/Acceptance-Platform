@@ -189,7 +189,7 @@ class PersonAuthentication(PersonAuthenticationType):
             if externalProfile["provider"] not in self.providers:
                 # Unauthorized provider!
                 return False
-                
+
             user = self.account.find(externalProfile)
             if user is None:
                 user = self.account.create(externalProfile)
@@ -212,7 +212,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 userChanged = True
 
             if newUser:
-                userService.createUser(user)
+                userService.createUser(user, True)
             elif userChanged:
                 userService.updateUser(user)
 
