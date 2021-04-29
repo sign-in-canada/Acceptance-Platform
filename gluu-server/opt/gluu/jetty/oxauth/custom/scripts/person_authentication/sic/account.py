@@ -9,6 +9,7 @@ from org.gluu.oxauth.service.common import UserService
 from org.gluu.oxauth.service import PairwiseIdentifierService
 
 from java.util import ArrayList
+from javax.faces.context import FacesContext
 
 import uuid
 
@@ -30,7 +31,7 @@ class Account:
             user = User()
             user.setUserId(uuid.uuid4().hex)
             user.setAttribute("oxExternalUid", externalUid, True)
-            return self.userService.addUser(user, True)
+            return user
         else:
             raise AccountError("Account. Create. External Account is missing externalUid")
 
@@ -45,8 +46,16 @@ class Account:
         return user
 
     # SAML RP Subject Management
-    def addSamlSubject(self, user, spNameQualifier, nameQualifier, nameId):
+    def addSamlSubject(self, user, spNameQualifier, nameQualifier = None, nameId = None):
         """Add a new RP SAML Subject to an account."""
+
+        if nameQualifier is None:
+            facesContext = CdiUtil.bean(FacesContext)
+            serverName = facesContext.getExternalContext().getRequest().getServerName()
+            nameQualifier = "https://%s" % serverName
+
+        if nameId is None:
+            nameId = "sic" + uuid.uuid4().hex
 
         newSamlSubject = '%s|%s|%s' % (spNameQualifier, nameQualifier, nameId)
 
@@ -56,7 +65,7 @@ class Account:
         
         persistentIds.add(newSamlSubject)
 
-        user.setAttribute("persistentId", persistentIds)
+        user.setAttribute("persistentId", persistentIds, True)
 
         return user
 

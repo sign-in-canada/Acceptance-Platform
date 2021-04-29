@@ -8,26 +8,19 @@
                 xmlns:p="http://xmlns.jcp.org/jsf/passthrough">
     <h2 class="mini-h2s" style="margin-top:0em;">
         Utilisez l'option de connexion avec laquelle vous vous êtes inscrit</h2>
-    <form jsf:id="loginForm" jsf:action="#{authenticator.authenticate}" class="form">
+    <form jsf:id="chooser" jsf:action="#{authenticator.authenticate}" class="form">
         <h:messages styleClass="list-unstyled label label-danger wb-server-error" />
-        <input type="hidden" jsf:id="acrname" jsf:value="#{acrname}" styleClass="form-control" autocomplete="off" />
-        <input type="hidden" jsf:id="switchCredentialBox" jsf:value="off" styleClass="form-control" autocomplete="off" />
-        <button jsf:id="loginButton1" jsf:action="#{authenticator.authenticate}" class="btn btn-primary btn-call-to-action btn-1" style="color: #333 !important;" value="passport_saml:gckey" type="submit" onclick="fillInAcrOnSubmit('passport_saml:gckey')">
+        <button jsf:id="gckey" jsf:action="#{authenticator.authenticate}" class="btn btn-primary btn-call-to-action btn-1" style="color: #333 !important;" value="gckey" type="submit">
             <i class="fab fa-canadian-maple-leaf" style="color: #333"></i>
             &#32; Ouvrez une séance au moyen de votre cléGC
         </button>
-        <button jsf:id="loginButton2" jsf:action="#{authenticator.authenticate}" class="btn btn-primary btn-call-to-action btn-2" style="color: #333 !important;" value="passport_saml:cbs" type="submit" onclick="fillInAcrOnSubmit('passport_saml:cbs')">
+        <button jsf:id="cbs" jsf:action="#{authenticator.authenticate}" class="btn btn-primary btn-call-to-action btn-2" style="color: #333 !important;" value="cbs" type="submit">
             <i class="fas fa-university" style="color: #17599c;"></i>
             &#32; Ouvrez une séance à l’aide de votre compte bancaire en ligne (partenaire de connexion)
         </button>
-        <button jsf:id="loginButton3" jsf:action="#{authenticator.authenticate}" class="btn btn-primary btn-call-to-action btn-3" style="color: #333 !important;" value="passport_saml:madi" type="submit" onclick="fillInAcrOnSubmit('passport_saml:madi')">
+        <button jsf:id="madi" jsf:action="#{authenticator.authenticate}" class="btn btn-primary btn-call-to-action btn-3" style="color: #333 !important;" value="madi" type="submit">
             <i class="fa fa-id-card" style="color: #5c35ae;"></i>
             &#32; Ouvrez une séance au moyen de "My Alberta Digital ID"
         </button>
     </form>
-    <script type="text/x-javascript">
-        function fillInAcrOnSubmit(acrButtonValue) {
-              document.getElementById("loginForm:acrname").value = acrButtonValue;
-        }
-      </script>
 </ui:composition>

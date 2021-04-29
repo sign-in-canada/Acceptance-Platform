@@ -3,7 +3,7 @@
 <ui:composition xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
-                template="/WEB-INF/incl/layouts/#{not empty identity.sessionId.sessionAttributes.pageContent.layout ? identity.sessionId.sessionAttributes.pageContent.layout : 'ATIP'}.xhtml">
+                template="/WEB-INF/incl/layouts/#{not empty identity.getWorkingParameter('layout') ? identity.getWorkingParameter('layout') : 'ATIP'}.xhtml">
 
   <f:metadata>
     <f:viewAction action="#{authenticator.prepareAuthenticationForStep}" />
@@ -13,31 +13,31 @@
   <ui:param name="locale" value="en" />
 
   <ui:define name="styles">
-    <ui:include src="/WEB-INF/incl/content/#{not empty identity.sessionId.sessionAttributes.pageContent.content ? identity.sessionId.sessionAttributes.pageContent.content : 'default'}/styles.xhtml" />
+    <ui:include src="/WEB-INF/incl/content/#{not empty identity.getWorkingParameter('content') ? identity.getWorkingParameter('content') : 'default'}/styles.xhtml" />
   </ui:define>
 
   <ui:define name="name">
-    <ui:include src="/WEB-INF/incl/content/#{not empty identity.sessionId.sessionAttributes.pageContent.content ? identity.sessionId.sessionAttributes.pageContent.content : 'default'}/name-#{view.locale.language}.xhtml" />
+    <ui:include src="/WEB-INF/incl/content/#{not empty identity.getWorkingParameter('content') ? identity.getWorkingParameter('content') : 'default'}/name-#{view.locale.language}.xhtml" />
   </ui:define>
 
   <ui:define name="description">
-    <ui:include src="/WEB-INF/incl/content/#{not empty identity.sessionId.sessionAttributes.pageContent.content ? identity.sessionId.sessionAttributes.pageContent.content : 'default'}/description-#{view.locale.language}.xhtml" />
+    <ui:include src="/WEB-INF/incl/content/#{not empty identity.getWorkingParameter('content') ? identity.getWorkingParameter('content') : 'default'}/description-#{view.locale.language}.xhtml" />
   </ui:define>
 
   <ui:define name="services">
-    <ui:include src="/WEB-INF/incl/content/#{not empty identity.sessionId.sessionAttributes.pageContent.content ? identity.sessionId.sessionAttributes.pageContent.content : 'default'}/services-#{view.locale.language}.xhtml" />
+    <ui:include src="/WEB-INF/incl/content/#{not empty identity.getWorkingParameter('content') ? identity.getWorkingParameter('content') : 'default'}/services-#{view.locale.language}.xhtml" />
   </ui:define>
 
   <ui:define name="help">
-    <ui:include src="/WEB-INF/incl/content/#{not empty identity.sessionId.sessionAttributes.pageContent.content ? identity.sessionId.sessionAttributes.pageContent.content : 'default'}/help-#{view.locale.language}.xhtml" />
+    <ui:include src="/WEB-INF/incl/content/#{not empty identity.getWorkingParameter('content') ? identity.getWorkingParameter('content') : 'default'}/help-#{view.locale.language}.xhtml" />
   </ui:define>
 
   <ui:define name="register">
-    <ui:include src="/WEB-INF/incl/content/#{not empty identity.sessionId.sessionAttributes.pageContent.content ? identity.sessionId.sessionAttributes.pageContent.content : 'default'}/register-#{view.locale.language}.xhtml" />
+    <ui:include src="/WEB-INF/incl/content/#{not empty identity.getWorkingParameter('content') ? identity.getWorkingParameter('content') : 'default'}/register-#{view.locale.language}.xhtml" />
   </ui:define>
 
   <ui:define name="chooser">
-    <ui:include src="/WEB-INF/incl/components/choosers/#{not empty identity.sessionId.sessionAttributes.pageContent.chooser ? identity.sessionId.sessionAttributes.pageContent.chooser : 'gccf'}-#{view.locale.language}.xhtml" />
+    <ui:include src="/WEB-INF/incl/components/choosers/#{not empty identity.getWorkingParameter('chooser') ? identity.getWorkingParameter('chooser') : 'gccf'}-#{view.locale.language}.xhtml" />
   </ui:define>
 
 </ui:composition>

@@ -11,7 +11,6 @@ from org.gluu.oxauth.model.jwt import Jwt, JwtClaimName
 from org.gluu.oxauth.service.common import EncryptionService
 from org.gluu.oxauth.service.net import HttpService
 from org.gluu.oxauth.util import ServerUtil
-from org.gluu.oxauth.i18n import LanguageBean
 from org.gluu.config.oxtrust import LdapOxPassportConfiguration
 from org.gluu.persist import PersistenceEntryManager
 from org.gluu.service.cdi.util import CdiUtil
@@ -73,7 +72,7 @@ class Passport:
         print ("Passport. init. Initialization success")
         return True
 
-    def createRequest(self, providerId, locale, spNameQualifier):
+    def createRequest(self, providerId, locale, options):
         """Create a redirect  URL to send an authentication request to passport."""
 
         url = None
@@ -98,8 +97,10 @@ class Passport:
             language = locale[:2].lower()
 
             url = "/passport/auth/%s/%s?ui_locales=%s" % (providerId, token, language)
-            if spNameQualifier is not None:
-                url += "&spnq=" + StringHelper.encodeString(spNameQualifier)
+
+            if options is not None:
+                for option, value in options.items():
+                    url += "&%s=%s" % option, URLEncoder.encode(value, "UTF8")
 
             if providerConfig["options"].get("GCCF"):
                 # Need to set the language cookie

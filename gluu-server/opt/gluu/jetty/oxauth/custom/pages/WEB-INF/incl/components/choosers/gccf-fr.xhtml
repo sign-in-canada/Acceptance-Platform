@@ -8,11 +8,9 @@
                 xmlns:p="http://xmlns.jcp.org/jsf/passthrough">
   <h2 class="mrgn-bttm-lg">Choisissez une option d’accès</h2>
 
-  <form jsf:id="loginForm" jsf:action="#{authenticator.authenticate}" class="form">
+  <form jsf:id="chooser" jsf:action="#{authenticator.authenticate}" class="form">
     <div class="row wb-eqht">
       <h:messages styleClass="list-unstyled label label-danger wb-server-error" />
-      <input type="hidden" jsf:id="acrname" jsf:value="#{acrname}" styleClass="form-control" autocomplete="off" />
-      <input type="hidden" jsf:id="switchCredentialBox" jsf:value="off" styleClass="form-control" autocomplete="off" />
       <div class="col-md-6">
         <section class="panel panel-default hght-inhrt">
           <div class="panel-heading">
@@ -35,7 +33,7 @@
             <p>Ouvrez une séance à l’aide de votre nom d’utilisateur et votre mot de passe cléGC.</p>
             <!-- Links for Gluu to GCKEY -->
             <p class="text-center">
-              <button jsf:id="loginButton1" jsf:action="#{authenticator.authenticate}" styleClass="btn btn-primary mrgn-tp-lg btn-lg" value="Sign in with GCKey" type="submit" onclick="fillInAcrOnSubmit('passport_saml:gckey')">Ouvrez une séance au moyen de votre cléGC</button>
+              <button jsf:id="gckey" jsf:action="#{authenticator.authenticate}" styleClass="btn btn-primary mrgn-tp-lg btn-lg" value="gckey" type="submit">Ouvrez une séance au moyen de votre cléGC</button>
             </p>
            </div>
            <details>
@@ -88,7 +86,7 @@
             <p>Ouvrez une séance à l’aide de votre compte bancaire en ligne.</p>
             <br />
             <p class="text-center">
-              <button jsf:id="loginButton2" jsf:action="#{authenticator.authenticate}" styleClass="btn btn-primary mrgn-tp-lg btn-lg" value="Sign in with Sign-In Partner" type="submit" onclick="fillInAcrOnSubmit('passport_saml:cbs')">Ouvrez une séance à l’aide d’un partenaire de connexion</button>
+              <button jsf:id="cbs" jsf:action="#{authenticator.authenticate}" styleClass="btn btn-primary mrgn-tp-lg btn-lg" value="cbs" type="submit">Ouvrez une séance à l’aide d’un partenaire de connexion</button>
             </p>
           </div>
           <details>
@@ -121,14 +119,8 @@
     <div class="row text-center">
       <h2 class="mrgn-tp-md">Vous n’avez pas de nom d’utilisateur ou de mot de passe ?</h2>
       <p>
-        <button jsf:id="loginButton3" jsf:action="#{authenticator.authenticate}" styleClass="btn btn-primary mrgn-tp-lg btn-lg" value="Sign up with GCKey" type="submit" onclick="fillInAcrOnSubmit('passport_saml:gckey')">Inscrivez-vous pour obtenir une cléGC</button>
+        <button jsf:id="gckeyregister" jsf:action="#{authenticator.authenticate}" styleClass="btn btn-primary mrgn-tp-lg btn-lg" value="gckeyregister" type="submit">Inscrivez-vous pour obtenir une cléGC</button>
       </p>
     </div>
   </form>
-  <script type="text/x-javascript">
-    function fillInAcrOnSubmit(acrButtonValue) {
-          document.getElementById("loginForm:acrname").value = acrButtonValue;
-    }
-  </script>
-
 </ui:composition>
