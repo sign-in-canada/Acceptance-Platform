@@ -22,6 +22,9 @@ from org.gluu.oxauth.util import ServerUtil
 from org.gluu.oxauth.i18n import LanguageBean
 from org.gluu.jsf2.service import FacesResources, FacesService
 from org.gluu.oxauth.model.authorize import AuthorizeRequestParam
+from org.gluu.oxauth.model.common import Prompt
+
+from com.microsoft.applicationinsights import TelemetryClient
 
 from java.util import Arrays
 
@@ -87,6 +90,8 @@ class PersonAuthentication(PersonAuthenticationType):
         
         self.account = account.Account()
 
+        self.telemetryClient = TelemetryClient()
+
         print ("%s: Initialized" % self.name)
         return True
 
@@ -117,9 +122,10 @@ class PersonAuthentication(PersonAuthenticationType):
         return None
 
     def getExtraParametersForStep(self, configurationAttributes, step):
-        return Arrays.asList("stepCount", # Used to extend the workflow
-                             "provider",  # The provider chosen by the user
-                             "abort")     # Used to trigger error abort back to the RP
+        return Arrays.asList("stepCount",  # Used to extend the workflow
+                             "provider",   # The provider chosen by the user
+                             "abort",      # Used to trigger error abort back to the RP
+                             "userId")     # Used to keep track of the user across multiple passport reqiuests (i.e. collection)
 
     def prepareForStep(self, configurationAttributes, requestParameters, step):
 
@@ -164,16 +170,38 @@ class PersonAuthentication(PersonAuthenticationType):
             else: # Has the user chosen?
                 provider = identity.getWorkingParameter("provider")
 
-            if provider is not None: 
-                # Set the abort flag so we only do this once
-                identity.setWorkingParameter("abort", True)
-                # TODO: Add collection function here by testing for legacy entityId
-                passportRequest = self.passport.createRequest(provider, uiLocales, None)
-                facesService.redirectToExternalURL(passportRequest)
-            else: # No provider chosen yet. Prepare for chooser page customization.
+            if provider is None:  # No provider chosen yet. Prepare for chooser page customization.
                 rpConfig = self.getRPConfig(session)
                 for param in ["layout", "chooser", "content"]:
                     identity.setWorkingParameter(param, rpConfig[param])
+
+            else: # Prepare for call to passport
+                passportOptions = {}
+                userId = identity.getWorkingParameter("userId")
+                rpConfig = self.getRPConfig(session)
+
+                if userId is None: # This is our first request to passport
+                    # Coordinate single-sign-on (SSO)
+                    maxAge = (sessionAttributes.get(AuthorizeRequestParam.PROMPT)
+                            or self.getClient(session).getDefaultMaxAge())
+                    if (sessionAttributes.get(AuthorizeRequestParam.PROMPT) == Prompt.LOGIN
+                        or ("GCCF" in self.passport.getProvider(provider)["options"] and maxAge < 1200)): # 1200 is 20 minutes, the SSO timeout on GCKey and CBS
+                        passportOptions["forceAuthn"] = "true"
+
+                else: # This is our second (collection) request to passport
+                    passportOptions["allowCreate"] = "false"
+                    issuer = rpConfig.get("entityId")
+                    affilliation = rpConfig.get("affilliationId")
+                    if issuer:
+                        passportOptions["issuer"] = issuer
+                    elif affilliation:
+                        passportOptions["spNameQualifier"] = affilliation
+
+                # Set the abort flag so we only do this once
+                identity.setWorkingParameter("abort", True)
+                # Send the request to passport
+                passportRequest = self.passport.createRequest(provider, uiLocales, passportOptions)
+                facesService.redirectToExternalURL(passportRequest)
 
         return True
         
@@ -183,11 +211,10 @@ class PersonAuthentication(PersonAuthenticationType):
             pydevd.settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
 
         # Inject dependencies
-        userService = CdiUtil.bean(UserService)
-        authenticationService = CdiUtil.bean(AuthenticationService)
         facesService = CdiUtil.bean(FacesService)
         identity = CdiUtil.bean(Identity)
         languageBean = CdiUtil.bean(LanguageBean)
+        userService = CdiUtil.bean(UserService)
         
         session = identity.getSessionId()
         sessionAttributes = session.getSessionAttributes()
@@ -197,47 +224,24 @@ class PersonAuthentication(PersonAuthenticationType):
 
         if ServerUtil.getFirstValue(requestParameters, "user") is not None:
             # Successful response from passport
-            externalProfile = self.passport.handleResponse(requestParameters)
-            if externalProfile["provider"] not in self.providers:
-                # Unauthorized provider!
-                return False
-
-            user = self.account.find(externalProfile)
-            if user is None:
-                user = self.account.create(externalProfile)
-                newUser = True
-            else:
-                newUser = False
-                userChanged = False
-
-            # Create a new SAML Subject if needed
-            spNameQualifier = sessionAttributes.get("spNameQualifier")
-            if spNameQualifier is not None and self.account.getSamlSubject(user, spNameQualifier) is None:
-                user = self.account.addSamlSubject(user, spNameQualifier)
-                userChanged = True
-
-            # Update the preferred language if it has changed
-            locale = ServerUtil.getFirstValue(requestParameters, "ui_locale") # TODO: change to ui_locales (needs to be done in Passport too)
-            languageBean.setLocaleCode(locale)
-            if locale != user.getAttribute("locale", True, False):
-                user.setAttribute("locale", locale, False)
-                userChanged = True
-
-            if newUser:
-                userService.createUser(user, True)
-            elif userChanged:
-                userService.updateUser(user)
-
-            return authenticationService.authenticate(user.getUserId())
+            return self.authenticateUser(identity, languageBean, requestParameters)
 
         elif ServerUtil.getFirstValue(requestParameters, "failure") is not None:
-            # This means that passport returned an error (user probably clicked "cancel")
-            if len(self.providers) == 1: # One provider. Redirect back to the RP
-                facesService.redirectToExternalURL(self.getClientUri(session))
-            else: # Clear the previous choice to re-display the chooser
-                # locale = ServerUtil.getFirstValue(requestParameters, "ui_locale") # TODO: Update passport to send language onerror
-                # sessionAttributes.put(AuthorizeRequestParam.UI_LOCALES, locale)
-                identity.setWorkingParameter("provider", None)
+            # This means that passport returned an error
+            if sessionAttributes.get("userId") is None: # User Cancelled during login
+                if len(self.providers) == 1: # One provider. Redirect back to the RP
+                    facesService.redirectToExternalURL(self.getClientUri(session))
+                else: # Clear the previous choice to re-display the chooser
+                    # locale = ServerUtil.getFirstValue(requestParameters, "ui_locale") # TODO: Update passport to send language onerror
+                    # sessionAttributes.put(AuthorizeRequestParam.UI_LOCALES, locale)
+                    identity.setWorkingParameter("provider", None)
+            else: # PAI Collection failed. If it's a SAML SP, Create a new SIC PAI
+                # TODO: Check the actual SANLStatus for InvalidNameIdPolicy (needs to be sent from Passport)
+                spNameQualifier = sessionAttributes.get("spNameQualifier")
+                if spNameQualifier is not None:
+                    user = userService.getUser(identity.getWorkingParameter("userId"), "persistentId")
+                    user = self.account.addSamlSubject(user, spNameQualifier)
+                    userService.updateUser(user)
 
         elif ServerUtil.getFirstValue(requestParameters, "rplang") is not None:
             # Language detection result
@@ -270,6 +274,95 @@ class PersonAuthentication(PersonAuthenticationType):
         self.addAuthenticationStep()
         return True
 
+    def authenticateUser(self, identity, languageBean, requestParameters):
+        # Inject dependencies
+        userService = CdiUtil.bean(UserService)
+        authenticationService = CdiUtil.bean(AuthenticationService)
+        
+        session = identity.getSessionId()
+        sessionAttributes = session.getSessionAttributes()
+
+        rpConfig = self.getRPConfig(session)
+
+        externalProfile = self.passport.handleResponse(requestParameters)
+
+        provider = externalProfile["provider"]
+        if provider not in self.providers:
+            # Unauthorized provider!
+            return False
+        else:
+            providerInfo = self.passport.getProvider(provider)
+            providerType = providerInfo["type"]
+            providerOptions = providerInfo["options"]
+
+        if providerType == "saml":
+            sessionAttributes.put("authnInstant", externalProfile["authnInstant"][0])
+
+        if identity.getWorkingParameter("userId") is None: # Initial login
+            user = self.account.find(externalProfile)
+            if user is None:
+                user = self.account.create(externalProfile)
+                newUser = True
+            else:
+                newUser = False
+                userChanged = False
+            identity.setWorkingParameter("userId", user.getUserId())
+
+            if providerType == "saml":
+                # Capture the SAML Subject and SessionIndex for the user's IDP session.
+                # We will need these later for SAML SLO.
+                sessionAttributes.put("persistentId", externalProfile["persistentId"][0])
+                sessionAttributes.put("sessionIndex", externalProfile["sessionIndex"][0])
+
+            # Update the preferred language if it has changed
+            locale = ServerUtil.getFirstValue(requestParameters, "ui_locale") # TODO: change to ui_locales (needs to be done in Passport too)
+            languageBean.setLocaleCode(locale)
+            if locale != user.getAttribute("locale", True, False):
+                user.setAttribute("locale", locale, False)
+                userChanged = True
+
+            # If it's a SAML RP without collection enabled, then create our own PAI
+            spNameQualifier = sessionAttributes.get("spNameQualifier")
+            if spNameQualifier is not None and "collect" not in rpConfig and self.account.getSamlSubject(user, spNameQualifier) is None:
+                user = self.account.addSamlSubject(user, spNameQualifier)
+                userChanged = True
+
+            if newUser:
+                userService.addUser(user, True)
+            elif userChanged:
+                userService.updateUser(user)
+
+            # Do we need to perform legacy PAI collection? (OpenID clients only for now)
+            if providerInfo["GCCF"] and rpConfig.get("collect"):
+                spNameQualifier = rpConfig.get("entityId") or rpConfig.get("affiliationId")
+                if (self.account.getSamlSubject(user, spNameQualifier) is None): # And we don't already have a PAI
+                    # Then yes, add the collection step:
+                    self.addAuthenticationStep()
+                    return True
+
+            telemetryProps = {"client": self.getClient(session).getClientName(), "provider": provider}
+            self.telemetryClient.trackEvent("Authentication", telemetryProps, None)
+
+            return authenticationService.authenticate(user.getUserId())
+
+        else: # PAI Collection
+            user = userService.getUser(identity.getWorkingParameter("userId"), "persistentId")
+            # Validate the session first
+            if externalProfile["sessionIndex"] != sessionAttributes.get("sessionIndex"):
+                print ("%s: IDP session missmatch during PAI collection for user %s."
+                        % (self.name, identity.getWorkingParameter("userId")))
+                return False
+
+            spNameQualifier, nameQualifier, nameId = tuple(externalProfile["persistentId"][0].split("|"))
+            if spNameQualifier == "undefined":
+                spNameQualifier = rpConfig.get("entityId") or rpConfig.get("affiliationId")
+            if nameQualifier == "undefined":
+                nameQualifier = externalProfile["issuer"][0]
+            user = self.account.addSamlSubject(user, spNameQualifier, nameQualifier, nameId)
+            userService.updateUser(user)
+
+            return authenticationService.authenticate(user.getUserId())
+
     def getPageForStep(self, configurationAttributes, step):
 
         if REMOTE_DEBUG:
@@ -301,7 +394,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 return "/lang.xhtml"
 
         elif len(self.providers) > 1 and identity.getWorkingParameter("provider") is None:
-             # Chooser page
+            # Chooser page
             language = uiLocales[:2].lower()
             if language == "fr":
                 return "/fr/choisir.xhtml"
@@ -359,7 +452,7 @@ class PersonAuthentication(PersonAuthenticationType):
         clientUri = self.getClient(session).getClientUri()
         if clientUri is None:
             sessionAttributes = session.getSessionAttributes()
-            clientUri = sessionAttributes.get("spNameQualifier") # Hack!
+            clientUri = sessionAttributes.get("entityId") # Hack!
 
         return clientUri
 
@@ -391,6 +484,10 @@ class PersonAuthentication(PersonAuthenticationType):
             for setting, value in self.rpDefaults.items():
                 if not setting in rpConfig:
                     rpConfig[setting] = value
+
+        # Derive a "collect" property for convenience
+        if "entityId" in rpConfig or "affilliationId" in rpConfig:
+            rpConfig["collect"] = True
 
         # Add it to the cache
         self.rpConfigCache[clientKey] = rpConfig

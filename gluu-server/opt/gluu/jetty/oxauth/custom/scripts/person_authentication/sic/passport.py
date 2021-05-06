@@ -89,7 +89,10 @@ class Passport:
             httpResponse = resultResponse.getHttpResponse()
             bytes = httpService.getResponseContent(httpResponse)
             response = httpService.convertEntityToString(bytes)
-            token = json.loads(response)["token_"]
+            if response is not None:
+                token = json.loads(response)["token_"]
+            else:
+                raise PassportError("Failed to obtain token from Passport")
 
             language = locale[:2].lower()
 
@@ -97,9 +100,9 @@ class Passport:
 
             if options is not None:
                 for option, value in options.items():
-                    url += "&%s=%s" % option, URLEncoder.encode(value, "UTF8")
+                    url += "&%s=%s" % (option, URLEncoder.encode(value, "UTF8"))
 
-            if providerConfig["options"].get("GCCF"):
+            if providerConfig["GCCF"]:
                 # Need to set the language cookie
                 langCode = {"en": "eng", "fr": "fra"}[language]
                 url = "%s?lang=%s&return=%s" % (self.passportConfig["languageCookieService"], langCode,
@@ -135,7 +138,7 @@ class Passport:
             providerConfig = self.registeredProviders.get(providerId)
             providerType = providerConfig["type"]
             
-            sub=claims.getClaimAsString("sub")
+            sub = claims.getClaimAsString("sub")
             if providerType == "saml": # This is silly. It should be consistent.
                 externalProfile["externalUid"] = "passport-saml:%s:%s" % (providerId, sub)
             else:
@@ -146,6 +149,10 @@ class Passport:
             return None
 
         return externalProfile
+
+    def getProvider(self, providerId):
+        """Get the configuration info for a provider"""
+        return self.registeredProviders.get(providerId)
 
 # Initialization routines
 
@@ -202,7 +209,8 @@ class Passport:
                 if provider.isEnabled() and provider.getId() in allowedProviders:
                     registeredProviders[provider.getId()] = {
                         "type": provider.getType(),
-                        "options": provider.getOptions()
+                        "options": provider.getOptions(),
+                        "GCCF": "GCCF" in provider.getOptions() and provider.getOptions()["GCCF"].lower() in ["true", "yes"]
                     }
                     print("Configured %s provider %s" % (provider.getType(), provider.getId()))
 
