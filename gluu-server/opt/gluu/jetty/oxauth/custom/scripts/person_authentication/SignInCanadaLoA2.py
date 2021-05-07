@@ -215,6 +215,7 @@ class PersonAuthentication(PersonAuthenticationType):
         identity = CdiUtil.bean(Identity)
         languageBean = CdiUtil.bean(LanguageBean)
         userService = CdiUtil.bean(UserService)
+        authenticationService = CdiUtil.bean(AuthenticationService)
         
         session = identity.getSessionId()
         sessionAttributes = session.getSessionAttributes()
@@ -228,7 +229,8 @@ class PersonAuthentication(PersonAuthenticationType):
 
         elif ServerUtil.getFirstValue(requestParameters, "failure") is not None:
             # This means that passport returned an error
-            if sessionAttributes.get("userId") is None: # User Cancelled during login
+            userId = identity.getWorkingParameter("userId")
+            if userId is None: # User Cancelled during login
                 if len(self.providers) == 1: # One provider. Redirect back to the RP
                     facesService.redirectToExternalURL(self.getClientUri(session))
                 else: # Clear the previous choice to re-display the chooser
@@ -242,6 +244,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     user = userService.getUser(identity.getWorkingParameter("userId"), "persistentId")
                     user = self.account.addSamlSubject(user, spNameQualifier)
                     userService.updateUser(user)
+                return authenticationService.authenticate(userId)
 
         elif ServerUtil.getFirstValue(requestParameters, "rplang") is not None:
             # Language detection result
