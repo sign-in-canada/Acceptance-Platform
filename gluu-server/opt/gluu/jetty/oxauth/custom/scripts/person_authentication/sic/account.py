@@ -58,13 +58,7 @@ class Account:
 
         newSamlSubject = '%s|%s|%s' % (spNameQualifier, nameQualifier, nameId)
 
-        persistentIds = user.getAttributeValues("persistentId")
-        if persistentIds is None:
-            persistentIds = ArrayList()
-        
-        persistentIds.add(newSamlSubject)
-
-        user.setAttribute("persistentId", persistentIds, True)
+        self.userService.addUserAttribute(user, "persistentId", newSamlSubject, True)
 
         return user
 
