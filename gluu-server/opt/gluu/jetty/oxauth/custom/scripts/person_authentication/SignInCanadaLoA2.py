@@ -15,8 +15,7 @@
 
 from org.gluu.model.custom.script.type.auth import PersonAuthenticationType
 from org.gluu.service.cdi.util import CdiUtil
-from org.gluu.oxauth.service import AuthenticationService, ClientService
-from org.gluu.oxauth.service.common import UserService
+from org.gluu.oxauth.service import AuthenticationService, ClientService, UserService
 from org.gluu.oxauth.security import Identity
 from org.gluu.oxauth.util import ServerUtil
 from org.gluu.oxauth.i18n import LanguageBean
@@ -190,12 +189,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
                 else: # This is our second (collection) request to passport
                     passportOptions["allowCreate"] = "false"
-                    issuer = rpConfig.get("entityId")
-                    affilliation = rpConfig.get("affilliationId")
-                    if issuer:
-                        passportOptions["issuer"] = issuer
-                    elif affilliation:
-                        passportOptions["spNameQualifier"] = affilliation
+                    passportOptions["spNameQualifier"] = rpConfig.get("collect")
 
                 # Set the abort flag so we only do this once
                 identity.setWorkingParameter("abort", True)
@@ -278,6 +272,10 @@ class PersonAuthentication(PersonAuthenticationType):
         return True
 
     def authenticateUser(self, identity, languageBean, requestParameters):
+        
+        if REMOTE_DEBUG:
+            pydevd.settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
+
         # Inject dependencies
         userService = CdiUtil.bean(UserService)
         authenticationService = CdiUtil.bean(AuthenticationService)
@@ -296,7 +294,6 @@ class PersonAuthentication(PersonAuthenticationType):
         else:
             providerInfo = self.passport.getProvider(provider)
             providerType = providerInfo["type"]
-            providerOptions = providerInfo["options"]
 
         if providerType == "saml":
             sessionAttributes.put("authnInstant", externalProfile["authnInstant"][0])
@@ -336,9 +333,8 @@ class PersonAuthentication(PersonAuthenticationType):
                 userService.updateUser(user)
 
             # Do we need to perform legacy PAI collection? (OpenID clients only for now)
-            if providerInfo["GCCF"] and rpConfig.get("collect"):
-                spNameQualifier = rpConfig.get("entityId") or rpConfig.get("affiliationId")
-                if (self.account.getSamlSubject(user, spNameQualifier) is None): # And we don't already have a PAI
+            if providerInfo["GCCF"] and "collect" in rpConfig:
+                if (self.account.getSamlSubject(user, rpConfig["collect"]) is None): # And we don't already have a PAI
                     # Then yes, add the collection step:
                     self.addAuthenticationStep()
                     return True
@@ -349,16 +345,16 @@ class PersonAuthentication(PersonAuthenticationType):
             return authenticationService.authenticate(user.getUserId())
 
         else: # PAI Collection
-            user = userService.getUser(identity.getWorkingParameter("userId"), "persistentId")
+            user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "persistentId")
             # Validate the session first
-            if externalProfile["sessionIndex"] != sessionAttributes.get("sessionIndex"):
+            if externalProfile["sessionIndex"][0] != sessionAttributes.get("sessionIndex"):
                 print ("%s: IDP session missmatch during PAI collection for user %s."
                         % (self.name, identity.getWorkingParameter("userId")))
                 return False
 
             spNameQualifier, nameQualifier, nameId = tuple(externalProfile["persistentId"][0].split("|"))
             if spNameQualifier == "undefined":
-                spNameQualifier = rpConfig.get("entityId") or rpConfig.get("affiliationId")
+                spNameQualifier = rpConfig["collect"]
             if nameQualifier == "undefined":
                 nameQualifier = externalProfile["issuer"][0]
             user = self.account.addSamlSubject(user, spNameQualifier, nameQualifier, nameId)
@@ -466,7 +462,7 @@ class PersonAuthentication(PersonAuthenticationType):
         # check the cache
         clientKey = "oidc:%s" % client.getClientId()
         if clientKey in self.rpConfigCache:
-            return self.rpConfigCache[clientKey]
+           return self.rpConfigCache[clientKey]
 
         descriptionAttr = clientService.getCustomAttribute(client, "description")
 
@@ -479,6 +475,8 @@ class PersonAuthentication(PersonAuthenticationType):
                 try:
                     rpConfig, index = decoder.raw_decode(description[start:])
                 except ValueError:
+                    print ("%s. getRPConfig: Failed to parse JSON config for client %s" % (self.name, client.getClientName()))
+                    print ("Exception: ", sys.exc_info()[1])
                     pass
         
         if rpConfig is None:
@@ -487,10 +485,6 @@ class PersonAuthentication(PersonAuthenticationType):
             for setting, value in self.rpDefaults.items():
                 if not setting in rpConfig:
                     rpConfig[setting] = value
-
-        # Derive a "collect" property for convenience
-        if "entityId" in rpConfig or "affilliationId" in rpConfig:
-            rpConfig["collect"] = True
 
         # Add it to the cache
         self.rpConfigCache[clientKey] = rpConfig

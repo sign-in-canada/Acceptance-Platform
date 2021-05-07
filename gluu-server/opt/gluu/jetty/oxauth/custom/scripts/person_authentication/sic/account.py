@@ -5,8 +5,7 @@
 from org.gluu.oxauth.model.common import User
 from org.oxauth.persistence.model import PairwiseIdentifier
 from org.gluu.service.cdi.util import CdiUtil
-from org.gluu.oxauth.service.common import UserService
-from org.gluu.oxauth.service import PairwiseIdentifierService
+from org.gluu.oxauth.service import UserService, PairwiseIdentifierService
 
 from java.util import ArrayList
 from javax.faces.context import FacesContext
