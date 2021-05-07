@@ -86,7 +86,7 @@ steps:
 
 - script: |
     cd gluu-server/opt/dist/gluu
-    mv passport-version_4.4.0-node_modules.tar.gz passport-version_4.2.3-node_modules.tar.gz
+    mv passport-version_4.5.0-node_modules.tar.gz passport-version_4.2.3-node_modules.tar.gz
   displayName: 'Renaming node modules'
   continueOnError: true
 
