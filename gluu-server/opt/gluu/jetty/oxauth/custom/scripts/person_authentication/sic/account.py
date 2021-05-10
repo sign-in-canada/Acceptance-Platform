@@ -2,12 +2,13 @@
 #
 # Author: Doug Harris
 
+from org.gluu.service.cdi.util import CdiUtil
 from org.gluu.oxauth.model.common import User
 from org.oxauth.persistence.model import PairwiseIdentifier
 from org.gluu.service.cdi.util import CdiUtil
-from org.gluu.oxauth.service import UserService, PairwiseIdentifierService
+from org.gluu.oxauth.service import UserService, PairwiseIdentifierService, SectorIdentifierService
 
-from java.util import ArrayList
+from java.net import URI
 from javax.faces.context import FacesContext
 
 import uuid
@@ -76,22 +77,29 @@ class Account:
 
 # OpenID RP subject management
 
-    def addOpenIdSubject(self, user, clientId, sectorId, sub):
+    def addOpenIdSubject(self, user, client, sub):
+
+        sectorIdentifierUri = client.getSectorIdentifierUri()
+        if not sectorIdentifierUri:
+            redirectUris = client.getRedirectUris()
+            if redirectUris and len(redirectUris) > 0:
+                sectorIdentifierUri = redirectUris[0]
+
+        if sectorIdentifierUri is None:
+            raise AccountError("account. addOpenIdSubject unable to find client sector identifier Uri")
+        else:
+            sectorIdentifier = URI.create(sectorIdentifierUri).getHost()
+
+        print ("SectorID: " + sectorIdentifier)
 
         userInum = user.getAttribute("inum")
-        pairwiseSubject = PairwiseIdentifier(sectorId, clientId, userInum)
+        pairwiseSubject = PairwiseIdentifier(sectorIdentifier, client.getClientId(), userInum)
         pairwiseSubject.setId(sub)
         pairwiseSubject.setDn(self.pairwiseIdentifierService.getDnForPairwiseIdentifier(pairwiseSubject.getId(), userInum))
         self.pairwiseIdentifierService.addPairwiseIdentifier(userInum, pairwiseSubject)
 
-    def getOpenIdSubject(self, user, clientId, sectorId):
-
-        userInum = user.getAttribute("inum")
-        pairwiseSubject = self.pairwiseIdentifierService.findPairwiseIdentifier(userInum, sectorId, clientId)
-        if pairwiseSubject is not None:
-            return pairwiseSubject.getId()
-        else:
-            return None
+    def getOpenIdSubject(self, user, client):
+        return CdiUtil.bean(SectorIdentifierService).getSub(client, user, False)
 
 # Identity claim ingestion
 

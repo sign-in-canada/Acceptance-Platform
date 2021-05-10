@@ -345,13 +345,14 @@ class PersonAuthentication(PersonAuthenticationType):
             return authenticationService.authenticate(user.getUserId())
 
         else: # PAI Collection
-            user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "persistentId")
+            user = userService.getUser(identity.getWorkingParameter("userId"), "inum", "uid", "persistentId")
             # Validate the session first
             if externalProfile["sessionIndex"][0] != sessionAttributes.get("sessionIndex"):
                 print ("%s: IDP session missmatch during PAI collection for user %s."
                         % (self.name, identity.getWorkingParameter("userId")))
                 return False
 
+            # Collect the SAML PAI
             spNameQualifier, nameQualifier, nameId = tuple(externalProfile["persistentId"][0].split("|"))
             if spNameQualifier == "undefined":
                 spNameQualifier = rpConfig["collect"]
@@ -359,6 +360,9 @@ class PersonAuthentication(PersonAuthenticationType):
                 nameQualifier = externalProfile["issuer"][0]
             user = self.account.addSamlSubject(user, spNameQualifier, nameQualifier, nameId)
             userService.updateUser(user)
+
+            # construct an OIDC pairwisae subect using the SAML PAI
+            self.account.addOpenIdSubject(user, self.getClient(session), provider + nameId)
 
             return authenticationService.authenticate(user.getUserId())
 
