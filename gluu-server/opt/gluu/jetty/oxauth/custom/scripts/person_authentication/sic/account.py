@@ -45,6 +45,29 @@ class Account:
 
         return user
 
+    # Account Linking
+    def getExternalUid(self, user, provider):
+        externalUids = user.getAttributeValues("externalUid")
+        if externalUids is None:
+            return None
+
+        externalPrefix = "passport-" + provider
+        for externalUid in externalUids:
+           extProvider, extSub = tuple(externalUid.split(":", 1))
+           if extProvider == externalPrefix:
+               return extSub
+        
+        return None
+
+    def addExternalUid(self, user, provider, sub=None):
+        if sub is None:
+            sub = uuid.uuid4().hex
+        newExternalId = "passport-%s:%s" %( provider, sub)
+        self.userService.addUserAttribute(user, "externalUid", newExternalId, True)
+
+    def replaceExternalUid(self, user, externalProfile): # For future use (switch credential)
+         return NotImplemented
+
     # SAML RP Subject Management
     def addSamlSubject(self, user, spNameQualifier, nameQualifier = None, nameId = None):
         """Add a new RP SAML Subject to an account."""

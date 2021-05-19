@@ -206,7 +206,9 @@ class Passport:
 
         if providers != None and len(providers) > 0:
             for provider in providers:
-                if provider.isEnabled() and provider.getId() in allowedProviders:
+                if (provider.isEnabled()
+                    and (provider.getId() in allowedProviders
+                         or provider.getId() == "mfa")):
                     registeredProviders[provider.getId()] = {
                         "type": provider.getType(),
                         "options": provider.getOptions(),
@@ -250,7 +252,6 @@ class Passport:
 
         return valid
 
-
     def jwtHasExpired(self, jwt):
         # Check if jwt has expired
         jwt_claims = jwt.getClaims()
@@ -263,4 +264,3 @@ class Passport:
             return False
 
         return hasExpired
-

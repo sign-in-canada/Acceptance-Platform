@@ -1,11 +1,12 @@
 # Sign In Canada LoA2 authentication script
 #
-# This script has potentially 4 steps:
+# This script has potentially 5 steps:
 #    Step 1: Detect the RP Langauge
 #    Step 2: Prompt for langauage (splash page) (if language detection fails)
 #    Step 3: Choose authenticaiton method (if more than one choice)
 #    Step 4: Passport authentication
 #    Step 5: Legacy PAI collection (if the RP is transitioning from GCCF)
+#    Step 6: MFA
 #
 # .. however, entire steps may be skipped depending on whether they are
 # required or enabled. This means the step # passed by oxAuth may not reflect
@@ -22,6 +23,7 @@ from org.gluu.oxauth.i18n import LanguageBean
 from org.gluu.jsf2.service import FacesResources, FacesService
 from org.gluu.oxauth.model.authorize import AuthorizeRequestParam
 from org.gluu.oxauth.model.common import Prompt
+from org.gluu.oxauth.model.util import Base64Util
 
 from com.microsoft.applicationinsights import TelemetryClient
 
@@ -46,7 +48,7 @@ if REMOTE_DEBUG:
         print ("Failed to import pydevd: %s" % ex)
         raise
 
-from sic import passport, account
+from sic import passport, account, crypto
 
 class PersonAuthentication(PersonAuthenticationType):
     def __init__(self, currentTimeMillis):
@@ -80,6 +82,15 @@ class PersonAuthentication(PersonAuthenticationType):
             except ValueError:
                 print ("%s: failed to parse RP defaults!" % self.name)
                 return False
+
+        # Load the AES encrypton key
+        aesKeyFileName = configurationAttributes.get("aes_key_file").getValue2()
+        if aesKeyFileName is None:
+            print ("%s: AES Key filename is missing from config!" % self.name)
+            return False
+        else:
+            with open(aesKeyFileName, 'r') as keyFile:
+                self.aesKey = keyFile.read()[:16]
 
         # Keep an in-memory cache of RP Configs
         self.rpConfigCache = {}
@@ -124,7 +135,8 @@ class PersonAuthentication(PersonAuthenticationType):
         return Arrays.asList("stepCount",  # Used to extend the workflow
                              "provider",   # The provider chosen by the user
                              "abort",      # Used to trigger error abort back to the RP
-                             "userId")     # Used to keep track of the user across multiple passport reqiuests (i.e. collection)
+                             "userId",     # Used to keep track of the user across multiple passport reqiuests (i.e. collection)
+                             "mfaId")      # Used to bind a 2nd factor credential into the session
 
     def prepareForStep(self, configurationAttributes, requestParameters, step):
 
@@ -162,12 +174,10 @@ class PersonAuthentication(PersonAuthenticationType):
                 externalContext = facesResources.getFacesContext().getExternalContext()
                 externalContext.addResponseHeader("Content-Security-Policy", "connect-src 'self' " + clientUri)
             
-        else: # Language is known. Check for provder
-            provider = None
-            if len(self.providers) == 1: # Only one provider. Direct Pass-through
+        else: # Language is known. Check for provider
+            provider = identity.getWorkingParameter("provider")
+            if provider is None and len(self.providers) == 1: # Only one provider. Direct Pass-through
                 provider = next(iter(self.providers))
-            else: # Has the user chosen?
-                provider = identity.getWorkingParameter("provider")
 
             if provider is None:  # No provider chosen yet. Prepare for chooser page customization.
                 rpConfig = self.getRPConfig(session)
@@ -187,9 +197,19 @@ class PersonAuthentication(PersonAuthenticationType):
                         or ("GCCF" in self.passport.getProvider(provider)["options"] and maxAge < 1200)): # 1200 is 20 minutes, the SSO timeout on GCKey and CBS
                         passportOptions["forceAuthn"] = "true"
 
-                else: # This is our second (collection) request to passport
+                elif provider != "mfa" : # This is our second (collection) request to passport
                     passportOptions["allowCreate"] = "false"
                     passportOptions["spNameQualifier"] = rpConfig.get("collect")
+
+                else: # This is our third (mfa) reqest to passport
+                    # TODO: modify MFA to take just the client content identifier
+                    spNameQualifier = sessionAttributes.get("spNameQualifier")
+                    if spNameQualifier is not None:
+                        entityId = spNameQualifier
+                    else:
+                        entityId = "oidc:" + self.getClient(session).getClientName()
+                    loginHint = identity.getWorkingParameter("mfaId") + "|" + entityId
+                    passportOptions["login_hint"] = Base64Util.base64urlencode(crypto.encryptAES(self.aesKey, loginHint))
 
                 # Set the abort flag so we only do this once
                 identity.setWorkingParameter("abort", True)
@@ -214,7 +234,7 @@ class PersonAuthentication(PersonAuthenticationType):
         session = identity.getSessionId()
         sessionAttributes = session.getSessionAttributes()
 
-         # Clear the abort flag
+        # Clear the abort flag
         identity.setWorkingParameter("abort", False)
 
         if ServerUtil.getFirstValue(requestParameters, "user") is not None:
@@ -231,6 +251,8 @@ class PersonAuthentication(PersonAuthenticationType):
                     # locale = ServerUtil.getFirstValue(requestParameters, "ui_locale") # TODO: Update passport to send language onerror
                     # sessionAttributes.put(AuthorizeRequestParam.UI_LOCALES, locale)
                     identity.setWorkingParameter("provider", None)
+            elif identity.getWorkingParameter("provider") == "mfa": #MFA Failed
+                return False
             else: # PAI Collection failed. If it's a SAML SP, Create a new SIC PAI
                 # TODO: Check the actual SANLStatus for InvalidNameIdPolicy (needs to be sent from Passport)
                 spNameQualifier = sessionAttributes.get("spNameQualifier")
@@ -288,14 +310,16 @@ class PersonAuthentication(PersonAuthenticationType):
         externalProfile = self.passport.handleResponse(requestParameters)
 
         provider = externalProfile["provider"]
-        if provider not in self.providers:
+        if provider not in self.providers and provider != "mfa":
             # Unauthorized provider!
             return False
         else:
             providerInfo = self.passport.getProvider(provider)
-            providerType = providerInfo["type"]
 
-        if providerType == "saml":
+        eventProperties = {"client": self.getClient(session).getClientName(),
+                           "provider": provider}
+
+        if providerInfo["GCCF"]:
             sessionAttributes.put("authnInstant", externalProfile["authnInstant"][0])
 
         if identity.getWorkingParameter("userId") is None: # Initial login
@@ -308,7 +332,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 userChanged = False
             identity.setWorkingParameter("userId", user.getUserId())
 
-            if providerType == "saml":
+            if providerInfo["GCCF"]:
                 # Capture the SAML Subject and SessionIndex for the user's IDP session.
                 # We will need these later for SAML SLO.
                 sessionAttributes.put("persistentId", externalProfile["persistentId"][0])
@@ -327,24 +351,37 @@ class PersonAuthentication(PersonAuthenticationType):
                 user = self.account.addSamlSubject(user, spNameQualifier)
                 userChanged = True
 
+            if rpConfig.get("mfa"): # IF MFA is enabled
+                # grab the mfaId, or create  if needed
+                mfaId = self.account.getExternalUid(user, "mfa")
+                if mfaId is None:
+                    self.account.addExternalUid(user, "mfa")
+                    userChanged = True
+                identity.setWorkingParameter("mfaId", mfaId)
+
             if newUser:
                 userService.addUser(user, True)
             elif userChanged:
                 userService.updateUser(user)
 
-            # Do we need to perform legacy PAI collection? (OpenID clients only for now)
-            if providerInfo["GCCF"] and "collect" in rpConfig:
-                if (self.account.getSamlSubject(user, rpConfig["collect"]) is None): # And we don't already have a PAI
+            # Do we need to perform legacy PAI collection next? (OpenID clients only for now)
+            if (providerInfo["GCCF"] and "collect" in rpConfig
+                and self.account.getSamlSubject(user, rpConfig["collect"]) is None): # And we don't already have a PAI
                     # Then yes, add the collection step:
                     self.addAuthenticationStep()
                     return True
+            # Do we need to perform MFA next?
+            elif rpConfig.get("mfa"): 
+                identity.setWorkingParameter("provider", "mfa")
+                self.addAuthenticationStep()
+                return True
 
-            telemetryProps = {"client": self.getClient(session).getClientName(), "provider": provider}
-            self.telemetryClient.trackEvent("Authentication", telemetryProps, None)
+            eventProperties["sub"] = self.account.getOpenIdSubject(user, self.getClient(session))
+            self.telemetryClient.trackEvent("Authentication", eventProperties, None)
 
             return authenticationService.authenticate(user.getUserId())
 
-        else: # PAI Collection
+        elif provider != "mfa": # PAI Collection
             user = userService.getUser(identity.getWorkingParameter("userId"), "inum", "uid", "persistentId")
             # Validate the session first
             if externalProfile["sessionIndex"][0] != sessionAttributes.get("sessionIndex"):
@@ -364,6 +401,25 @@ class PersonAuthentication(PersonAuthenticationType):
             # construct an OIDC pairwisae subect using the SAML PAI
             self.account.addOpenIdSubject(user, self.getClient(session), provider + nameId)
 
+            # Is MFA required next?
+            if rpConfig.get("mfa"):
+                identity.setWorkingParameter("provider", "mfa")
+                self.addAuthenticationStep()
+                return True
+
+            eventProperties["sub"] = self.account.getOpenIdSubject(user, self.getClient(session))
+            self.telemetryClient.trackEvent("Authentication", eventProperties, None)
+            return authenticationService.authenticate(user.getUserId())
+
+        else: # MFA
+            user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "externalUid")
+            mfaExternalId = self.account.getExternalUid(user, "mfa")
+            if externalProfile.get("externalUid").split(":", 1)[1] != mfaExternalId:
+                # Got the wrong MFA PAI. Authentication failed!
+                return False
+
+            eventProperties["sub"] = self.account.getOpenIdSubject(user, self.getClient(session))
+            self.telemetryClient.trackEvent("Authentication", eventProperties, None)
             return authenticationService.authenticate(user.getUserId())
 
     def getPageForStep(self, configurationAttributes, step):
@@ -451,7 +507,7 @@ class PersonAuthentication(PersonAuthenticationType):
         return CdiUtil.bean(ClientService).getClient(clientId)
 
     def getClientUri(self, session):
-        
+
         clientUri = self.getClient(session).getClientUri()
         if clientUri is None:
             sessionAttributes = session.getSessionAttributes()
@@ -466,23 +522,23 @@ class PersonAuthentication(PersonAuthenticationType):
         # check the cache
         clientKey = "oidc:%s" % client.getClientId()
         if clientKey in self.rpConfigCache:
-           return self.rpConfigCache[clientKey]
+            return self.rpConfigCache[clientKey]
 
         descriptionAttr = clientService.getCustomAttribute(client, "description")
 
         rpConfig = None
         if descriptionAttr is not None:
-             description = descriptionAttr.getValue()
-             start = description.find("{")
-             if (start > -1):
+            description = descriptionAttr.getValue()
+            start = description.find("{")
+            if (start > -1):
                 decoder = json.JSONDecoder()
                 try:
-                    rpConfig, index = decoder.raw_decode(description[start:])
+                    rpConfig, _ = decoder.raw_decode(description[start:])
                 except ValueError:
                     print ("%s. getRPConfig: Failed to parse JSON config for client %s" % (self.name, client.getClientName()))
                     print ("Exception: ", sys.exc_info()[1])
                     pass
-        
+
         if rpConfig is None:
             rpConfig = self.rpDefaults
         else: # Populate missing settings with defaults
