@@ -3,22 +3,18 @@
 #
 
 from org.gluu.model.custom.script.type.logout import EndSessionType
-from org.gluu.util import StringHelper
-from java.lang import String
 
 class EndSession(EndSessionType):
     def __init__(self, currentTimeMillis):
         self.currentTimeMillis = currentTimeMillis
 
     def init(self, customScript, configurationAttributes):
-        print "EndSession script. Initializing ..."
-        print "EndSession script. Initialized successfully"
+        print ("EndSession script. Initialized successfully")
 
         return True
 
     def destroy(self, configurationAttributes):
-        print "EndSession script. Destroying ..."
-        print "EndSession script. Destroyed successfully"
+        print ("EndSession script. Destroyed successfully")
         return True
 
     def getApiVersion(self):
@@ -29,7 +25,6 @@ class EndSession(EndSessionType):
     # Note :
     # context is reference of org.gluu.oxauth.service.external.context.EndSessionContext (in https://github.com/GluuFederation/oxauth project, )
     def getFrontchannelHtml(self, context):
-        print "EndSession: getFrontchannelHtml called."
         
         notIssuedByPassport = context.getPostLogoutRedirectUri().lower().find("/passport/logout/response") == -1
 
@@ -61,7 +56,5 @@ class EndSession(EndSessionType):
             page = page + "\t<iframe id='passport' height='0' width='0' src='/passport/logout/request' sandbox='allow-same-origin allow-scripts allow-popups allow-forms'></iframe>\n"
 
         page = page + "</body>\n</html>"
-
-        print "EndSession page: %s" % page
 
         return page
