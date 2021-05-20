@@ -412,7 +412,7 @@ class PersonAuthentication(PersonAuthenticationType):
             return authenticationService.authenticate(user.getUserId())
 
         else: # MFA
-            user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "externalUid")
+            user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "oxExternalUid")
             mfaExternalId = self.account.getExternalUid(user, "mfa")
             if externalProfile.get("externalUid").split(":", 1)[1] != mfaExternalId:
                 # Got the wrong MFA PAI. Authentication failed!
