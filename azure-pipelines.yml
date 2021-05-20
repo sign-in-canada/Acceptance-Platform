@@ -15,7 +15,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  major_minor: '1.0'
+  major_minor: '1.1'
   # define b as a counter with the prefix as variable a, and seed as 10.
   build: $[counter(variables['major_minor'], 0)]
 
@@ -37,7 +37,7 @@ steps:
     wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.6.2/applicationinsights-core-2.6.2.jar \
        -P gluu-server/opt/dist/signincanada
     echo 'Downloading AppInsights Agent'
-    wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.0.2/applicationinsights-agent-3.0.2.jar \
+    wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.1.0/applicationinsights-agent-3.1.0.jar \
        -P gluu-server/opt/azure
     ls -al 
   displayName: 'Downloading AppInsights'
@@ -86,7 +86,7 @@ steps:
 
 - script: |
     cd gluu-server/opt/dist/gluu
-    mv passport-version_4.4.0-node_modules.tar.gz passport-version_4.2.3-node_modules.tar.gz
+    mv passport-version_4.5.0-node_modules.tar.gz passport-version_4.2.3-node_modules.tar.gz
   displayName: 'Renaming node modules'
   continueOnError: true
 
@@ -131,8 +131,8 @@ steps:
     chmod 755 opt/dist/scripts/notify
     chmod 700 opt/dist/scripts/crlcheck.sh
     chmod 700 install/community-edition-setup/setup.py
-    tar -czv --owner=root --group=root -f $(Build.ArtifactStagingDirectory)/SIC-AP-1.0.$(build).tgz --exclude='opt/gluu' *
-    openssl sha256 $(Build.ArtifactStagingDirectory)/SIC-AP-1.0.$(build).tgz > $(Build.ArtifactStagingDirectory)/SIC-AP-1.0.$(build).tgz.sha
+    tar -czv --owner=root --group=root -f $(Build.ArtifactStagingDirectory)/SIC-AP-$(major_minor).$(build).tgz --exclude='opt/gluu' *
+    openssl sha256 $(Build.ArtifactStagingDirectory)/SIC-AP-$(major_minor).$(build).tgz > $(Build.ArtifactStagingDirectory)/SIC-AP-$(major_minor).$(build).tgz.sha
     popd
   displayName: 'Packaging tarball'
   continueOnError: true
@@ -146,7 +146,7 @@ steps:
       "variables": {
         "ac-version": {
           "isSecret": false,
-          "value": "SIC-AP-1.0.$(build)"
+          "value": "SIC-AP-$(major_minor).$(build)"
         }
       }
     }' \

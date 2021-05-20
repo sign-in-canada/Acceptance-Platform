@@ -5,32 +5,30 @@
 #
 
 from org.gluu.model.custom.script.type.scope import DynamicScopeType
-from org.gluu.oxauth.service import UserService
-from org.gluu.util import StringHelper, ArrayHelper
-from java.util import Arrays, ArrayList
+from org.gluu.util import StringHelper
+from java.util import Arrays
 from org.json import JSONObject
 
-import java
 import time
 
 class DynamicScope(DynamicScopeType):
     def __init__(self, currentTimeMillis):
         self.currentTimeMillis = currentTimeMillis
 
-    def init(self, configurationAttributes):
-        print "Dynamic scope [claims_scope]. Initialization"
+    def init(self, customScript, configurationAttributes):
+        print ("Dynamic scope [claims_scope]. Initialization")
 
         return True   
 
     def destroy(self, configurationAttributes):
-        print "Dynamic scope [claims_scope]. Destroy"
+        print ("Dynamic scope [claims_scope]. Destroy")
         return True   
 
     # Update Json Web token before signing/encrypring it
     #   dynamicScopeContext is org.gluu.oxauth.service.external.context.DynamicScopeExternalContext
     #   configurationAttributes is java.util.Map<String, SimpleCustomProperty>
     def update(self, dynamicScopeContext, configurationAttributes):
-        print "Dynamic scope [claims_scope]. Update method"
+        print ("Dynamic scope [claims_scope]. Update method")
 
         # Get the client and session and dynamic claims
         authorizationGrant = dynamicScopeContext.getAuthorizationGrant()
@@ -58,7 +56,7 @@ class DynamicScope(DynamicScopeType):
                     # if the current RP already has a mapping then skip the second phase
                     transientIdRp = StringHelper.split(userTransientId,'|')[0]
                     if ( transientIdRp == currentEntityId ):
-                        print "Dynamic scope [claims_scope]. Found matching transientId '%s'" % userTransientId
+                        print ("Dynamic scope [claims_scope]. Found matching transientId '%s'" % userTransientId)
                         # Format is : currentOidcRp, expiryTimeSec, userInfoUrl, accessToken
                         expiryTimeSec = StringHelper.split(userTransientId,'|')[1]
                         userInfoUrl   = StringHelper.split(userTransientId,'|')[2]
@@ -98,8 +96,8 @@ class DynamicScope(DynamicScopeType):
         return True
 
     def getSupportedClaims(self, configurationAttributes):
-        print "Dynamic scope [claims_scope]. Get supported claims = '_claim_names,_claim_sources'"
+        print ("Dynamic scope [claims_scope]. Get supported claims = '_claim_names,_claim_sources'")
         return Arrays.asList("_claim_names","_claim_sources")
 
     def getApiVersion(self):
-        return 2
+        return 11

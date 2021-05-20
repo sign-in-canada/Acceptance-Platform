@@ -132,7 +132,6 @@ class PersonAuthentication(PersonAuthenticationType):
         facesService = CdiUtil.bean(FacesService)
         identity = CdiUtil.bean(Identity)
         languageBean = CdiUtil.bean(LanguageBean)
-        clientService = CdiUtil.bean(ClientService)
         
         session = identity.getSessionId()
         sessionAttributes = session.getSessionAttributes()
@@ -174,9 +173,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
         else:
             # Error. Try to send them back to the RP
-            clientId = sessionAttributes.get(AuthorizeRequestParam.CLIENT_ID)
-            client = clientService.getClient(clientId)
-            clientUri = client.getClientUri()
+            clientUri = identity.getWorkingParameter("client_uri")
             if clientUri is not None:
                 facesService.redirectToExternalURL(clientUri)
             else:
@@ -229,6 +226,3 @@ class PersonAuthentication(PersonAuthenticationType):
  
     def getNextStep(self, configurationAttributes, requestParameters, step):
         return -1
-
-        
-        

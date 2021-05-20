@@ -1,19 +1,22 @@
 dn: inum=AFSC-CS01,ou=scripts,o=gluu
 objectClass: oxCustomScript
 objectClass: top
-description: Selection module for LoA2 credentials
+description: Sign In Canada Assurance Level 2 via GCCF
 displayName: select_loa2
 oxEnabled: true
 inum: AFSC-CS01
-oxConfigurationProperty: {"value1":"selector_page_content_file","value2":"/opt/gluu/jetty/oxauth/custom/pages/content.json","description":""}
-oxConfigurationProperty: {"value1":"entityids_with_mfa","value2":"none","description":""}
 oxLevel: 50
 oxModuleProperty: {"value1":"usage_type","value2":"interactive","description":""}
 oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
-oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/SignInCanadaSelectorLoA2.py","description":""}
+oxConfigurationProperty: {"value1":"key_store_file","value2":"%(passport_rp_client_jks_fn)s","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"key_store_password","value2":"%(passport_rp_client_jks_pass)s","hide":true,"description":""}
+oxConfigurationProperty: {"value1":"aes_key_file","value2":"/run/keyvault/secrets/MFAKey","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"providers","value2":"gckey, cbs","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"rp_defaults","value2":"{\"layout\":\"ATIP\",\"chooser\":\"gccf\",\"content\":\"default\",\"mfa\":false}","hide":false,"description":""}
+oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/SignInCanadaLoA2.py","description":""}
 oxAlias: urn:gc-ca:cyber-auth:assurance:loa2
 oxRevision: 1
-oxScript::%(person_authentication_signincanadaselectorloa2)s
+oxScript::%(person_authentication_signincanadaloa2)s
 oxScriptType: person_authentication
 programmingLanguage: python
 
@@ -25,32 +28,38 @@ displayName: gckey_loa2
 oxEnabled: true
 inum: AFSC-CS02
 oxConfigurationProperty: {"value1":"key_store_file","value2":"%(passport_rp_client_jks_fn)s","hide":false,"description":""}
-oxConfigurationProperty: {"value1":"key_store_password","value2":"%(passport_rp_client_jks_pass)s","hide":false,"description":""}
-oxConfigurationProperty: {"value1":"selector_page_content_file","value2":"/opt/gluu/jetty/oxauth/custom/pages/content.json","description":""}
-oxConfigurationProperty: {"value1":"provider","value2":"gckey","description":""}
+oxConfigurationProperty: {"value1":"key_store_password","value2":"%(passport_rp_client_jks_pass)s","hide":true,"description":""}
+oxConfigurationProperty: {"value1":"aes_key_file","value2":"/run/keyvault/secrets/MFAKey","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"providers","value2":"gckey","description":""}
+oxConfigurationProperty: {"value1":"rp_defaults","value2":"{\"mfa\":false}","hide":false,"description":""}
 oxLevel: 50
 oxModuleProperty: {"value1":"usage_type","value2":"interactive","description":""}
 oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
-oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/SignInCanadaDirectLoA2.py","description":""}
+oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/SignInCanadaLoA2.py","description":""}
 oxRevision: 1
-oxScript::%(person_authentication_signincanadadirectloa2)s
+oxScript::%(person_authentication_signincanadaloa2)s
 oxScriptType: person_authentication
 programmingLanguage: python
 
-dn: inum=AFSC-CS05,ou=scripts,o=gluu
+dn: inum=AFSC-CS03,ou=scripts,o=gluu
 objectClass: oxCustomScript
 objectClass: top
-description: Language Detection or Manual Selection
-displayName: detect_language
+description: Sign In Canada Assurance Level 3 via GCCF
+displayName: select_loa3
 oxEnabled: true
-inum: AFSC-CS05
-oxConfigurationProperty: {"value1":"selector_page_content_file","value2":"/opt/gluu/jetty/oxauth/custom/pages/content.json","description":""}
-oxLevel: 5
+inum: AFSC-CS03
+oxLevel: 100
 oxModuleProperty: {"value1":"usage_type","value2":"interactive","description":""}
 oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
-oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/LanguageDetector.py","description":""}
+oxConfigurationProperty: {"value1":"key_store_file","value2":"%(passport_rp_client_jks_fn)s","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"key_store_password","value2":"%(passport_rp_client_jks_pass)s","hide":true,"description":""}
+oxConfigurationProperty: {"value1":"aes_key_file","value2":"/run/keyvault/secrets/MFAKey","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"providers","value2":"gckey, cbs","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"rp_defaults","value2":"{\"layout\":\"ATIP\",\"chooser\":\"gccf\",\"content\":\"default\",\"mfa\":true}","hide":false,"description":""}
+oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/SignInCanadaLoA2.py","description":""}
+oxAlias: urn:gc-ca:cyber-auth:assurance:loa3
 oxRevision: 1
-oxScript::%(person_authentication_languagedetector)s
+oxScript::%(person_authentication_signincanadaloa2)s
 oxScriptType: person_authentication
 programmingLanguage: python
 
@@ -87,7 +96,7 @@ programmingLanguage: python
 dn: inum=A3DC-MR01,ou=scripts,o=gluu
 objectClass: top
 objectClass: oxCustomScript
-description: SAML NameID claim for SAML to OIDC RP migration / co-existence
+description: Front-channel logout propagation
 displayName: end_session
 oxEnabled: true
 inum: A3DC-MR01
@@ -96,5 +105,20 @@ oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
 oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/end_session/end_session.py","description":""}
 oxRevision: 1
 oxScript::%(end_session_end_session)s
+oxScriptType: end_session
+programmingLanguage: python
+
+dn: inum=A3DC-DH01,ou=scripts,o=gluu
+objectClass: top
+objectClass: oxCustomScript
+description: Single Sign-On timeout synchronization
+displayName: application_session
+oxEnabled: false
+inum: A3DC-DH01
+oxLevel: 50
+oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
+oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/application_session/AuthnInstant.py","description":""}
+oxRevision: 1
+oxScript::%(application_session_authninstant)s
 oxScriptType: end_session
 programmingLanguage: python

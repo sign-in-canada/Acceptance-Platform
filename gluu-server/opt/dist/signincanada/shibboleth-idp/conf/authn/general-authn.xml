@@ -130,6 +130,8 @@
                 <list>
                     <bean parent="shibboleth.SAML2AuthnContextClassRef"
                         c:classRef="urn:gc-ca:cyber-auth:assurance:loa2" />
+                    <bean parent="shibboleth.SAML2AuthnContextClassRef"
+                        c:classRef="urn:gc-ca:cyber-auth:assurance:loa3" />
                 </list>
             </property>
         </bean>

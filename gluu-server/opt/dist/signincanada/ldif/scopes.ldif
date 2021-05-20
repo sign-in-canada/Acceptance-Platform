@@ -1,0 +1,14 @@
+#########################
+# SIC Scopes Definition
+#########################
+
+dn: inum=GCS1,ou=scopes,o=gluu
+objectClass: oxAuthCustomScope
+objectClass: top
+defaultScope: false
+description: Returns a collected SAML subject as a claim.
+oxId: saml_nameid
+inum: GCS1
+oxScopeType: dynamic
+oxAttributes: {"spontaneousClientId":"","spontaneousClientScopes":[],"showInConfigurationEndpoint":true}
+oxScriptDn: inum=A3DC-5D02,ou=scripts,o=gluu

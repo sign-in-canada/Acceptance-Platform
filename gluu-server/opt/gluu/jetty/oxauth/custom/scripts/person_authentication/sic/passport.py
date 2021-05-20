@@ -11,7 +11,6 @@ from org.gluu.oxauth.model.jwt import Jwt, JwtClaimName
 from org.gluu.oxauth.service.common import EncryptionService
 from org.gluu.oxauth.service.net import HttpService
 from org.gluu.oxauth.util import ServerUtil
-from org.gluu.oxauth.i18n import LanguageBean
 from org.gluu.config.oxtrust import LdapOxPassportConfiguration
 from org.gluu.persist import PersistenceEntryManager
 from org.gluu.service.cdi.util import CdiUtil
@@ -34,14 +33,11 @@ class Passport:
     def __init__(self):
         return None
 
-    def init(self, configurationAttributes):
+    def init(self, configurationAttributes, scriptName, providers):
 
-        print ("Passport. init called")
+        print ("Passport. init called from " + scriptName)
 
         try:
-            # Not sure what the point is for this:
-            self.providerKey = "provider"
-
             # Instantiate a Crypto Provider to verify token signatures
             self.keyStoreFile = configurationAttributes.get("key_store_file").getValue2()
             self.keyStorePassword = configurationAttributes.get("key_store_password").getValue2()
@@ -59,21 +55,21 @@ class Passport:
             with open('/etc/gluu/conf/passport-config.json', 'r') as configFile:
                 self.passportConfig = json.load(configFile)
                 if StringHelper.isEmpty(self.passportConfig["keyAlg"]) or StringHelper.isEmpty(self.passportConfig["keyId"]):
-                    print ("Passport. init. Failed to read key information from passport-config")
+                    print ("Passport. init for %s. Failed to read key information from passport-config" % scriptName)
                     return False
 
             # Load all provider configurations
-            self.registeredProviders = self.parseProviders()
+            self.registeredProviders = self.parseProviders(providers)
 
         except:
-            print ("Passport. init. Initialization failed:")
+            print ("Passport. init for %s. Initialization failed:" % scriptName)
             print (sys.exc_info())
             return False
 
-        print ("Passport. init. Initialization success")
+        print ("Passport. init for %s. Initialization success" % scriptName)
         return True
 
-    def createRequest(self, providerId, locale, spNameQualifier):
+    def createRequest(self, providerId, locale, options):
         """Create a redirect  URL to send an authentication request to passport."""
 
         url = None
@@ -93,15 +89,20 @@ class Passport:
             httpResponse = resultResponse.getHttpResponse()
             bytes = httpService.getResponseContent(httpResponse)
             response = httpService.convertEntityToString(bytes)
-            token = json.loads(response)["token_"]
+            if response is not None:
+                token = json.loads(response)["token_"]
+            else:
+                raise PassportError("Failed to obtain token from Passport")
 
             language = locale[:2].lower()
 
             url = "/passport/auth/%s/%s?ui_locales=%s" % (providerId, token, language)
-            if spNameQualifier is not None:
-                url += "&spnq=" + StringHelper.encodeString(spNameQualifier)
 
-            if providerConfig["options"].get("GCCF"):
+            if options is not None:
+                for option, value in options.items():
+                    url += "&%s=%s" % (option, URLEncoder.encode(value, "UTF8"))
+
+            if providerConfig["GCCF"]:
                 # Need to set the language cookie
                 langCode = {"en": "eng", "fr": "fra"}[language]
                 url = "%s?lang=%s&return=%s" % (self.passportConfig["languageCookieService"], langCode,
@@ -137,7 +138,7 @@ class Passport:
             providerConfig = self.registeredProviders.get(providerId)
             providerType = providerConfig["type"]
             
-            sub=claims.getClaimAsString("sub")
+            sub = claims.getClaimAsString("sub")
             if providerType == "saml": # This is silly. It should be consistent.
                 externalProfile["externalUid"] = "passport-saml:%s:%s" % (providerId, sub)
             else:
@@ -148,6 +149,10 @@ class Passport:
             return None
 
         return externalProfile
+
+    def getProvider(self, providerId):
+        """Get the configuration info for a provider"""
+        return self.registeredProviders.get(providerId)
 
 # Initialization routines
 
@@ -181,7 +186,7 @@ class Passport:
         f.close()
         return "=".join(prop).strip()
 
-    def parseProviders(self):
+    def parseProviders(self, allowedProviders):
         print ("Passport. parseProviders. Adding providers")
 
         registeredProviders = {}
@@ -201,15 +206,15 @@ class Passport:
 
         if providers != None and len(providers) > 0:
             for provider in providers:
-                if provider.isEnabled():
+                if (provider.isEnabled()
+                    and (provider.getId() in allowedProviders
+                         or provider.getId() == "mfa")):
                     registeredProviders[provider.getId()] = {
-                        "emailLinkingSafe": provider.isEmailLinkingSafe(),
-                        "requestForEmail" : provider.isRequestForEmail(),
-                        "logo_img": provider.getLogoImg(),
-                        "displayName": provider.getDisplayName(),
                         "type": provider.getType(),
-                        "options": provider.getOptions()
+                        "options": provider.getOptions(),
+                        "GCCF": "GCCF" in provider.getOptions() and provider.getOptions()["GCCF"].lower() in ["true", "yes"]
                     }
+                    print("Configured %s provider %s" % (provider.getType(), provider.getId()))
 
         return registeredProviders
 
@@ -247,7 +252,6 @@ class Passport:
 
         return valid
 
-
     def jwtHasExpired(self, jwt):
         # Check if jwt has expired
         jwt_claims = jwt.getClaims()
@@ -260,4 +264,3 @@ class Passport:
             return False
 
         return hasExpired
-

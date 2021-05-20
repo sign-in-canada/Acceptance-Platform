@@ -178,6 +178,10 @@
         "tbh"
     ],
     "uiLocalesSupported":[
+        "en-CA",
+        "fr-CA",
+        "en-US",
+        "fr-FR",
         "en",
         "fr"
     ],
