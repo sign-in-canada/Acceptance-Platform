@@ -12,7 +12,7 @@ oxConfigurationProperty: {"value1":"key_store_file","value2":"%(passport_rp_clie
 oxConfigurationProperty: {"value1":"key_store_password","value2":"%(passport_rp_client_jks_pass)s","hide":true,"description":""}
 oxConfigurationProperty: {"value1":"aes_key_file","value2":"/run/keyvault/secrets/MFAKey","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"providers","value2":"gckey, cbs","hide":false,"description":""}
-oxConfigurationProperty: {"value1":"rp_defaults","value2":"{\"layout\":\"ATIP\",\"chooser\":\"gccf\",\"content\":\"default\",\"mfa\":false"}","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"rp_defaults","value2":"{\"layout\":\"ATIP\",\"chooser\":\"gccf\",\"content\":\"default\",\"mfa\":false}","hide":false,"description":""}
 oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/SignInCanadaLoA2.py","description":""}
 oxAlias: urn:gc-ca:cyber-auth:assurance:loa2
 oxRevision: 1
@@ -55,7 +55,7 @@ oxConfigurationProperty: {"value1":"key_store_file","value2":"%(passport_rp_clie
 oxConfigurationProperty: {"value1":"key_store_password","value2":"%(passport_rp_client_jks_pass)s","hide":true,"description":""}
 oxConfigurationProperty: {"value1":"aes_key_file","value2":"/run/keyvault/secrets/MFAKey","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"providers","value2":"gckey, cbs","hide":false,"description":""}
-oxConfigurationProperty: {"value1":"rp_defaults","value2":"{\"layout\":\"ATIP\",\"chooser\":\"gccf\",\"content\":\"default\",\"mfa\":true"}","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"rp_defaults","value2":"{\"layout\":\"ATIP\",\"chooser\":\"gccf\",\"content\":\"default\",\"mfa\":true}","hide":false,"description":""}
 oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/SignInCanadaLoA2.py","description":""}
 oxAlias: urn:gc-ca:cyber-auth:assurance:loa3
 oxRevision: 1
