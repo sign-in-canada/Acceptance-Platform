@@ -44,3 +44,10 @@ objectClass: samlAcr
 parent: shibboleth.SAML2AuthnContextClassRef
 classRef: urn:gc-ca:cyber-auth:assurance:loa2
 inum: GC02
+
+dn: inum=GC03,ou=samlAcrs,o=gluu
+objectClass: top
+objectClass: samlAcr
+parent: shibboleth.SAML2AuthnContextClassRef
+classRef: urn:gc-ca:cyber-auth:assurance:loa3
+inum: GC03
