@@ -47,7 +47,7 @@ class Account:
 
     # Account Linking
     def getExternalUid(self, user, provider):
-        externalUids = user.getAttributeValues("externalUid")
+        externalUids = user.getAttributeValues("oxExternalUid")
         if externalUids is None:
             return None
 
@@ -63,7 +63,7 @@ class Account:
         if sub is None:
             sub = uuid.uuid4().hex
         newExternalId = "passport-%s:%s" %( provider, sub)
-        self.userService.addUserAttribute(user, "externalUid", newExternalId, True)
+        return self.userService.addUserAttribute(user, "oxExternalUid", newExternalId, True)
 
     def replaceExternalUid(self, user, externalProfile): # For future use (switch credential)
          return NotImplemented
@@ -112,8 +112,6 @@ class Account:
             raise AccountError("account. addOpenIdSubject unable to find client sector identifier Uri")
         else:
             sectorIdentifier = URI.create(sectorIdentifierUri).getHost()
-
-        print ("SectorID: " + sectorIdentifier)
 
         userInum = user.getAttribute("inum")
         pairwiseSubject = PairwiseIdentifier(sectorIdentifier, client.getClientId(), userInum)

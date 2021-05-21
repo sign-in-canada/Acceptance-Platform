@@ -395,11 +395,14 @@ class PersonAuthentication(PersonAuthenticationType):
                 spNameQualifier = rpConfig["collect"]
             if nameQualifier == "undefined":
                 nameQualifier = externalProfile["issuer"][0]
-            user = self.account.addSamlSubject(user, spNameQualifier, nameQualifier, nameId)
+            if not self.account.getSamlSubject(user, spNameQualifier): # unless one already exists
+                user = self.account.addSamlSubject(user, spNameQualifier, nameQualifier, nameId)
             userService.updateUser(user)
 
             # construct an OIDC pairwisae subect using the SAML PAI
-            self.account.addOpenIdSubject(user, self.getClient(session), provider + nameId)
+            client = self.getClient(session)
+            if not self.account.getOpenIdSubject(user, client): # unless one already exists
+                self.account.addOpenIdSubject(user, client, provider + nameId)
 
             # Is MFA required next?
             if rpConfig.get("mfa"):
@@ -412,7 +415,7 @@ class PersonAuthentication(PersonAuthenticationType):
             return authenticationService.authenticate(user.getUserId())
 
         else: # MFA
-            user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "externalUid")
+            user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "oxExternalUid")
             mfaExternalId = self.account.getExternalUid(user, "mfa")
             if externalProfile.get("externalUid").split(":", 1)[1] != mfaExternalId:
                 # Got the wrong MFA PAI. Authentication failed!
