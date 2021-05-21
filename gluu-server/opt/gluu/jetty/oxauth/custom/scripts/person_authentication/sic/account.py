@@ -113,8 +113,6 @@ class Account:
         else:
             sectorIdentifier = URI.create(sectorIdentifierUri).getHost()
 
-        print ("SectorID: " + sectorIdentifier)
-
         userInum = user.getAttribute("inum")
         pairwiseSubject = PairwiseIdentifier(sectorIdentifier, client.getClientId(), userInum)
         pairwiseSubject.setId(sub)
