@@ -1,0 +1,137 @@
+dn: inum=AFSC-CS01,ou=scripts,o=gluu
+objectClass: oxCustomScript
+objectClass: top
+description: Sign In Canada Assurance Level 2 via GCCF
+displayName: loa2
+oxEnabled: true
+inum: AFSC-CS01
+oxLevel: 50
+oxModuleProperty: {"value1":"usage_type","value2":"interactive","description":""}
+oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
+oxConfigurationProperty: {"value1":"key_store_file","value2":"%(passport_rp_client_jks_fn)s","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"key_store_password","value2":"%(passport_rp_client_jks_pass)s","hide":true,"description":""}
+oxConfigurationProperty: {"value1":"aes_key_file","value2":"/run/keyvault/secrets/MFAKey","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"providers","value2":"gckey, cbs","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"rp_defaults","value2":"{\"layout\":\"ATIP\",\"chooser\":\"gccf\",\"content\":\"default\",\"mfa\":false}","hide":false,"description":""}
+oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/SignInCanada.py","description":""}
+oxAlias: urn:gc-ca:cyber-auth:assurance:loa2
+oxRevision: 1
+oxScript::%(person_authentication_signincanada)s
+oxScriptType: person_authentication
+programmingLanguage: python
+
+dn: inum=AFSC-CS02,ou=scripts,o=gluu
+objectClass: oxCustomScript
+objectClass: top
+description: Direct GCKey authentication
+displayName: gckey
+oxEnabled: true
+inum: AFSC-CS02
+oxConfigurationProperty: {"value1":"key_store_file","value2":"%(passport_rp_client_jks_fn)s","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"key_store_password","value2":"%(passport_rp_client_jks_pass)s","hide":true,"description":""}
+oxConfigurationProperty: {"value1":"aes_key_file","value2":"/run/keyvault/secrets/MFAKey","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"providers","value2":"gckey","description":""}
+oxConfigurationProperty: {"value1":"rp_defaults","value2":"{\"mfa\":false}","hide":false,"description":""}
+oxLevel: 50
+oxModuleProperty: {"value1":"usage_type","value2":"interactive","description":""}
+oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
+oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/SignInCanada.py","description":""}
+oxRevision: 1
+oxScript::%(person_authentication_signincanada)s
+oxScriptType: person_authentication
+programmingLanguage: python
+
+dn: inum=AFSC-CS03,ou=scripts,o=gluu
+objectClass: oxCustomScript
+objectClass: top
+description: Sign In Canada Assurance Level 3 via GCCF
+displayName: loa3
+oxEnabled: true
+inum: AFSC-CS03
+oxLevel: 100
+oxModuleProperty: {"value1":"usage_type","value2":"interactive","description":""}
+oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
+oxConfigurationProperty: {"value1":"key_store_file","value2":"%(passport_rp_client_jks_fn)s","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"key_store_password","value2":"%(passport_rp_client_jks_pass)s","hide":true,"description":""}
+oxConfigurationProperty: {"value1":"aes_key_file","value2":"/run/keyvault/secrets/MFAKey","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"providers","value2":"gckey, cbs","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"rp_defaults","value2":"{\"layout\":\"ATIP\",\"chooser\":\"gccf\",\"content\":\"default\",\"mfa\":true}","hide":false,"description":""}
+oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/SignInCanada.py","description":""}
+oxAlias: urn:gc-ca:cyber-auth:assurance:loa3
+oxRevision: 1
+oxScript::%(person_authentication_signincanada)s
+oxScriptType: person_authentication
+programmingLanguage: python
+
+dn: inum=A31C-5D01,ou=scripts,o=gluu
+objectClass: top
+objectClass: oxCustomScript
+description: Distributes Claims for OpenID Trusted Identity Providers
+displayName: claims
+oxEnabled: true
+inum: A31C-5D01
+oxLevel: 50
+oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
+oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/dynamic_scope/sic_dist_claim.py","description":""}
+oxRevision: 1
+oxScript::%(dynamic_scope_sic_dist_claim)s
+oxScriptType: dynamic_scope
+programmingLanguage: python
+
+dn: inum=A3DC-5D02,ou=scripts,o=gluu
+objectClass: top
+objectClass: oxCustomScript
+description: SAML NameID claim for SAML to OIDC RP migration / co-existence
+displayName: saml_nameid
+oxEnabled: true
+inum: A3DC-5D02
+oxLevel: 50
+oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
+oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/dynamic_scope/sic_saml_nameid.py","description":""}
+oxRevision: 1
+oxScript::%(dynamic_scope_sic_saml_nameid)s
+oxScriptType: dynamic_scope
+programmingLanguage: python
+
+dn: inum=A3DC-MR01,ou=scripts,o=gluu
+objectClass: top
+objectClass: oxCustomScript
+description: Front-channel logout propagation
+displayName: end_session
+oxEnabled: true
+inum: A3DC-MR01
+oxLevel: 50
+oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
+oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/end_session/end_session.py","description":""}
+oxRevision: 1
+oxScript::%(end_session_end_session)s
+oxScriptType: end_session
+programmingLanguage: python
+
+dn: inum=A3DC-DH01,ou=scripts,o=gluu
+objectClass: top
+objectClass: oxCustomScript
+description: Single Sign-On timeout synchronization
+displayName: application_session
+oxEnabled: false
+inum: A3DC-DH01
+oxLevel: 50
+oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
+oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/application_session/AuthnInstant.py","description":""}
+oxRevision: 1
+oxScript::%(application_session_authninstant)s
+oxScriptType: end_session
+programmingLanguage: python
+
+# Disable passport-saml script
+dn: inum=D40C-1CA4,ou=scripts,o=gluu
+changetype: modify
+replace: oxEnabled
+oxEnabled: false
+
+# Disable passport-social script
+dn: inum=2FDB-CF02,ou=scripts,o=gluu
+changetype: modify
+replace: oxEnabled
+oxEnabled: false
+
