@@ -12,3 +12,11 @@ inum: GCS1
 oxScopeType: dynamic
 oxAttributes: {"spontaneousClientId":"","spontaneousClientScopes":[],"showInConfigurationEndpoint":true}
 oxScriptDn: inum=A3DC-5D02,ou=scripts,o=gluu
+
+# Add locale to the openid scope
+dn: inum=F0C4,ou=scopes,o=gluu
+changetype: modify
+add: oxAuthClaim
+oxAuthClaim: inum=36D9,ou=attributes,o=gluu
+
+

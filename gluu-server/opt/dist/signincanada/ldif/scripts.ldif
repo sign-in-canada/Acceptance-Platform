@@ -122,3 +122,16 @@ oxRevision: 1
 oxScript::%(application_session_authninstant)s
 oxScriptType: end_session
 programmingLanguage: python
+
+# Disable passport-saml script
+dn: inum=D40C-1CA4,ou=scripts,o=gluu
+changetype: modify
+replace: oxEnabled
+oxEnabled: false
+
+# Disable passport-social script
+dn: inum=2FDB-CF02,ou=scripts,o=gluu
+changetype: modify
+replace: oxEnabled
+oxEnabled: false
+
