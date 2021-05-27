@@ -63,7 +63,8 @@ class Account:
         if sub is None:
             sub = uuid.uuid4().hex
         newExternalId = "passport-%s:%s" %( provider, sub)
-        return self.userService.addUserAttribute(user, "oxExternalUid", newExternalId, True)
+        self.userService.addUserAttribute(user, "oxExternalUid", newExternalId, True)
+        return sub
 
     def replaceExternalUid(self, user, externalProfile): # For future use (switch credential)
          return NotImplemented
