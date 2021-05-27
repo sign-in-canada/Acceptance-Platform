@@ -158,7 +158,7 @@ class PersonAuthentication(PersonAuthenticationType):
             # Obtain the client URI of the current client from the client configuration
             clientUri = self.getClientUri(session)
             if (clientUri is None):
-                print("%s: clientUri is missing for client %s" %self.name, self.getClient(session).getClientName())
+                print("%s: prepareForStep. clientUri is missing for client %s" %self.name, self.getClient(session).getClientName())
                 return False
 
         if abort:
@@ -208,7 +208,11 @@ class PersonAuthentication(PersonAuthenticationType):
                         entityId = spNameQualifier
                     else:
                         entityId = "oidc:" + self.getClient(session).getClientName()
-                    loginHint = identity.getWorkingParameter("mfaId") + "|" + entityId
+                    mfaId = identity.getWorkingParameter("mfaId")
+                    if mfaId is None:
+                        print("%s: prepareForStep. mfaId is missing!" % self.name)
+                        return False
+                    loginHint = "%s|%s" % (mfaId, entityId)
                     passportOptions["login_hint"] = Base64Util.base64urlencode(crypto.encryptAES(self.aesKey, loginHint))
 
                 # Set the abort flag so we only do this once
@@ -355,7 +359,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 # grab the mfaId, or create  if needed
                 mfaId = self.account.getExternalUid(user, "mfa")
                 if mfaId is None:
-                    self.account.addExternalUid(user, "mfa")
+                    mfaId = self.account.addExternalUid(user, "mfa")
                     userChanged = True
                 identity.setWorkingParameter("mfaId", mfaId)
 
