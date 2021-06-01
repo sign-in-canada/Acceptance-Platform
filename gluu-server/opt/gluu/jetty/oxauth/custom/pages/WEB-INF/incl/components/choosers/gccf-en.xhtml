@@ -8,11 +8,9 @@
                 xmlns:p="http://xmlns.jcp.org/jsf/passthrough">
   <h2 class="mrgn-bttm-lg">Please choose an option to sign in: </h2>
 
-  <form jsf:id="loginForm" jsf:action="#{authenticator.authenticate}" class="form">
+  <form jsf:id="chooser" jsf:action="#{authenticator.authenticate}" class="form">
     <div class="row wb-eqht">
       <h:messages styleClass="list-unstyled label label-danger wb-server-error" />
-      <input type="hidden" jsf:id="acrname" jsf:value="#{acrname}" styleClass="form-control" autocomplete="off" />
-      <input type="hidden" jsf:id="switchCredentialBox" jsf:value="off" styleClass="form-control" autocomplete="off" />
       <div class="col-md-6">
         <section class="panel panel-default hght-inhrt">
           <div class="panel-heading">
@@ -35,7 +33,7 @@
             <p>Sign in with your GCKey username and password.</p>
             <!-- Links for Gluu to GCKEY -->
             <p class="text-center">
-              <button jsf:id="loginButton1" jsf:action="#{authenticator.authenticate}" styleClass="btn btn-primary mrgn-tp-lg btn-lg" value="Sign in with GCKey" type="submit" onclick="fillInAcrOnSubmit('passport_saml:gckey')">Sign in with GCKey</button>
+              <button jsf:id="gckey" jsf:action="#{authenticator.authenticate}" styleClass="btn btn-primary mrgn-tp-lg btn-lg" value="Sign in with GCKey" type="submit" >Sign in with GCKey</button>
             </p>
            </div>
            <details>
@@ -86,7 +84,7 @@
           <div class="panel-body">
             <p>Sign in with your canadian online banking service.</p>
             <p class="text-center">
-              <button jsf:id="loginButton2" jsf:action="#{authenticator.authenticate}" styleClass="btn btn-primary mrgn-tp-lg btn-lg" value="Sign in with Sign-In Partner" type="submit" onclick="fillInAcrOnSubmit('passport_saml:cbs')">Sign in with Sign-In Partner</button>
+              <button jsf:id="cbs" jsf:action="#{authenticator.authenticate}" styleClass="btn btn-primary mrgn-tp-lg btn-lg" value="Sign in with Sign-In Partner" type="submit" >Sign in with Sign-In Partner</button>
             </p>
           </div>
           <details>
@@ -112,14 +110,9 @@
     <div class="row text-center">
       <h2 class="mrgn-tp-md">Don't have a username or password?</h2>
       <p>
-        <button jsf:id="loginButton3" jsf:action="#{authenticator.authenticate}" styleClass="btn btn-primary mrgn-tp-lg btn-lg" value="Sign up with GCKey" type="submit" onclick="fillInAcrOnSubmit('passport_saml:gckey')">Sign up with GCKey</button>
+        <button jsf:id="gckeyregister" jsf:action="#{authenticator.authenticate}" styleClass="btn btn-primary mrgn-tp-lg btn-lg" value="Sign up with GCKey" type="submit">Sign up with GCKey</button>
       </p>
     </div>
   </form>
-  <script type="text/x-javascript">
-    function fillInAcrOnSubmit(acrButtonValue) {
-          document.getElementById("loginForm:acrname").value = acrButtonValue;
-    }
-  </script>
 
 </ui:composition>

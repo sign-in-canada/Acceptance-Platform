@@ -2,13 +2,14 @@
 #
 # Author: Doug Harris
 
+from org.gluu.service.cdi.util import CdiUtil
 from org.gluu.oxauth.model.common import User
 from org.oxauth.persistence.model import PairwiseIdentifier
 from org.gluu.service.cdi.util import CdiUtil
-from org.gluu.oxauth.service.common import UserService
-from org.gluu.oxauth.service import PairwiseIdentifierService
+from org.gluu.oxauth.service import UserService, PairwiseIdentifierService, SectorIdentifierService
 
-from java.util import ArrayList
+from java.net import URI
+from javax.faces.context import FacesContext
 
 import uuid
 
@@ -30,7 +31,7 @@ class Account:
             user = User()
             user.setUserId(uuid.uuid4().hex)
             user.setAttribute("oxExternalUid", externalUid, True)
-            return self.userService.addUser(user, True)
+            return user
         else:
             raise AccountError("Account. Create. External Account is missing externalUid")
 
@@ -44,19 +45,45 @@ class Account:
 
         return user
 
+    # Account Linking
+    def getExternalUid(self, user, provider):
+        externalUids = user.getAttributeValues("oxExternalUid")
+        if externalUids is None:
+            return None
+
+        externalPrefix = "passport-" + provider
+        for externalUid in externalUids:
+           extProvider, extSub = tuple(externalUid.split(":", 1))
+           if extProvider == externalPrefix:
+               return extSub
+        
+        return None
+
+    def addExternalUid(self, user, provider, sub=None):
+        if sub is None:
+            sub = uuid.uuid4().hex
+        newExternalId = "passport-%s:%s" %( provider, sub)
+        self.userService.addUserAttribute(user, "oxExternalUid", newExternalId, True)
+        return sub
+
+    def replaceExternalUid(self, user, externalProfile): # For future use (switch credential)
+         return NotImplemented
+
     # SAML RP Subject Management
-    def addSamlSubject(self, user, spNameQualifier, nameQualifier, nameId):
+    def addSamlSubject(self, user, spNameQualifier, nameQualifier = None, nameId = None):
         """Add a new RP SAML Subject to an account."""
+
+        if nameQualifier is None:
+            facesContext = CdiUtil.bean(FacesContext)
+            serverName = facesContext.getExternalContext().getRequest().getServerName()
+            nameQualifier = "https://%s" % serverName
+
+        if nameId is None:
+            nameId = "sic" + uuid.uuid4().hex
 
         newSamlSubject = '%s|%s|%s' % (spNameQualifier, nameQualifier, nameId)
 
-        persistentIds = user.getAttributeValues("persistentId")
-        if persistentIds is None:
-            persistentIds = ArrayList()
-        
-        persistentIds.add(newSamlSubject)
-
-        user.setAttribute("persistentId", persistentIds)
+        self.userService.addUserAttribute(user, "persistentId", newSamlSubject, True)
 
         return user
 
@@ -74,22 +101,27 @@ class Account:
 
 # OpenID RP subject management
 
-    def addOpenIdSubject(self, user, clientId, sectorId, sub):
+    def addOpenIdSubject(self, user, client, sub):
+
+        sectorIdentifierUri = client.getSectorIdentifierUri()
+        if not sectorIdentifierUri:
+            redirectUris = client.getRedirectUris()
+            if redirectUris and len(redirectUris) > 0:
+                sectorIdentifierUri = redirectUris[0]
+
+        if sectorIdentifierUri is None:
+            raise AccountError("account. addOpenIdSubject unable to find client sector identifier Uri")
+        else:
+            sectorIdentifier = URI.create(sectorIdentifierUri).getHost()
 
         userInum = user.getAttribute("inum")
-        pairwiseSubject = PairwiseIdentifier(sectorId, clientId, userInum)
+        pairwiseSubject = PairwiseIdentifier(sectorIdentifier, client.getClientId(), userInum)
         pairwiseSubject.setId(sub)
         pairwiseSubject.setDn(self.pairwiseIdentifierService.getDnForPairwiseIdentifier(pairwiseSubject.getId(), userInum))
         self.pairwiseIdentifierService.addPairwiseIdentifier(userInum, pairwiseSubject)
 
-    def getOpenIdSubject(self, user, clientId, sectorId):
-
-        userInum = user.getAttribute("inum")
-        pairwiseSubject = self.pairwiseIdentifierService.findPairwiseIdentifier(userInum, sectorId, clientId)
-        if pairwiseSubject is not None:
-            return pairwiseSubject.getId()
-        else:
-            return None
+    def getOpenIdSubject(self, user, client):
+        return CdiUtil.bean(SectorIdentifierService).getSub(client, user, False)
 
 # Identity claim ingestion
 
