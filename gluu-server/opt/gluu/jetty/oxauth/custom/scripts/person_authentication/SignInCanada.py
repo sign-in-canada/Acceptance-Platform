@@ -403,7 +403,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 user = self.account.addSamlSubject(user, spNameQualifier, nameQualifier, nameId)
             userService.updateUser(user)
 
-            # construct an OIDC pairwisae subect using the SAML PAI
+            # construct an OIDC pairwise subject using the SAML PAI
             client = self.getClient(session)
             if not self.account.getOpenIdSubject(user, client): # unless one already exists
                 self.account.addOpenIdSubject(user, client, provider + nameId)
