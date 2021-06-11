@@ -112,7 +112,7 @@ dn: inum=A3DC-DH01,ou=scripts,o=gluu
 objectClass: top
 objectClass: oxCustomScript
 description: Single Sign-On timeout synchronization
-displayName: application_session
+displayName: sso_sync
 oxEnabled: false
 inum: A3DC-DH01
 oxLevel: 50
