@@ -18,57 +18,48 @@ class DynamicScope(DynamicScopeType):
         self.currentTimeMillis = currentTimeMillis
 
     def init(self, customScript, configurationAttributes):
-        print ("Dynamic scope [saml_nameid_scope]. Initialization")
+        print ("Dynamic scope [saml_nameid]. Initialization")
         # Keep an in-memory cache of RP Configs
         self.rpConfigCache = {}
 
         return True   
 
     def destroy(self, configurationAttributes):
-        print ("Dynamic scope [saml_nameid_scope]. Destroy")
+        print ("Dynamic scope [saml_nameid]. Destroy")
         return True   
 
     # Update Json Web token before signing/encrypring it
     #   dynamicScopeContext is org.gluu.oxauth.service.external.context.DynamicScopeExternalContext
     #   configurationAttributes is java.util.Map<String, SimpleCustomProperty>
     def update(self, dynamicScopeContext, configurationAttributes):
-        print ("Dynamic scope [saml_nameid_scope]. Update method")
-
         # Get the client and SAML affilitation value
         authorizationGrant = dynamicScopeContext.getAuthorizationGrant()
         rpConfig = self.getRPConfig(authorizationGrant.getClient())
-        samlSpNameQualifier = rpConfig.get("collect")
+        collectSpNameQualifier = rpConfig.get("collect")
         
-        # if samlSpNameQualifier is not empty, we pass the affiliated SAML nameid
-        if ( samlSpNameQualifier != None ):
+        # if collectSpNameQualifier is not empty, we pass the affiliated SAML nameid
+        if collectSpNameQualifier is not None:
             # then we look for the SAML persistentId value in user profile
-            print ("Dynamic scope [saml_nameid_scope]. Found SPNameQualifier parameter '%s'" % samlSpNameQualifier)
             user = dynamicScopeContext.getUser()
             userPersistentIds = user.getAttributeValues("persistentId")
-            print ("Dynamic scope [saml_nameid_scope]. Found SPNameQualifier parameter")
-            if ( userPersistentIds != None ):
-                if ( userPersistentIds.size > 0 ):
-                    # go through existing user persistentIds
-                    for userPersistentId in userPersistentIds:
-                        # if the current RP already has a mapping then skip the second phase
-                        if ( userPersistentId.find(samlSpNameQualifier) > -1 ):
-                            print ("Dynamic scope [saml_nameid_scope]. Found matching persistentId '%s'" % userPersistentId)
-                            # Format is : persistentIdSamlSpNQ|persistentIdIdp|persistentIdUid
-                            samlSpNameQualifier  = StringHelper.split(userPersistentId,'|')[0]
-                            samlIDPNameQualifier = StringHelper.split(userPersistentId,'|')[1]
-                            samlSpNameIDSubject  = StringHelper.split(userPersistentId,'|')[2]
-                            # create a JSON object with the full NameID object
-                            samlNameIdJson = '{"SPNameQualifier":"%s","NameQualifier":"%s","value":"%s"}' % (samlSpNameQualifier, samlIDPNameQualifier, samlSpNameIDSubject )
-                            samlNameId = JSONObject(samlNameIdJson)
-                            # Add the saml_nameid value to the result if present
-                            jsonWebResponse = dynamicScopeContext.getJsonWebResponse()
-                            claims = jsonWebResponse.getClaims()
-                            claims.setClaim("saml_nameid", samlNameId)
+            if userPersistentIds is not None and userPersistentIds.size > 0:
+                # go through existing user persistentIds
+                for userPersistentId in userPersistentIds:
+                    # Format is : persistentIdSamlSpNQ|persistentIdIdp|persistentIdUid
+                    samlSpNameQualifier, samlIDPNameQualifier, samlSpNameIDSubject = tuple(userPersistentId.split("|"))
+                    # if the current RP already has a mapping then skip the second phase
+                    if samlSpNameQualifier == collectSpNameQualifier:
+                        # create a JSON object with the full NameID object
+                        samlNameIdJson = '{"SPNameQualifier":"%s","NameQualifier":"%s","value":"%s"}' % (samlSpNameQualifier, samlIDPNameQualifier, samlSpNameIDSubject )
+                        samlNameId = JSONObject(samlNameIdJson)
+                        # Add the saml_nameid value to the result if present
+                        jsonWebResponse = dynamicScopeContext.getJsonWebResponse()
+                        claims = jsonWebResponse.getClaims()
+                        claims.setClaim("saml_nameid", samlNameId)
 
         return True
 
     def getSupportedClaims(self, configurationAttributes):
-        print ("Dynamic scope [saml_nameid_scope]. Get supported claims = 'saml_nameid'")
         return Arrays.asList("saml_nameid")
 
     def getApiVersion(self):
