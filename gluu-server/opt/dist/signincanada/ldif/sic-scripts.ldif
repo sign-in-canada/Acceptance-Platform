@@ -120,7 +120,7 @@ oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
 oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/application_session/AuthnInstant.py","description":""}
 oxRevision: 1
 oxScript::%(application_session_authninstant)s
-oxScriptType: end_session
+oxScriptType: application_session
 programmingLanguage: python
 
 # Disable passport-saml script
