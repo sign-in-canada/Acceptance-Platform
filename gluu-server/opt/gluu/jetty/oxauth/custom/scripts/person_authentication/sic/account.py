@@ -103,16 +103,7 @@ class Account:
 
     def addOpenIdSubject(self, user, client, sub):
 
-        sectorIdentifierUri = client.getSectorIdentifierUri()
-        if not sectorIdentifierUri:
-            redirectUris = client.getRedirectUris()
-            if redirectUris and len(redirectUris) > 0:
-                sectorIdentifierUri = redirectUris[0]
-
-        if sectorIdentifierUri is None:
-            raise AccountError("account. addOpenIdSubject unable to find client sector identifier Uri")
-        else:
-            sectorIdentifier = URI.create(sectorIdentifierUri).getHost()
+        sectorIdentifier = self.getSectorId(client)
 
         userInum = user.getAttribute("inum")
         pairwiseSubject = PairwiseIdentifier(sectorIdentifier, client.getClientId(), userInum)
@@ -121,7 +112,25 @@ class Account:
         self.pairwiseIdentifierService.addPairwiseIdentifier(userInum, pairwiseSubject)
 
     def getOpenIdSubject(self, user, client):
-        return CdiUtil.bean(SectorIdentifierService).getSub(client, user, False)
+        sectorIdentifier = self.getSectorId(client)
+        userInum = user.getAttribute("inum")
+        pairwiseSubject = self.pairwiseIdentifierService.findPairWiseIdentifier(userInum, sectorIdentifier, client.getClientId())
+        if pairwiseSubject is not None:
+            return pairwiseSubject.getId()
+        else:
+            return None
+
+    def getSectorId(self, client):
+        sectorIdentifierUri = client.getSectorIdentifierUri()
+        if not sectorIdentifierUri:
+            redirectUris = client.getRedirectUris()
+            if redirectUris and len(redirectUris) > 0:
+                sectorIdentifierUri = redirectUris[0]
+
+        if sectorIdentifierUri is None:
+            raise AccountError("account. addOpenIdSubject unable to find client sector identifier Uri")
+
+        return URI.create(sectorIdentifierUri).getHost()
 
 # Identity claim ingestion
 
