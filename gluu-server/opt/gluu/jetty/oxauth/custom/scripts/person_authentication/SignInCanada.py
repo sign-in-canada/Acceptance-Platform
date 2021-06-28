@@ -462,8 +462,6 @@ class PersonAuthentication(PersonAuthenticationType):
 
         if uiLocales is None:
             if step == 1: # Language detection
-                # The missing file extension below is intentional.
-                # This forces an extra redirect so that the request URL matches a rule in the
                 # Apache config that allows pass-through of the content security policy header.
                 return "/detlang.xhtml"
             elif step == 2: # Language Selection (Splash Page)
