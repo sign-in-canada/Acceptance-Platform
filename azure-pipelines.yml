@@ -65,7 +65,7 @@ steps:
     wget https://repo1.maven.org/maven2/com/couchbase/client/java-client/2.7.19/java-client-2.7.19.jar.asc \
       -P $(Agent.TempDirectory)
     echo 'Checking download integrity'
-    gpg2 --keyserver hkps://keys.openpgp.org --recv-keys A6BCCB72D65B0D0F
+    gpg2 --keyserver hkps://keyserver.ubuntu.com --recv-keys A6BCCB72D65B0D0F
     gpg2 --verify $(Agent.TempDirectory)/core-io-1.7.19.jar.asc gluu-server/opt/dist/app/core-io-1.7.19.jar
     gpg2 --verify $(Agent.TempDirectory)/java-client-2.7.19.jar.asc gluu-server/opt/dist/app/java-client-2.7.19.jar
     echo 'Passed'
