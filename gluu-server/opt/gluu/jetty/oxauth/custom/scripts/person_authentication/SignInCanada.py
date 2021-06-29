@@ -462,7 +462,6 @@ class PersonAuthentication(PersonAuthenticationType):
 
         if uiLocales is None:
             if step == 1: # Language detection
-                # Apache config that allows pass-through of the content security policy header.
                 return "/detlang.xhtml"
             elif step == 2: # Language Selection (Splash Page)
                 return "/lang.xhtml"
