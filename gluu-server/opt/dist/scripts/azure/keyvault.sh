@@ -22,7 +22,7 @@ fi
 listCertificates () {
    for retries in {1..10} ; do
       json=$(curl -s --retry 5 -H "Authorization: Bearer ${access_token}" "${KEYVAULT}/certificates?api-version=${API_VER}") && break
-      echo "Faliled to obtain certificate list from keyvault during attempt #${retries}"
+      echo "Faliled to obtain certificate list from keyvault during attempt #${retries} with error code $?"
       sleep 10
    done
 
@@ -37,7 +37,7 @@ listCertificates () {
 fetchSecret () {
    for retries in {1..10} ; do
       json=$(curl -s --retry 5 -H "Authorization: Bearer ${access_token}" "${KEYVAULT}/secrets/${1}?api-version=${API_VER}") && break
-      echo "Faliled to obtain secret ${1} from keyvault during attempt #${retries}"
+      echo "Faliled to obtain secret ${1} from keyvault during attempt #${retries} with error code $?"
       sleep 10
    done
    
