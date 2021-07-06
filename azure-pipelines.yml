@@ -4,175 +4,174 @@ name: $(Build.DefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
 trigger: none
 pr:
   - develop
+variables:
+  major_minor: '1.1'
+  # define b as a counter with the prefix as variable a, and seed as 10.
+  build: $[counter(variables['major_minor'], 0)]
 
 stages:
-  - stage: Build
-    displayName: "Package and publish the Acceptance Platform tarball"
-    variables:
-      major_minor: '1.1'
-      # define b as a counter with the prefix as variable a, and seed as 10.
-      build: $[counter(variables['major_minor'], 0)]
+- stage: Build
+  displayName: "Package and publish the Acceptance Platform tarball"
+  jobs:
+  - job: Package
+    pool:
+      vmImage: 'ubuntu-latest'
 
-      jobs:
-      - job: "Package"
-        pool:
-          vmImage: 'ubuntu-latest'
+    steps:
+    - script: |
+        ls -al $(Pipeline.Workspace)
+        cd gluu-server/opt/gluu/jetty/oxauth/custom
+        tar -czv --owner=root --group=root -f custom.tgz *
+        mv custom.tgz $(Pipeline.Workspace)/s/gluu-server/opt/dist/signincanada
+        cd $(Pipeline.Workspace)
+        ls -al s/gluu-server/opt/dist/signincanada
+        tar -tvf s/gluu-server/opt/dist/signincanada/custom.tgz
+      displayName: 'Packaging UI'
+      continueOnError: false
 
-          steps:
-            - script: |
-                ls -al $(Pipeline.Workspace)
-                cd gluu-server/opt/gluu/jetty/oxauth/custom
-                tar -czv --owner=root --group=root -f custom.tgz *
-                mv custom.tgz $(Pipeline.Workspace)/s/gluu-server/opt/dist/signincanada
-                cd $(Pipeline.Workspace)
-                ls -al s/gluu-server/opt/dist/signincanada
-                tar -tvf s/gluu-server/opt/dist/signincanada/custom.tgz
-              displayName: 'Packaging UI'
-              continueOnError: false
+    - script: |
+        echo 'Downloading AppInsights SDK'
+        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.6.2/applicationinsights-core-2.6.2.jar \
+          -P gluu-server/opt/dist/signincanada
+        echo 'Downloading AppInsights Agent'
+        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.1.0/applicationinsights-agent-3.1.0.jar \
+          -P gluu-server/opt/azure
+        ls -al 
+      displayName: 'Downloading AppInsights'
+      continueOnError: false
 
-            - script: |
-                echo 'Downloading AppInsights SDK'
-                wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.6.2/applicationinsights-core-2.6.2.jar \
-                  -P gluu-server/opt/dist/signincanada
-                echo 'Downloading AppInsights Agent'
-                wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.1.0/applicationinsights-agent-3.1.0.jar \
-                  -P gluu-server/opt/azure
-                ls -al 
-              displayName: 'Downloading AppInsights'
-              continueOnError: false
+    - script: |
+        mkdir -p gluu-server/opt/dist/app
+        wget https://corretto.aws/downloads/latest/amazon-corretto-11-x64-linux-jdk.tar.gz \
+          -P gluu-server/opt/dist/app
+        wget  https://corretto.aws/downloads/latest/amazon-corretto-11-x64-linux-jdk.tar.gz.sig \
+          -P $(Agent.TempDirectory)
+        echo 'Checking file integritiy'
+        gpg2 --fetch-keys https://corretto.aws/downloads/resources/11.0.6.10.1/B04F24E3.pub
+        gpg2 --verify $(Agent.TempDirectory)/amazon-corretto-11-x64-linux-jdk.tar.gz.sig gluu-server/opt/dist/app/amazon-corretto-11-x64-linux-jdk.tar.gz
+      displayName: 'Downloading Latest Amazon Corretto'
+      continueOnError: false
 
-            - script: |
-                mkdir -p gluu-server/opt/dist/app
-                wget https://corretto.aws/downloads/latest/amazon-corretto-11-x64-linux-jdk.tar.gz \
-                  -P gluu-server/opt/dist/app
-                wget  https://corretto.aws/downloads/latest/amazon-corretto-11-x64-linux-jdk.tar.gz.sig \
-                  -P $(Agent.TempDirectory)
-                echo 'Checking file integritiy'
-                gpg2 --fetch-keys https://corretto.aws/downloads/resources/11.0.6.10.1/B04F24E3.pub
-                gpg2 --verify $(Agent.TempDirectory)/amazon-corretto-11-x64-linux-jdk.tar.gz.sig gluu-server/opt/dist/app/amazon-corretto-11-x64-linux-jdk.tar.gz
-              displayName: 'Downloading Latest Amazon Corretto'
-              continueOnError: false
+    - script: |
+        wget https://repo1.maven.org/maven2/com/couchbase/client/core-io/1.7.19/core-io-1.7.19.jar \
+          -P gluu-server/opt/dist/app
+        wget https://repo1.maven.org/maven2/com/couchbase/client/core-io/1.7.19/core-io-1.7.19.jar.asc \
+          -P $(Agent.TempDirectory)
+          wget https://repo1.maven.org/maven2/com/couchbase/client/java-client/2.7.19/java-client-2.7.19.jar \
+          -P gluu-server/opt/dist/app
+        wget https://repo1.maven.org/maven2/com/couchbase/client/java-client/2.7.19/java-client-2.7.19.jar.asc \
+          -P $(Agent.TempDirectory)
+        echo 'Checking download integrity'
+        gpg2 --keyserver hkps://keyserver.ubuntu.com --recv-keys A6BCCB72D65B0D0F
+        gpg2 --verify $(Agent.TempDirectory)/core-io-1.7.19.jar.asc gluu-server/opt/dist/app/core-io-1.7.19.jar
+        gpg2 --verify $(Agent.TempDirectory)/java-client-2.7.19.jar.asc gluu-server/opt/dist/app/java-client-2.7.19.jar
+        echo 'Passed'
+      displayName: 'Downlaoding the latest Couchbase client'
+      continueOnError: false
 
-            - script: |
-                wget https://repo1.maven.org/maven2/com/couchbase/client/core-io/1.7.19/core-io-1.7.19.jar \
-                  -P gluu-server/opt/dist/app
-                wget https://repo1.maven.org/maven2/com/couchbase/client/core-io/1.7.19/core-io-1.7.19.jar.asc \
-                  -P $(Agent.TempDirectory)
-                  wget https://repo1.maven.org/maven2/com/couchbase/client/java-client/2.7.19/java-client-2.7.19.jar \
-                  -P gluu-server/opt/dist/app
-                wget https://repo1.maven.org/maven2/com/couchbase/client/java-client/2.7.19/java-client-2.7.19.jar.asc \
-                  -P $(Agent.TempDirectory)
-                echo 'Checking download integrity'
-                gpg2 --keyserver hkps://keyserver.ubuntu.com --recv-keys A6BCCB72D65B0D0F
-                gpg2 --verify $(Agent.TempDirectory)/core-io-1.7.19.jar.asc gluu-server/opt/dist/app/core-io-1.7.19.jar
-                gpg2 --verify $(Agent.TempDirectory)/java-client-2.7.19.jar.asc gluu-server/opt/dist/app/java-client-2.7.19.jar
-                echo 'Passed'
-              displayName: 'Downlaoding the latest Couchbase client'
-              continueOnError: false
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        buildType: 'specific'
+        project: '7302639f-e704-47c3-9557-99b4e04a75bc'
+        definition: '285'
+        runVersion: 'latestFromBranch'
+        runBranch: "refs/heads/develop_4.3.0"
+        artifactName: 'gluu-passport'
+        targetPath: '$(Pipeline.Workspace)/s/gluu-server/opt/dist/gluu'
+      displayName: 'Download gluu-passport tarballs'
+      continueOnError: false
 
-            - task: DownloadPipelineArtifact@2
-              inputs:
-                buildType: 'specific'
-                project: '7302639f-e704-47c3-9557-99b4e04a75bc'
-                definition: '285'
-                runVersion: 'latestFromBranch'
-                runBranch: "refs/heads/develop_4.3.0"
-                artifactName: 'gluu-passport'
-                targetPath: '$(Pipeline.Workspace)/s/gluu-server/opt/dist/gluu'
-              displayName: 'Download gluu-passport tarballs'
-              continueOnError: false
+    - script: |
+        cd gluu-server/opt/dist/gluu
+        mv passport-version_4.5.0-node_modules.tar.gz passport-version_4.2.3-node_modules.tar.gz
+      displayName: 'Renaming node modules'
+      continueOnError: true
 
-            - script: |
-                cd gluu-server/opt/dist/gluu
-                mv passport-version_4.5.0-node_modules.tar.gz passport-version_4.2.3-node_modules.tar.gz
-              displayName: 'Renaming node modules'
-              continueOnError: true
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        buildType: 'specific'
+        project: '7302639f-e704-47c3-9557-99b4e04a75bc'
+        pipeline: '288'
+        runVersion: 'latestFromBranch'
+        runBranch: "refs/heads/version_4.2.3"
+        artifactName: 'shib-oxauth-authn3'
+        targetPath: '$(Pipeline.Workspace)/s/gluu-server/opt/dist/signincanada'
+      displayName: 'Downloading shib-oxauth-authn3 libs'
 
-            - task: DownloadPipelineArtifact@2
-              inputs:
-                buildType: 'specific'
-                project: '7302639f-e704-47c3-9557-99b4e04a75bc'
-                pipeline: '288'
-                runVersion: 'latestFromBranch'
-                runBranch: "refs/heads/version_4.2.3"
-                artifactName: 'shib-oxauth-authn3'
-                targetPath: '$(Pipeline.Workspace)/s/gluu-server/opt/dist/signincanada'
-              displayName: 'Downloading shib-oxauth-authn3 libs'
+    - script: |
+        cd gluu-server/opt/dist/signincanada
+        mkdir shibjar && tar -C shibjar -xvf shib-oxauth-authn3-4.2.3.sic1.tar
+        cp shibjar/shib-oxauth-authn3-4.2.3.sic1/edit-webapp/WEB-INF/lib/shib-oxauth-authn3-4.2.3.sic1.jar .
+        rm -rf shib-oxauth-authn3-4.2.3.sic1.tar && rm -rf shib-oxauth-authn3-4.2.3.sic1.zip && rm -rf shibjar
+        ls -al 
+      displayName: 'Moving Shiboleth Jar'
 
-            - script: |
-                cd gluu-server/opt/dist/signincanada
-                mkdir shibjar && tar -C shibjar -xvf shib-oxauth-authn3-4.2.3.sic1.tar
-                cp shibjar/shib-oxauth-authn3-4.2.3.sic1/edit-webapp/WEB-INF/lib/shib-oxauth-authn3-4.2.3.sic1.jar .
-                rm -rf shib-oxauth-authn3-4.2.3.sic1.tar && rm -rf shib-oxauth-authn3-4.2.3.sic1.zip && rm -rf shibjar
-                ls -al 
-              displayName: 'Moving Shiboleth Jar'
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        buildType: 'specific'
+        project: '7302639f-e704-47c3-9557-99b4e04a75bc'
+        pipeline: '351'
+        buildVersionToDownload: 'latest'
+        artifactName: 'node-services'
+        targetPath: '$(Pipeline.Workspace)/s/gluu-server/opt/dist/signincanada'
+      displayName: 'Downloading node-services tarball'
 
-            - task: DownloadPipelineArtifact@2
-              inputs:
-                buildType: 'specific'
-                project: '7302639f-e704-47c3-9557-99b4e04a75bc'
-                pipeline: '351'
-                buildVersionToDownload: 'latest'
-                artifactName: 'node-services'
-                targetPath: '$(Pipeline.Workspace)/s/gluu-server/opt/dist/signincanada'
-              displayName: 'Downloading node-services tarball'
+    - script: |
+        pushd gluu-server/
+        echo 'packaging tarball'
+        mkdir -p install/community-edition-setup/static/extension
+        tar xvzf opt/dist/signincanada/custom.tgz --strip-components=1 --exclude scripts/person_authentication/sic -C install/community-edition-setup/static/extension scripts
+        chmod 755 $(find . -type d -print)
+        chmod 644 $(find . -type f -print)
+        chmod 700 opt/dist/signincanada/postinstall.sh
+        chmod 700 opt/dist/scripts/azure/keyvault.sh
+        chmod 755 opt/dist/scripts/notify
+        chmod 700 opt/dist/scripts/crlcheck.sh
+        chmod 700 install/community-edition-setup/setup.py
+        tar -czv --owner=root --group=root -f $(Build.ArtifactStagingDirectory)/SIC-AP-$(major_minor).$(build).tgz --exclude='opt/gluu' *
+        openssl sha256 $(Build.ArtifactStagingDirectory)/SIC-AP-$(major_minor).$(build).tgz > $(Build.ArtifactStagingDirectory)/SIC-AP-$(major_minor).$(build).tgz.sha
+        popd
+      displayName: 'Packaging tarball'
+      continueOnError: true
 
-            - script: |
-                pushd gluu-server/
-                echo 'packaging tarball'
-                mkdir -p install/community-edition-setup/static/extension
-                tar xvzf opt/dist/signincanada/custom.tgz --strip-components=1 --exclude scripts/person_authentication/sic -C install/community-edition-setup/static/extension scripts
-                chmod 755 $(find . -type d -print)
-                chmod 644 $(find . -type f -print)
-                chmod 700 opt/dist/signincanada/postinstall.sh
-                chmod 700 opt/dist/scripts/azure/keyvault.sh
-                chmod 755 opt/dist/scripts/notify
-                chmod 700 opt/dist/scripts/crlcheck.sh
-                chmod 700 install/community-edition-setup/setup.py
-                tar -czv --owner=root --group=root -f $(Build.ArtifactStagingDirectory)/SIC-AP-$(major_minor).$(build).tgz --exclude='opt/gluu' *
-                openssl sha256 $(Build.ArtifactStagingDirectory)/SIC-AP-$(major_minor).$(build).tgz > $(Build.ArtifactStagingDirectory)/SIC-AP-$(major_minor).$(build).tgz.sha
-                popd
-              displayName: 'Packaging tarball'
-              continueOnError: true
+    - bash: |
+        curl -fL -XPUT -H "Authorization:Bearer $(System.AccessToken)" -H "Content-Type:application/json" \
+        -d '{
+          "id": "$296",
+          "type": "Vsts",
+          "name": "APlatform-version",
+          "variables": {
+            "ac-version": {
+              "isSecret": false,
+              "value": "SIC-AP-$(major_minor).$(build)"
+            }
+          }
+        }' \
+        $(System.TeamFoundationCollectionUri)/Sign%20in%20Canada/_apis/distributedtask/variablegroups/296?api-version=5.0-preview.1
+      displayName: Update APlatform-version variablegroup 
+      
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: $(Build.ArtifactStagingDirectory)
+        artifact: 'acceptance-platform'
+        publishLocation: 'pipeline'
 
-            - bash: |
-                curl -fL -XPUT -H "Authorization:Bearer $(System.AccessToken)" -H "Content-Type:application/json" \
-                -d '{
-                  "id": "$296",
-                  "type": "Vsts",
-                  "name": "APlatform-version",
-                  "variables": {
-                    "ac-version": {
-                      "isSecret": false,
-                      "value": "SIC-AP-$(major_minor).$(build)"
-                    }
-                  }
-                }' \
-                $(System.TeamFoundationCollectionUri)/Sign%20in%20Canada/_apis/distributedtask/variablegroups/296?api-version=5.0-preview.1
-              displayName: Update APlatform-version variablegroup 
-              
-            - task: PublishPipelineArtifact@1
-              inputs:
-                targetPath: $(Build.ArtifactStagingDirectory)
-                artifact: 'acceptance-platform'
-                publishLocation: 'pipeline'
+  - job: Publish
+    pool:
+      vmImage: 'windows-latest'
 
-      - job: "Publish"
-        pool:
-          vmImage: 'windows-latest'
+    steps:
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        source: current
+        artifact: 'acceptance-platform'
+        path: $(Build.ArtifactStagingDirectory)
 
-        steps:
-          - task: DownloadPipelineArtifact@2
-            inputs:
-              source: current
-              artifact: 'acceptance-platform'
-              path: $(Build.ArtifactStagingDirectory)
-
-          - task: AzureFileCopy@4
-            inputs:
-              sourcePath: $(Build.ArtifactStagingDirectory)\*
-              azureSubscription: Sign in Canada Service Connection
-              destination: azureBlob
-              storage: sicpub
-              containerName: staging
+    - task: AzureFileCopy@4
+      inputs:
+        sourcePath: $(Build.ArtifactStagingDirectory)\*
+        azureSubscription: Sign in Canada Service Connection
+        destination: azureBlob
+        storage: sicpub
+        containerName: staging
 
