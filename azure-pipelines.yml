@@ -50,7 +50,7 @@ steps:
     wget  https://corretto.aws/downloads/latest/amazon-corretto-11-x64-linux-jdk.tar.gz.sig \
       -P $(Agent.TempDirectory)
     echo 'Checking file integritiy'
-    gpg2 --keyserver hkp://pool.sks-keyservers.net --recv-keys B04F24E3
+    gpg2 --fetch-keys https://corretto.aws/downloads/resources/11.0.6.10.1/B04F24E3.pub
     gpg2 --verify $(Agent.TempDirectory)/amazon-corretto-11-x64-linux-jdk.tar.gz.sig gluu-server/opt/dist/app/amazon-corretto-11-x64-linux-jdk.tar.gz
   displayName: 'Downloading Latest Amazon Corretto'
   continueOnError: false
@@ -65,7 +65,7 @@ steps:
     wget https://repo1.maven.org/maven2/com/couchbase/client/java-client/2.7.19/java-client-2.7.19.jar.asc \
       -P $(Agent.TempDirectory)
     echo 'Checking download integrity'
-    gpg2 --keyserver hkp://pool.sks-keyservers.net --recv-keys D65B0D0F
+    gpg2 --keyserver hkps://keyserver.ubuntu.com --recv-keys A6BCCB72D65B0D0F
     gpg2 --verify $(Agent.TempDirectory)/core-io-1.7.19.jar.asc gluu-server/opt/dist/app/core-io-1.7.19.jar
     gpg2 --verify $(Agent.TempDirectory)/java-client-2.7.19.jar.asc gluu-server/opt/dist/app/java-client-2.7.19.jar
     echo 'Passed'
