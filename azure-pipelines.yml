@@ -2,14 +2,10 @@
 
 name: $(Build.DefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
 
-resources:
- pipelines:
-   - pipeline: gluupassport
-     source: sign-in-canada.gluu-passport
-   - pipeline: shiboxauthauthn3
-     source: sign-in-canada.shib-oxauth-authn3
-
 trigger: none
+
+pr:
+  - develop
 
 pool:
   vmImage: 'ubuntu-latest'
