@@ -4,6 +4,7 @@ echo 'Stopping services...'
 systemctl stop httpd oxauth identity idp passport
 
 echo 'Enabling the keyvault service...'
+yum install -y jq
 systemctl enable keyvault
 
 echo 'Installing the Application Insights SDK to oxAuth...'

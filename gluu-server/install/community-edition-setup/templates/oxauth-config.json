@@ -314,7 +314,8 @@
     "externalLoggerConfiguration": "/opt/gluu/jetty/oxauth/custom/log4j2.xml",
     "authorizationRequestCustomAllowedParameters" : [
         "entityId",
-        "spNameQualifier"],
+        "spNameQualifier",
+        "prompt2"],
     "legacyDynamicRegistrationScopeParam": false,
     "openidScopeBackwardCompatibility": %(oxauth_openidScopeBackwardCompatibility)s,
     "useCacheForAllImplicitFlowObjects":false,

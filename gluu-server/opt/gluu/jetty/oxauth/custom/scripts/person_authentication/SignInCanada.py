@@ -135,6 +135,7 @@ class PersonAuthentication(PersonAuthenticationType):
         return Arrays.asList("stepCount",  # Used to extend the workflow
                              "provider",   # The provider chosen by the user
                              "abort",      # Used to trigger error abort back to the RP
+                             "forceAuthn", # Used to force authentication when prompt comes with login
                              "userId",     # Used to keep track of the user across multiple passport reqiuests (i.e. collection)
                              "mfaId")      # Used to bind a 2nd factor credential into the session
 
@@ -150,9 +151,18 @@ class PersonAuthentication(PersonAuthenticationType):
         
         session = identity.getSessionId()
         sessionAttributes = session.getSessionAttributes()
-
+        externalContext = facesResources.getFacesContext().getExternalContext()
         uiLocales = sessionAttributes.get(AuthorizeRequestParam.UI_LOCALES)
         abort = identity.getWorkingParameter("abort")
+
+        externalContext.addResponseHeader("Content-Security-Policy", "default-src 'self' https://www.canada.ca; font-src 'self' https://fonts.gstatic.com https://use.fontawesome.com https://www.canada.ca; style-src 'self' 'unsafe-inline'; style-src-elem 'self' 'unsafe-inline' https://use.fontawesome.com https://fonts.googleapis.com https://www.canada.ca; script-src 'self' 'unsafe-inline' https://www.canada.ca https://ajax.googleapis.com; connect-src 'self' https://*.fjgc-gccf.gc.ca")
+
+        if step == 1:
+            facesContext = facesResources.getFacesContext()
+            httpRequest = facesContext.getCurrentInstance().getExternalContext().getRequest()
+            prompt2 = httpRequest.getParameter("prompt2")
+            if prompt2 == "login":
+                identity.setWorkingParameter("forceAuthn", True)
 
         if step == 1 or abort:
             # Obtain the client URI of the current client from the client configuration
@@ -172,7 +182,7 @@ class PersonAuthentication(PersonAuthenticationType):
             if step == 1:
                 identity.setWorkingParameter("client_uri", clientUri)
                 externalContext = facesResources.getFacesContext().getExternalContext()
-                externalContext.addResponseHeader("Content-Security-Policy", "connect-src 'self' " + clientUri)
+                externalContext.setResponseHeader("Content-Security-Policy", "connect-src 'self' " + clientUri)
             
         else: # Language is known. Check for provider
             provider = identity.getWorkingParameter("provider")
@@ -193,7 +203,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     # Coordinate single-sign-on (SSO)
                     maxAge = (sessionAttributes.get(AuthorizeRequestParam.PROMPT)
                             or self.getClient(session).getDefaultMaxAge())
-                    if (sessionAttributes.get(AuthorizeRequestParam.PROMPT) == Prompt.LOGIN
+                    if (identity.getWorkingParameter("forceAuthn")
                         or ("GCCF" in self.passport.getProvider(provider)["options"] and maxAge < 1200)): # 1200 is 20 minutes, the SSO timeout on GCKey and CBS
                         passportOptions["forceAuthn"] = "true"
 
@@ -452,10 +462,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
         if uiLocales is None:
             if step == 1: # Language detection
-                # The missing file extension below is intentional.
-                # This forces an extra redirect so that the request URL matches a rule in the
-                # Apache config that allows pass-through of the content security policy header.
-                return "/detlang"
+                return "/detlang.xhtml"
             elif step == 2: # Language Selection (Splash Page)
                 return "/lang.xhtml"
 

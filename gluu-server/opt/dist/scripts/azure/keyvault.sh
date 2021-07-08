@@ -7,28 +7,47 @@
 # keyvault.sh [KeyVault URI]
 
 KEYVAULT=$1
-API_VER='7.0'
+API_VER='7.1'
 KV_DIR=/run/keyvault
 
-extractJSONValue () {
-   /opt/node/bin/node -e "console.log(JSON.parse(require('fs').readFileSync(0, 'utf8'))[process.argv[1]])" $1
+# Obtain keyvault access token
+token_json=$(curl -s 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fvault.azure.net' -H Metadata:true)
+if [ $? -ne 0 ] ; then
+   echo "Failed to obtain an acces token from the metadata service. Aborting!"
+   exit 1
+else
+   access_token=$(echo -n ${token_json} | jq -r '.access_token')
+fi
+
+listCertificates () {
+   for retries in {1..10} ; do
+      json=$(curl -s --retry 5 -H "Authorization: Bearer ${access_token}" "${KEYVAULT}/certificates?api-version=${API_VER}") && break
+      echo "Faliled to obtain certificate list from keyvault during attempt #${retries} with error code $?"
+      sleep 10
+   done
+
+   if [ -z "$json" ] ; then # Error
+   echo "Giving up."
+      exit 1
+   else
+      echo -n ${json} | jq -r '.value[] | .id | split("/")[-1]'
+   fi
 }
 
 fetchSecret () {
-   curl -s -H "Authorization: Bearer ${TOKEN}" ${KEYVAULT}/secrets/${1}?api-version=${API_VER} \
-      | extractJSONValue value
+   for retries in {1..10} ; do
+      json=$(curl -s --retry 5 -H "Authorization: Bearer ${access_token}" "${KEYVAULT}/secrets/${1}?api-version=${API_VER}") && break
+      echo "Faliled to obtain secret ${1} from keyvault during attempt #${retries} with error code $?"
+      sleep 10
+   done
+   
+   if [ -z "$json" ] ; then # Error
+      echo "Giving up."
+      exit 1
+   else
+      echo -n ${json} | jq -r '.value'
+   fi
 }
-
-# Obtain an access token
-TOKEN=$(curl -s 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fvault.azure.net' -H Metadata:true | extractJSONValue access_token)
-
-# Verify connectivity before going any further
-if fetchSecret 'x' > /dev/null 2>&1 ; then
-   echo "Connected to Keyvault ${KEYVAULT}"
-else
-   echo "Connection to Keyvault ${KEYVAULT} failed. Aborting."
-   exit 1
-fi
 
 # Create a ramfs directory to hold the secrets
 umask 227
@@ -37,12 +56,7 @@ mount -t ramfs ramfs $KV_DIR
 mkdir ${KV_DIR}/certs ${KV_DIR}/secrets
 
 # Get the certificates and their private keys
-certs=$(curl -s -H "Authorization: Bearer ${TOKEN}" ${KEYVAULT}/certificates?api-version=${API_VER} \
-   | /opt/node/bin/node -e \
-    "let certs = JSON.parse(require('fs').readFileSync(0, 'utf8')).value; \
-     for (cert of certs) { \
-        console.log(cert.id.split('/').pop()); \
-     }" )
+certs=$(listCertificates)
 
 for cert in $certs ; do
    fetchSecret $cert | tee \
