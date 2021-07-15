@@ -5,7 +5,6 @@
 
 GCB="/etc/gluu/conf/gluu-couchbase.properties"
 ENCODE_PY="/opt/gluu/bin/encode.py"
-export CB_REST_USERNAME=Administrator
 
 testConnection () {
    for retries in {1..60} ; do
@@ -37,7 +36,8 @@ if [ ! -f $GCB -o ! -f $ENCODE_PY ]; then
    exit 1
 fi
 
-# Get the Couchbase admin password
+# Get the Couchbase username and password
+export CB_REST_USERNAME=$(grep auth.userName $GCB | awk '{print $2}')
 encoded_pwd=$(grep auth.userPassword $GCB | awk '{print $2}')
 export CB_REST_PASSWORD=$($ENCODE_PY -D $encoded_pwd)
 
