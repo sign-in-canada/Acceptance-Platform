@@ -7,6 +7,9 @@ echo 'Enabling the keyvault service...'
 yum install -y jq
 systemctl enable keyvault
 
+echo 'Enabling the couchbase health check service...'
+systemctl enable cbcheck
+
 echo 'Installing the Application Insights SDK to oxAuth...'
 install -m 644 -o jetty -g jetty /opt/dist/signincanada/applicationinsights-core-2.6.2.jar /opt/gluu/jetty/oxauth/custom/libs
 if [ -d /opt/gluu/jetty/idp ] ; then

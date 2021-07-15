@@ -1,0 +1,14 @@
+[Unit]
+Description=Perform a Couchbase health check before starting Gluu
+After=keyvault.service
+Before=identity.service
+Before=oxauth.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/dist/scripts/cbcheck.sh
+User=root
+Group=gluu
+
+[Install]
+WantedBy=multi-user.target
