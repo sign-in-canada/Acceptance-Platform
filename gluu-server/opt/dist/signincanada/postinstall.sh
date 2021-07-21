@@ -4,6 +4,10 @@ echo 'Stopping services...'
 systemctl stop httpd oxauth identity idp passport
 
 echo 'Enabling the keyvault service...'
+if grep Red /etc/redhat-release ; then
+   yum remove -y epel-release
+fi
+yum clean all
 yum install -y jq
 systemctl enable keyvault
 
@@ -67,9 +71,5 @@ echo "Configuring httpd chain certificate..."
 sed -i "17i\ \ \ \ \ \ \ \ SSLCertificateChainFile /etc/certs/httpd.chain" /etc/httpd/conf.d/https_gluu.conf
 
 echo "Updating packages..."
-if grep Red /etc/redhat-release ; then
-   yum remove -y epel-release
-fi
-yum clean all
 yum update -y
 echo 'Done.'
