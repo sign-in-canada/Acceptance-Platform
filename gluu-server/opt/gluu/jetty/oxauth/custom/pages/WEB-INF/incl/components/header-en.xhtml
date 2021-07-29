@@ -21,7 +21,9 @@
                 <h2 class="wb-inv">Language selection</h2>
                 <ul class="list-inline margin-bottom-none">
                     <li>
-                        <a lang="fr" xml:lang="fr" href="/oxauth/fr/choisir.htm">Français</a>
+                        <form jsf:id="lang">
+                            <a lang="fr" hreflang="fr" jsf:id="fr-CA" jsf:action="#{authenticator.authenticate}">Français</a>
+                        </form>
                     </li>
                 </ul>
             </section>
