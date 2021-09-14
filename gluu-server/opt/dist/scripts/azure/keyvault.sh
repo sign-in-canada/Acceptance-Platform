@@ -11,9 +11,20 @@ API_VER='7.1'
 KV_DIR=/run/keyvault
 
 # Obtain keyvault access token
-token_json=$(curl -s 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fvault.azure.net' -H Metadata:true)
-if [ $? -ne 0 ] ; then
-   echo "Failed to obtain an acces token from the metadata service. Aborting!"
+for retries in {1..10} ; do
+   token_json=$(curl -s --retry 5 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fvault.azure.net' -H Metadata:true)
+   curl_rc=$?
+   if [[ $curl_rc -ne 0 || -z "$token_json" || "$token_json" =~ "error" ]] ; then
+      echo "Failed to obtain an access token from the metadata service during attempt #${retries} with curl error code $curl_rc" >&2
+      echo "Response content was: $token_json" >&2
+      sleep 10
+   else
+      break
+   fi
+done
+
+if (( retries >= 10 )) ; then # Error
+   echo "Giving up." >&2
    exit 1
 else
    access_token=$(echo -n ${token_json} | jq -r '.access_token')
@@ -21,13 +32,19 @@ fi
 
 listCertificates () {
    for retries in {1..10} ; do
-      json=$(curl -s --retry 5 -H "Authorization: Bearer ${access_token}" "${KEYVAULT}/certificates?api-version=${API_VER}") && break
-      echo "Faliled to obtain certificate list from keyvault during attempt #${retries} with error code $?"
-      sleep 10
+      json=$(curl -s --retry 5 -H "Authorization: Bearer ${access_token}" "${KEYVAULT}/certificates?api-version=${API_VER}")
+      curl_rc=$?
+      if [[ $curl_rc -ne 0 || -z "$json" || "$json" =~ "error" ]] ; then
+         echo "Faliled to obtain certificate list from keyvault during attempt #${retries} with curl error code $curl_rc" >&2
+         echo "Response content was: $json" >&2
+         sleep 10
+      else
+         break
+      fi
    done
 
-   if [ -z "$json" ] ; then # Error
-   echo "Giving up."
+   if (( retries >= 10 )) ; then # Error
+   echo "Giving up." >&2
       exit 1
    else
       echo -n ${json} | jq -r '.value[] | .id | split("/")[-1]'
@@ -36,13 +53,19 @@ listCertificates () {
 
 fetchSecret () {
    for retries in {1..10} ; do
-      json=$(curl -s --retry 5 -H "Authorization: Bearer ${access_token}" "${KEYVAULT}/secrets/${1}?api-version=${API_VER}") && break
-      echo "Faliled to obtain secret ${1} from keyvault during attempt #${retries} with error code $?"
-      sleep 10
+      json=$(curl -s --retry 5 -H "Authorization: Bearer ${access_token}" "${KEYVAULT}/secrets/${1}?api-version=${API_VER}")
+      curl_rc=$?
+      if [[ $curl_rc -ne 0 || -z "$json" || "$json" =~ "error" ]] ; then
+         echo "Faliled to obtain secret ${1} from keyvault during attempt #${retries} with curl error code $curl_rc" >&2
+         echo "Response content was: $json" >&2
+         sleep 10
+      else
+         break
+      fi
    done
    
-   if [ -z "$json" ] ; then # Error
-      echo "Giving up."
+   if (( retries >= 10 )) ; then # Error
+      echo "Giving up." >&2
       exit 1
    else
       echo -n ${json} | jq -r '.value'
