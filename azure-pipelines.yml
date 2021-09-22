@@ -127,6 +127,7 @@ stages:
         chmod 700 opt/dist/scripts/azure/keyvault.sh
         chmod 755 opt/dist/scripts/notify
         chmod 700 opt/dist/scripts/crlcheck.sh
+        chmod 700 opt/dist/scripts/cbcheck.sh
         chmod 700 install/community-edition-setup/setup.py
         tar -czv --owner=root --group=root -f $(Build.ArtifactStagingDirectory)/SIC-AP-$(major_minor).$(build).tgz --exclude='opt/gluu' *
         openssl sha256 $(Build.ArtifactStagingDirectory)/SIC-AP-$(major_minor).$(build).tgz > $(Build.ArtifactStagingDirectory)/SIC-AP-$(major_minor).$(build).tgz.sha

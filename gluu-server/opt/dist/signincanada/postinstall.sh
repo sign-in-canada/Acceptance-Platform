@@ -4,8 +4,15 @@ echo 'Stopping services...'
 systemctl stop httpd oxauth identity idp passport
 
 echo 'Enabling the keyvault service...'
+if grep Red /etc/redhat-release ; then
+   yum remove -y epel-release
+fi
+yum clean all
 yum install -y jq
 systemctl enable keyvault
+
+echo 'Enabling the couchbase health check service...'
+systemctl enable cbcheck
 
 echo 'Installing the Application Insights SDK to oxAuth...'
 install -m 644 -o jetty -g jetty /opt/dist/signincanada/applicationinsights-core-2.6.2.jar /opt/gluu/jetty/oxauth/custom/libs
@@ -64,9 +71,5 @@ echo "Configuring httpd chain certificate..."
 sed -i "17i\ \ \ \ \ \ \ \ SSLCertificateChainFile /etc/certs/httpd.chain" /etc/httpd/conf.d/https_gluu.conf
 
 echo "Updating packages..."
-if grep Red /etc/redhat-release ; then
-   yum remove -y epel-release
-fi
-yum clean all
 yum update -y
 echo 'Done.'
