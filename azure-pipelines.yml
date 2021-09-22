@@ -177,3 +177,21 @@ stages:
         storage: sicpub
         containerName: staging
 
+- stage: QA
+  displayName: "Quality Assurance Testing"
+  condition: and(succeeded('Build'), eq(variables['build.sourceBranch'], 'refs/heads/feature/pipleline'))
+  jobs:
+  - deployment: Deploy
+    displayName: Deploy to the QA Environment
+    environment: QA
+    strategy:
+      runOnce:
+        deploy:
+          pool: server
+          steps:
+          - task: ManualValidation@0
+            timeoutInMinutes: 4320 # task times out in 3 days
+            inputs:
+              notifyUsers: 'SignIn-AuthentiCanada@tbs-sct.gc.ca'
+              instructions: 'Please install SIC-AP-$(major_minor).$(build) to QA'
+              onTimeout: 'reject'
