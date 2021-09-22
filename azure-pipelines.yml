@@ -180,7 +180,7 @@ stages:
 
 - stage: QA
   displayName: "Quality Assurance Testing"
-  condition: and(succeeded('Build'), eq(variables['build.sourceBranch'], 'refs/heads/feature/pipleline'))
+  condition: and(succeeded('Build'), eq(variables['Build.SourceBranch'], 'refs/heads/feature/pipleline'))
   jobs:
   - deployment: Deploy
     displayName: Deploy to the QA Environment
