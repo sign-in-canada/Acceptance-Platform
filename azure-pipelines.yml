@@ -163,6 +163,7 @@ stages:
     dependsOn: Package
 
     steps:
+    - checkout: none
     - task: DownloadPipelineArtifact@2
       inputs:
         source: current
