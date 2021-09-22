@@ -180,7 +180,7 @@ stages:
 
 - stage: QA
   displayName: "Quality Assurance Testing"
-  # condition: and(succeeded('Build'), eq(variables['Build.SourceBranch'], 'refs/heads/feature/pipleline'))
+  condition: and(succeeded('Build'), eq(variables['Build.SourceBranch'], 'refs/heads/feature/pipeline'))
   jobs:
   - deployment: Deploy
     displayName: Deploy to the QA Environment
@@ -192,7 +192,7 @@ stages:
             vmImage: 'ubuntu-latest'
           steps:
             - script: echo 'Source Branch is $(Build.SourceBranch)'
-            - script: echo 'Build suceeded is $(succeeded('Build'))''
+            - script: echo 'Build suceeded is $(succeeded('Build'))'
         deploy:
           pool: server
           steps:
