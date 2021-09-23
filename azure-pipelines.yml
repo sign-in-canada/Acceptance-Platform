@@ -173,7 +173,7 @@ stages:
     - task: AzureFileCopy@4
       inputs:
         sourcePath: $(Build.ArtifactStagingDirectory)\*
-        azureSubscription: 'Sign in Canada CATSLab'
+        azureSubscription: 'SIC Service Connection'
         destination: azureBlob
         storage: sicqa
         containerName: staging
