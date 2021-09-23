@@ -175,7 +175,7 @@ stages:
         sourcePath: $(Build.ArtifactStagingDirectory)\*
         azureSubscription: 'SIC Service Connection'
         destination: azureBlob
-        storage: sicqa
+        storage: sicpub
         containerName: staging
 
 - stage: QA
