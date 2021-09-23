@@ -180,7 +180,7 @@ stages:
 
 - stage: QA
   displayName: "Quality Assurance Testing"
-  condition: and(succeeded('Build'), eq(variables['Build.SourceBranch'], 'refs/heads/feature/pipeline'))
+  condition: and(succeeded('Build'), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
   jobs:
   - deployment: Deploy
     displayName: Deploy to the QA Environment
@@ -199,7 +199,7 @@ stages:
 
 - stage: CATE
   displayName: "Client Acceptance Testing"
-  condition: and(succeeded('QA'), eq(variables['Build.SourceBranch'], 'refs/heads/feature/pipeline'))
+  condition: and(succeeded('QA'), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
   jobs:
   - deployment: Deploy
     displayName: Deploy to CATE
@@ -218,7 +218,7 @@ stages:
 
 - stage: PROD
   displayName: "Production"
-  condition: and(succeeded('CATE'), eq(variables['Build.SourceBranch'], 'refs/heads/feature/pipeline'))
+  condition: and(succeeded('CATE'), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
   jobs:
   - deployment: Deploy
     displayName: Deploy to the production environment
