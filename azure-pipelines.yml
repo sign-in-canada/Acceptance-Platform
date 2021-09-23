@@ -185,10 +185,10 @@ stages:
   - deployment: Deploy
     displayName: Deploy to the QA Environment
     environment: QA
+    pool: server
     strategy:
       runOnce:
         deploy:
-          pool: server
           steps:
           - task: ManualValidation@0
             timeoutInMinutes: 4320 # task times out in 3 days
@@ -199,15 +199,15 @@ stages:
 
 - stage: CATE
   displayName: "Client Acceptance Testing"
-  condition: and(succeeded('Build'), eq(variables['Build.SourceBranch'], 'refs/heads/feature/pipeline'))
+  condition: and(succeeded('QA'), eq(variables['Build.SourceBranch'], 'refs/heads/feature/pipeline'))
   jobs:
   - deployment: Deploy
     displayName: Deploy to CATE
     environment: QA
+    pool: server
     strategy:
       runOnce:
         deploy:
-          pool: server
           steps:
           - task: ManualValidation@0
             timeoutInMinutes: 4320 # task times out in 3 days
@@ -223,10 +223,10 @@ stages:
   - deployment: Deploy
     displayName: Deploy to the production environment
     environment: QA
+    pool: server
     strategy:
       runOnce:
         deploy:
-          pool: server
           steps:
           - task: ManualValidation@0
             timeoutInMinutes: 4320 # task times out in 3 days
