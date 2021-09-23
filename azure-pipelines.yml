@@ -187,12 +187,6 @@ stages:
     environment: QA
     strategy:
       runOnce:
-        preDeploy:
-          pool:
-            vmImage: 'ubuntu-latest'
-          steps:
-            - script: echo 'Source Branch is $(Build.SourceBranch)'
-            - script: echo 'Build suceeded is $(succeeded('Build'))'
         deploy:
           pool: server
           steps:
@@ -201,4 +195,42 @@ stages:
             inputs:
               notifyUsers: 'SignIn-AuthentiCanada@tbs-sct.gc.ca'
               instructions: 'Please install SIC-AP-$(major_minor).$(build) to QA'
+              onTimeout: 'reject'
+
+- stage: CATE
+  displayName: "Client Acceptance Testing"
+  condition: and(succeeded('Build'), eq(variables['Build.SourceBranch'], 'refs/heads/feature/pipeline'))
+  jobs:
+  - deployment: Deploy
+    displayName: Deploy to CATE
+    environment: QA
+    strategy:
+      runOnce:
+        deploy:
+          pool: server
+          steps:
+          - task: ManualValidation@0
+            timeoutInMinutes: 4320 # task times out in 3 days
+            inputs:
+              notifyUsers: 'SignIn-AuthentiCanada@tbs-sct.gc.ca'
+              instructions: 'Please install SIC-AP-$(major_minor).$(build) to CATE'
+              onTimeout: 'reject'
+
+- stage: PROD
+  displayName: "Production"
+  condition: and(succeeded('CATE'), eq(variables['Build.SourceBranch'], 'refs/heads/feature/pipeline'))
+  jobs:
+  - deployment: Deploy
+    displayName: Deploy to the production environment
+    environment: QA
+    strategy:
+      runOnce:
+        deploy:
+          pool: server
+          steps:
+          - task: ManualValidation@0
+            timeoutInMinutes: 4320 # task times out in 3 days
+            inputs:
+              notifyUsers: 'SignIn-AuthentiCanada@tbs-sct.gc.ca'
+              instructions: 'Please install SIC-AP-$(major_minor).$(build) to PROD'
               onTimeout: 'reject'
