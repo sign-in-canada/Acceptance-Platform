@@ -118,10 +118,12 @@ if [ "$salt" != "undefined" ] ; then
       >> ${KV_DIR}/secrets/gluu-couchbase.properties
    ln -s -f ${KV_DIR}/secrets/gluu-couchbase.properties $GCB
 
-   # Get the Couchbase shibboleth password
-   echo "idp.attribute.resolver.datasource.password=" \
-      $(fetchSecret APShibPW) > ${KV_DIR}/secrets/secrets.properties
-   ln -s -f ${KV_DIR}/secrets/secrets.properties /opt/shibboleth-idp/conf/secrets.properties
+   if [ -d /opt/shibboleth-idp/conf ] ; then
+      # Get the Couchbase shibboleth password
+      echo "idp.attribute.resolver.datasource.password=" \
+         $(fetchSecret APShibPW) > ${KV_DIR}/secrets/secrets.properties
+      ln -s -f ${KV_DIR}/secrets/secrets.properties /opt/shibboleth-idp/conf/secrets.properties
+   fi
 fi
 
 exit 0
