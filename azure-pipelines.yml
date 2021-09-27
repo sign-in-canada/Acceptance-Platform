@@ -163,6 +163,7 @@ stages:
     dependsOn: Package
 
     steps:
+    - checkout: none
     - task: DownloadPipelineArtifact@2
       inputs:
         source: current
@@ -172,8 +173,64 @@ stages:
     - task: AzureFileCopy@4
       inputs:
         sourcePath: $(Build.ArtifactStagingDirectory)\*
-        azureSubscription: Sign in Canada CATSLab
+        azureSubscription: 'SIC Service Connection'
         destination: azureBlob
-        storage: sicqa
+        storage: sicpub
         containerName: staging
 
+- stage: QA
+  displayName: "Quality Assurance Testing"
+  condition: and(succeeded('Build'), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+  jobs:
+  - deployment: Deploy
+    displayName: Deploy to the QA Environment
+    environment: QA
+    pool: server
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: ManualValidation@0
+            timeoutInMinutes: 4320 # task times out in 3 days
+            inputs:
+              notifyUsers: 'SignIn-AuthentiCanada@tbs-sct.gc.ca'
+              instructions: 'Please install SIC-AP-$(major_minor).$(build) to QA'
+              onTimeout: 'reject'
+
+- stage: CATE
+  displayName: "Client Acceptance Testing"
+  condition: and(succeeded('QA'), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+  jobs:
+  - deployment: Deploy
+    displayName: Deploy to CATE
+    environment: QA
+    pool: server
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: ManualValidation@0
+            timeoutInMinutes: 4320 # task times out in 3 days
+            inputs:
+              notifyUsers: 'SignIn-AuthentiCanada@tbs-sct.gc.ca'
+              instructions: 'Please install SIC-AP-$(major_minor).$(build) to CATE'
+              onTimeout: 'reject'
+
+- stage: PROD
+  displayName: "Production"
+  condition: and(succeeded('CATE'), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+  jobs:
+  - deployment: Deploy
+    displayName: Deploy to the production environment
+    environment: QA
+    pool: server
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: ManualValidation@0
+            timeoutInMinutes: 4320 # task times out in 3 days
+            inputs:
+              notifyUsers: 'SignIn-AuthentiCanada@tbs-sct.gc.ca'
+              instructions: 'Please install SIC-AP-$(major_minor).$(build) to PROD'
+              onTimeout: 'reject'
