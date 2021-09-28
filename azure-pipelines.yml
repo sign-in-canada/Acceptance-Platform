@@ -5,7 +5,7 @@ trigger: none
 pr:
   - develop
 variables:
-  major_minor: '1.1'
+  major_minor: '1.2'
   # define b as a counter with the prefix as variable a, and seed as 10.
   build: $[counter(variables['major_minor'], 0)]
 
@@ -75,7 +75,7 @@ stages:
         project: '7302639f-e704-47c3-9557-99b4e04a75bc'
         definition: '285'
         runVersion: 'latestFromBranch'
-        runBranch: "refs/heads/develop_4.3.0"
+        runBranch: "refs/heads/sic/develop"
         artifactName: 'gluu-passport'
         targetPath: '$(Pipeline.Workspace)/s/gluu-server/opt/dist/gluu'
       displayName: 'Download gluu-passport tarballs'
@@ -83,7 +83,7 @@ stages:
 
     - script: |
         cd gluu-server/opt/dist/gluu
-        mv passport-version_4.5.0-node_modules.tar.gz passport-version_4.2.3-node_modules.tar.gz
+        mv passport-version_5.3.0-node_modules.tar.gz passport-version_4.2.3-node_modules.tar.gz
       displayName: 'Renaming node modules'
       continueOnError: true
 
