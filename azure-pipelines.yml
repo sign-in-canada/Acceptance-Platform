@@ -203,7 +203,7 @@ stages:
   jobs:
   - deployment: Deploy
     displayName: Deploy to CATE
-    environment: QA
+    environment: CATE
     pool: server
     strategy:
       runOnce:
@@ -222,7 +222,7 @@ stages:
   jobs:
   - deployment: Deploy
     displayName: Deploy to the production environment
-    environment: QA
+    environment: PROD
     pool: server
     strategy:
       runOnce:
