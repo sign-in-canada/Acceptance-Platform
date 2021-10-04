@@ -52,23 +52,6 @@ stages:
       displayName: 'Downloading Latest Amazon Corretto'
       continueOnError: false
 
-    - script: |
-        wget https://repo1.maven.org/maven2/com/couchbase/client/core-io/1.7.19/core-io-1.7.19.jar \
-          -P gluu-server/opt/dist/app
-        wget https://repo1.maven.org/maven2/com/couchbase/client/core-io/1.7.19/core-io-1.7.19.jar.asc \
-          -P $(Agent.TempDirectory)
-          wget https://repo1.maven.org/maven2/com/couchbase/client/java-client/2.7.19/java-client-2.7.19.jar \
-          -P gluu-server/opt/dist/app
-        wget https://repo1.maven.org/maven2/com/couchbase/client/java-client/2.7.19/java-client-2.7.19.jar.asc \
-          -P $(Agent.TempDirectory)
-        echo 'Checking download integrity'
-        gpg2 --keyserver hkps://keyserver.ubuntu.com --recv-keys A6BCCB72D65B0D0F
-        gpg2 --verify $(Agent.TempDirectory)/core-io-1.7.19.jar.asc gluu-server/opt/dist/app/core-io-1.7.19.jar
-        gpg2 --verify $(Agent.TempDirectory)/java-client-2.7.19.jar.asc gluu-server/opt/dist/app/java-client-2.7.19.jar
-        echo 'Passed'
-      displayName: 'Downlaoding the latest Couchbase client'
-      continueOnError: false
-
     - task: DownloadPipelineArtifact@2
       inputs:
         buildType: 'specific'
@@ -83,7 +66,7 @@ stages:
 
     - script: |
         cd gluu-server/opt/dist/gluu
-        mv passport-version_5.3.0-node_modules.tar.gz passport-version_4.2.3-node_modules.tar.gz
+        mv passport-version_5.3.0-node_modules.tar.gz passport-version_4.3.0-node_modules.tar.gz
       displayName: 'Renaming node modules'
       continueOnError: true
 

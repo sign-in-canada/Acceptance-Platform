@@ -23,27 +23,6 @@ if [ -d /opt/gluu/jetty/idp ] ; then
    install -m 644 -o jetty -g jetty /opt/dist/signincanada/applicationinsights-core-2.6.2.jar /opt/gluu/jetty/idp/custom/libs
 fi
 
-echo 'Updating the Couchbase client...'
-mkdir -p /tmp/patch/WEB-INF/lib
-cp /opt/dist/app/core-io-1.7.19.jar /tmp/patch/WEB-INF/lib
-cp /opt/dist/app/java-client-2.7.19.jar /tmp/patch/WEB-INF/lib
-pushd /tmp/patch 2>&1
-zip -d /opt/gluu/jetty/oxauth/webapps/oxauth.war \
-   WEB-INF/lib/core-io-1.7.16.jar \
-   WEB-INF/lib/java-client-2.7.16.jar
-zip -u /opt/gluu/jetty/oxauth/webapps/oxauth.war WEB-INF/lib/*
-zip -d /opt/gluu/jetty/identity/webapps/identity.war \
-   WEB-INF/lib/core-io-1.7.16.jar \
-   WEB-INF/lib/java-client-2.7.16.jar
-zip -u /opt/gluu/jetty/identity/webapps/identity.war WEB-INF/lib/*
-if [ -d /opt/gluu/jetty/idp ] ; then
-   zip -qd /opt/gluu/jetty/idp/webapps/idp.war \
-      WEB-INF/lib/core-io-1.7.16.jar \
-      WEB-INF/lib/java-client-2.7.16.jar
-   zip -qu /opt/gluu/jetty/idp/webapps/idp.war WEB-INF/lib/*
-fi
-popd > /dev/null 2>&1
-
 echo 'Installing the UI...'
 tar xzf /opt/dist/signincanada/custom.tgz -C /opt/gluu/jetty/oxauth/custom
 chown -R jetty:jetty /opt/gluu/jetty/oxauth/custom
