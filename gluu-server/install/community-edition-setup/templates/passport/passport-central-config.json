@@ -132,7 +132,7 @@
       "displayName": "Gluu MFA for ATIP",
       "type": "openidconnect",
       "mapping": "oidc_cats3_profile",
-      "passportStrategyId": "@sic/passport-openidconnect",
+      "passportStrategyId": "openid-client",
       "enabled": true,
       "callbackUrl": "https://%(hostname)s/passport/auth/mfa/callback",
       "requestForEmail": false,

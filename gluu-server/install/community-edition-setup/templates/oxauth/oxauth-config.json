@@ -328,7 +328,7 @@
     },
     "loggingLevel": "INFO",
     "loggingLayout": "text",
-   "enabledOAuthAuditLogging": "true",
+    "enabledOAuthAuditLogging": "true",
     "errorHandlingMethod":"internal",
     "useLocalCache":true,
     "backchannelTokenDeliveryModesSupported": [],
@@ -344,6 +344,7 @@
     "cibaGrantLifeExtraTimeSec": 180,
     "cibaMaxExpirationTimeAllowedSec": 1800,
     "backchannelLoginHintClaims": ["inum", "uid", "mail"],
+    "cibaEnabled": false,
     "cibaEndUserNotificationConfig": {
         "apiKey": "",
         "authDomain": "",
