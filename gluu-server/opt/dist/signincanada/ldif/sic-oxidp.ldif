@@ -18,4 +18,4 @@ inum: GC03
 dn: inum=%(idp_client_id)s,ou=clients,o=gluu
 changetype: modify
 add: oxAuthPostLogoutRedirectURI
-oxAuthPostLogoutRedirectURI: https://%(hostname)s/passport/logout/repsonse
+oxAuthPostLogoutRedirectURI: https://%(hostname)s/passport/logout/response
