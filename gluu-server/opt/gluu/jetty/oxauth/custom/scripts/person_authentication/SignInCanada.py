@@ -195,7 +195,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     identity.setWorkingParameter(param, rpConfig[param])
 
             else: # Prepare for call to passport
-                passportOptions = {}
+                passportOptions = {"ui_locales": uiLocales}
                 userId = identity.getWorkingParameter("userId")
                 rpConfig = self.getRPConfig(session)
 
@@ -224,11 +224,12 @@ class PersonAuthentication(PersonAuthenticationType):
                         return False
                     loginHint = "%s|%s" % (mfaId, entityId)
                     passportOptions["login_hint"] = Base64Util.base64urlencode(crypto.encryptAES(self.aesKey, loginHint))
+                    passportOptions["client_id"] = rpConfig.get("mfa")
 
                 # Set the abort flag so we only do this once
                 identity.setWorkingParameter("abort", True)
                 # Send the request to passport
-                passportRequest = self.passport.createRequest(provider, uiLocales, passportOptions)
+                passportRequest = self.passport.createRequest(provider, passportOptions)
                 facesService.redirectToExternalURL(passportRequest)
 
         return True
@@ -429,11 +430,19 @@ class PersonAuthentication(PersonAuthenticationType):
             return authenticationService.authenticate(user.getUserId())
 
         else: # MFA
-            user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "oxExternalUid")
+            user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "oxExternalUid", "locale")
             mfaExternalId = self.account.getExternalUid(user, "mfa")
             if externalProfile.get("externalUid").split(":", 1)[1] != mfaExternalId:
                 # Got the wrong MFA PAI. Authentication failed!
                 return False
+
+            # Accept locale from the 2nd-factor CSP
+            locale = externalProfile.get("locale")
+            if locale:
+                languageBean.setLocaleCode(locale)
+                if locale != user.getAttribute("locale", True, False):
+                    user.setAttribute("locale", locale, False)
+                    userService.updateUser(user)
 
             eventProperties["sub"] = self.account.getOpenIdSubject(user, self.getClient(session))
             self.telemetryClient.trackEvent("Authentication", eventProperties, None)

@@ -19,6 +19,7 @@ from org.gluu.util import StringHelper
 from java.util import Collections
 from javax.faces.context import FacesContext
 from java.net import URLEncoder
+from org.apache.commons.lang3 import StringUtils
 
 import json
 import sys
@@ -69,7 +70,7 @@ class Passport:
         print ("Passport. init for %s. Initialization success" % scriptName)
         return True
 
-    def createRequest(self, providerId, locale, options):
+    def createRequest(self, providerId, options):
         """Create a redirect  URL to send an authentication request to passport."""
 
         url = None
@@ -94,23 +95,27 @@ class Passport:
             else:
                 raise PassportError("Failed to obtain token from Passport")
 
-            language = locale[:2].lower()
-
-            url = "/passport/auth/%s/%s?ui_locales=%s" % (providerId, token, language)
-
             if options is not None:
-                for option, value in options.items():
-                    url += "&%s=%s" % (option, URLEncoder.encode(value, "UTF8"))
+                jsonOptions = json.dumps(options)
+                encryptedOptions = CdiUtil.bean(EncryptionService).encrypt(jsonOptions)
+                # Need to translate from base64 to base64url to make it URL-friendly for passport
+                # See RFC4648 section 5
+                encodedOptions = StringUtils.replaceChars(encryptedOptions, "/+", "_-")
 
-            if providerConfig["GCCF"]:
-                # Need to set the language cookie
-                langCode = {"en": "eng", "fr": "fra"}[language]
-                url = "%s?lang=%s&return=%s" % (self.passportConfig["languageCookieService"], langCode,
-                                        URLEncoder.encode("https://" + serverName + url, "UTF8"))
+                url = "/passport/auth/%s/%s/%s" % (providerId, token, encodedOptions)
+                if providerConfig["GCCF"]:
+                    # Need to set the language cookie
+                    langCode = {"en": "eng", "fr": "fra"}[options["ui_locales"][:2].lower()]
+                    url = "%s?lang=%s&return=%s" % (self.passportConfig["languageCookieService"], langCode,
+                                            URLEncoder.encode("https://" + serverName + url, "UTF8"))
+            else:
+                url = "/passport/auth/%s/%s" % (providerId, token)
+
 
         except:
             print ("Passport. createRequest. Error building redirect URL: ", sys.exc_info()[1])
 
+        print ("Passport URL is: " + url)
         return url
 
     def handleResponse(self, requestParameters):
