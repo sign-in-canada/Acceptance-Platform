@@ -34,7 +34,7 @@ class Passport:
     def __init__(self):
         return None
 
-    def init(self, configurationAttributes, scriptName, providers):
+    def init(self, configurationAttributes, scriptName):
 
         print ("Passport. init called from " + scriptName)
 
@@ -60,7 +60,7 @@ class Passport:
                     return False
 
             # Load all provider configurations
-            self.registeredProviders = self.parseProviders(providers)
+            self.registeredProviders = self.parseProviders()
 
         except:
             print ("Passport. init for %s. Initialization failed:" % scriptName)
@@ -70,7 +70,7 @@ class Passport:
         print ("Passport. init for %s. Initialization success" % scriptName)
         return True
 
-    def createRequest(self, providerId, options):
+    def createRequest(self, providerId, params):
         """Create a redirect  URL to send an authentication request to passport."""
 
         url = None
@@ -95,17 +95,17 @@ class Passport:
             else:
                 raise PassportError("Failed to obtain token from Passport")
 
-            if options is not None:
-                jsonOptions = json.dumps(options)
-                encryptedOptions = CdiUtil.bean(EncryptionService).encrypt(jsonOptions)
+            if params is not None:
+                jsonParams = json.dumps(params)
+                encryptedParams = CdiUtil.bean(EncryptionService).encrypt(jsonParams)
                 # Need to translate from base64 to base64url to make it URL-friendly for passport
                 # See RFC4648 section 5
-                encodedOptions = StringUtils.replaceChars(encryptedOptions, "/+", "_-")
+                encodedParams = StringUtils.replaceChars(encryptedParams, "/+", "_-")
 
-                url = "/passport/auth/%s/%s/%s" % (providerId, token, encodedOptions)
+                url = "/passport/auth/%s/%s/%s" % (providerId, token, encodedParams)
                 if providerConfig["GCCF"]:
                     # Need to set the language cookie
-                    langCode = {"en": "eng", "fr": "fra"}[options["ui_locales"][:2].lower()]
+                    langCode = {"en": "eng", "fr": "fra"}[params["ui_locales"][:2].lower()]
                     url = "%s?lang=%s&return=%s" % (self.passportConfig["languageCookieService"], langCode,
                                             URLEncoder.encode("https://" + serverName + url, "UTF8"))
             else:
@@ -191,7 +191,7 @@ class Passport:
         f.close()
         return "=".join(prop).strip()
 
-    def parseProviders(self, allowedProviders):
+    def parseProviders(self):
         print ("Passport. parseProviders. Adding providers")
 
         registeredProviders = {}
@@ -209,11 +209,9 @@ class Passport:
         
         providers = passportConfig.getProviders()
 
-        if providers != None and len(providers) > 0:
+        if providers is not None and len(providers) > 0:
             for provider in providers:
-                if (provider.isEnabled()
-                    and (provider.getId() in allowedProviders
-                         or provider.getId() == "mfa")):
+                if provider.isEnabled():
                     registeredProviders[provider.getId()] = {
                         "type": provider.getType(),
                         "options": provider.getOptions(),

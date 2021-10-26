@@ -96,7 +96,7 @@ class PersonAuthentication(PersonAuthenticationType):
         self.rpConfigCache = {}
 
         self.passport = passport.Passport()
-        self.passport.init(configurationAttributes, self.name, self.providers)
+        self.passport.init(configurationAttributes, self.name)
         
         self.account = account.Account()
 
@@ -207,7 +207,7 @@ class PersonAuthentication(PersonAuthenticationType):
                         or ("GCCF" in self.passport.getProvider(provider)["options"] and maxAge < 1200)): # 1200 is 20 minutes, the SSO timeout on GCKey and CBS
                         passportOptions["forceAuthn"] = "true"
 
-                elif provider != "mfa" : # This is our second (collection) request to passport
+                elif provider != rpConfig.get("mfaProvider"): # This is our second (PAI collection) request to passport
                     passportOptions["allowCreate"] = "false"
                     passportOptions["spNameQualifier"] = rpConfig.get("collect")
 
@@ -222,9 +222,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     if mfaId is None:
                         print("%s: prepareForStep. mfaId is missing!" % self.name)
                         return False
-                    loginHint = "%s|%s" % (mfaId, entityId)
-                    passportOptions["login_hint"] = Base64Util.base64urlencode(crypto.encryptAES(self.aesKey, loginHint))
-                    passportOptions["client_id"] = rpConfig.get("mfa")
+                    passportOptions["login_hint"] = mfaId
 
                 # Set the abort flag so we only do this once
                 identity.setWorkingParameter("abort", True)
@@ -248,6 +246,7 @@ class PersonAuthentication(PersonAuthenticationType):
         
         session = identity.getSessionId()
         sessionAttributes = session.getSessionAttributes()
+        rpConfig = self.getRPConfig(session)
 
         # Clear the abort flag
         identity.setWorkingParameter("abort", False)
@@ -266,7 +265,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     # locale = ServerUtil.getFirstValue(requestParameters, "ui_locale") # TODO: Update passport to send language onerror
                     # sessionAttributes.put(AuthorizeRequestParam.UI_LOCALES, locale)
                     identity.setWorkingParameter("provider", None)
-            elif identity.getWorkingParameter("provider") == "mfa": #MFA Failed
+            elif identity.getWorkingParameter("provider") == rpConfig.get("mfaProvider"): #MFA Failed
                 return False
             else: # PAI Collection failed. If it's a SAML SP, Create a new SIC PAI
                 # TODO: Check the actual SANLStatus for InvalidNameIdPolicy (needs to be sent from Passport)
@@ -325,7 +324,7 @@ class PersonAuthentication(PersonAuthenticationType):
         externalProfile = self.passport.handleResponse(requestParameters)
 
         provider = externalProfile["provider"]
-        if provider not in self.providers and provider != "mfa":
+        if provider not in self.providers and provider != rpConfig.get("mfaProvider"):
             # Unauthorized provider!
             return False
         else:
@@ -354,7 +353,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 sessionAttributes.put("sessionIndex", externalProfile["sessionIndex"][0])
 
             # Update the preferred language if it has changed
-            locale = ServerUtil.getFirstValue(requestParameters, "ui_locale") # TODO: change to ui_locales (needs to be done in Passport too)
+            locale = ServerUtil.getFirstValue(requestParameters, "locale")
             languageBean.setLocaleCode(locale)
             if locale != user.getAttribute("locale", True, False):
                 user.setAttribute("locale", locale, False)
@@ -366,7 +365,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 user = self.account.addSamlSubject(user, spNameQualifier)
                 userChanged = True
 
-            if rpConfig.get("mfa"): # IF MFA is enabled
+            if rpConfig.get("mfaProvider"): # IF MFA is enabled
                 # grab the mfaId, or create  if needed
                 mfaId = self.account.getExternalUid(user, "mfa")
                 if mfaId is None:
@@ -386,8 +385,8 @@ class PersonAuthentication(PersonAuthenticationType):
                     self.addAuthenticationStep()
                     return True
             # Do we need to perform MFA next?
-            elif rpConfig.get("mfa"): 
-                identity.setWorkingParameter("provider", "mfa")
+            elif rpConfig.get("mfaProvider"): 
+                identity.setWorkingParameter("provider", rpConfig["mfaProvider"])
                 self.addAuthenticationStep()
                 return True
 
@@ -396,7 +395,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
             return authenticationService.authenticate(user.getUserId())
 
-        elif provider != "mfa": # PAI Collection
+        elif provider != rpConfig.get("mfaProvider"): # PAI Collection
             user = userService.getUser(identity.getWorkingParameter("userId"), "inum", "uid", "persistentId")
             # Validate the session first
             if externalProfile["sessionIndex"][0] != sessionAttributes.get("sessionIndex"):
@@ -420,8 +419,8 @@ class PersonAuthentication(PersonAuthenticationType):
                 self.account.addOpenIdSubject(user, client, provider + nameId)
 
             # Is MFA required next?
-            if rpConfig.get("mfa"):
-                identity.setWorkingParameter("provider", "mfa")
+            if rpConfig.get("mfaProvider"):
+                identity.setWorkingParameter("provider", rpConfig["mfaProvider"])
                 self.addAuthenticationStep()
                 return True
 
