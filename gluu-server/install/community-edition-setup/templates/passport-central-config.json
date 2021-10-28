@@ -91,7 +91,7 @@
       "emailLinkingSafe": false,
       "options": {
         "issuer": "https://te-mfa.auth.canada.ca",
-        "clientID": "xxxxx",
+        "client_id": "xxxxx",
         "params": "{\"scope\":\"openid\"}",
         "request_object_signing_alg": "RS256",
         "request_object_encryption_alg": "RSA-OAEP",
