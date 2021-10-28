@@ -4,7 +4,15 @@
 #
 
 # Retrieve the key ids (kid) for each key from the oxAuth jwks_uri
-kids=$(curl -s https://$(hostname)/oxauth/restv1/jwks | jq -r ".keys[].kid")
+for retries in {1..10} ; do
+    kids=$(curl -s https://$(hostname)/oxauth/restv1/jwks | jq -r ".keys[].kid")
+    if [[ $? -ne 0 || -z "$kids" ]] ; then
+        echo "Failed to retrieve the JWKS from oxAuth on attempt $retries"
+        sleep 30
+    else
+        break
+    fi
+done
 
 # Cleanup old keys
 rm -rf /run/keyvault/keys
