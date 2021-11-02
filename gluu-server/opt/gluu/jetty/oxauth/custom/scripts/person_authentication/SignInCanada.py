@@ -265,8 +265,8 @@ class PersonAuthentication(PersonAuthenticationType):
                     # locale = ServerUtil.getFirstValue(requestParameters, "ui_locale") # TODO: Update passport to send language onerror
                     # sessionAttributes.put(AuthorizeRequestParam.UI_LOCALES, locale)
                     identity.setWorkingParameter("provider", None)
-            elif identity.getWorkingParameter("provider") == rpConfig.get("mfaProvider"): #MFA Failed
-                return False
+            elif identity.getWorkingParameter("provider") == rpConfig.get("mfaProvider"): # MFA Failed. Redirect back to the RP
+                facesService.redirectToExternalURL(self.getClientUri(session))
             else: # PAI Collection failed. If it's a SAML SP, Create a new SIC PAI
                 # TODO: Check the actual SANLStatus for InvalidNameIdPolicy (needs to be sent from Passport)
                 spNameQualifier = sessionAttributes.get("spNameQualifier")
