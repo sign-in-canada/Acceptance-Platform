@@ -440,7 +440,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 return False
 
             # Accept locale from the 2nd-factor CSP
-            locale = externalProfile.get("locale")
+            locale = externalProfile.get("locale")[0]
             if locale:
                 languageBean.setLocaleCode(locale)
                 if locale != user.getAttribute("locale", True, False):
