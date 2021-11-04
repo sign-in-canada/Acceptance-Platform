@@ -111,11 +111,9 @@ class Passport:
             else:
                 url = "/passport/auth/%s/%s" % (providerId, token)
 
-
         except:
             print ("Passport. createRequest. Error building redirect URL: ", sys.exc_info()[1])
 
-        print ("Passport URL is: " + url)
         return url
 
     def handleResponse(self, requestParameters):
