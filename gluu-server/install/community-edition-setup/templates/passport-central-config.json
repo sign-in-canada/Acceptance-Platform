@@ -94,8 +94,9 @@
         "client_id": "xxxxx",
         "params": "{\"scope\":\"openid\"}",
         "request_object_signing_alg": "RS256",
-        "request_object_encryption_alg": "RSA-OAEP",
+        "request_object_encryption_alg": "RSA-OAEP-256",
         "token_endpoint_auth_method": "private_key_jwt",
+        "token_endpoint_auth_signing_alg": "RS256",
         "use_request_object": "true"
       }
     }
