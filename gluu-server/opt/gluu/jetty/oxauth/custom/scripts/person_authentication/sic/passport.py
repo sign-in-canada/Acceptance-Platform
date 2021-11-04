@@ -215,7 +215,8 @@ class Passport:
                     registeredProviders[provider.getId()] = {
                         "type": provider.getType(),
                         "options": provider.getOptions(),
-                        "GCCF": "GCCF" in provider.getOptions() and provider.getOptions()["GCCF"].lower() in ["true", "yes"]
+                        "GCCF": "GCCF" in provider.getOptions() and provider.getOptions()["GCCF"].lower() in ["true", "yes"],
+                        "callbackUrl": provider.getCallbackUrl()
                     }
                     print("Configured %s provider %s" % (provider.getType(), provider.getId()))
 

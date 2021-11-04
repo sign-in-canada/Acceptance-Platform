@@ -223,6 +223,10 @@ class PersonAuthentication(PersonAuthenticationType):
                         print("%s: prepareForStep. mfaId is missing!" % self.name)
                         return False
                     passportOptions["login_hint"] = mfaId
+                    # The following parameters are redundant, but currently required by the 2ndFaaS
+                    passportOptions["redirect_uri"] = self.passport.getProvider(provider)["callbackUrl"]
+                    passportOptions["response_type"] = "code"
+                    passportOptions["scope"] = "openid profile"
 
                 # Set the abort flag so we only do this once
                 identity.setWorkingParameter("abort", True)
