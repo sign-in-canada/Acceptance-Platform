@@ -1,0 +1,13 @@
+[Unit]
+Description=Extract oXauth keys for use by Passport
+After=identity.service
+Before=passport.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/dist/scripts/passportkeys.sh
+User=root
+Group=gluu
+
+[Install]
+WantedBy=multi-user.target
