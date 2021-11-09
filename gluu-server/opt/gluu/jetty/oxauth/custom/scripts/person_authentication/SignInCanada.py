@@ -31,6 +31,7 @@ from java.util import Arrays
 
 import sys
 import json
+import time
 
 class SICError(Exception):
     """Base class for exceptions in this module."""
@@ -195,7 +196,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     identity.setWorkingParameter(param, rpConfig[param])
 
             else: # Prepare for call to passport
-                passportOptions = {"ui_locales": uiLocales}
+                passportOptions = {"ui_locales": uiLocales, "exp" : int(time.time()) + 60}
                 userId = identity.getWorkingParameter("userId")
                 rpConfig = self.getRPConfig(session)
 
