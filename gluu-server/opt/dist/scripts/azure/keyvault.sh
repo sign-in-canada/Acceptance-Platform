@@ -17,7 +17,7 @@ for retries in {1..10} ; do
    if [[ $curl_rc -ne 0 || -z "$token_json" || "$token_json" =~ "error" ]] ; then
       echo "Failed to obtain an access token from the metadata service during attempt #${retries} with curl error code $curl_rc" >&2
       echo "Response content was: $token_json" >&2
-      sleep 10
+      sleep $((15 * retries))
    else
       break
    fi
@@ -37,7 +37,7 @@ listCertificates () {
       if [[ $curl_rc -ne 0 || -z "$json" || "$json" =~ "error" ]] ; then
          echo "Faliled to obtain certificate list from keyvault during attempt #${retries} with curl error code $curl_rc" >&2
          echo "Response content was: $json" >&2
-         sleep 10
+         sleep $((15 * retries))
       else
          break
       fi
@@ -58,7 +58,7 @@ fetchSecret () {
       if [[ $curl_rc -ne 0 || -z "$json" || "$json" =~ "error" ]] ; then
          echo "Faliled to obtain secret ${1} from keyvault during attempt #${retries} with curl error code $curl_rc" >&2
          echo "Response content was: $json" >&2
-         sleep 10
+         sleep $((15 * retries))
       else
          break
       fi

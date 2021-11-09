@@ -29,55 +29,7 @@
     },
 
     "providers": [
-    {
-      "id": "google",
-      "displayName": "Google",
-      "type": "openidconnect",
-      "mapping": "oidc_cats3_profile",
-      "passportStrategyId": "@sic/passport-openidconnect",
-      "enabled": true,
-      "callbackUrl": "https://%(hostname)s/passport/auth/google/callback",
-      "requestForEmail": false,
-      "emailLinkingSafe": false,
-      "options": {
-        "passClaimsInfo": "true",
-        "userInfoURL": "https://openidconnect.googleapis.com/v1/userinfo",
-        "samlissuer": "https://dev.signin.canada.ca",
-        "tokenURL": "https://oauth2.googleapis.com/token",
-        "clientID": "ccccccccccccccccccccccccccccccccccccc.apps.googleusercontent.com",
-        "authorizationURL": "https://accounts.google.com/o/oauth2/v2/auth",
-        "scope": "openid",
-        "clientSecret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-        "skipUserProfile": "true",
-        "issuer": "https://accounts.google.com"
-      },
-      "logo_img": "https://cdn.auth0.com/blog/googleoauth/logo.png"
-    },
-    {
-      "id": "microsoft",
-      "displayName": "Microsoft",
-      "type": "openidconnect",
-      "mapping": "oidc_cats3_profile",
-      "passportStrategyId": "@sic/passport-openidconnect",
-      "enabled": true,
-      "callbackUrl": "https://%(hostname)s/passport/auth/microsoft/callback",
-      "requestForEmail": false,
-      "emailLinkingSafe": false,
-      "options": {
-        "passClaimsInfo": "true",
-        "userInfoURL": "https://graph.microsoft.com/oidc/userinfo",
-        "samlissuer": "https://dev.signin.canada.ca",
-        "tokenURL": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
-        "clientID": "ccccccccccccccccccccccccccccccccccccc",
-        "authorizationURL": "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
-        "scope": "openid",
-        "clientSecret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-        "skipUserProfile": "true",
-        "issuer": "https://login.microsoftonline.com/tttttttttttttttttttttttttttttttt/v2.0"
-      },
-      "logo_img": "https://tmuc.edu.pk/wp-content/uploads/2016/06/Microsoft-Logo-HD.jpg"
-    },
-    {
+     {
       "id": "gckey",
       "displayName": "GCKey",
       "type": "saml",
@@ -129,27 +81,23 @@
     },
     {
       "id": "mfa",
-      "displayName": "Gluu MFA for ATIP",
+      "displayName": "GC 2nd factor CSP",
       "type": "openidconnect",
-      "mapping": "oidc_cats3_profile",
-      "passportStrategyId": "@sic/passport-openidconnect",
+      "mapping": "oidc_mfa_profile",
+      "passportStrategyId": "openid-client",
       "enabled": true,
       "callbackUrl": "https://%(hostname)s/passport/auth/mfa/callback",
       "requestForEmail": false,
       "emailLinkingSafe": false,
       "options": {
-        "userInfoURL": "https://dev-mfa.id.tbs-sct.gc.ca/oxauth/restv1/userinfo",
-        "passClaimsInfo": "true",
-        "samlissuer": "https://%(hostname)s",
-        "tokenURL": "https://dev-mfa.id.tbs-sct.gc.ca/oxauth/restv1/token",
-        "clientID": "dhpp3640-fa7d-474d-bd9f-705c30b52dd0",
-        "authorizationURL": "https://dev-mfa.id.tbs-sct.gc.ca/oxauth/restv1/authorize",
-        "scope": "openid",
-        "clientSecret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-        "skipUserProfile": "true",
-        "prompt": "login",
-        "nonce": "true",
-        "issuer": "https://dev-mfa.id.tbs-sct.gc.ca"
+        "issuer": "https://te-mfa.auth.canada.ca/mfaui/oidc/conf-1",
+        "client_id": "xxxxx",
+        "params": "{\"scope\":\"openid\"}",
+        "request_object_signing_alg": "RS256",
+        "request_object_encryption_alg": "RSA-OAEP-256",
+        "token_endpoint_auth_method": "private_key_jwt",
+        "token_endpoint_auth_signing_alg": "RS256",
+        "use_request_object": "true"
       }
     }
     ]

@@ -19,6 +19,7 @@ from org.gluu.util import StringHelper
 from java.util import Collections
 from javax.faces.context import FacesContext
 from java.net import URLEncoder
+from org.apache.commons.lang3 import StringUtils
 
 import json
 import sys
@@ -33,7 +34,7 @@ class Passport:
     def __init__(self):
         return None
 
-    def init(self, configurationAttributes, scriptName, providers):
+    def init(self, configurationAttributes, scriptName):
 
         print ("Passport. init called from " + scriptName)
 
@@ -59,7 +60,7 @@ class Passport:
                     return False
 
             # Load all provider configurations
-            self.registeredProviders = self.parseProviders(providers)
+            self.registeredProviders = self.parseProviders()
 
         except:
             print ("Passport. init for %s. Initialization failed:" % scriptName)
@@ -69,7 +70,7 @@ class Passport:
         print ("Passport. init for %s. Initialization success" % scriptName)
         return True
 
-    def createRequest(self, providerId, locale, options):
+    def createRequest(self, providerId, params):
         """Create a redirect  URL to send an authentication request to passport."""
 
         url = None
@@ -94,19 +95,21 @@ class Passport:
             else:
                 raise PassportError("Failed to obtain token from Passport")
 
-            language = locale[:2].lower()
+            if params is not None:
+                jsonParams = json.dumps(params)
+                encryptedParams = CdiUtil.bean(EncryptionService).encrypt(jsonParams)
+                # Need to translate from base64 to base64url to make it URL-friendly for passport
+                # See RFC4648 section 5
+                encodedParams = StringUtils.replaceChars(encryptedParams, "/+", "_-")
 
-            url = "/passport/auth/%s/%s?ui_locales=%s" % (providerId, token, language)
-
-            if options is not None:
-                for option, value in options.items():
-                    url += "&%s=%s" % (option, URLEncoder.encode(value, "UTF8"))
-
-            if providerConfig["GCCF"]:
-                # Need to set the language cookie
-                langCode = {"en": "eng", "fr": "fra"}[language]
-                url = "%s?lang=%s&return=%s" % (self.passportConfig["languageCookieService"], langCode,
-                                        URLEncoder.encode("https://" + serverName + url, "UTF8"))
+                url = "/passport/auth/%s/%s/%s" % (providerId, token, encodedParams)
+                if providerConfig["GCCF"]:
+                    # Need to set the language cookie
+                    langCode = {"en": "eng", "fr": "fra"}[params["ui_locales"][:2].lower()]
+                    url = "%s?lang=%s&return=%s" % (self.passportConfig["languageCookieService"], langCode,
+                                            URLEncoder.encode("https://" + serverName + url, "UTF8"))
+            else:
+                url = "/passport/auth/%s/%s" % (providerId, token)
 
         except:
             print ("Passport. createRequest. Error building redirect URL: ", sys.exc_info()[1])
@@ -186,7 +189,7 @@ class Passport:
         f.close()
         return "=".join(prop).strip()
 
-    def parseProviders(self, allowedProviders):
+    def parseProviders(self):
         print ("Passport. parseProviders. Adding providers")
 
         registeredProviders = {}
@@ -204,15 +207,14 @@ class Passport:
         
         providers = passportConfig.getProviders()
 
-        if providers != None and len(providers) > 0:
+        if providers is not None and len(providers) > 0:
             for provider in providers:
-                if (provider.isEnabled()
-                    and (provider.getId() in allowedProviders
-                         or provider.getId() == "mfa")):
+                if provider.isEnabled():
                     registeredProviders[provider.getId()] = {
                         "type": provider.getType(),
                         "options": provider.getOptions(),
-                        "GCCF": "GCCF" in provider.getOptions() and provider.getOptions()["GCCF"].lower() in ["true", "yes"]
+                        "GCCF": "GCCF" in provider.getOptions() and provider.getOptions()["GCCF"].lower() in ["true", "yes"],
+                        "callbackUrl": provider.getCallbackUrl()
                     }
                     print("Configured %s provider %s" % (provider.getType(), provider.getId()))
 

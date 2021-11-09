@@ -5,7 +5,7 @@ trigger: none
 pr:
   - develop
 variables:
-  major_minor: '1.1'
+  major_minor: '1.2'
   # define b as a counter with the prefix as variable a, and seed as 10.
   build: $[counter(variables['major_minor'], 0)]
 
@@ -31,10 +31,10 @@ stages:
 
     - script: |
         echo 'Downloading AppInsights SDK'
-        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.6.2/applicationinsights-core-2.6.2.jar \
+        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.6.3/applicationinsights-core-2.6.3.jar \
           -P gluu-server/opt/dist/signincanada
         echo 'Downloading AppInsights Agent'
-        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.1.0/applicationinsights-agent-3.1.0.jar \
+        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.2.1/applicationinsights-agent-3.2.1.jar \
           -P gluu-server/opt/azure
         ls -al 
       displayName: 'Downloading AppInsights'
@@ -75,7 +75,7 @@ stages:
         project: '7302639f-e704-47c3-9557-99b4e04a75bc'
         definition: '285'
         runVersion: 'latestFromBranch'
-        runBranch: "refs/heads/develop_4.3.0"
+        runBranch: "refs/heads/sic/develop"
         artifactName: 'gluu-passport'
         targetPath: '$(Pipeline.Workspace)/s/gluu-server/opt/dist/gluu'
       displayName: 'Download gluu-passport tarballs'
@@ -83,7 +83,7 @@ stages:
 
     - script: |
         cd gluu-server/opt/dist/gluu
-        mv passport-version_4.5.0-node_modules.tar.gz passport-version_4.2.3-node_modules.tar.gz
+        mv passport-version_5.3.0-node_modules.tar.gz passport-version_4.2.3-node_modules.tar.gz
       displayName: 'Renaming node modules'
       continueOnError: true
 
@@ -128,6 +128,7 @@ stages:
         chmod 755 opt/dist/scripts/notify
         chmod 700 opt/dist/scripts/crlcheck.sh
         chmod 700 opt/dist/scripts/cbcheck.sh
+        chmod 700 opt/dist/scripts/passportkeys.sh
         chmod 700 install/community-edition-setup/setup.py
         tar -czv --owner=root --group=root -f $(Build.ArtifactStagingDirectory)/SIC-AP-$(major_minor).$(build).tgz --exclude='opt/gluu' *
         openssl sha256 $(Build.ArtifactStagingDirectory)/SIC-AP-$(major_minor).$(build).tgz > $(Build.ArtifactStagingDirectory)/SIC-AP-$(major_minor).$(build).tgz.sha
