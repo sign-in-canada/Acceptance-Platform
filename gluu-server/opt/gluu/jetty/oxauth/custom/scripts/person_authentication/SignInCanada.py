@@ -209,8 +209,13 @@ class PersonAuthentication(PersonAuthenticationType):
                         passportOptions["forceAuthn"] = "true"
 
                 elif provider != rpConfig.get("mfaProvider"): # This is our second (PAI collection) request to passport
+                    collect = rpConfig.get("collect")
+                    if collect is None: # This should never happen
+                        print ("%s. prepareForStep: collection entityID is missing" % (self.name))
+                        return False
+
                     passportOptions["allowCreate"] = "false"
-                    passportOptions["spNameQualifier"] = rpConfig.get("collect")
+                    passportOptions["spNameQualifier"] = collect
 
                 else: # This is our third (mfa) reqest to passport
                     # TODO: modify MFA to take just the client content identifier
@@ -408,10 +413,15 @@ class PersonAuthentication(PersonAuthenticationType):
                         % (self.name, identity.getWorkingParameter("userId")))
                 return False
 
+            collect = rpConfig.get("collect")
+            if collect is None: # This should never happen
+                print ("%s. authenticateUser: collection entityID is missing" % (self.name))
+                return False
+
             # Collect the SAML PAI
             spNameQualifier, nameQualifier, nameId = tuple(externalProfile["persistentId"][0].split("|"))
             if spNameQualifier == "undefined":
-                spNameQualifier = rpConfig["collect"]
+                spNameQualifier = collect
             if nameQualifier == "undefined":
                 nameQualifier = externalProfile["issuer"][0]
             if not self.account.getSamlSubject(user, spNameQualifier): # unless one already exists
