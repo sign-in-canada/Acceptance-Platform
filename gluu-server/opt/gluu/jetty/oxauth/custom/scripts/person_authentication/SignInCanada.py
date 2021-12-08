@@ -209,12 +209,6 @@ class PersonAuthentication(PersonAuthenticationType):
                     passportOptions["spNameQualifier"] = collect
 
                 else: # This is our third (mfa) reqest to passport
-                    # TODO: modify MFA to take just the client content identifier
-                    spNameQualifier = sessionAttributes.get("spNameQualifier")
-                    if spNameQualifier is not None:
-                        entityId = spNameQualifier
-                    else:
-                        entityId = "oidc:" + self.getClient(session).getClientName()
                     mfaId = identity.getWorkingParameter("mfaId")
                     if mfaId is None:
                         print("%s: prepareForStep. mfaId is missing!" % self.name)
