@@ -84,15 +84,6 @@ class PersonAuthentication(PersonAuthenticationType):
                 print ("%s: failed to parse RP defaults!" % self.name)
                 return False
 
-        # Load the AES encrypton key
-        aesKeyFileName = configurationAttributes.get("aes_key_file").getValue2()
-        if aesKeyFileName is None:
-            print ("%s: AES Key filename is missing from config!" % self.name)
-            return False
-        else:
-            with open(aesKeyFileName, 'r') as keyFile:
-                self.aesKey = keyFile.read()[:16]
-
         # Keep an in-memory cache of RP Configs
         self.rpConfigCache = {}
 
