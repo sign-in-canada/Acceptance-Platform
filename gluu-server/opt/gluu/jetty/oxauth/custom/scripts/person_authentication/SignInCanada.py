@@ -355,7 +355,13 @@ class PersonAuthentication(PersonAuthenticationType):
 
             # Update the preferred language if it has changed
             locale = ServerUtil.getFirstValue(requestParameters, "locale")
-            languageBean.setLocaleCode(locale)
+            if locale:
+                locale += "-CA"
+                languageBean.setLocaleCode(locale)
+                sessionAttributes.put(AuthorizeRequestParam.UI_LOCALES, locale)
+            else: # Language cookie was blocked
+                locale = sessionAttributes.get(AuthorizeRequestParam.UI_LOCALES)
+
             if locale != user.getAttribute("locale", True, False):
                 user.setAttribute("locale", locale, False)
                 userChanged = True
