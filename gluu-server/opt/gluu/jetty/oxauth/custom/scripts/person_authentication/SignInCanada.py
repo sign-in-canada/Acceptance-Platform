@@ -84,15 +84,6 @@ class PersonAuthentication(PersonAuthenticationType):
                 print ("%s: failed to parse RP defaults!" % self.name)
                 return False
 
-        # Load the AES encrypton key
-        aesKeyFileName = configurationAttributes.get("aes_key_file").getValue2()
-        if aesKeyFileName is None:
-            print ("%s: AES Key filename is missing from config!" % self.name)
-            return False
-        else:
-            with open(aesKeyFileName, 'r') as keyFile:
-                self.aesKey = keyFile.read()[:16]
-
         # Keep an in-memory cache of RP Configs
         self.rpConfigCache = {}
 
@@ -218,12 +209,6 @@ class PersonAuthentication(PersonAuthenticationType):
                     passportOptions["spNameQualifier"] = collect
 
                 else: # This is our third (mfa) reqest to passport
-                    # TODO: modify MFA to take just the client content identifier
-                    spNameQualifier = sessionAttributes.get("spNameQualifier")
-                    if spNameQualifier is not None:
-                        entityId = spNameQualifier
-                    else:
-                        entityId = "oidc:" + self.getClient(session).getClientName()
                     mfaId = identity.getWorkingParameter("mfaId")
                     if mfaId is None:
                         print("%s: prepareForStep. mfaId is missing!" % self.name)
@@ -364,7 +349,13 @@ class PersonAuthentication(PersonAuthenticationType):
 
             # Update the preferred language if it has changed
             locale = ServerUtil.getFirstValue(requestParameters, "locale")
-            languageBean.setLocaleCode(locale)
+            if locale:
+                locale += "-CA"
+                languageBean.setLocaleCode(locale)
+                sessionAttributes.put(AuthorizeRequestParam.UI_LOCALES, locale)
+            else: # Language cookie was blocked
+                locale = sessionAttributes.get(AuthorizeRequestParam.UI_LOCALES)
+
             if locale != user.getAttribute("locale", True, False):
                 user.setAttribute("locale", locale, False)
                 userChanged = True
