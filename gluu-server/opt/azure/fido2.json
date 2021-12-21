@@ -1,0 +1,19 @@
+{
+    "role": {
+        "name": "fido2"
+    },
+    "instrumentation": {
+        "logging": {
+            "level": "INFO"
+        }
+    },
+    "selfDiagnostics": {
+        "destination": "file",
+        "level": "INFO",
+        "file": {
+            "path": "/opt/gluu/jetty/fido2/logs/applicationinsights.log",
+            "maxSizeMb": 5,
+            "maxHistory": 1
+        }
+    }
+}

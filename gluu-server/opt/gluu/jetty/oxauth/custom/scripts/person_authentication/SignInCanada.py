@@ -6,7 +6,9 @@
 #    Step 3: Choose authenticaiton method (if more than one choice)
 #    Step 4: Passport authentication
 #    Step 5: Legacy PAI collection (if the RP is transitioning from GCCF)
-#    Step 6: MFA
+#    Step 6: FIDO2 authnetication
+#    Step 7: External MFA
+#    Step 8: FIDO2 Registration
 #
 # .. however, entire steps may be skipped depending on whether they are
 # required or enabled. This means the step # passed by oxAuth may not reflect
@@ -22,13 +24,18 @@ from org.gluu.oxauth.util import ServerUtil
 from org.gluu.oxauth.i18n import LanguageBean
 from org.gluu.jsf2.service import FacesResources, FacesService
 from org.gluu.oxauth.model.authorize import AuthorizeRequestParam
-from org.gluu.oxauth.model.common import Prompt
-from org.gluu.oxauth.model.util import Base64Util
+from org.gluu.fido2.client import Fido2ClientFactory
+
+from org.jboss.resteasy.client import ClientResponseFailure
+from org.jboss.resteasy.client.exception import ResteasyClientException
+
+from java.util import Arrays
+from java.util.concurrent.locks import ReentrantLock
+from javax.ws.rs.core import Response
 
 from com.microsoft.applicationinsights import TelemetryClient
 
-from java.util import Arrays
-
+import java
 import sys
 import json
 import time
@@ -90,6 +97,16 @@ class PersonAuthentication(PersonAuthenticationType):
         self.passport = passport.Passport()
         self.passport.init(configurationAttributes, self.name)
         
+        # Configure FIDO2
+        if configurationAttributes.containsKey("fido2_server_uri"):
+            print ("%s: Enabling FIDO2 support" % self.name)
+            self.fido2_server_uri = configurationAttributes.get("fido2_server_uri").getValue2()
+            self.fido2_domain = None
+            if configurationAttributes.containsKey("fido2_domain"):
+                self.fido2_domain = configurationAttributes.get("fido2_domain").getValue2()
+            self.metaDataLoaderLock = ReentrantLock()
+            self.fidoMetaDataConfiguration = None
+
         self.account = account.Account()
 
         self.telemetryClient = TelemetryClient()
@@ -124,12 +141,13 @@ class PersonAuthentication(PersonAuthenticationType):
         return None
 
     def getExtraParametersForStep(self, configurationAttributes, step):
-        return Arrays.asList("stepCount",  # Used to extend the workflow
-                             "provider",   # The provider chosen by the user
-                             "abort",      # Used to trigger error abort back to the RP
-                             "forceAuthn", # Used to force authentication when prompt comes with login
-                             "userId",     # Used to keep track of the user across multiple passport reqiuests (i.e. collection)
-                             "mfaId")      # Used to bind a 2nd factor credential into the session
+        return Arrays.asList("stepCount",   # Used to extend the workflow
+                             "provider",    # The provider chosen by the user
+                             "abort",       # Used to trigger error abort back to the RP
+                             "forceAuthn",  # Used to force authentication when prompt comes with login
+                             "userId",      # Used to keep track of the user across multiple passport requests (i.e. collection)
+                             "mfaId",       # Used to bind a 2nd factor credential into the session
+                             "mfaRegister") # Used to provide FIDO registration option
 
     def prepareForStep(self, configurationAttributes, requestParameters, step):
 
@@ -140,6 +158,7 @@ class PersonAuthentication(PersonAuthenticationType):
         identity = CdiUtil.bean(Identity)
         facesResources = CdiUtil.bean(FacesResources)
         facesService = CdiUtil.bean(FacesService)
+        userService = CdiUtil.bean(UserService)
         
         session = identity.getSessionId()
         sessionAttributes = session.getSessionAttributes()
@@ -186,7 +205,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 for param in ["layout", "chooser", "content"]:
                     identity.setWorkingParameter(param, rpConfig[param])
 
-            else: # Prepare for call to passport
+            else: # Prepare for authentication
                 passportOptions = {"ui_locales": uiLocales, "exp" : int(time.time()) + 60}
                 userId = identity.getWorkingParameter("userId")
                 rpConfig = self.getRPConfig(session)
@@ -202,13 +221,40 @@ class PersonAuthentication(PersonAuthenticationType):
                 elif provider != rpConfig.get("mfaProvider"): # This is our second (PAI collection) request to passport
                     collect = rpConfig.get("collect")
                     if collect is None: # This should never happen
-                        print ("%s. prepareForStep: collection entityID is missing" % (self.name))
+                        print ("%s. prepareForStep: collection entityID is missing" % self.name)
                         return False
 
                     passportOptions["allowCreate"] = "false"
                     passportOptions["spNameQualifier"] = collect
 
-                else: # This is our third (mfa) reqest to passport
+                elif identity.getWorkingParameter("mfaRegister"):
+                    print("%s. PrepareForStep. Starting FIDO registration" % self.name)
+                    metaDataConfiguration = self.getFidoMetaDataConfiguration()
+                    try:
+                        attestationService = Fido2ClientFactory.instance().createAttestationService(metaDataConfiguration)
+                        attestationRequest = json.dumps({'username': userId, 'displayName': userId, 'attestation' : 'direct','timeout': 120000, 'userVerification': 'discouraged'}, separators=(',', ':'))
+                        attestationResponse = attestationService.register(attestationRequest).readEntity(java.lang.String)
+                    except ClientResponseFailure as ex:
+                        print ("%s. Prepare for step 2. Failed to start attestation flow. Exception:" % self.name, sys.exc_info()[1])
+                        return False
+                    identity.setWorkingParameter("fido2_attestation_request", ServerUtil.asJson(attestationResponse))
+                    print(ServerUtil.asJson(attestationResponse))
+                    return True
+
+                else: # MFA
+                    fidoDeviceCount = userService.countFidoAndFido2Devices(userId, self.fido2_domain)
+                    if fidoDeviceCount > 0:
+                        metaDataConfiguration = self.getFidoMetaDataConfiguration()
+                        try:
+                            assertionService = Fido2ClientFactory.instance().createAssertionService(metaDataConfiguration)
+                            assertionRequest = json.dumps({'username': userId, 'timeout': 120000, 'userVerification': 'discouraged'}, separators=(',', ':'))
+                            assertionResponse = assertionService.authenticate(assertionRequest).readEntity(java.lang.String)
+                        except ClientResponseFailure as ex:
+                            print ("%s. Prepare for step 2. Failed to start assertion flow. Exception:" %self.name, sys.exc_info()[1])
+                            return False
+                        identity.setWorkingParameter("fido2_assertion_request", ServerUtil.asJson(assertionResponse))
+                        return True
+
                     mfaId = identity.getWorkingParameter("mfaId")
                     if mfaId is None:
                         print("%s: prepareForStep. mfaId is missing!" % self.name)
@@ -248,7 +294,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
         if ServerUtil.getFirstValue(requestParameters, "user") is not None:
             # Successful response from passport
-            return self.authenticateUser(identity, languageBean, requestParameters)
+            return self.authenticatePassportUser(identity, languageBean, requestParameters)
 
         elif ServerUtil.getFirstValue(requestParameters, "failure") is not None:
             # This means that passport returned an error
@@ -296,13 +342,19 @@ class PersonAuthentication(PersonAuthenticationType):
             else:
                 return False
 
+        elif requestParameters.containsKey("fido2Registration"):
+            return self.registerFido2(identity.getWorkingParameter("userId"), requestParameters)
+
+        elif requestParameters.containsKey("fido2Authentication"):
+            return self.authenticateFido2(identity.getWorkingParameter("userId"), requestParameters)
+
         else: # Invalid response
             return False
 
         self.addAuthenticationStep()
         return True
 
-    def authenticateUser(self, identity, languageBean, requestParameters):
+    def authenticatePassportUser(self, identity, languageBean, requestParameters):
         
         if REMOTE_DEBUG:
             pydevd.settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
@@ -449,9 +501,54 @@ class PersonAuthentication(PersonAuthenticationType):
                     user.setAttribute("locale", locale, False)
                     userService.updateUser(user)
 
+            userId = identity.getWorkingParameter("userId")
+            if rpConfig.get("fido") and userService.countFidoAndFido2Devices(userId, self.fido2_domain) == 0:
+                print ("FIDO registration triggered")
+                identity.setWorkingParameter("mfaRegister", True)
+                self.addAuthenticationStep()
+
             eventProperties["sub"] = self.account.getOpenIdSubject(user, self.getClient(session))
             self.telemetryClient.trackEvent("Authentication", eventProperties, None)
             return authenticationService.authenticate(user.getUserId())
+
+    def registerFido2(self, userId, requestParameters):
+
+        if REMOTE_DEBUG:
+            pydevd.settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
+
+        authenticationService = CdiUtil.bean(AuthenticationService)
+
+        tokenResponse = ServerUtil.getFirstValue(requestParameters, "fido2Registration")
+        print ("%s. Authenticate. Got fido2 registration response: %s" % (self.name, tokenResponse))
+        metaDataConfiguration = self.getFidoMetaDataConfiguration()
+        attestationService = Fido2ClientFactory.instance().createAttestationService(metaDataConfiguration)
+        attestationStatus = attestationService.verify(tokenResponse)
+
+        if attestationStatus.getStatus() != Response.Status.OK.getStatusCode():
+            print ("%s. Authenticate. Got invalid registration status from Fido2 server" % self.name)
+            return False
+
+        return authenticationService.authenticate(userId)
+
+    def authenticateFido2(self, userId, requestParameters):
+        
+        if REMOTE_DEBUG:
+            pydevd.settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
+
+        authenticationService = CdiUtil.bean(AuthenticationService)
+
+        tokenResponse = ServerUtil.getFirstValue(requestParameters, "fido2Authentication")
+        print ("%s. Authenticate. Got fido2 authentication response: %s" % (self.name, tokenResponse))
+        metaDataConfiguration = self.getFidoMetaDataConfiguration()
+        assertionService = Fido2ClientFactory.instance().createAssertionService(metaDataConfiguration)
+        assertionStatus = assertionService.verify(tokenResponse)
+        authenticationStatusEntity = assertionStatus.readEntity(java.lang.String)
+
+        if assertionStatus.getStatus() != Response.Status.OK.getStatusCode():
+            print ("%s. Authenticate. Got invalid authentication status from Fido2 server" % self.name)
+            return False
+
+        return authenticationService.authenticate(userId)
 
     def getPageForStep(self, configurationAttributes, step):
 
@@ -459,6 +556,7 @@ class PersonAuthentication(PersonAuthenticationType):
             pydevd.settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
 
         # Inject dependencies
+        userService = CdiUtil.bean(UserService)
         identity = CdiUtil.bean(Identity)
         facesResources = CdiUtil.bean(FacesResources)
 
@@ -480,13 +578,31 @@ class PersonAuthentication(PersonAuthenticationType):
             elif step == 2: # Language Selection (Splash Page)
                 return "/lang.xhtml"
 
-        elif len(self.providers) > 1 and identity.getWorkingParameter("provider") is None:
+        language = uiLocales[:2].lower()
+        if len(self.providers) > 1 and identity.getWorkingParameter("provider") is None:
             # Chooser page
-            language = uiLocales[:2].lower()
             if language == "fr":
                 return "/fr/choisir.xhtml"
             else:
                 return "/en/select.xhtml"
+
+        print ("mfaId %s" % identity.getWorkingParameter("mfaId"))
+        print ("mfaRegister %s" % identity.getWorkingParameter("mfaRegister"))
+
+        if identity.getWorkingParameter("mfaId") is not None:
+            userId = identity.getWorkingParameter("userId")
+            Fido2DeviceCount = userService.countFidoAndFido2Devices(userId, self.fido2_domain)
+            print ("Fido2DeviceCount %s" % Fido2DeviceCount)
+            if Fido2DeviceCount > 0:
+                if language == "fr":
+                    return "/fr/wa.xhtml"
+                else:
+                    return "/en/wa.xhtml"
+            elif identity.getWorkingParameter("mfaRegister"):
+                if language == "fr":
+                    return "/fr/waregistrer.xhtml"
+                else:
+                    return "/en/waregister.xhtml"
 
         # Otherwise, clear the abort flag and invoke Passport
         identity.getWorkingParameters().remove("abort")
@@ -577,3 +693,44 @@ class PersonAuthentication(PersonAuthenticationType):
         # Add it to the cache
         self.rpConfigCache[clientKey] = rpConfig
         return rpConfig
+
+    # FIDO2 Metadata loading
+    # This is deferred so that the FIDO2 service has time to start
+    def getFidoMetaDataConfiguration(self):
+        if self.fidoMetaDataConfiguration != None:
+            return self.fidoMetaDataConfiguration
+        
+        self.metaDataLoaderLock.lock()
+        # Make sure that another thread not loaded configuration already          
+        if self.fidoMetaDataConfiguration != None:
+            return self.fidoMetaDataConfiguration
+
+        try:
+            print ("%s. Initialization. Downloading Fido2 metadata" % self.name)
+            self.fido2_server_metadata_uri = self.fido2_server_uri + "/.well-known/fido2-configuration"
+
+            metaDataConfigurationService = Fido2ClientFactory.instance().createMetaDataConfigurationService(self.fido2_server_metadata_uri)
+    
+            max_attempts = 10
+            for attempt in range(1, max_attempts + 1):
+                try:
+                    self.fidoMetaDataConfiguration = metaDataConfigurationService.getMetadataConfiguration().readEntity(java.lang.String)
+                    return self.fidoMetaDataConfiguration
+                except ClientResponseFailure as ex:
+                    # Detect if last try or we still get Service Unavailable HTTP error
+                    if (attempt == max_attempts) or (ex.getResponse().getResponseStatus() != Response.Status.SERVICE_UNAVAILABLE):
+                        raise ex
+    
+                    java.lang.Thread.sleep(3000)
+                    print ("Attempting to load metadata: %d" % attempt)
+                except ResteasyClientException as ex:
+                    # Detect if last try or we still get Service Unavailable HTTP error
+                    if attempt == max_attempts:
+                        raise ex
+    
+                    java.lang.Thread.sleep(3000)
+                    print ("Attempting to load metadata: %d" % attempt)
+        finally:
+            self.metaDataLoaderLock.unlock()
+            
+
