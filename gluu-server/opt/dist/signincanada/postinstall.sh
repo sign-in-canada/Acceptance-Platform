@@ -72,23 +72,23 @@ zip -u /opt/gluu/jetty/oxauth/webapps/oxauth.war  \
    WEB-INF/lib/log4j-core-2.17.1.jar \
    WEB-INF/lib/log4j-slf4j-impl-2.17.1.jar \
    WEB-INF/lib/log4j-jul-2.17.1.jar
-zip -d /opt/gluu/jetty/oxauth/webapps/identity.war \
+zip -d /opt/gluu/jetty/identity/webapps/identity.war \
    WEB-INF/lib/log4j-api-2.13.3.jar \
    WEB-INF/lib/log4j-1.2-api-2.13.3.jar \
    WEB-INF/lib/log4j-core-2.13.3.jar \
    WEB-INF/lib/log4j-jul-2.13.3.jar
-zip -u /opt/gluu/jetty/oxauth/webapps/identity.war  \
+zip -u /opt/gluu/jetty/identity/webapps/identity.war  \
    WEB-INF/lib/log4j-api-2.17.1.jar \
    WEB-INF/lib/log4j-1.2-api-2.17.1.jar \
    WEB-INF/lib/log4j-core-2.17.1.jar \
    WEB-INF/lib/log4j-jul-2.17.1.jar
 if [ -d /opt/gluu/jetty/idp ] ; then
-   zip -d /opt/gluu/jetty/oxauth/webapps/idp.war \
+   zip -d /opt/gluu/jetty/idp/webapps/idp.war \
       WEB-INF/lib/log4j-api-2.13.3.jar \
       WEB-INF/lib/log4j-1.2-api-2.13.3.jar \
       WEB-INF/lib/log4j-core-2.13.3.jar \
       WEB-INF/lib/log4j-over-slf4j-1.7.30.jar
-   zip -u /opt/gluu/jetty/oxauth/webapps/idp.war  \
+   zip -u /opt/gluu/jetty/idp/webapps/idp.war  \
       WEB-INF/lib/log4j-api-2.17.1.jar \
       WEB-INF/lib/log4j-1.2-api-2.17.1.jar \
       WEB-INF/lib/log4j-core-2.17.1.jar \
