@@ -72,7 +72,7 @@ rm -v /tmp/patch/identity/WEB-INF/lib/log4j-slf4j-impl-*.jar
 cp -v /opt/dist/app/log4j-api-2.17.1.jar /tmp/patch/identity/WEB-INF/lib
 cp -v /opt/dist/app/log4j-1.2-api-2.17.1.jar /tmp/patch/identity/WEB-INF/lib
 cp -v /opt/dist/app/log4j-core-2.17.1.jar /tmp/patch/identity/WEB-INF/lib
-ccp -v /opt/dist/app/log4j-slf4j-impl-2.17.1.jar /tmp/patch/identity/WEB-INF/lib
+cp -v /opt/dist/app/log4j-slf4j-impl-2.17.1.jar /tmp/patch/identity/WEB-INF/lib
 
 if [ -d /opt/gluu/jetty/idp ] ; then
    rm -v /tmp/patch/idp/WEB-INF/lib/log4j-api-*.jar
