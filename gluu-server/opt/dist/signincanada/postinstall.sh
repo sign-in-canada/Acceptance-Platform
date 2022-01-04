@@ -55,6 +55,7 @@ popd > /dev/null 2>&1
 
 echo 'Updating log4j'
 cp /opt/dist/app/log4j-api-2.17.1.jar /tmp/patch/WEB-INF/lib
+cp /opt/dist/app/log4j-1.2-api-2.13.3.jar /tmp/patch/WEB-INF/lib
 cp /opt/dist/app/log4j-core-2.17.1.jar /tmp/patch/WEB-INF/lib
 cp /opt/dist/app/log4j-jul-2.17.1.jar /tmp/patch/WEB-INF/lib
 cp /opt/dist/app/log4j-over-slf4j-1.7.32.jar /tmp/patch/WEB-INF/lib
