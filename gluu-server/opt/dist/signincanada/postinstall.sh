@@ -81,21 +81,21 @@ fi
 
 echo 'Rebuilding Gluu web archives'
 rm -rf /opt/jetty-9.4/temp/*
-popd /tmp/patch/oxauth
+pushd /tmp/patch/oxauth
 rm -v /opt/gluu/jetty/oxauth/webapps/oxauth.war
 /opt/jre/bin/jar -cvf /opt/gluu/jetty/oxauth/webapps/oxauth.war *
-pushd 2>&1
+popd 2>&1
 
-popd /tmp/patch/identity
+pushd /tmp/patch/identity
 rm -v /opt/gluu/jetty/identity/webapps/identity.war
 /opt/jre/bin/jar -cvf /opt/gluu/jetty/identity/webapps/identity.war *
-pushd 2>&1
+popd 2>&1
 
 if [ -d /opt/gluu/jetty/idp ] ; then
-   popd /tmp/patch/identity
+   pushd /tmp/patch/identity
    rm -v /opt/gluu/jetty/idp/webapps/idp.war
    /opt/jre/bin/jar -cvf /opt/gluu/jetty/idp/webapps/idp.war *
-   pushd 2>&1
+   popd 2>&1
 fi
 
 echo 'Installing the UI...'
