@@ -56,17 +56,17 @@ rm -v /tmp/patch/oxauth/WEB-INF/lib/log4j-jul-*.jar
 cp -v /opt/dist/app/log4j-api-2.17.1.jar /tmp/patch/oxauth/WEB-INF/lib
 cp -v /opt/dist/app/log4j-1.2-api-2.17.1.jar /tmp/patch/oxauth/WEB-INF/lib
 cp -v /opt/dist/app/log4j-core-2.17.1.jar /tmp/patch/oxauth/WEB-INF/lib
-cp -v /opt/dist/app/log4j-slf4j-impl-2.17.1.jar /tmp/patch/WEB-INF/oxauth/lib
-cp -v /opt/dist/app/log4j-jul-2.17.1.jar /tmp/patch/WEB-INF/oxauth/lib
+cp -v /opt/dist/app/log4j-slf4j-impl-2.17.1.jar /tmp/patch/oxauth/WEB-INF/lib
+cp -v /opt/dist/app/log4j-jul-2.17.1.jar /tmp/patch/oxauth/WEB-INF/lib
 
 rm -v /tmp/patch/identity/WEB-INF/lib/log4j-api-*.jar
 rm -v /tmp/patch/identity/WEB-INF/lib/log4j-1.2-api-*.jar
 rm -v /tmp/patch/identity/WEB-INF/lib/log4j-core-*.jar
-rm -v /tmp/patch/identity/WEB-INF/lib/log4j-jul-*.jar
+rm -v /tmp/patch/identity/WEB-INF/lib/log4j-slf4j-impl-*.jar
 cp -v /opt/dist/app/log4j-api-2.17.1.jar /tmp/patch/identity/WEB-INF/lib
 cp -v /opt/dist/app/log4j-1.2-api-2.17.1.jar /tmp/patch/identity/WEB-INF/lib
 cp -v /opt/dist/app/log4j-core-2.17.1.jar /tmp/patch/identity/WEB-INF/lib
-cp -v /opt/dist/app/log4j-jul-2.17.1.jar /tmp/patch/identity/WEB-INF/lib
+ccp -v /opt/dist/app/log4j-slf4j-impl-2.17.1.jar /tmp/patch/identity/WEB-INF/lib
 
 if [ -d /opt/gluu/jetty/idp ] ; then
    rm -v /tmp/patch/idp/WEB-INF/lib/log4j-api-*.jar
@@ -83,18 +83,18 @@ echo 'Rebuilding Gluu web archives'
 rm -rf /opt/jetty-9.4/temp/*
 pushd /tmp/patch/oxauth
 rm -v /opt/gluu/jetty/oxauth/webapps/oxauth.war
-/opt/jre/bin/jar -cvf /opt/gluu/jetty/oxauth/webapps/oxauth.war *
+/opt/jre/bin/jar -cvf /opt/gluu/jetty/oxauth/webapps/oxauth.war * > /dev/null
 popd 2>&1
 
 pushd /tmp/patch/identity
 rm -v /opt/gluu/jetty/identity/webapps/identity.war
-/opt/jre/bin/jar -cvf /opt/gluu/jetty/identity/webapps/identity.war *
+/opt/jre/bin/jar -cvf /opt/gluu/jetty/identity/webapps/identity.war * > /dev/null
 popd 2>&1
 
 if [ -d /opt/gluu/jetty/idp ] ; then
-   pushd /tmp/patch/identity
+   pushd /tmp/patch/idp
    rm -v /opt/gluu/jetty/idp/webapps/idp.war
-   /opt/jre/bin/jar -cvf /opt/gluu/jetty/idp/webapps/idp.war *
+   /opt/jre/bin/jar -cvf /opt/gluu/jetty/idp/webapps/idp.war * > /dev/null
    popd 2>&1
 fi
 
