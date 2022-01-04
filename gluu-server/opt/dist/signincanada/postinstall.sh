@@ -29,12 +29,12 @@ fi
 
 echo 'Preparing to patch Gluu web archives'
 mkdir -p /tmp/patch/oxauth
-unzip /opt/dist/gluu/oxauth.war -d /tmp/patch/oxauth
+unzip -q /opt/dist/gluu/oxauth.war -d /tmp/patch/oxauth
 mkdir -p /tmp/patch/identity
-unzip /opt/dist/gluu/identity.war -d /tmp/patch/identity
+unzip -q /opt/dist/gluu/identity.war -d /tmp/patch/identity
 if [ -d /opt/gluu/jetty/idp ] ; then
    mkdir -p /tmp/patch/idp
-   unzip /opt/dist/gluu/idp.war -d /tmp/patch/idp
+   unzip -q /opt/dist/gluu/idp.war -d /tmp/patch/idp
 fi
 
 echo 'Updating the Couchbase client...'
@@ -66,7 +66,7 @@ rm -v /tmp/patch/identity/WEB-INF/lib/log4j-jul-*.jar
 cp -v /opt/dist/app/log4j-api-2.17.1.jar /tmp/patch/identity/WEB-INF/lib
 cp -v /opt/dist/app/log4j-1.2-api-2.17.1.jar /tmp/patch/identity/WEB-INF/lib
 cp -v /opt/dist/app/log4j-core-2.17.1.jar /tmp/patch/identity/WEB-INF/lib
-cp -v /opt/dist/app/log4j-jul-2.17.1.jar /tmp/patch/WEB-INF/identity/lib
+cp -v /opt/dist/app/log4j-jul-2.17.1.jar /tmp/patch/identity/WEB-INF/lib
 
 if [ -d /opt/gluu/jetty/idp ] ; then
    rm -v /tmp/patch/idp/WEB-INF/lib/log4j-api-*.jar
@@ -76,7 +76,7 @@ if [ -d /opt/gluu/jetty/idp ] ; then
    cp -v /opt/dist/app/log4j-api-2.17.1.jar /tmp/patch/idp/WEB-INF/lib
    cp -v /opt/dist/app/log4j-1.2-api-2.17.1.jar /tmp/patch/idp/WEB-INF/lib
    cp -v /opt/dist/app/log4j-core-2.17.1.jar /tmp/patch/idp/WEB-INF/lib
-   cp -v /opt/dist/app/log4j-over-slf4j-1.7.32.jar /tmp/patch/WEB-INF/idp/lib
+   cp -v /opt/dist/app/log4j-over-slf4j-1.7.32.jar /tmp/patch/idp/WEB-INF/lib
 fi
 
 echo 'Rebuilding Gluu web archives'
