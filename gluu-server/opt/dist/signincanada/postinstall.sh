@@ -9,8 +9,7 @@ if grep Red /etc/redhat-release ; then
    yum remove -y epel-release
 fi
 yum clean all
-yum install -y /opt/dist/app/oniguruma-6.8.2-1.el7.x86_64.rpm
-yum install -y /opt/dist/app/jq-1.6-2.el7.x86_64.rpm
+yum install -y /opt/dist/app/oniguruma-6.8.2-1.el7.x86_64.rpm /opt/dist/app/jq-1.6-2.el7.x86_64.rpm
 systemctl enable keyvault
 
 echo 'Enabling the couchbase health check service...'
@@ -32,7 +31,7 @@ echo 'Preparing to patch Gluu web archives'
 mkdir -p /tmp/patch/oxauth
 unzip /opt/dist/gluu/oxauth.war -d /tmp/patch/oxauth
 mkdir -p /tmp/patch/identity
-unzip /opt/dist/gluu/idenity.war -d /tmp/patch/identity
+unzip /opt/dist/gluu/identity.war -d /tmp/patch/identity
 if [ -d /opt/gluu/jetty/idp ] ; then
    mkdir -p /tmp/patch/idp
    unzip /opt/dist/gluu/idp.war -d /tmp/patch/idp
@@ -55,7 +54,7 @@ rm -v /tmp/patch/oxauth/WEB-INF/lib/log4j-core-*.jar
 rm -v /tmp/patch/oxauth/WEB-INF/lib/log4j-slf4j-impl-*.jar
 rm -v /tmp/patch/oxauth/WEB-INF/lib/log4j-jul-*.jar
 cp -v /opt/dist/app/log4j-api-2.17.1.jar /tmp/patch/oxauth/WEB-INF/lib
-cp -v /opt/dist/app/log4j-1.2-api-2.13.3.jar /tmp/patch/oxauth/WEB-INF/lib
+cp -v /opt/dist/app/log4j-1.2-api-2.17.1.jar /tmp/patch/oxauth/WEB-INF/lib
 cp -v /opt/dist/app/log4j-core-2.17.1.jar /tmp/patch/oxauth/WEB-INF/lib
 cp -v /opt/dist/app/log4j-slf4j-impl-2.17.1.jar /tmp/patch/WEB-INF/oxauth/lib
 cp -v /opt/dist/app/log4j-jul-2.17.1.jar /tmp/patch/WEB-INF/oxauth/lib
@@ -65,7 +64,7 @@ rm -v /tmp/patch/identity/WEB-INF/lib/log4j-1.2-api-*.jar
 rm -v /tmp/patch/identity/WEB-INF/lib/log4j-core-*.jar
 rm -v /tmp/patch/identity/WEB-INF/lib/log4j-jul-*.jar
 cp -v /opt/dist/app/log4j-api-2.17.1.jar /tmp/patch/identity/WEB-INF/lib
-cp -v /opt/dist/app/log4j-1.2-api-2.13.3.jar /tmp/patch/identity/WEB-INF/lib
+cp -v /opt/dist/app/log4j-1.2-api-2.17.1.jar /tmp/patch/identity/WEB-INF/lib
 cp -v /opt/dist/app/log4j-core-2.17.1.jar /tmp/patch/identity/WEB-INF/lib
 cp -v /opt/dist/app/log4j-jul-2.17.1.jar /tmp/patch/WEB-INF/identity/lib
 
@@ -75,7 +74,7 @@ if [ -d /opt/gluu/jetty/idp ] ; then
    rm -v /tmp/patch/idp/WEB-INF/lib/log4j-core-*.jar
    rm -v /tmp/patch/idp/WEB-INF/lib/log4j-over-slf4j-*.jar
    cp -v /opt/dist/app/log4j-api-2.17.1.jar /tmp/patch/idp/WEB-INF/lib
-   cp -v /opt/dist/app/log4j-1.2-api-2.13.3.jar /tmp/patch/idp/WEB-INF/lib
+   cp -v /opt/dist/app/log4j-1.2-api-2.17.1.jar /tmp/patch/idp/WEB-INF/lib
    cp -v /opt/dist/app/log4j-core-2.17.1.jar /tmp/patch/idp/WEB-INF/lib
    cp -v /opt/dist/app/log4j-over-slf4j-1.7.32.jar /tmp/patch/WEB-INF/idp/lib
 fi
