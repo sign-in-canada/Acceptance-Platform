@@ -1,5 +1,6 @@
 #!/bin/sh
 
+umask 22
 echo 'Stopping services...'
 systemctl stop httpd oxauth identity idp passport
 
@@ -26,76 +27,76 @@ if [ -d /opt/gluu/jetty/idp ] ; then
    install -m 644 -o jetty -g jetty /opt/dist/signincanada/applicationinsights-core-2.6.3.jar /opt/gluu/jetty/idp/custom/libs
 fi
 
-mkdir -p /tmp/patch/WEB-INF/lib
-echo 'Updating the Couchbase client...'
-cp /opt/dist/app/core-io-1.7.22.jar /tmp/patch/WEB-INF/lib
-cp /opt/dist/app/java-client-2.7.22.jar /tmp/patch/WEB-INF/lib
-pushd /tmp/patch 2>&1
-zip -d /opt/gluu/jetty/oxauth/webapps/oxauth.war \
-   WEB-INF/lib/core-io-1.7.16.jar \
-   WEB-INF/lib/java-client-2.7.16.jar
-zip -u /opt/gluu/jetty/oxauth/webapps/oxauth.war  \
-   WEB-INF/lib/java-client-2.7.22.jar \
-   WEB-INF/lib/core-io-1.7.22.jar
-zip -d /opt/gluu/jetty/identity/webapps/identity.war \
-   WEB-INF/lib/core-io-1.7.16.jar \
-   WEB-INF/lib/java-client-2.7.16.jar
-zip -u /opt/gluu/jetty/identity/webapps/identity.war \
-   WEB-INF/lib/java-client-2.7.22.jar \
-   WEB-INF/lib/core-io-1.7.22.jar
+echo 'Preparing to patch Gluu web archives'
+mkdir -p /tmp/patch/oxauth
+unzip /opt/dist/gluu/oxauth.war -d /tmp/patch/oxauth
+mkdir -p /tmp/patch/identity
+unzip /opt/dist/gluu/idenity.war -d /tmp/patch/identity
 if [ -d /opt/gluu/jetty/idp ] ; then
-   zip -qd /opt/gluu/jetty/idp/webapps/idp.war \
-      WEB-INF/lib/core-io-1.7.16.jar \
-      WEB-INF/lib/java-client-2.7.16.jar
-   zip -qu /opt/gluu/jetty/idp/webapps/idp.war \
-      WEB-INF/lib/java-client-2.7.22.jar \
-      WEB-INF/lib/core-io-1.7.22.jar
+   mkdir -p /tmp/patch/idp
+   unzip /opt/dist/gluu/idp.war -d /tmp/patch/idp
 fi
-popd > /dev/null 2>&1
+
+echo 'Updating the Couchbase client...'
+rm /tmp/patch/oxauth/WEB-INF/lib/java-client-*.jar
+rm /tmp/patch/oxauth/WEB-INF/lib/core-io-*.jar
+rm /tmp/patch/identity/WEB-INF/lib/java-client-*.jar
+rm /tmp/patch/identity/WEB-INF/lib/core-io-*.jar
+if [ -d /opt/gluu/jetty/idp ] ; then
+   rm /tmp/patch/idp/WEB-INF/lib/java-client-*.jar
+   rm /tmp/patch/idp/WEB-INF/lib/core-io-*.jar
+fi
 
 echo 'Updating log4j'
-cp /opt/dist/app/log4j-api-2.17.1.jar /tmp/patch/WEB-INF/lib
-cp /opt/dist/app/log4j-1.2-api-2.13.3.jar /tmp/patch/WEB-INF/lib
-cp /opt/dist/app/log4j-core-2.17.1.jar /tmp/patch/WEB-INF/lib
-cp /opt/dist/app/log4j-jul-2.17.1.jar /tmp/patch/WEB-INF/lib
-cp /opt/dist/app/log4j-over-slf4j-1.7.32.jar /tmp/patch/WEB-INF/lib
-cp /opt/dist/app/log4j-slf4j-impl-2.17.1.jar /tmp/patch/WEB-INF/lib
-pushd /tmp/patch 2>&1
-zip -d /opt/gluu/jetty/oxauth/webapps/oxauth.war \
-   WEB-INF/lib/log4j-api-2.13.3.jar \
-   WEB-INF/lib/log4j-1.2-api-2.13.3.jar \
-   WEB-INF/lib/log4j-core-2.13.3.jar \
-   WEB-INF/lib/log4j-slf4j-impl-2.13.3.jar \
-   WEB-INF/lib/log4j-jul-2.13.3.jar
-zip -u /opt/gluu/jetty/oxauth/webapps/oxauth.war  \
-   WEB-INF/lib/log4j-api-2.17.1.jar \
-   WEB-INF/lib/log4j-1.2-api-2.17.1.jar \
-   WEB-INF/lib/log4j-core-2.17.1.jar \
-   WEB-INF/lib/log4j-slf4j-impl-2.17.1.jar \
-   WEB-INF/lib/log4j-jul-2.17.1.jar
-zip -d /opt/gluu/jetty/identity/webapps/identity.war \
-   WEB-INF/lib/log4j-api-2.13.3.jar \
-   WEB-INF/lib/log4j-1.2-api-2.13.3.jar \
-   WEB-INF/lib/log4j-core-2.13.3.jar \
-   WEB-INF/lib/log4j-jul-2.13.3.jar
-zip -u /opt/gluu/jetty/identity/webapps/identity.war  \
-   WEB-INF/lib/log4j-api-2.17.1.jar \
-   WEB-INF/lib/log4j-1.2-api-2.17.1.jar \
-   WEB-INF/lib/log4j-core-2.17.1.jar \
-   WEB-INF/lib/log4j-jul-2.17.1.jar
+rm -v /tmp/patch/oxauth/WEB-INF/lib/log4j-api-*.jar
+rm -v /tmp/patch/oxauth/WEB-INF/lib/log4j-1.2-api-*.jar
+rm -v /tmp/patch/oxauth/WEB-INF/lib/log4j-core-*.jar
+rm -v /tmp/patch/oxauth/WEB-INF/lib/log4j-slf4j-impl-*.jar
+rm -v /tmp/patch/oxauth/WEB-INF/lib/log4j-jul-*.jar
+cp -v /opt/dist/app/log4j-api-2.17.1.jar /tmp/patch/oxauth/WEB-INF/lib
+cp -v /opt/dist/app/log4j-1.2-api-2.13.3.jar /tmp/patch/oxauth/WEB-INF/lib
+cp -v /opt/dist/app/log4j-core-2.17.1.jar /tmp/patch/oxauth/WEB-INF/lib
+cp -v /opt/dist/app/log4j-slf4j-impl-2.17.1.jar /tmp/patch/WEB-INF/oxauth/lib
+cp -v /opt/dist/app/log4j-jul-2.17.1.jar /tmp/patch/WEB-INF/oxauth/lib
+
+rm -v /tmp/patch/identity/WEB-INF/lib/log4j-api-*.jar
+rm -v /tmp/patch/identity/WEB-INF/lib/log4j-1.2-api-*.jar
+rm -v /tmp/patch/identity/WEB-INF/lib/log4j-core-*.jar
+rm -v /tmp/patch/identity/WEB-INF/lib/log4j-jul-*.jar
+cp -v /opt/dist/app/log4j-api-2.17.1.jar /tmp/patch/identity/WEB-INF/lib
+cp -v /opt/dist/app/log4j-1.2-api-2.13.3.jar /tmp/patch/identity/WEB-INF/lib
+cp -v /opt/dist/app/log4j-core-2.17.1.jar /tmp/patch/identity/WEB-INF/lib
+cp -v /opt/dist/app/log4j-jul-2.17.1.jar /tmp/patch/WEB-INF/identity/lib
+
 if [ -d /opt/gluu/jetty/idp ] ; then
-   zip -d /opt/gluu/jetty/idp/webapps/idp.war \
-      WEB-INF/lib/log4j-api-2.13.3.jar \
-      WEB-INF/lib/log4j-1.2-api-2.13.3.jar \
-      WEB-INF/lib/log4j-core-2.13.3.jar \
-      WEB-INF/lib/log4j-over-slf4j-1.7.30.jar
-   zip -u /opt/gluu/jetty/idp/webapps/idp.war  \
-      WEB-INF/lib/log4j-api-2.17.1.jar \
-      WEB-INF/lib/log4j-1.2-api-2.17.1.jar \
-      WEB-INF/lib/log4j-core-2.17.1.jar \
-      WEB-INF/lib/log4j-over-slf4j-1.7.32.jar
+   rm -v /tmp/patch/idp/WEB-INF/lib/log4j-api-*.jar
+   rm -v /tmp/patch/idp/WEB-INF/lib/log4j-1.2-api-*.jar
+   rm -v /tmp/patch/idp/WEB-INF/lib/log4j-core-*.jar
+   rm -v /tmp/patch/idp/WEB-INF/lib/log4j-over-slf4j-*.jar
+   cp -v /opt/dist/app/log4j-api-2.17.1.jar /tmp/patch/idp/WEB-INF/lib
+   cp -v /opt/dist/app/log4j-1.2-api-2.13.3.jar /tmp/patch/idp/WEB-INF/lib
+   cp -v /opt/dist/app/log4j-core-2.17.1.jar /tmp/patch/idp/WEB-INF/lib
+   cp -v /opt/dist/app/log4j-over-slf4j-1.7.32.jar /tmp/patch/WEB-INF/idp/lib
 fi
-popd > /dev/null 2>&1
+
+echo 'Rebuilding Gluu web archives'
+rm -rf /opt/jetty-9.4/temp/*
+popd /tmp/patch/oxauth
+rm -v /opt/gluu/jetty/oxauth/webapps/oxauth.war
+/opt/jre/bin/jar -cvf /opt/gluu/jetty/oxauth/webapps/oxauth.war *
+pushd 2>&1
+
+popd /tmp/patch/identity
+rm -v /opt/gluu/jetty/identity/webapps/identity.war
+/opt/jre/bin/jar -cvf /opt/gluu/jetty/identity/webapps/identity.war *
+pushd 2>&1
+
+if [ -d /opt/gluu/jetty/idp ] ; then
+   popd /tmp/patch/identity
+   rm -v /opt/gluu/jetty/idp/webapps/idp.war
+   /opt/jre/bin/jar -cvf /opt/gluu/jetty/idp/webapps/idp.war *
+   pushd 2>&1
+fi
 
 echo 'Installing the UI...'
 tar xzf /opt/dist/signincanada/custom.tgz -C /opt/gluu/jetty/oxauth/custom
