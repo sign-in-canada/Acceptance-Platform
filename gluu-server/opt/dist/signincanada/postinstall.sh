@@ -40,17 +40,17 @@ fi
 echo 'Updating the Couchbase client...'
 rm -v /tmp/patch/oxauth/WEB-INF/lib/java-client-*.jar
 rm -v /tmp/patch/oxauth/WEB-INF/lib/core-io-*.jar
-cp -v /opt/dist/app/java-client-2.7.22.jar /tmp/patch/oxauth/WEB-INF/lib
-cp -v /opt/dist/app/core-io-1.7.22.jar /tmp/patch/oxauth/WEB-INF/lib
+cp -v /opt/dist/app/java-client-2.7.21.jar /tmp/patch/oxauth/WEB-INF/lib
+cp -v /opt/dist/app/core-io-1.7.21.jar /tmp/patch/oxauth/WEB-INF/lib
 rm -v /tmp/patch/identity/WEB-INF/lib/java-client-*.jar
 rm -v /tmp/patch/identity/WEB-INF/lib/core-io-*.jar
-cp -v /opt/dist/app/java-client-2.7.22.jar /tmp/patch/identity/WEB-INF/lib
-cp -v /opt/dist/app/core-io-1.7.22.jar /tmp/patch/identity/WEB-INF/lib
+cp -v /opt/dist/app/java-client-2.7.21.jar /tmp/patch/identity/WEB-INF/lib
+cp -v /opt/dist/app/core-io-1.7.21.jar /tmp/patch/identity/WEB-INF/lib
 if [ -d /opt/gluu/jetty/idp ] ; then
    rm -v /tmp/patch/idp/WEB-INF/lib/java-client-*.jar
    rm -v /tmp/patch/idp/WEB-INF/lib/core-io-*.jar
-   cp -v /opt/dist/app/java-client-2.7.22.jar /tmp/patch/idp/WEB-INF/lib
-   cp -v /opt/dist/app/core-io-1.7.22.jar /tmp/patch/idp/WEB-INF/lib
+   cp -v /opt/dist/app/java-client-2.7.21.jar /tmp/patch/idp/WEB-INF/lib
+   cp -v /opt/dist/app/core-io-1.7.21.jar /tmp/patch/idp/WEB-INF/lib
 fi
 
 echo 'Updating log4j'
