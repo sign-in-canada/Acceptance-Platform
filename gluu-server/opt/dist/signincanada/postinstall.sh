@@ -19,12 +19,12 @@ echo "Enabling the passport key extraction service"
 systemctl enable passportkeys
 
 echo 'Installing the Application Insights SDK to oxAuth...'
-install -m 644 -o jetty -g jetty /opt/dist/signincanada/applicationinsights-core-2.6.3.jar /opt/gluu/jetty/oxauth/custom/libs
+install -m 644 -o jetty -g jetty /opt/dist/signincanada/applicationinsights-core-2.6.4.jar /opt/gluu/jetty/oxauth/custom/libs
 if [ -d /opt/gluu/jetty/idp ] ; then
    echo 'Installing custom libs into Shibboleth...'
    install -m 755 -o jetty -g jetty -d /opt/gluu/jetty/idp/custom/libs
    install -m 644 -o jetty -g jetty /opt/dist/signincanada/shib-oxauth-authn3-4.2.3.sic1.jar /opt/gluu/jetty/idp/custom/libs
-   install -m 644 -o jetty -g jetty /opt/dist/signincanada/applicationinsights-core-2.6.3.jar /opt/gluu/jetty/idp/custom/libs
+   install -m 644 -o jetty -g jetty /opt/dist/signincanada/applicationinsights-core-2.6.4.jar /opt/gluu/jetty/idp/custom/libs
 fi
 
 echo 'Preparing to patch Gluu web archives'

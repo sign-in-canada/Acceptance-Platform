@@ -31,10 +31,10 @@ stages:
 
     - script: |
         echo 'Downloading AppInsights SDK'
-        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.6.3/applicationinsights-core-2.6.3.jar \
+        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.6.4/applicationinsights-core-2.6.4.jar \
           -P gluu-server/opt/dist/signincanada
         echo 'Downloading AppInsights Agent'
-        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.2.1/applicationinsights-agent-3.2.1.jar \
+        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.2.4/applicationinsights-agent-3.2.4.jar \
           -P gluu-server/opt/azure
         ls -al 
       displayName: 'Downloading AppInsights'
