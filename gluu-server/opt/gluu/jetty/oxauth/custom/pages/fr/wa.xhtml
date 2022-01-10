@@ -40,12 +40,12 @@
           <button class="btn btn-default" onclick="startAuthentication()">Réessayer</button>
         </form>
         <form jsf:id="fido2Nav" class="form-horizontal" jsf:action="#{authenticator.authenticate}">
-          <h2 class="h5 mrgn-You can use your authenticator app instead.tp-lg">Vous ne pouvez pas utiliser votre sécurité pour le moment ?</h2>
+          <h2 class="h5 mrgn-tp-lg">Vous ne pouvez pas utiliser votre clé de sécurité pour le moment ?</h2>
           <p>Vous pouvez utiliser votre application d'authentification à la place.</p>
-          <button jsf:id="use2FA" class="btn btn-default" value="use2FA" jsf:action="#{authenticator.authenticate}" onclick="fillInRecovery()">Utiliser l'application d'authentification</button>
+          <button jsf:id="use2FA" class="btn btn-default" value="use2FA" jsf:action="#{authenticator.authenticate}">Utiliser l'application d'authentification</button>
           <h2 class="h5 mrgn-tp-lg">Vous avez perdu ou remplacé votre clé de sécurité?</h2>
           <p>Vous pouvez supprimer votre ancienne clé de sécurité de votre compte et éventuellement en ajouter une nouvelle.</p>
-          <button jsf:id="recover" class="btn btn-default" value="recover" jsf:action="#{authenticator.authenticate}" onclick="fillInRecovery()">Supprimer ou remplacer votre clé de sécurité</button>
+          <button jsf:id="recover" class="btn btn-default" value="recover" jsf:action="#{authenticator.authenticate}">Supprimer ou remplacer votre clé de sécurité</button>
         </form>
       </div>
     </div>
