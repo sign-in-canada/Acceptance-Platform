@@ -42,10 +42,10 @@
         <form jsf:id="fido2Nav" class="form-horizontal" jsf:action="#{authenticator.authenticate}">
           <h2 class="h5 mrgn-tp-lg">Can't use your security right now?</h2>
           <p>You can use your authenticator app instead.</p>
-          <button jsf:id="use2FA" class="btn btn-default" value="use2FA" jsf:action="#{authenticator.authenticate}" onclick="fillInRecovery()">Use authenticator app</button>
+          <button jsf:id="use2FA" class="btn btn-default" value="use2FA" jsf:action="#{authenticator.authenticate}">Use authenticator app</button>
           <h2 class="h5 mrgn-tp-lg">Lost or replaced your security key?</h2>
           <p>You can remove your old security key from your account and optinoally add a new one.</p>
-          <button jsf:id="recover" class="btn btn-default" value="recover" jsf:action="#{authenticator.authenticate}" onclick="fillInRecovery()">Remove or replace your security key</button>
+          <button jsf:id="recover" class="btn btn-default" value="recover" jsf:action="#{authenticator.authenticate}">Remove or replace your security key</button>
         </form>
       </div>
     </div>
