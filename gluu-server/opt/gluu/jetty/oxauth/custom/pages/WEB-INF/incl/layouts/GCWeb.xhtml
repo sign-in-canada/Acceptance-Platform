@@ -6,10 +6,10 @@
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:f="http://xmlns.jcp.org/jsf/core">
 
-  <f:view locale="#{language.localeCode}">
+  <f:view locale="#{locale}">
 
-    <head lang="#{language.localeCode}" dir="ltr">
-      <ui:include src="/WEB-INF/incl/components/head-#{language.localeCode}.xhtml" />
+    <head lang="#{view.locale.language}" dir="ltr">
+      <ui:include src="/WEB-INF/incl/components/head-#{view.locale.language}.xhtml" />
 
       <ui:insert name="styles" />
 
@@ -17,9 +17,7 @@
 
     <body class="page-type-nav" vocab="http://schema.org/" typeof="WebPage">
 
-      <ui:include src="/WEB-INF/incl/components/header-#{language.localeCode}.xhtml">
-        <ui:param name="otherLanguage" value="#{otherLanguage}" />
-      </ui:include>
+      <ui:include src="/WEB-INF/incl/components/header-#{view.locale.language}.xhtml" />
 
       <main property="mainContentOfPage" class="container" typeof="WebPageElement">
 
@@ -32,7 +30,7 @@
           <dl id="wb-dtmd">
             <dt>#{language.localeCode eq "en" ? "Date modified:&#32;" : "Date de modification&#160;:&#32;"}</dt>
             <dd>
-              <time property="dateModified">2020-11-27</time>
+              <time property="dateModified">2022-01-07</time>
             </dd>
           </dl>
         </div>
