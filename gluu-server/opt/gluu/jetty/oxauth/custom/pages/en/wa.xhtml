@@ -35,10 +35,8 @@
         <img src="/oxauth/ext/resources/assets/yubikeyincomputer.png" alt="Inserted Security Key" />
       </div>
       <div id="options" class="col-md-7 hidden">
-        <form class="form-horizontal">
-          <h2 class="h5">Was your security key not recognized?</h2>
-          <button class="btn btn-default" onclick="startAuthentication()">Retry</button>
-        </form>
+        <h2 class="h5">Was your security key not recognized?</h2>
+        <button class="btn btn-default" onclick="startAssertion()">Retry</button>
         <form jsf:id="fido2Nav" class="form-horizontal" jsf:action="#{authenticator.authenticate}">
           <h2 class="h5 mrgn-tp-lg">Can't use your security right now?</h2>
           <p>You can use your authenticator app instead.</p>

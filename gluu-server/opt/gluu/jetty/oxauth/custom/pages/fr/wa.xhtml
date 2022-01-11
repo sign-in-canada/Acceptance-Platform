@@ -35,10 +35,8 @@
         <img src="/oxauth/ext/resources/assets/yubikeyincomputer.png" alt="Clé de sécurité insérée" />
       </div>
       <div id="options" class="col-md-7 hidden">
-        <form class="form-horizontal">
-          <h2 class="h5">Votre clé de sécurité n’est pas reconnue?</h2>
-          <button class="btn btn-default" onclick="startAuthentication()">Réessayer</button>
-        </form>
+        <h2 class="h5">Votre clé de sécurité n’est pas reconnue?</h2>
+        <button class="btn btn-default" onclick="startAssertion()">Réessayer</button>
         <form jsf:id="fido2Nav" class="form-horizontal" jsf:action="#{authenticator.authenticate}">
           <h2 class="h5 mrgn-tp-lg">Vous ne pouvez pas utiliser votre clé de sécurité pour le moment ?</h2>
           <p>Vous pouvez utiliser votre application d'authentification à la place.</p>
