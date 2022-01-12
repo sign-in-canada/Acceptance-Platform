@@ -331,6 +331,14 @@ class PersonAuthentication(PersonAuthenticationType):
                     user = userService.getUser(identity.getWorkingParameter("userId"), "persistentId")
                     user = self.account.addSamlSubject(user, spNameQualifier)
                     userService.updateUser(user)
+                if self.getNextStep(configurationAttributes, requestParameters, step) < 0:
+                    user = userService.getUser(identity.getWorkingParameter("userId"), "persistentId")
+                    eventProperties = {"client": self.getClient(session).getClientName(),
+                                        "provider": identity.getWorkingParameter("provider"),
+                                        "sub" : self.account.getOpenIdSubject(user, self.getClient(session))}
+                    self.telemetryClient.trackEvent("Authentication", eventProperties, None)
+                    return authenticationService.authenticate(identity.getWorkingParameter("userId"))
+
             elif step == self.STEP_2FA: # 2FA Failed. Redirect back to the RP
                 facesService.redirectToExternalURL(self.getClientUri(session))
             else:
