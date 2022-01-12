@@ -324,8 +324,8 @@ class PersonAuthentication(PersonAuthenticationType):
                     # locale = ServerUtil.getFirstValue(requestParameters, "ui_locale") # TODO: Update passport to send language onerror
                     # sessionAttributes.put(AuthorizeRequestParam.UI_LOCALES, locale)
                     identity.setWorkingParameter("provider", None)
-            elif step == self.STEP_COLLECT: # PAI Collection failed. If it's a SAML SP, Create a new SIC PAI
-                # TODO: Check the actual SANLStatus for InvalidNameIdPolicy (needs to be sent from Passport)
+            elif (step == self.STEP_COLLECT
+                  and ServerUtil.getFirstValue(requestParameters, "failure") == "InvalidNameIDPolicy"): # PAI Collection failed. If it's a SAML SP, Create a new SIC PAI
                 spNameQualifier = sessionAttributes.get("spNameQualifier")
                 if spNameQualifier is not None:
                     user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "persistentId")
