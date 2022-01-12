@@ -328,7 +328,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 # TODO: Check the actual SANLStatus for InvalidNameIdPolicy (needs to be sent from Passport)
                 spNameQualifier = sessionAttributes.get("spNameQualifier")
                 if spNameQualifier is not None:
-                    user = userService.getUser(identity.getWorkingParameter("userId"), "persistentId")
+                    user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "persistentId")
                     user = self.account.addSamlSubject(user, spNameQualifier)
                     userService.updateUser(user)
                 if self.getNextStep(configurationAttributes, requestParameters, step) < 0:
