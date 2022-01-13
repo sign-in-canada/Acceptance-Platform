@@ -22,31 +22,39 @@
 
   <ui:define name="content">
     <h1 property="name" id="wb-cont">
-      <ui:include src="/WEB-INF/incl/content/#{not empty identity.getWorkingParameter('rpContent') ? identity.getWorkingParameter('rpContent') : 'default'}/name-#{language.localeCode}.xhtml"/>
+      <ui:include src="/WEB-INF/incl/content/#{not empty identity.getWorkingParameter('rpContent') ? identity.getWorkingParameter('rpContent') : 'default'}/name-#{language.localeCode}.xhtml" />
     </h1>
-    <h2>Clé de sécurité</h2>
-    <p>Branchez votre clé de sécurité et appuyez sur le bouton.</p>
-    <h:messages styleClass="list-unstyled label label-danger wb-server-error" />
-    <form method="post" action="#{request.contextPath}/postlogin.htm" id="fido2" onsubmit="return false">
-      <input type="hidden" name="fido2Authentication" id="fido2Authentication" />
-    </form>
-    <div class="row">
-      <div class="col-md-5">
-        <img src="/oxauth/ext/resources/assets/yubikeyincomputer.png" alt="Clé de sécurité insérée" />
+    <div class="row show" id="prompt">
+      <div class="col-md-6">
+        <h2>Clé de sécurité</h2>
+        <p>Insérez ou appuyez sur votre clé de sécurité.</p>
+        <img src="/oxauth/ext/resources/assets/yubikeyincomputer.png" alt="Inserted Security Key" />
       </div>
-      <div id="options" class="col-md-7 hidden">
-        <h2 class="h5">Votre clé de sécurité n’est pas reconnue?</h2>
-        <button class="btn btn-default" onclick="startAssertion()">Réessayer</button>
-        <form jsf:id="fido2Nav" class="form-horizontal" jsf:action="#{authenticator.authenticate}">
+    </div>
+    <div class="row">
+      <h:messages styleClass="list-unstyled label label-danger wb-server-error" />
+    </div>
+    <div id="options" class="row hidden">
+      <nav class="mrgn-bttm-lg" role="navigation">
+        <h2 class="h5 mrgn-tp-lg">Avoir des problèmes?</h2>
+        <form jsf:id="fido2Nav" jsf:action="#{authenticator.authenticate}">
+          <p class="form">Si vous n'avez pas été invité à saisir votre clé de sécurité, vous pouvez réessayer.</p>
+          <button type="button" class="form-control btn btn-primary" onclick="startAssertion()">Réessayer</button>
           <h2 class="h5 mrgn-tp-lg">Vous ne pouvez pas utiliser votre clé de sécurité pour le moment ?</h2>
           <p>Vous pouvez utiliser votre application d'authentification à la place.</p>
           <button jsf:id="use2FA" class="btn btn-default" value="use2FA" jsf:action="#{authenticator.authenticate}">Utiliser l'application d'authentification</button>
-          <h2 class="h5 mrgn-tp-lg">Vous avez perdu ou remplacé votre clé de sécurité?</h2>
+          <h2 class="h5 mrgn-tp-lg">Vous avez perdu ou remplacé votre clé de sécurité ?</h2>
           <p>Vous pouvez supprimer votre ancienne clé de sécurité de votre compte et éventuellement en ajouter une nouvelle.</p>
           <button jsf:id="recover" class="btn btn-default" value="recover" jsf:action="#{authenticator.authenticate}">Supprimer ou remplacer votre clé de sécurité</button>
         </form>
-      </div>
+      </nav>
     </div>
+    <div id="spinner" class="row hidden">
+      <img style='display:block;margin-left:auto;margin-right:auto;width:20;padding:10% 0;' src='/oxauth/ext/resources/assets/icon_flag_rotation_080x080.gif' />
+    </div>
+    <form method="post" action="#{request.contextPath}/postlogin.htm" id="fido2" onsubmit="return false">
+      <input type="hidden" name="fido2Authentication" id="fido2Authentication" />
+    </form>
   </ui:define>
 
   <ui:define name="scripts">
@@ -58,14 +66,20 @@
 
 			function startAssertion() {
 				console.log('Executing get assertion Fido2 request', assertion_request);
-
+        document.getElementById('options').classList.replace('show', 'hidden')
+        document.getElementById('prompt').classList.replace('hidden', 'show')
 				request = JSON.parse(assertion_request);
 				webauthn.getAssertion(request).then(data => {
 					console.log('Get assertion key data.');
 					document.getElementById('fido2Authentication').value = JSON.stringify(webauthn.responseToObject(data));
-					document.getElementById('fido2').submit();
+          document.getElementById('prompt').classList.replace('show', 'hidden')
+          document.getElementById('options').classList.replace('show', 'hidden')
+          document.getElementById('spinner').classList.replace('hidden', 'show')
+          document.getElementById('fido2').submit();
 				}).catch((err) => {
 					console.error('Authentication failed', err);
+          document.getElementById('prompt').classList.replace('show', 'hidden')
+          document.getElementById('spinner').classList.replace('show', 'hidden')
 					document.getElementById('options').classList.replace('hidden', 'show')
 					if (err.name === 'InvalidStateError') {
 						conslole.log("This authenticator is not registered for the account '${identity.user.userId}'. Please try again with a registered authenticator.");
