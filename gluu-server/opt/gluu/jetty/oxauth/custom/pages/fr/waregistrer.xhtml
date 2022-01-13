@@ -13,7 +13,7 @@
   <ui:param name="locale" value="fr" />
   
   <ui:define name="name">
-    <ui:include src="/WEB-INF/incl/content/default/name-#{language.localeCode}.xhtml" />
+    <ui:include src="/WEB-INF/incl/content/default/name-#{view.locale.language}.xhtml" />
   </ui:define>
 
   <ui:define name="content">
