@@ -32,6 +32,10 @@ mkdir -p /tmp/patch/oxauth
 unzip -q /opt/dist/gluu/oxauth.war -d /tmp/patch/oxauth
 mkdir -p /tmp/patch/identity
 unzip -q /opt/dist/gluu/identity.war -d /tmp/patch/identity
+if [ -d /opt/gluu/jetty/fido2 ] ; then
+   mkdir -p /tmp/patch/fido2
+   unzip -q /opt/dist/gluu/fido2.war -d /tmp/patch/fido2
+fi
 if [ -d /opt/gluu/jetty/idp ] ; then
    mkdir -p /tmp/patch/idp
    unzip -q /opt/dist/gluu/idp.war -d /tmp/patch/idp
@@ -46,6 +50,12 @@ rm -v /tmp/patch/identity/WEB-INF/lib/java-client-*.jar
 rm -v /tmp/patch/identity/WEB-INF/lib/core-io-*.jar
 cp -v /opt/dist/app/java-client-2.7.21.jar /tmp/patch/identity/WEB-INF/lib
 cp -v /opt/dist/app/core-io-1.7.21.jar /tmp/patch/identity/WEB-INF/lib
+if [ -d /opt/gluu/jetty/fido2 ] ; then
+   rm -v /tmp/patch/fido2/WEB-INF/lib/java-client-*.jar
+   rm -v /tmp/patch/fido2/WEB-INF/lib/core-io-*.jar
+   cp -v /opt/dist/app/java-client-2.7.21.jar /tmp/patch/fido2/WEB-INF/lib
+   cp -v /opt/dist/app/core-io-1.7.21.jar /tmp/patch/fido2/WEB-INF/lib
+fi
 if [ -d /opt/gluu/jetty/idp ] ; then
    rm -v /tmp/patch/idp/WEB-INF/lib/java-client-*.jar
    rm -v /tmp/patch/idp/WEB-INF/lib/core-io-*.jar
@@ -74,6 +84,17 @@ cp -v /opt/dist/app/log4j-1.2-api-2.17.1.jar /tmp/patch/identity/WEB-INF/lib
 cp -v /opt/dist/app/log4j-core-2.17.1.jar /tmp/patch/identity/WEB-INF/lib
 cp -v /opt/dist/app/log4j-slf4j-impl-2.17.1.jar /tmp/patch/identity/WEB-INF/lib
 
+if [ -d /opt/gluu/jetty/fido2 ] ; then
+   rm -v /tmp/patch/fido2/WEB-INF/lib/log4j-api-*.jar
+   rm -v /tmp/patch/fido2/WEB-INF/lib/log4j-1.2-api-*.jar
+   rm -v /tmp/patch/fido2/WEB-INF/lib/log4j-core-*.jar
+   rm -v /tmp/patch/fido2/WEB-INF/lib/log4j-slf4j-impl-*.jar
+   cp -v /opt/dist/app/log4j-api-2.17.1.jar /tmp/patch/fido2/WEB-INF/lib
+   cp -v /opt/dist/app/log4j-1.2-api-2.17.1.jar /tmp/patch/fido2/WEB-INF/lib
+   cp -v /opt/dist/app/log4j-core-2.17.1.jar /tmp/patch/fido2/WEB-INF/lib
+   cp -v /opt/dist/app/log4j-slf4j-impl-2.17.1.jar /tmp/patch/fido2/WEB-INF/lib
+fi
+
 if [ -d /opt/gluu/jetty/idp ] ; then
    rm -v /tmp/patch/idp/WEB-INF/lib/log4j-api-*.jar
    rm -v /tmp/patch/idp/WEB-INF/lib/log4j-1.2-api-*.jar
@@ -96,6 +117,13 @@ pushd /tmp/patch/identity
 rm -v /opt/gluu/jetty/identity/webapps/identity.war
 /opt/jre/bin/jar -cvf /opt/gluu/jetty/identity/webapps/identity.war * > /dev/null
 popd 2>&1
+
+if [ -d /opt/gluu/jetty/fido2 ] ; then
+   pushd /tmp/patch/fido2
+   rm -v /opt/gluu/jetty/fido2/webapps/fido2.war
+   /opt/jre/bin/jar -cvf /opt/gluu/jetty/fido2/webapps/fido2.war * > /dev/null
+   popd 2>&1
+fi
 
 if [ -d /opt/gluu/jetty/idp ] ; then
    pushd /tmp/patch/idp

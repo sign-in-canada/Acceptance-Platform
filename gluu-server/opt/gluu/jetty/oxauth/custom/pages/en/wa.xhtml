@@ -1,0 +1,101 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html>
+<ui:composition xmlns:ui="http://xmlns.jcp.org/jsf/facelets" xmlns:f="http://xmlns.jcp.org/jsf/core" xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:h="http://xmlns.jcp.org/jsf/html" template="/WEB-INF/incl/layouts/GCWeb.xhtml">
+
+  <f:metadata>
+    <f:viewAction action="#{authenticator.prepareAuthenticationForStep}" />
+    <f:viewAction action="#{language.setLocaleCode('en')}" />
+  </f:metadata>
+
+  <ui:param name="title" value="Security Key" />
+  <ui:param name="locale" value="en" />
+
+  <ui:define name="name">
+    <ui:include src="/WEB-INF/incl/content/default/name-#{view.locale.language}.xhtml" />
+  </ui:define>
+
+  <ui:define name="help">
+    <ui:include src="/WEB-INF/incl/content/default/help-#{view.locale.language}.xhtml" />
+  </ui:define>
+
+  <ui:define name="content">
+    <h1 property="name" id="wb-cont">
+      <ui:include src="/WEB-INF/incl/content/#{not empty identity.getWorkingParameter('rpContent') ? identity.getWorkingParameter('rpContent') : 'default'}/name-#{view.locale.language}.xhtml" />
+    </h1>
+    <div class="row show" id="prompt">
+      <div class="col-md-6">
+        <h2>Security Key</h2>
+        <p>Insert or tap your security key.</p>
+        <img src="/oxauth/ext/resources/assets/yubikeyincomputer.png" alt="Inserted Security Key" />
+      </div>
+    </div>
+    <div class="row">
+      <h:messages styleClass="list-unstyled label label-danger wb-server-error" />
+    </div>
+    <div id="options" class="row hidden">
+      <nav class="mrgn-bttm-lg" role="navigation">
+        <h2 class="h5 mrgn-tp-lg">Having problems?</h2>
+        <form jsf:id="fido2Nav" jsf:action="#{authenticator.authenticate}">
+          <p class="form">If you were not prompted for your security key you can retry.</p>
+          <button type="button" class="form-control btn btn-primary" onclick="startAssertion()">Retry</button>
+          <h2 class="h5 mrgn-tp-lg">Can't use your security right now?</h2>
+          <p>You can use your authenticator app instead.</p>
+          <button jsf:id="use2FA" class="btn btn-default" value="use2FA" jsf:action="#{authenticator.authenticate}">Use authenticator app</button>
+          <h2 class="h5 mrgn-tp-lg">Lost or replaced your security key?</h2>
+          <p>You can remove your old security key from your account and optinoally add a new one.</p>
+          <button jsf:id="recover" class="btn btn-default" value="recover" jsf:action="#{authenticator.authenticate}">Remove or replace your security key</button>
+        </form>
+      </nav>
+    </div>
+    <div id="spinner" class="row hidden">
+      <img style='display:block;margin-left:auto;margin-right:auto;width:20;padding:10% 0;' src='/oxauth/ext/resources/assets/icon_flag_rotation_080x080.gif' />
+    </div>
+    <form method="post" action="#{request.contextPath}/postlogin.htm" id="fido2" onsubmit="return false">
+      <input type="hidden" name="fido2Authentication" id="fido2Authentication" />
+    </form>
+  </ui:define>
+
+  <ui:define name="scripts">
+    <script src="/oxauth/ext/resources/js/base64js.js" />
+    <script src="/oxauth/ext/resources/js/base64url.js" />
+    <script src="/oxauth/ext/resources/js/webauthn.js" />
+    <script>
+      var assertion_request = ${ identity.getWorkingParameter('fido2_assertion_request')};
+
+			function startAssertion() {
+				console.log('Executing get assertion Fido2 request', assertion_request);
+        document.getElementById('options').classList.replace('show', 'hidden')
+        document.getElementById('prompt').classList.replace('hidden', 'show')
+				request = JSON.parse(assertion_request);
+				webauthn.getAssertion(request).then(data => {
+					console.log('Get assertion key data.');
+					document.getElementById('fido2Authentication').value = JSON.stringify(webauthn.responseToObject(data));
+          document.getElementById('prompt').classList.replace('show', 'hidden')
+          document.getElementById('options').classList.replace('show', 'hidden')
+          document.getElementById('spinner').classList.replace('hidden', 'show')
+          document.getElementById('fido2').submit();
+				}).catch((err) => {
+					console.error('Authentication failed', err);
+          document.getElementById('prompt').classList.replace('show', 'hidden')
+          document.getElementById('spinner').classList.replace('show', 'hidden')
+					document.getElementById('options').classList.replace('hidden', 'show')
+					if (err.name === 'InvalidStateError') {
+						conslole.log("This authenticator is not registered for the account '${identity.user.userId}'. Please try again with a registered authenticator.");
+					} else if (err.name === 'AbortError') {
+						console.log('This operation is canceled by user.');
+				    } else if (err.message) {
+						console.log(err.name + ' : ' + err.message);
+				    } else if (err.messages) {
+						console.log(err.messages);
+				    }
+
+					return false;
+				});
+			}
+      window.onload = function() {
+      	setTimeout(startAssertion(), 1000);
+    	}
+
+    </script>
+  </ui:define>
+</ui:composition>
