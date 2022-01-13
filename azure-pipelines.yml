@@ -31,10 +31,10 @@ stages:
 
     - script: |
         echo 'Downloading AppInsights SDK'
-        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.6.3/applicationinsights-core-2.6.3.jar \
+        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.6.4/applicationinsights-core-2.6.4.jar \
           -P gluu-server/opt/dist/signincanada
         echo 'Downloading AppInsights Agent'
-        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.2.1/applicationinsights-agent-3.2.1.jar \
+        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.2.4/applicationinsights-agent-3.2.4.jar \
           -P gluu-server/opt/azure
         ls -al 
       displayName: 'Downloading AppInsights'
@@ -53,18 +53,67 @@ stages:
       continueOnError: false
 
     - script: |
-        wget https://repo1.maven.org/maven2/com/couchbase/client/core-io/1.7.19/core-io-1.7.19.jar \
+        mkdir -p gluu-server/opt/dist/app
+        wget http://mirror.csclub.uwaterloo.ca/fedora/epel/7/x86_64/Packages/j/jq-1.6-2.el7.x86_64.rpm \
           -P gluu-server/opt/dist/app
-        wget https://repo1.maven.org/maven2/com/couchbase/client/core-io/1.7.19/core-io-1.7.19.jar.asc \
+        wget http://mirror.csclub.uwaterloo.ca/fedora/epel/7/x86_64/Packages/o/oniguruma-6.8.2-1.el7.x86_64.rpm \
+          -P gluu-server/opt/dist/app
+      displayName: 'Downloading jq'
+      continueOnError: false
+
+    - script: |
+        wget https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core/2.17.1/log4j-core-2.17.1.jar \
+          -P gluu-server/opt/dist/app
+        wget https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core/2.17.1/log4j-core-2.17.1.jar.asc \
           -P $(Agent.TempDirectory)
-          wget https://repo1.maven.org/maven2/com/couchbase/client/java-client/2.7.19/java-client-2.7.19.jar \
+        wget https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-api/2.17.1/log4j-api-2.17.1.jar \
           -P gluu-server/opt/dist/app
-        wget https://repo1.maven.org/maven2/com/couchbase/client/java-client/2.7.19/java-client-2.7.19.jar.asc \
+        wget https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-api/2.17.1/log4j-api-2.17.1.jar.asc \
+          -P $(Agent.TempDirectory)
+        wget https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-1.2-api/2.17.1/log4j-1.2-api-2.17.1.jar \
+          -P gluu-server/opt/dist/app
+        wget https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-1.2-api/2.17.1/log4j-1.2-api-2.17.1.jar.asc \
+          -P $(Agent.TempDirectory)
+          wget https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-slf4j-impl/2.17.1/log4j-slf4j-impl-2.17.1.jar \
+          -P gluu-server/opt/dist/app
+        wget https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-slf4j-impl/2.17.1/log4j-slf4j-impl-2.17.1.jar.asc \
+          -P $(Agent.TempDirectory)
+        wget https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-jul/2.17.1/log4j-jul-2.17.1.jar \
+          -P gluu-server/opt/dist/app
+        wget https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-jul/2.17.1/log4j-jul-2.17.1.jar.asc \
+          -P $(Agent.TempDirectory)
+        wget https://repo1.maven.org/maven2/org/slf4j/log4j-over-slf4j/1.7.32/log4j-over-slf4j-1.7.32.jar \
+          -P gluu-server/opt/dist/app
+        wget https://repo1.maven.org/maven2/org/slf4j/log4j-over-slf4j/1.7.32/log4j-over-slf4j-1.7.32.jar.asc \
+          -P $(Agent.TempDirectory)
+
+          
+        echo 'Checking download integrity'
+        gpg2 --keyserver hkps://keyserver.ubuntu.com --recv-keys 2C7B12F2A511E325
+        gpg2 --keyserver hkps://keyserver.ubuntu.com --recv-keys B4C70893B62BABE8
+
+        gpg2 --verify $(Agent.TempDirectory)/log4j-core-2.17.1.jar.asc gluu-server/opt/dist/app/log4j-core-2.17.1.jar
+        gpg2 --verify $(Agent.TempDirectory)/log4j-api-2.17.1.jar.asc gluu-server/opt/dist/app/log4j-api-2.17.1.jar
+        gpg2 --verify $(Agent.TempDirectory)/log4j-slf4j-impl-2.17.1.jar.asc gluu-server/opt/dist/app/log4j-slf4j-impl-2.17.1.jar
+        gpg2 --verify $(Agent.TempDirectory)/log4j-jul-2.17.1.jar.asc gluu-server/opt/dist/app/log4j-jul-2.17.1.jar
+        gpg2 --verify $(Agent.TempDirectory)/log4j-over-slf4j-1.7.32.jar.asc gluu-server/opt/dist/app/log4j-over-slf4j-1.7.32.jar
+        echo 'Passed'
+      displayName: 'Downlaoding the latest Log4J2 components'
+      continueOnError: false
+
+    - script: |
+        wget https://repo1.maven.org/maven2/com/couchbase/client/core-io/1.7.21/core-io-1.7.21.jar \
+          -P gluu-server/opt/dist/app
+        wget https://repo1.maven.org/maven2/com/couchbase/client/core-io/1.7.21/core-io-1.7.21.jar.asc \
+          -P $(Agent.TempDirectory)
+          wget https://repo1.maven.org/maven2/com/couchbase/client/java-client/2.7.21/java-client-2.7.21.jar \
+          -P gluu-server/opt/dist/app
+        wget https://repo1.maven.org/maven2/com/couchbase/client/java-client/2.7.21/java-client-2.7.21.jar.asc \
           -P $(Agent.TempDirectory)
         echo 'Checking download integrity'
         gpg2 --keyserver hkps://keyserver.ubuntu.com --recv-keys A6BCCB72D65B0D0F
-        gpg2 --verify $(Agent.TempDirectory)/core-io-1.7.19.jar.asc gluu-server/opt/dist/app/core-io-1.7.19.jar
-        gpg2 --verify $(Agent.TempDirectory)/java-client-2.7.19.jar.asc gluu-server/opt/dist/app/java-client-2.7.19.jar
+        gpg2 --verify $(Agent.TempDirectory)/core-io-1.7.21.jar.asc gluu-server/opt/dist/app/core-io-1.7.21.jar
+        gpg2 --verify $(Agent.TempDirectory)/java-client-2.7.21.jar.asc gluu-server/opt/dist/app/java-client-2.7.21.jar
         echo 'Passed'
       displayName: 'Downlaoding the latest Couchbase client'
       continueOnError: false
