@@ -220,6 +220,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 provider = identity.getWorkingParameter("provider")
                 if provider is None and len(self.providers) == 1: # Only one provider. Direct Pass-through
                     provider = next(iter(self.providers))
+                    identity.setWorkingParameter("provider", provider)
     
             if step == self.STEP_1FA:
                 # Coordinate single-sign-on (SSO)
@@ -692,6 +693,7 @@ class PersonAuthentication(PersonAuthenticationType):
         for i in range(self.STEP_SPLASH, self.STEP_FIDO_CONFIRM + 1):
             session.getSessionAttributes().put("auth_step_passed_%s" % i, "true")
 
+        originalStep = step
         if step == 1:
              # Determine if SPLASH, CHOOSER, or 1FA
             if requestParameters.containsKey("lang"):
@@ -699,7 +701,6 @@ class PersonAuthentication(PersonAuthenticationType):
             elif requestParameters.containsKey("chooser"):
                 step = self.STEP_CHOOSER
             elif requestParameters.containsKey("user") or requestParameters.containsKey("failure"):
-                session.getSessionAttributes().put("auth_step_passed_%s" % self.STEP_CHOOSER, "true")
                 step = self.STEP_1FA
                 
         if step == self.STEP_SPLASH:
@@ -751,7 +752,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 return self.STEP_FIDO_CONFIRM # Language toggle
 
         # if we get this far we're done
-        identity.setWorkingParameter("stepCount", step)
+        identity.setWorkingParameter("stepCount", originalStep)
         return -1
 
     ### Form response parsing
