@@ -31,10 +31,10 @@ stages:
 
     - script: |
         echo 'Downloading AppInsights SDK'
-        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.6.2/applicationinsights-core-2.6.2.jar \
+        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.6.4/applicationinsights-core-2.6.4.jar \
           -P gluu-server/opt/dist/signincanada
         echo 'Downloading AppInsights Agent'
-        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.1.0/applicationinsights-agent-3.1.0.jar \
+        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.2.4/applicationinsights-agent-3.2.4.jar \
           -P gluu-server/opt/azure
         ls -al 
       displayName: 'Downloading AppInsights'
@@ -66,7 +66,7 @@ stages:
 
     - script: |
         cd gluu-server/opt/dist/gluu
-        mv passport-version_5.3.0-node_modules.tar.gz passport-version_4.3.0-node_modules.tar.gz
+        mv passport-version_5.3.0-node_modules.tar.gz passport-version_4.3.1-node_modules.tar.gz
       displayName: 'Renaming node modules'
       continueOnError: true
 
@@ -111,6 +111,7 @@ stages:
         chmod 755 opt/dist/scripts/notify
         chmod 700 opt/dist/scripts/crlcheck.sh
         chmod 700 opt/dist/scripts/cbcheck.sh
+        chmod 700 opt/dist/scripts/passportkeys.sh
         chmod 700 install/community-edition-setup/setup.py
         tar -czv --owner=root --group=root -f $(Build.ArtifactStagingDirectory)/SIC-AP-$(major_minor).$(build).tgz --exclude='opt/gluu' *
         openssl sha256 $(Build.ArtifactStagingDirectory)/SIC-AP-$(major_minor).$(build).tgz > $(Build.ArtifactStagingDirectory)/SIC-AP-$(major_minor).$(build).tgz.sha
@@ -186,7 +187,7 @@ stages:
   jobs:
   - deployment: Deploy
     displayName: Deploy to CATE
-    environment: QA
+    environment: CATE
     pool: server
     strategy:
       runOnce:
@@ -205,7 +206,7 @@ stages:
   jobs:
   - deployment: Deploy
     displayName: Deploy to the production environment
-    environment: QA
+    environment: PROD
     pool: server
     strategy:
       runOnce:

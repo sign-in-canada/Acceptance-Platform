@@ -1,6 +1,6 @@
 {
     "role": {
-        "name": "oxAuth"
+        "name": "fido2"
     },
     "instrumentation": {
         "logging": {
@@ -11,7 +11,7 @@
         "destination": "file",
         "level": "INFO",
         "file": {
-            "path": "/opt/gluu/jetty/oxauth/logs/applicationinsights.log",
+            "path": "/opt/gluu/jetty/fido2/logs/applicationinsights.log",
             "maxSizeMb": 5,
             "maxHistory": 1
         }

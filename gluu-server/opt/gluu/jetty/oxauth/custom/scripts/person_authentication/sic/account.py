@@ -6,7 +6,10 @@ from org.gluu.service.cdi.util import CdiUtil
 from org.gluu.oxauth.model.common import User
 from org.oxauth.persistence.model import PairwiseIdentifier
 from org.gluu.service.cdi.util import CdiUtil
-from org.gluu.oxauth.service import UserService, PairwiseIdentifierService, SectorIdentifierService
+from org.gluu.oxauth.service import UserService, PairwiseIdentifierService
+from org.gluu.persist import PersistenceEntryManager
+from org.gluu.persist.model.base import CustomEntry
+from org.gluu.search.filter import Filter
 
 from java.net import URI
 from javax.faces.context import FacesContext
@@ -22,6 +25,7 @@ class Account:
     def __init__(self):
         self.userService = CdiUtil.bean(UserService)
         self.pairwiseIdentifierService = CdiUtil.bean(PairwiseIdentifierService)
+        self.entryManager = CdiUtil.bean(PersistenceEntryManager)
 
     # Creation
     def create(self, externalProfile):
@@ -131,6 +135,17 @@ class Account:
             raise AccountError("account. addOpenIdSubject unable to find client sector identifier Uri")
 
         return URI.create(sectorIdentifierUri).getHost()
+
+# FIDO2 authenticator management
+
+    def removeFido2Registrations(self, user):
+        userInum = user.getAttribute("inum")
+        baseDn = self.userService.getBaseDnForFido2RegistrationEntries(userInum)
+        userInumFilter = Filter.createEqualityFilter("personInum", userInum)
+        registeredFilter = Filter.createEqualityFilter("oxStatus", "registered")
+        filter = Filter.createANDFilter(userInumFilter, registeredFilter)
+
+        self.entryManager.remove(baseDn, CustomEntry, filter, 100)
 
 # Identity claim ingestion
 
