@@ -2,7 +2,7 @@
 
 umask 22
 echo 'Stopping services...'
-systemctl stop httpd oxauth identity idp passport
+systemctl stop httpd oxauth identity fido2 idp passport
 
 echo 'Enabling the keyvault service...'
 if grep Red /etc/redhat-release ; then
