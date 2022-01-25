@@ -12,18 +12,6 @@ changetype: modify
 replace: oxDisabled
 oxDisabled: true
 
-# SCIM Resource Server Client
-dn: inum=%(scim_rs_client_id)s,ou=clients,o=gluu
-changetype: modify
-replace: oxDisabled
-oxDisabled: true
-
-# SCIM Requesting Party Client
-dn: inum=%(scim_rp_client_id)s,ou=clients,o=gluu
-changetype: modify
-replace: oxDisabled
-oxDisabled: true
-
 # Passport IDP-Initated flow Client
 dn: inum=%(passport_rp_ii_client_id)s,ou=clients,o=gluu
 changetype: modify
