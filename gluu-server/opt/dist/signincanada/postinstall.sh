@@ -4,6 +4,9 @@ umask 22
 echo 'Stopping services...'
 systemctl stop httpd oxauth identity fido2 idp passport
 
+echo 'Clearing jetty temp files'
+rm -rf /opt/jetty-9.4/temp/*
+
 echo 'Enabling the keyvault service...'
 if grep Red /etc/redhat-release ; then
    yum remove -y epel-release
