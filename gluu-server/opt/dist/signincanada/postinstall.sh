@@ -23,13 +23,13 @@ systemctl enable passportkeys
 
 echo 'Installing the Application Insights SDK to oxAuth...'
 install -m 644 -o jetty -g jetty /opt/dist/signincanada/applicationinsights-core-2.6.4.jar /opt/gluu/jetty/oxauth/custom/libs
-sed -i "10i\        <Set name="extraClasspath">custom/libs/applicationinsights-core-2.6.4.jar</Set>" /opt/gluu/jetty/oxauth/webapp/oxauth.xml
+sed -i "10i\        <Set name="extraClasspath">custom/libs/applicationinsights-core-2.6.4.jar</Set>" /opt/gluu/jetty/oxauth/webapps/oxauth.xml
 if [ -d /opt/gluu/jetty/idp ] ; then
    echo 'Installing custom libs into Shibboleth...'
    install -m 755 -o jetty -g jetty -d /opt/gluu/jetty/idp/custom/libs
    install -m 644 -o jetty -g jetty /opt/dist/signincanada/shib-oxauth-authn3-4.2.3.sic1.jar /opt/gluu/jetty/idp/custom/libs
    install -m 644 -o jetty -g jetty /opt/dist/signincanada/applicationinsights-core-2.6.4.jar /opt/gluu/jetty/idp/custom/libs
-   sed -i "10i\        <Set name="extraClasspath">custom/libs/shib-oxauth-authn3-4.2.3.sic1.jar,custom/libs/applicationinsights-core-2.6.4.jar</Set>" /opt/gluu/jetty/idp/webapp/idp.xml
+   sed -i "10i\        <Set name="extraClasspath">custom/libs/shib-oxauth-authn3-4.2.3.sic1.jar,custom/libs/applicationinsights-core-2.6.4.jar</Set>" /opt/gluu/jetty/idp/webapps/idp.xml
 fi
 
 echo 'Preparing to patch Gluu web archives'
