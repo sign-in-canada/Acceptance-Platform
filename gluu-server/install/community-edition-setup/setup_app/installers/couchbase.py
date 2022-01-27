@@ -63,7 +63,7 @@ class CouchbaseInstaller(PackageUtils, BaseInstaller):
         self.couchbaseSSL()
 
         couchbase_mappings = self.getMappingType('couchbase')
-        Config.couchbaseBuckets.append(Config.couchbase_bucket_prefix)
+        # Config.couchbaseBuckets.append(Config.couchbase_bucket_prefix)
         for group in couchbase_mappings:
             bucket = '{}_{}'.format(Config.couchbase_bucket_prefix, group)
             Config.couchbaseBuckets.append(bucket)
