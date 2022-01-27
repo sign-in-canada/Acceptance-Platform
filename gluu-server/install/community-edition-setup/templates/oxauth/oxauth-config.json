@@ -313,7 +313,6 @@
     "httpLoggingExludePaths": [],
     "authorizationRequestCustomAllowedParameters" : [
         "entityId",
-        "spNameQualifier",
         "prompt2"],
     "legacyDynamicRegistrationScopeParam": false,
     "openidScopeBackwardCompatibility": %(oxauth_openidScopeBackwardCompatibility)s,

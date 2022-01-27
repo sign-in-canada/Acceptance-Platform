@@ -83,25 +83,6 @@ stages:
       inputs:
         buildType: 'specific'
         project: '7302639f-e704-47c3-9557-99b4e04a75bc'
-        pipeline: '288'
-        runVersion: 'latestFromBranch'
-        runBranch: "refs/heads/version_4.2.3"
-        artifactName: 'shib-oxauth-authn3'
-        targetPath: '$(Pipeline.Workspace)/s/gluu-server/opt/dist/signincanada'
-      displayName: 'Downloading shib-oxauth-authn3 libs'
-
-    - script: |
-        cd gluu-server/opt/dist/signincanada
-        mkdir shibjar && tar -C shibjar -xvf shib-oxauth-authn3-4.2.3.sic1.tar
-        cp shibjar/shib-oxauth-authn3-4.2.3.sic1/edit-webapp/WEB-INF/lib/shib-oxauth-authn3-4.2.3.sic1.jar .
-        rm -rf shib-oxauth-authn3-4.2.3.sic1.tar && rm -rf shib-oxauth-authn3-4.2.3.sic1.zip && rm -rf shibjar
-        ls -al 
-      displayName: 'Moving Shiboleth Jar'
-
-    - task: DownloadPipelineArtifact@2
-      inputs:
-        buildType: 'specific'
-        project: '7302639f-e704-47c3-9557-99b4e04a75bc'
         pipeline: '351'
         buildVersionToDownload: 'latest'
         artifactName: 'node-services'
