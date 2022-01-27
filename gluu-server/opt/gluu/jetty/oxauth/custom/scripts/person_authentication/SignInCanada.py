@@ -325,7 +325,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     identity.setWorkingParameter("provider", None)
             elif (step == self.STEP_COLLECT
                   and ServerUtil.getFirstValue(requestParameters, "failure") == "InvalidNameIDPolicy"): # PAI Collection failed. If it's a SAML SP, Create a new SIC PAI
-                spNameQualifier = sessionAttributes.get("spNameQualifier")
+                spNameQualifier = sessionAttributes.get("entityId")
                 if spNameQualifier is not None:
                     user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "persistentId")
                     user = self.account.addSamlSubject(user, spNameQualifier)
@@ -460,7 +460,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 userChanged = True
 
             # If it's a SAML RP without collection enabled, then create our own PAI
-            spNameQualifier = sessionAttributes.get("spNameQualifier")
+            spNameQualifier = sessionAttributes.get("entityId")
             if spNameQualifier is not None and "collect" not in rpConfig and self.account.getSamlSubject(user, spNameQualifier) is None:
                 user = self.account.addSamlSubject(user, spNameQualifier)
                 userChanged = True
