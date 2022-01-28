@@ -31,20 +31,6 @@ if [ -d /opt/gluu/jetty/idp ] ; then
    sed -i "10i\        <Set name=\"extraClasspath\">custom/libs/applicationinsights-core-2.6.4.jar</Set>" /opt/gluu/jetty/idp/webapps/idp.xml
 fi
 
-echo 'Preparing to patch Gluu web archives'
-mkdir -p /tmp/patch/oxauth
-unzip -q /opt/dist/gluu/oxauth.war -d /tmp/patch/oxauth
-mkdir -p /tmp/patch/identity
-unzip -q /opt/dist/gluu/identity.war -d /tmp/patch/identity
-if [ -d /opt/gluu/jetty/fido2 ] ; then
-   mkdir -p /tmp/patch/fido2
-   unzip -q /opt/dist/gluu/fido2.war -d /tmp/patch/fido2
-fi
-if [ -d /opt/gluu/jetty/idp ] ; then
-   mkdir -p /tmp/patch/idp
-   unzip -q /opt/dist/gluu/idp.war -d /tmp/patch/idp
-fi
-
 echo 'Installing the UI...'
 tar xzf /opt/dist/signincanada/custom.tgz -C /opt/gluu/jetty/oxauth/custom
 chown -R jetty:jetty /opt/gluu/jetty/oxauth/custom
