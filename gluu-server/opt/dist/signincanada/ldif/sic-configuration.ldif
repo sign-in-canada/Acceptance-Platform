@@ -1,0 +1,5 @@
+# Configure the loa2 module as the default
+dn: ou=configuration,o=gluu
+changetype: modify
+replace: oxAuthenticationMode
+oxAuthenticationMode: loa2

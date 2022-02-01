@@ -26,12 +26,10 @@ from org.gluu.jsf2.service import FacesResources, FacesService
 from org.gluu.oxauth.model.authorize import AuthorizeRequestParam
 from org.gluu.fido2.client import Fido2ClientFactory
 
-from org.jboss.resteasy.client import ClientResponseFailure
-from org.jboss.resteasy.client.exception import ResteasyClientException
-
 from java.util import Arrays
 from java.util.concurrent.locks import ReentrantLock
 from javax.ws.rs.core import Response
+from javax.ws.rs import ClientErrorException
 
 from com.microsoft.applicationinsights import TelemetryClient
 
@@ -273,7 +271,7 @@ class PersonAuthentication(PersonAuthenticationType):
                                                      'timeout': 120000,
                                                      'userVerification': 'discouraged'}, separators=(',', ':'))
                     attestationResponse = attestationService.register(attestationRequest).readEntity(java.lang.String)
-                except ClientResponseFailure as ex:
+                except ClientErrorException as ex:
                     print ("%s. Prepare for step. Failed to start FIDO2 attestation flow. Exception:" % self.name, sys.exc_info()[1])
                     return False
                 identity.setWorkingParameter("fido2_attestation_request", ServerUtil.asJson(attestationResponse))
@@ -287,7 +285,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     assertionService = Fido2ClientFactory.instance().createAssertionService(metaDataConfiguration)
                     assertionRequest = json.dumps({'username': userId, 'timeout': 120000, 'userVerification': 'discouraged'}, separators=(',', ':'))
                     assertionResponse = assertionService.authenticate(assertionRequest).readEntity(java.lang.String)
-                except ClientResponseFailure as ex:
+                except ClientErrorException as ex:
                     print ("%s. Prepare for step. Failed to start FIDO2 assertion flow. Exception:" %self.name, sys.exc_info()[1])
                     return False
                 identity.setWorkingParameter("fido2_assertion_request", ServerUtil.asJson(assertionResponse))
@@ -327,7 +325,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     identity.setWorkingParameter("provider", None)
             elif (step == self.STEP_COLLECT
                   and ServerUtil.getFirstValue(requestParameters, "failure") == "InvalidNameIDPolicy"): # PAI Collection failed. If it's a SAML SP, Create a new SIC PAI
-                spNameQualifier = sessionAttributes.get("spNameQualifier")
+                spNameQualifier = sessionAttributes.get("entityId")
                 if spNameQualifier is not None:
                     user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "persistentId")
                     user = self.account.addSamlSubject(user, spNameQualifier)
@@ -462,7 +460,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 userChanged = True
 
             # If it's a SAML RP without collection enabled, then create our own PAI
-            spNameQualifier = sessionAttributes.get("spNameQualifier")
+            spNameQualifier = sessionAttributes.get("entityId")
             if spNameQualifier is not None and "collect" not in rpConfig and self.account.getSamlSubject(user, spNameQualifier) is None:
                 user = self.account.addSamlSubject(user, spNameQualifier)
                 userChanged = True
@@ -835,16 +833,9 @@ class PersonAuthentication(PersonAuthenticationType):
                 try:
                     self.fidoMetaDataConfiguration = metaDataConfigurationService.getMetadataConfiguration().readEntity(java.lang.String)
                     return self.fidoMetaDataConfiguration
-                except ClientResponseFailure as ex:
+                except ClientErrorException as ex:
                     # Detect if last try or we still get Service Unavailable HTTP error
                     if (attempt == max_attempts) or (ex.getResponse().getResponseStatus() != Response.Status.SERVICE_UNAVAILABLE):
-                        raise ex
-    
-                    java.lang.Thread.sleep(3000)
-                    print ("Attempting to load metadata: %d" % attempt)
-                except ResteasyClientException as ex:
-                    # Detect if last try or we still get Service Unavailable HTTP error
-                    if attempt == max_attempts:
                         raise ex
     
                     java.lang.Thread.sleep(3000)

@@ -104,7 +104,7 @@ fetchSecret NotifyKey > ${KV_DIR}/secrets/NotifyKey
 # Get the "salt"
 salt=$(fetchSecret APsalt)
 if [ "$salt" != "undefined" ] ; then
-   echo "encodeSalt = $salt" > ${KV_DIR}/secrets/salt
+   echo -n "encodeSalt = $salt" > ${KV_DIR}/secrets/salt
    ln -s -f ${KV_DIR}/secrets/salt /etc/gluu/conf/salt
 
    # Get the Couchbase admin password
