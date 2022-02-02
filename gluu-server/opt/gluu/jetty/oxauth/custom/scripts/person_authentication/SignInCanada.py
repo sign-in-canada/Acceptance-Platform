@@ -25,6 +25,7 @@ from org.gluu.oxauth.i18n import LanguageBean
 from org.gluu.jsf2.service import FacesResources, FacesService
 from org.gluu.oxauth.model.authorize import AuthorizeRequestParam
 from org.gluu.fido2.client import Fido2ClientFactory
+from org.gluu.util import StringHelper
 
 from java.util import Arrays
 from java.util.concurrent.locks import ReentrantLock
@@ -174,10 +175,26 @@ class PersonAuthentication(PersonAuthenticationType):
         uiLocales = sessionAttributes.get(AuthorizeRequestParam.UI_LOCALES)
 
         rpConfig = self.getRPConfig(session)
+        clientUri = self.getClientUri(session)
 
         externalContext.addResponseHeader("Content-Security-Policy", "default-src 'self' https://www.canada.ca; font-src 'self' https://fonts.gstatic.com https://use.fontawesome.com https://www.canada.ca; style-src 'self' 'unsafe-inline'; style-src-elem 'self' 'unsafe-inline' https://use.fontawesome.com https://fonts.googleapis.com https://www.canada.ca; script-src 'self' 'unsafe-inline' https://www.canada.ca https://ajax.googleapis.com; connect-src 'self' https://*.fjgc-gccf.gc.ca")
 
         if step == 1:
+            httpRequest = externalContext.getRequest()
+            # Bookmark detection
+            if httpRequest.getHeader("referer") is None:
+                if StringHelper.isNotEmpty(clientUri):
+                    facesService.redirectToExternalURL(clientUri)
+                    return True
+                else:
+                    print("%s: prepareForStep. clientUri is missing for client %s" % (self.name, self.getClient(session).getClientName()))
+                    return False
+
+            # forceAuthn workaround
+            prompt2 = httpRequest.getParameter("prompt2")
+            if prompt2 == "login":
+                identity.setWorkingParameter("forceAuthn", True)
+
             # step could actually be 2, or 3
             if uiLocales is not None:
                 if len(self.providers) > 1:
@@ -185,23 +202,16 @@ class PersonAuthentication(PersonAuthenticationType):
                 else:
                     step = self.STEP_1FA
 
-            # forceAuthn workaround
-            facesContext = facesResources.getFacesContext()
-            httpRequest = facesContext.getCurrentInstance().getExternalContext().getRequest()
-            prompt2 = httpRequest.getParameter("prompt2")
-            if prompt2 == "login":
-                identity.setWorkingParameter("forceAuthn", True)
 
         if identity.getWorkingParameter("abort"): # Back button workaround
             # Obtain the client URI of the current client from the client configuration
             if len(self.providers) == 1: # Pass through, so send them back to the client
-                clientUri = self.getClientUri(session)
-                if (clientUri is None):
-                    print("%s: prepareForStep. clientUri is missing for client %s" % (self.name, self.getClient(session).getClientName()))
-                    return False
-                else:
+                if StringHelper.isNotEmpty(clientUri):
                     facesService.redirectToExternalURL(clientUri)
                     return True
+                else:
+                    print("%s: prepareForStep. clientUri is missing for client %s" % (self.name, self.getClient(session).getClientName()))
+                    return False
             else: # reset the chooser
                 identity.setWorkingParameter("provider", None)
 
