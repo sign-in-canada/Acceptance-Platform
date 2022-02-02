@@ -115,7 +115,7 @@ objectClass: top
 objectClass: oxCustomScript
 description: Single Sign-On timeout synchronization
 displayName: sso_sync
-oxEnabled: false
+oxEnabled: true
 inum: A3DC-DH01
 oxLevel: 50
 oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
