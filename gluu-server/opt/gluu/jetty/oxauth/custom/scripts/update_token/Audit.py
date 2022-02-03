@@ -38,7 +38,6 @@ class UpdateToken(UpdateTokenType):
                            "payload": signedJWT.getClaims().toJsonString(),
                            "signature": signedJWT.getEncodedSignature()}
 
-        print(eventProperties)
         self.telemetryClient.trackEvent("ID Token", eventProperties, None)
-        
+
         return False
