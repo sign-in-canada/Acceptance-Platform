@@ -5,6 +5,7 @@ Before=oxauth.service
 Before=httpd.service
 Before=passport.service
 Before=notify.service
+Before=fido2.service
 
 [Service]
 Type=oneshot
