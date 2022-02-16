@@ -115,7 +115,7 @@ objectClass: top
 objectClass: oxCustomScript
 description: Single Sign-On timeout synchronization
 displayName: sso_sync
-oxEnabled: false
+oxEnabled: true
 inum: A3DC-DH01
 oxLevel: 50
 oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
@@ -123,6 +123,21 @@ oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/cus
 oxRevision: 1
 oxScript::%(application_session_authninstant)s
 oxScriptType: application_session
+programmingLanguage: python
+
+dn: inum=A3DC-DH02,ou=scripts,o=gluu
+objectClass: top
+objectClass: oxCustomScript
+description: ID Token Auditing
+displayName: token_audit
+oxEnabled: true
+inum: A3DC-DH02
+oxLevel: 50
+oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
+oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/update_token/Audit.py","description":""}
+oxRevision: 1
+oxScript::%(update_token_audit)s
+oxScriptType: update_token
 programmingLanguage: python
 
 # Disable passport-saml script

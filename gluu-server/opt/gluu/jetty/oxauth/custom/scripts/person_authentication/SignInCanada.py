@@ -25,6 +25,7 @@ from org.gluu.oxauth.i18n import LanguageBean
 from org.gluu.jsf2.service import FacesResources, FacesService
 from org.gluu.oxauth.model.authorize import AuthorizeRequestParam
 from org.gluu.fido2.client import Fido2ClientFactory
+from org.gluu.util import StringHelper
 
 from java.util import Arrays
 from java.util.concurrent.locks import ReentrantLock
@@ -174,10 +175,26 @@ class PersonAuthentication(PersonAuthenticationType):
         uiLocales = sessionAttributes.get(AuthorizeRequestParam.UI_LOCALES)
 
         rpConfig = self.getRPConfig(session)
+        clientUri = self.getClientUri(session)
 
         externalContext.addResponseHeader("Content-Security-Policy", "default-src 'self' https://www.canada.ca; font-src 'self' https://fonts.gstatic.com https://use.fontawesome.com https://www.canada.ca; style-src 'self' 'unsafe-inline'; style-src-elem 'self' 'unsafe-inline' https://use.fontawesome.com https://fonts.googleapis.com https://www.canada.ca; script-src 'self' 'unsafe-inline' https://www.canada.ca https://ajax.googleapis.com; connect-src 'self' https://*.fjgc-gccf.gc.ca")
 
         if step == 1:
+            httpRequest = externalContext.getRequest()
+            # Bookmark detection
+            if httpRequest.getHeader("referer") is None:
+                if StringHelper.isNotEmpty(clientUri):
+                    facesService.redirectToExternalURL(clientUri)
+                    return True
+                else:
+                    print("%s: prepareForStep. clientUri is missing for client %s" % (self.name, self.getClient(session).getClientName()))
+                    return False
+
+            # forceAuthn workaround
+            prompt2 = httpRequest.getParameter("prompt2")
+            if prompt2 == "login":
+                identity.setWorkingParameter("forceAuthn", True)
+
             # step could actually be 2, or 3
             if uiLocales is not None:
                 if len(self.providers) > 1:
@@ -185,23 +202,16 @@ class PersonAuthentication(PersonAuthenticationType):
                 else:
                     step = self.STEP_1FA
 
-            # forceAuthn workaround
-            facesContext = facesResources.getFacesContext()
-            httpRequest = facesContext.getCurrentInstance().getExternalContext().getRequest()
-            prompt2 = httpRequest.getParameter("prompt2")
-            if prompt2 == "login":
-                identity.setWorkingParameter("forceAuthn", True)
 
         if identity.getWorkingParameter("abort"): # Back button workaround
             # Obtain the client URI of the current client from the client configuration
             if len(self.providers) == 1: # Pass through, so send them back to the client
-                clientUri = self.getClientUri(session)
-                if (clientUri is None):
-                    print("%s: prepareForStep. clientUri is missing for client %s" % (self.name, self.getClient(session).getClientName()))
-                    return False
-                else:
+                if StringHelper.isNotEmpty(clientUri):
                     facesService.redirectToExternalURL(clientUri)
                     return True
+                else:
+                    print("%s: prepareForStep. clientUri is missing for client %s" % (self.name, self.getClient(session).getClientName()))
+                    return False
             else: # reset the chooser
                 identity.setWorkingParameter("provider", None)
 
@@ -331,11 +341,6 @@ class PersonAuthentication(PersonAuthenticationType):
                     user = self.account.addSamlSubject(user, spNameQualifier)
                     userService.updateUser(user)
                 if self.getNextStep(configurationAttributes, requestParameters, step) < 0:
-                    user = userService.getUser(identity.getWorkingParameter("userId"), "persistentId")
-                    eventProperties = {"client": self.getClient(session).getClientName(),
-                                        "provider": identity.getWorkingParameter("provider"),
-                                        "sub" : self.account.getOpenIdSubject(user, self.getClient(session))}
-                    self.telemetryClient.trackEvent("Authentication", eventProperties, None)
                     return authenticationService.authenticate(identity.getWorkingParameter("userId"))
 
             elif step == self.STEP_2FA: # 2FA Failed. Redirect back to the RP
@@ -377,12 +382,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 user = userService.getUser(identity.getWorkingParameter("userId"), "inum", "uid")
                 self.account.removeFido2Registrations(user)
             elif option in {"decline", "continue"}:
-                user = userService.getUser(identity.getWorkingParameter("userId"), "inum", "uid")
-                eventProperties = {"client": self.getClient(session).getClientName(),
-                    "provider": identity.getWorkingParameter("provider"),
-                    "sub" : self.account.getOpenIdSubject(user, self.getClient(session))}
-                self.telemetryClient.trackEvent("Authentication", eventProperties, None)
-                return authenticationService.authenticate(user.getUserId())
+                return authenticationService.authenticate(identity.getWorkingParameter("userId"))
 
         else: # Invalid response
             print ("%s: Invalid form submission: %s." % (self.name, requestParameters.keySet().toString()))
@@ -407,9 +407,6 @@ class PersonAuthentication(PersonAuthenticationType):
 
         externalProfile = self.passport.handleResponse(requestParameters)
         provider = externalProfile["provider"]
-
-        eventProperties = {"client": self.getClient(session).getClientName(),
-                           "provider": identity.getWorkingParameter("provider")}
 
         # Can't trust the step parameter
         if identity.getWorkingParameter("userId") is None:
@@ -479,9 +476,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 userService.updateUser(user)
 
             if self.getNextStep(configurationAttributes, requestParameters, step) < 0:
-                eventProperties["sub"] = self.account.getOpenIdSubject(user, self.getClient(session))
-                self.telemetryClient.trackEvent("Authentication", eventProperties, None)
-                return authenticationService.authenticate(user.getUserId())
+                return authenticationService.authenticate(identity.getWorkingParameter("userId"))
 
         elif step == self.STEP_COLLECT:
             user = userService.getUser(identity.getWorkingParameter("userId"), "inum", "uid", "persistentId")
@@ -513,9 +508,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 self.account.addOpenIdSubject(user, client, provider + nameId)
 
             if self.getNextStep(configurationAttributes, requestParameters, step) < 0:
-                eventProperties["sub"] = self.account.getOpenIdSubject(user, self.getClient(session))
-                self.telemetryClient.trackEvent("Authentication", eventProperties, None)
-                return authenticationService.authenticate(user.getUserId())
+                return authenticationService.authenticate(identity.getWorkingParameter("userId"))
 
         elif step == self.STEP_2FA:
             user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "oxExternalUid", "locale")
@@ -534,9 +527,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
             userId = identity.getWorkingParameter("userId")
             if self.getNextStep(configurationAttributes, requestParameters, step) < 0:
-                eventProperties["sub"] = self.account.getOpenIdSubject(user, self.getClient(session))
-                self.telemetryClient.trackEvent("Authentication", eventProperties, None)
-                return authenticationService.authenticate(user.getUserId())
+                return authenticationService.authenticate(identity.getWorkingParameter("userId"))
 
         return True
 
@@ -560,12 +551,7 @@ class PersonAuthentication(PersonAuthenticationType):
             print ("%s. Authenticate. Got invalid registration status from Fido2 server" % self.name)
             return False
 
-        user = userService.getUser(identity.getWorkingParameter("userId"), "inum", "uid")
-        eventProperties = {"client": self.getClient(session).getClientName(),
-                           "provider": identity.getWorkingParameter("provider"),
-                           "sub" : self.account.getOpenIdSubject(user, self.getClient(session))}
-        self.telemetryClient.trackEvent("Authentication", eventProperties, None)
-        return authenticationService.authenticate(userId)
+        return authenticationService.authenticate(identity.getWorkingParameter("userId"))
 
     def authenticateFido2(self, userId, requestParameters):
         
@@ -588,12 +574,7 @@ class PersonAuthentication(PersonAuthenticationType):
             print ("%s. Authenticate. Got invalid authentication status from Fido2 server" % self.name)
             return False
 
-        user = userService.getUser(identity.getWorkingParameter("userId"), "inum", "uid")
-        eventProperties = {"client": self.getClient(session).getClientName(),
-                           "provider": identity.getWorkingParameter("provider"),
-                           "sub" : self.account.getOpenIdSubject(user, self.getClient(session))}
-        self.telemetryClient.trackEvent("Authentication", eventProperties, None)
-        return authenticationService.authenticate(userId)
+        return authenticationService.authenticate(identity.getWorkingParameter("userId"))
 
     def getPageForStep(self, configurationAttributes, step):
 
@@ -673,6 +654,15 @@ class PersonAuthentication(PersonAuthenticationType):
         else:
             return stepCount
  
+    def gotoStep(self, step):
+        identity = CdiUtil.bean(Identity)
+        sessionAttributes = identity.getSessionId().getSessionAttributes()
+
+        # Mark all previous steps as passed so the workflow can skip steps
+        for i in range(1, step + 1):
+            sessionAttributes.put("auth_step_passed_%s" % i, "true")
+        return step
+
     def getNextStep(self, configurationAttributes, requestParameters, step):
         
         if REMOTE_DEBUG:
@@ -687,10 +677,6 @@ class PersonAuthentication(PersonAuthenticationType):
         if provider is not None:
             providerInfo = self.passport.getProvider(provider)
 
-        # HACK: Mark all steps as passed so the workflow can skip steps
-        for i in range(self.STEP_SPLASH, self.STEP_FIDO_CONFIRM + 1):
-            session.getSessionAttributes().put("auth_step_passed_%s" % i, "true")
-
         originalStep = step
         if step == 1:
              # Determine if SPLASH, CHOOSER, or 1FA
@@ -703,51 +689,51 @@ class PersonAuthentication(PersonAuthenticationType):
                 
         if step == self.STEP_SPLASH:
             if len(self.providers) == 1:
-                return self.STEP_1FA
+                return self.gotoStep(self.STEP_1FA)
             else:
-                return self.STEP_CHOOSER
+                return self.gotoStep(self.STEP_CHOOSER)
 
         if step == self.STEP_CHOOSER:
             if requestParameters.containsKey("lang"):
-                return self.STEP_CHOOSER # Language toggle
+                return self.gotoStep(self.STEP_CHOOSER) # Language toggle
             else:
-                return self.STEP_1FA
+                return self.gotoStep(self.STEP_1FA)
 
         userId = identity.getWorkingParameter("userId")
         if step == self.STEP_1FA:
             if requestParameters.containsKey("failure"): # User cancelled
-                return self.STEP_CHOOSER
+                return self.gotoStep(self.STEP_CHOOSER)
             else:
                 if providerInfo["GCCF"] and "collect" in rpConfig:
                     user = userService.getUser(userId, "persistentId")
                     if self.account.getSamlSubject(user, rpConfig["collect"]) is None: # SAML PAI collection
-                        return self.STEP_COLLECT
+                        return self.gotoStep(self.STEP_COLLECT)
 
         if step in {self.STEP_1FA, self.STEP_COLLECT}:
             if rpConfig.get("fido") and userService.countFidoAndFido2Devices(userId, self.fido2_domain) > 0:
-                return self.STEP_FIDO_AUTH
+                return self.gotoStep(self.STEP_FIDO_AUTH)
             if rpConfig.get("mfaProvider"): # 2FA
-                return self.STEP_2FA
+                return self.gotoStep(self.STEP_2FA)
 
         if step == self.STEP_2FA:
             if rpConfig.get("fido") and userService.countFidoAndFido2Devices(userId, self.fido2_domain) == 0:
-                return self.STEP_FIDO_REGISTER
+                return self.gotoStep(self.STEP_FIDO_REGISTER)
         
         if step == self.STEP_FIDO_AUTH:
             if requestParameters.containsKey("lang"):
-                return self.STEP_FIDO_AUTH # Language toggle
+                return self.gotoStep(self.STEP_FIDO_AUTH) # Language toggle
             elif not requestParameters.containsKey("fido2Authentication"):
-                return self.STEP_2FA # If the don't have thier authentiator then fallback to 2FA
+                return self.gotoStep(self.STEP_2FA) # If the don't have thier authentiator then fallback to 2FA
 
         if step == self.STEP_FIDO_REGISTER:
             if requestParameters.containsKey("lang"):
-                return self.STEP_FIDO_REGISTER # Language toggle
+                return self.gotoStep(self.STEP_FIDO_REGISTER) # Language toggle
             elif requestParameters.containsKey("fido2Registration"):
-                return self.STEP_FIDO_CONFIRM
+                return self.gotoStep(self.STEP_FIDO_CONFIRM)
 
         if step == self.STEP_FIDO_CONFIRM:
             if requestParameters.containsKey("lang"):
-                return self.STEP_FIDO_CONFIRM # Language toggle
+                return self.gotoStep(self.STEP_FIDO_CONFIRM) # Language toggle
 
         # if we get this far we're done
         identity.setWorkingParameter("stepCount", originalStep)
