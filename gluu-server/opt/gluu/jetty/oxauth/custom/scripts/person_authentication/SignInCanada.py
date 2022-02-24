@@ -406,6 +406,8 @@ class PersonAuthentication(PersonAuthenticationType):
         rpConfig = self.getRPConfig(session)
 
         externalProfile = self.passport.handleResponse(requestParameters)
+        if externalProfile is None:
+            return False
         provider = externalProfile["provider"]
 
         # Can't trust the step parameter
@@ -828,5 +830,3 @@ class PersonAuthentication(PersonAuthenticationType):
                     print ("Attempting to load metadata: %d" % attempt)
         finally:
             self.metaDataLoaderLock.unlock()
-            
-
