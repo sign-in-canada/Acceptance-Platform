@@ -21,6 +21,8 @@ from javax.faces.context import FacesContext
 from java.net import URLEncoder
 from org.apache.commons.lang3 import StringUtils
 
+from com.microsoft.applicationinsights import TelemetryClient
+
 import json
 import sys
 import datetime
@@ -37,6 +39,8 @@ class Passport:
     def init(self, configurationAttributes, scriptName):
 
         print ("Passport. init called from " + scriptName)
+
+        self.telemetryClient = TelemetryClient()
 
         try:
             # Instantiate a Crypto Provider to verify token signatures
@@ -233,36 +237,65 @@ class Passport:
             signature = jwt.getEncodedSignature()
 
             if StringHelper.isEmpty(algName) or algName != self.passportConfig["keyAlg"]:
-                print ("WARNING: JWT Signature algorithm does not match passport configuration")
+                message = "Passport JWT signature algorithm does not match passport configuration"
+                self.telemetryClient.trackEvent("SecurityEvent",
+                                                {"cause": message,
+                                                 "expected": self.passportConfig["keyAlg"],
+                                                 "got" : algName}, None)
+                print ("SECURITY: %s" % message)
                 return False
 
             if keyId != self.passportConfig["keyId"]:
-                print ("WARNING: JWT Not signed with the passport key")
+                message = "Passport JWT not signed with the passport key"
+                self.telemetryClient.trackEvent("SecurityEvent",
+                                                {"cause": message,
+                                                 "expected": self.passportConfig["keyId"],
+                                                 "got" : keyId}, None)
+                print ("SECURITY: %s" % message)
                 return False
 
             if StringHelper.isEmpty(signature):
                 # blocks empty signature string
-                print ("WARNING: JWT Signature missing")
+                message = "Passport JWT signature missing"
+                self.telemetryClient.trackEvent("SecurityEvent",
+                                                {"cause": message}, None)
+                print ("SECURITY: %s" % message)
                 return False
 
             else:
                 valid = self.cryptoProvider.verifySignature(jwt.getSigningInput(), jwt.getEncodedSignature(), jwt.getHeader().getKeyId(),
                                                             None, None, jwt.getHeader().getSignatureAlgorithm())
+                if not valid:
+                    message = "Passport JWT signature failed validation"
+                    self.telemetryClient.trackEvent("SecurityEvent",
+                                                    {"cause": message}, None)
+                    print ("SECURITY: %s" % message)
 
         except:
-            print ("Exception: ", sys.exc_info()[1])
+            message = "Passport JWT validation Exception: " + sys.exc_info()[1]
+            self.telemetryClient.trackEvent("SecurityEvent",
+                                            {"cause": message}, None)
+            print ("SECURITY: %s" % message)
 
         return valid
 
     def jwtHasExpired(self, jwt):
         # Check if jwt has expired
+        hasExpired = False
+
         jwt_claims = jwt.getClaims()
         try:
             exp_date_timestamp = float(jwt_claims.getClaimAsString(JwtClaimName.EXPIRATION_TIME))
             exp_date = datetime.datetime.fromtimestamp(exp_date_timestamp)
             hasExpired = exp_date < datetime.datetime.now()
         except:
-            print ("Exception: The JWT does not have '%s' attribute" % JwtClaimName.EXPIRATION_TIME)
-            return False
+            print ("Exception: The JWT does not have a valid '%s' attribute" % JwtClaimName.EXPIRATION_TIME)
+
+        if hasExpired:
+            message = "Passport JWT has expired; Possible token replay."
+            self.telemetryClient.trackEvent("SecurityEvent",
+                                            {"cause": message,
+                                             "exp" : jwt_claims.getClaimAsString(JwtClaimName.EXPIRATION_TIME)}, None)
+            print ("SECURITY: %s" % message)
 
         return hasExpired

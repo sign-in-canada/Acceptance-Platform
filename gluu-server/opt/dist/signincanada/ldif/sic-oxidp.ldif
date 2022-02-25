@@ -1,0 +1,21 @@
+####################################
+# Sign In Canada IDP Configuration
+####################################
+dn: inum=GC02,ou=samlAcrs,o=gluu
+objectClass: top
+objectClass: samlAcr
+parent: shibboleth.SAML2AuthnContextClassRef
+classRef: urn:gc-ca:cyber-auth:assurance:loa2
+inum: GC02
+
+dn: inum=GC03,ou=samlAcrs,o=gluu
+objectClass: top
+objectClass: samlAcr
+parent: shibboleth.SAML2AuthnContextClassRef
+classRef: urn:gc-ca:cyber-auth:assurance:loa3
+inum: GC03
+
+dn: inum=%(idp_client_id)s,ou=clients,o=gluu
+changetype: modify
+add: oxAuthPostLogoutRedirectURI
+oxAuthPostLogoutRedirectURI: https://%(hostname)s/passport/logout/response
