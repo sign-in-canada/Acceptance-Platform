@@ -182,13 +182,13 @@ class PersonAuthentication(PersonAuthenticationType):
         if step == 1:
             httpRequest = externalContext.getRequest()
             # Bookmark detection
-            if httpRequest.getHeader("referer") is None:
-                if StringHelper.isNotEmpty(clientUri):
-                    facesService.redirectToExternalURL(clientUri)
-                    return True
-                else:
-                    print("%s: prepareForStep. clientUri is missing for client %s" % (self.name, self.getClient(session).getClientName()))
-                    return False
+            #if httpRequest.getHeader("referer") is None:
+            #    if StringHelper.isNotEmpty(clientUri):
+            #        facesService.redirectToExternalURL(clientUri)
+            #        return True
+            #    else:
+            #        print("%s: prepareForStep. clientUri is missing for client %s" % (self.name, self.getClient(session).getClientName()))
+            #        return False
 
             # forceAuthn workaround
             prompt2 = httpRequest.getParameter("prompt2")
@@ -406,6 +406,8 @@ class PersonAuthentication(PersonAuthenticationType):
         rpConfig = self.getRPConfig(session)
 
         externalProfile = self.passport.handleResponse(requestParameters)
+        if externalProfile is None:
+            return False
         provider = externalProfile["provider"]
 
         # Can't trust the step parameter
@@ -828,5 +830,3 @@ class PersonAuthentication(PersonAuthenticationType):
                     print ("Attempting to load metadata: %d" % attempt)
         finally:
             self.metaDataLoaderLock.unlock()
-            
-
