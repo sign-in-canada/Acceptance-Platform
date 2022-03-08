@@ -70,6 +70,9 @@ fi
 echo "Configuring httpd chain certificate..."
 sed -i "17i\ \ \ \ \ \ \ \ SSLCertificateChainFile /etc/certs/httpd.chain" /etc/httpd/conf.d/https_gluu.conf
 
+echo "Configuring Couchbase scan consistency"
+sed -i 's/not_bounded/request_plus/g' /etc/gluu/conf/gluu-couchbase.properties
+
 echo "Updating packages..."
 if grep Red /etc/redhat-release ; then
    yum remove -y epel-release
