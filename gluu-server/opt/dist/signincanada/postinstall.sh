@@ -31,6 +31,19 @@ if [ -d /opt/gluu/jetty/idp ] ; then
    sed -i "10i\        <Set name=\"extraClasspath\">custom/libs/applicationinsights-core-2.6.4.jar</Set>" /opt/gluu/jetty/idp/webapps/idp.xml
 fi
 
+echo "Patching fido2 log4j configuration"
+rm -rf /opt/jetty-9.4/temp/*
+if [ -d /opt/gluu/jetty/fido2 ] ; then
+   mkdir -p /tmp/patch/fido2
+   pushd /tmp/patch/fido2
+   /opt/jre/bin/jar -xf /opt/dist/gluu/fido2.war
+   sed -i 's/\${log4j\.default\.log\.level}/INFO/g' ./WEB-INF/classes/log4j2.xml
+   rm -v /opt/gluu/jetty/fido2/webapps/fido2.war
+   /opt/jre/bin/jar -cf /opt/gluu/jetty/fido2/webapps/fido2.war *
+   popd 2>&1
+   rm -rf /tmp/patch/fido2
+fi
+
 echo 'Installing the UI...'
 tar xzf /opt/dist/signincanada/custom.tgz -C /opt/gluu/jetty/oxauth/custom
 chown -R jetty:jetty /opt/gluu/jetty/oxauth/custom
@@ -56,6 +69,9 @@ fi
 
 echo "Configuring httpd chain certificate..."
 sed -i "17i\ \ \ \ \ \ \ \ SSLCertificateChainFile /etc/certs/httpd.chain" /etc/httpd/conf.d/https_gluu.conf
+
+echo "Configuring Couchbase scan consistency"
+sed -i 's/not_bounded/request_plus/g' /etc/gluu/conf/gluu-couchbase.properties
 
 echo "Updating packages..."
 if grep Red /etc/redhat-release ; then

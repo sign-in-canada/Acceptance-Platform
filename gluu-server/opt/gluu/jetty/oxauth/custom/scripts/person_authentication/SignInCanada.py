@@ -182,13 +182,13 @@ class PersonAuthentication(PersonAuthenticationType):
         if step == 1:
             httpRequest = externalContext.getRequest()
             # Bookmark detection
-            if httpRequest.getHeader("referer") is None:
-                if StringHelper.isNotEmpty(clientUri):
-                    facesService.redirectToExternalURL(clientUri)
-                    return True
-                else:
-                    print("%s: prepareForStep. clientUri is missing for client %s" % (self.name, self.getClient(session).getClientName()))
-                    return False
+            #if httpRequest.getHeader("referer") is None:
+            #    if StringHelper.isNotEmpty(clientUri):
+            #        facesService.redirectToExternalURL(clientUri)
+            #        return True
+            #    else:
+            #        print("%s: prepareForStep. clientUri is missing for client %s" % (self.name, self.getClient(session).getClientName()))
+            #        return False
 
             # forceAuthn workaround
             prompt2 = httpRequest.getParameter("prompt2")
