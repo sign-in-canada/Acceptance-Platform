@@ -90,16 +90,16 @@ stages:
       displayName: 'Downloading node-services tarball'
 
     - script: |
-      wget https://sicpub.blob.core.windows.net/software/oxauth-server-4.3.2-SNAPSHOT.war \
-        -O gluu-server/opt/dist/app/oxauth.war
-      echo 'Checking download integrity'
-      echo "69dabc770491935eb214d8880a4b6ef7269aa1443e07850002c52dba5c9f4dc0" gluu-server/opt/dist/app/oxauth.war | sha256sum -c
-      result=$?
-      if [ $result -ne 0 ] ; then
-        echo "Failed"
-        exit 1
-      fi
-      echo 'Passed'
+        wget https://sicpub.blob.core.windows.net/software/oxauth-server-4.3.2-SNAPSHOT.war \
+          -O gluu-server/opt/dist/app/oxauth.war
+        echo 'Checking download integrity'
+        echo "69dabc770491935eb214d8880a4b6ef7269aa1443e07850002c52dba5c9f4dc0" gluu-server/opt/dist/app/oxauth.war | sha256sum -c
+        result=$?
+        if [ $result -ne 0 ] ; then
+          echo "Failed"
+          exit 1
+        fi
+        echo 'Passed'
       displayName: 'Downlaoding the Gluu 4.3.2 WAR'
       continueOnError: false
 
