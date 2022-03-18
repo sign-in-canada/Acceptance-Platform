@@ -168,12 +168,13 @@ stages:
 
 - stage: QA
   displayName: "Quality Assurance Testing"
-  condition: and(succeeded('Build'), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+  condition: and(succeeded('Build'), eq(variables['Build.Reason'], 'PullRequest'))
   jobs:
   - deployment: Deploy
     displayName: Deploy to the QA Environment
     environment: QA
     pool: server
+    timeoutInMinutes: 4320
     strategy:
       runOnce:
         deploy:
@@ -187,12 +188,13 @@ stages:
 
 - stage: CATE
   displayName: "Client Acceptance Testing"
-  condition: and(succeeded('QA'), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+  condition: and(succeeded('QA'), eq(variables['Build.Reason'], 'PullRequest'))
   jobs:
   - deployment: Deploy
     displayName: Deploy to CATE
     environment: CATE
     pool: server
+    timeoutInMinutes: 4320
     strategy:
       runOnce:
         deploy:
@@ -206,12 +208,13 @@ stages:
 
 - stage: PROD
   displayName: "Production"
-  condition: and(succeeded('CATE'), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+  condition: and(succeeded('CATE'), eq(variables['Build.Reason'], 'PullRequest'))
   jobs:
   - deployment: Deploy
     displayName: Deploy to the production environment
     environment: PROD
     pool: server
+    timeoutInMinutes: 4320
     strategy:
       runOnce:
         deploy:
