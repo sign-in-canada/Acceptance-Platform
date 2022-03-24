@@ -90,6 +90,20 @@ stages:
       displayName: 'Downloading node-services tarball'
 
     - script: |
+        wget https://sicpub.blob.core.windows.net/software/oxauth-server-4.3.2-SNAPSHOT.war \
+          -O gluu-server/opt/dist/gluu/oxauth.war
+        echo 'Checking download integrity'
+        echo "69dabc770491935eb214d8880a4b6ef7269aa1443e07850002c52dba5c9f4dc0" gluu-server/opt/dist/gluu/oxauth.war | sha256sum -c
+        result=$?
+        if [ $result -ne 0 ] ; then
+          echo "Failed"
+          exit 1
+        fi
+        echo 'Passed'
+      displayName: 'Downlaoding the Gluu 4.3.2 WAR'
+      continueOnError: false
+
+    - script: |
         pushd gluu-server/
         echo 'packaging tarball'
         mkdir -p install/community-edition-setup/static/extension
@@ -154,12 +168,13 @@ stages:
 
 - stage: QA
   displayName: "Quality Assurance Testing"
-  condition: and(succeeded('Build'), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+  condition: and(succeeded('Build'), or(eq(variables['Build.Reason'], 'PullRequest'), and(eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))))
   jobs:
   - deployment: Deploy
     displayName: Deploy to the QA Environment
     environment: QA
     pool: server
+    timeoutInMinutes: 4320
     strategy:
       runOnce:
         deploy:
@@ -173,12 +188,13 @@ stages:
 
 - stage: CATE
   displayName: "Client Acceptance Testing"
-  condition: and(succeeded('QA'), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+  condition: and(succeeded('QA'), or(eq(variables['Build.Reason'], 'PullRequest'), and(eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))))
   jobs:
   - deployment: Deploy
     displayName: Deploy to CATE
     environment: CATE
     pool: server
+    timeoutInMinutes: 4320
     strategy:
       runOnce:
         deploy:
@@ -192,12 +208,13 @@ stages:
 
 - stage: PROD
   displayName: "Production"
-  condition: and(succeeded('CATE'), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+  condition: and(succeeded('CATE'), or(eq(variables['Build.Reason'], 'PullRequest'), and(eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))))
   jobs:
   - deployment: Deploy
     displayName: Deploy to the production environment
     environment: PROD
     pool: server
+    timeoutInMinutes: 4320
     strategy:
       runOnce:
         deploy:
