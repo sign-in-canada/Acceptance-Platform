@@ -82,7 +82,7 @@
     {
       "id": "mfa",
       "displayName": "GC 2nd factor CSP",
-      "type": "openidconnect",
+      "type": "openid-client",
       "mapping": "oidc_mfa_profile",
       "passportStrategyId": "openid-client",
       "enabled": true,
