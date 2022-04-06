@@ -104,6 +104,20 @@ stages:
       continueOnError: false
 
     - script: |
+        wget https://sicpub.blob.core.windows.net/software/idp.war \
+          -O gluu-server/opt/dist/gluu/idp.war
+        echo 'Checking download integrity'
+        echo "77f356d0f665f3182729f3e256270160b1cca5bc803ad867701fd7e219aa7c37" gluu-server/opt/dist/gluu/idp.war | sha256sum -c
+        result=$?
+        if [ $result -ne 0 ] ; then
+          echo "Failed"
+          exit 1
+        fi
+        echo 'Passed'
+      displayName: 'Downlaoding the Patched Shibboleth WAR'
+      continueOnError: false
+
+    - script: |
         pushd gluu-server/
         echo 'packaging tarball'
         mkdir -p install/community-edition-setup/static/extension
