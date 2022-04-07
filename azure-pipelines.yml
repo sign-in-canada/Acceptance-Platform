@@ -34,7 +34,7 @@ stages:
         wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.6.4/applicationinsights-core-2.6.4.jar \
           -P gluu-server/opt/dist/signincanada
         echo 'Downloading AppInsights Agent'
-        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.2.5/applicationinsights-agent-3.2.5.jar \
+        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.2.10/applicationinsights-agent-3.2.10.jar \
           -P gluu-server/opt/azure
         ls -al 
       displayName: 'Downloading AppInsights'
@@ -101,6 +101,20 @@ stages:
         fi
         echo 'Passed'
       displayName: 'Downlaoding the Gluu 4.3.2 WAR'
+      continueOnError: false
+
+    - script: |
+        wget https://sicpub.blob.core.windows.net/software/idp.war \
+          -O gluu-server/opt/dist/gluu/idp.war
+        echo 'Checking download integrity'
+        echo "77f356d0f665f3182729f3e256270160b1cca5bc803ad867701fd7e219aa7c37" gluu-server/opt/dist/gluu/idp.war | sha256sum -c
+        result=$?
+        if [ $result -ne 0 ] ; then
+          echo "Failed"
+          exit 1
+        fi
+        echo 'Passed'
+      displayName: 'Downlaoding the Patched Shibboleth WAR'
       continueOnError: false
 
     - script: |
