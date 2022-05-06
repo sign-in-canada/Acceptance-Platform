@@ -705,6 +705,8 @@ class PersonAuthentication(PersonAuthenticationType):
         if step == self.STEP_1FA:
             if requestParameters.containsKey("failure"): # User cancelled
                 return self.gotoStep(self.STEP_CHOOSER)
+            elif requestParameters.containsKey("chooser"): # User double-clicked
+                return self.gotoStep(self.STEP_1FA)
             else:
                 if providerInfo["GCCF"] and "collect" in rpConfig:
                     user = userService.getUser(userId, "persistentId")
