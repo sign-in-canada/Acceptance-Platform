@@ -326,7 +326,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
         elif requestParameters.containsKey("failure"):
             # This means that passport returned an error
-            if step == self.STEP_1FA: # User Cancelled during login
+            if step <= self.STEP_1FA: # User Cancelled during login
                 if len(self.providers) == 1: # One provider. Redirect back to the RP
                     facesService.redirectToExternalURL(self.getClientUri(session))
                 else: # Clear the previous choice to re-display the chooser
