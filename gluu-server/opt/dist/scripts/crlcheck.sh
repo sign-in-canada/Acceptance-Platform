@@ -2,7 +2,7 @@
 
 ICM_ROOT="/opt/dist/certs/icm-root.pem"
 GCKEY_CERT="/opt/dist/certs/gckey-signing.pem"
-GCKEY_CRL="ldap://ldap.gss-spg.gc.ca:389/cn=CRL3995,ou=1CA-AC1,ou=GSS-SPG,o=GC,c=CA"
+GCKEY_CRL="ldap://ldap.gss-spg.gc.ca:389/cn=CRL5628,ou=1CA-AC1,ou=GSS-SPG,o=GC,c=CA"
 CBS_CERT="/opt/dist/certs/cbs-signing.pem"
 CBS_CRL="ldap://ldap.gss-spg.gc.ca:389/cn=CRL4740,ou=1CA-AC1,ou=GSS-SPG,o=GC,c=CA"
 
