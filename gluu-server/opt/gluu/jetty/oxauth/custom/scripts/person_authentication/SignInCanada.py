@@ -240,7 +240,7 @@ class PersonAuthentication(PersonAuthenticationType):
             elif step == self.STEP_COLLECT:
                 collect = rpConfig.get("collect")
                 if collect is not None:
-                    passportOptions["allowCreate"] = "false"
+                    passportOptions["allowCreate"] = rpConfig.get("allowCreate") or "false"
                     passportOptions["spNameQualifier"] = collect
                 else: # This should never happen
                     print ("%s. prepareForStep: collection entityID is missing" % self.name)
