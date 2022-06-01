@@ -240,7 +240,7 @@ class PersonAuthentication(PersonAuthenticationType):
             elif step == self.STEP_COLLECT:
                 collect = rpConfig.get("collect")
                 if collect is not None:
-                    passportOptions["allowCreate"] = "false"
+                    passportOptions["allowCreate"] = rpConfig.get("allowCreate") or "false"
                     passportOptions["spNameQualifier"] = collect
                 else: # This should never happen
                     print ("%s. prepareForStep: collection entityID is missing" % self.name)
@@ -326,7 +326,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
         elif requestParameters.containsKey("failure"):
             # This means that passport returned an error
-            if step == self.STEP_1FA: # User Cancelled during login
+            if step <= self.STEP_1FA: # User Cancelled during login
                 if len(self.providers) == 1: # One provider. Redirect back to the RP
                     facesService.redirectToExternalURL(self.getClientUri(session))
                 else: # Clear the previous choice to re-display the chooser
@@ -345,6 +345,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
             elif step == self.STEP_2FA: # 2FA Failed. Redirect back to the RP
                 facesService.redirectToExternalURL(self.getClientUri(session))
+                return False
             else:
                 print ("%s: Invalid passport failure in step %s." % (self.name, step))
                 return False
@@ -705,6 +706,8 @@ class PersonAuthentication(PersonAuthenticationType):
         if step == self.STEP_1FA:
             if requestParameters.containsKey("failure"): # User cancelled
                 return self.gotoStep(self.STEP_CHOOSER)
+            elif requestParameters.containsKey("chooser"): # User double-clicked
+                return self.gotoStep(self.STEP_1FA)
             else:
                 if providerInfo["GCCF"] and "collect" in rpConfig:
                     user = userService.getUser(userId, "persistentId")
