@@ -34,7 +34,7 @@ stages:
         wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.6.4/applicationinsights-core-2.6.4.jar \
           -P gluu-server/opt/dist/signincanada
         echo 'Downloading AppInsights Agent'
-        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.2.10/applicationinsights-agent-3.2.10.jar \
+        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.2.11/applicationinsights-agent-3.2.11.jar \
           -P gluu-server/opt/azure
         ls -al 
       displayName: 'Downloading AppInsights'
