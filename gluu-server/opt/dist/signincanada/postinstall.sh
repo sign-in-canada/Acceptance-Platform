@@ -21,12 +21,6 @@ systemctl enable cbcheck
 echo "Enabling the passport key extraction service"
 systemctl enable passportkeys
 
-if [ -d /opt/gluu/jetty/idp ] ; then
-   echo 'Installing the Application Insights SDK into Shibboleth...'
-   install -m 755 -o jetty -g jetty -d /opt/gluu/jetty/idp/custom/libs
-   install -m 644 -o jetty -g jetty /opt/gluu/jetty/oxauth/custom/libs/applicationinsights-core-*.jar /opt/gluu/jetty/idp/custom/libs
-fi
-
 echo "Patching fido2 log4j configuration"
 rm -rf /opt/jetty-9.4/temp/*
 if [ -d /opt/gluu/jetty/fido2 ] ; then
@@ -40,11 +34,17 @@ if [ -d /opt/gluu/jetty/fido2 ] ; then
    rm -rf /tmp/patch/fido2
 fi
 
-echo 'Installing the UI...'
+echo 'Installing the Custom UI and dependencies...'
 tar xzf /opt/dist/signincanada/custom.tgz -C /opt/gluu/jetty/oxauth/custom
 chown -R jetty:jetty /opt/gluu/jetty/oxauth/custom
 chmod 755 $(find /opt/gluu/jetty/oxauth/custom -type d -print)
 chmod 644 $(find /opt/gluu/jetty/oxauth/custom -type f -print)
+
+if [ -d /opt/gluu/jetty/idp ] ; then
+   echo 'Installing the Application Insights SDK into Shibboleth...'
+   install -m 755 -o jetty -g jetty -d /opt/gluu/jetty/idp/custom/libs
+   install -m 644 -o jetty -g jetty /opt/gluu/jetty/oxauth/custom/libs/applicationinsights-core-*.jar /opt/gluu/jetty/idp/custom/libs
+fi
 
 echo 'Installing the Notify service...'
 mkdir -p /opt/gluu/node/gc/notify/logs
