@@ -22,7 +22,7 @@ stages:
     - task: Maven@3
       inputs:
         mavenPomFile: '$(Build.SourcesDirectory)/pipeline-utils/azure-sdk/pom.xml'
-        goals: 'dependency:copy-dependencies'
+        goals: 'package'
       displayName: 'Downloading Azure Java SDK libraries'
       continueOnError: false
 
