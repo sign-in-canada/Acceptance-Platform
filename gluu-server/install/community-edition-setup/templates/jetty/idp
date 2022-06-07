@@ -8,7 +8,7 @@ JETTY_USER=jetty
 JETTY_ARGS="jetty.http.host=localhost jetty.http.port=8086"
 TMPDIR=%(jetty_dist)s/temp
 
-JAVA_OPTIONS="$JAVA_OPTIONS -javaagent:/opt/azure/applicationinsights-agent-3.2.10.jar"
+JAVA_OPTIONS="$JAVA_OPTIONS -javaagent:/opt/azure/applicationinsights-agent-3.2.11.jar"
 JAVA_OPTIONS="$JAVA_OPTIONS -Dapplicationinsights.configuration.file=/opt/azure/idp.json"
 JAVA_OPTIONS="$JAVA_OPTIONS -Dlog4j2.formatMsgNoLookups=true"
 

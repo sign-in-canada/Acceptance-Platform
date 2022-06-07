@@ -34,7 +34,7 @@ stages:
         wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.6.4/applicationinsights-core-2.6.4.jar \
           -P gluu-server/opt/dist/signincanada
         echo 'Downloading AppInsights Agent'
-        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.2.10/applicationinsights-agent-3.2.10.jar \
+        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.2.11/applicationinsights-agent-3.2.11.jar \
           -P gluu-server/opt/azure
         ls -al 
       displayName: 'Downloading AppInsights'
@@ -67,7 +67,7 @@ stages:
         project: '7302639f-e704-47c3-9557-99b4e04a75bc'
         definition: '285'
         runVersion: 'latestFromBranch'
-        runBranch: "refs/heads/sic/main"
+        runBranch: "refs/heads/sic/develop"
         artifactName: 'gluu-passport'
         targetPath: '$(Pipeline.Workspace)/s/gluu-server/opt/dist/gluu'
       displayName: 'Download gluu-passport tarballs'

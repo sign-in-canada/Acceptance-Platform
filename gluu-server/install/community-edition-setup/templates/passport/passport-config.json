@@ -1,6 +1,7 @@
 {
     "configurationEndpoint": "https://%(hostname)s/identity/restv1/passport/config",
     "failureRedirectUrl": "https://%(hostname)s/oxauth/postlogin.htm",
+    "sessionStatusEndpont" :"https://%(hostname)s/oxauth/restv1/session_status",
     "languageAPI": "https://lang-canada.fjgc-gccf.gc.ca/v1/lang",
     "languageCookieService": "https://lang-canada.fjgc-gccf.gc.ca/v1/lcs",
     "logLevel": "info",

@@ -5,11 +5,11 @@
 #
 
 from org.gluu.model.custom.script.type.session import ApplicationSessionType
+from org.gluu.oxauth.service import SessionIdService
 
 from java.util import Date
 from java.time import Instant
-
-import uuid
+from java.lang import Long
 
 class ApplicationSession(ApplicationSessionType):
     def __init__(self, currentTimeMillis):
@@ -25,7 +25,9 @@ class ApplicationSession(ApplicationSessionType):
         return 2
 
     def startSession(self, httpRequest, sessionId, configurationAttributes):
-        authnInstant = sessionId.getSessionAttributes().get("authnInstant")
+        sessionAttributes = sessionId.getSessionAttributes()
+        sessionAttributes.put(SessionIdService.SESSION_CUSTOM_STATE, Long.toString(sessionId.getExpirationDate().getTime()))
+        authnInstant = sessionAttributes.get("authnInstant")
         if authnInstant:
             sessionId.setAuthenticationTime(Date.from(Instant.parse(authnInstant)))
         return True
