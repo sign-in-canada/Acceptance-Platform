@@ -21,14 +21,10 @@ systemctl enable cbcheck
 echo "Enabling the passport key extraction service"
 systemctl enable passportkeys
 
-echo 'Installing the Application Insights SDK to oxAuth...'
-install -m 644 -o jetty -g jetty /opt/dist/signincanada/applicationinsights-core-2.6.4.jar /opt/gluu/jetty/oxauth/custom/libs
-sed -i "10i\        <Set name=\"extraClasspath\">custom/libs/applicationinsights-core-2.6.4.jar</Set>" /opt/gluu/jetty/oxauth/webapps/oxauth.xml
 if [ -d /opt/gluu/jetty/idp ] ; then
    echo 'Installing the Application Insights SDK into Shibboleth...'
    install -m 755 -o jetty -g jetty -d /opt/gluu/jetty/idp/custom/libs
-   install -m 644 -o jetty -g jetty /opt/dist/signincanada/applicationinsights-core-2.6.4.jar /opt/gluu/jetty/idp/custom/libs
-   sed -i "10i\        <Set name=\"extraClasspath\">custom/libs/applicationinsights-core-2.6.4.jar</Set>" /opt/gluu/jetty/idp/webapps/idp.xml
+   install -m 644 -o jetty -g jetty /opt/gluu/jetty/oxauth/custom/libs/applicationinsights-core-*.jar /opt/gluu/jetty/idp/custom/libs
 fi
 
 echo "Patching fido2 log4j configuration"
