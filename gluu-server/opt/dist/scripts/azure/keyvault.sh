@@ -101,6 +101,9 @@ fetchSecret MFAKey > ${KV_DIR}/secrets/MFAKey
 # Get the API key for notify
 fetchSecret NotifyKey > ${KV_DIR}/secrets/NotifyKey
 
+# Get the Azure Logs workspace key
+fetchSecret LogWorkspaceKey > ${KV_DIR}/secrets/LogWorkspaceKey
+
 # Get the "salt"
 salt=$(fetchSecret APsalt)
 if [ "$salt" != "undefined" ] ; then

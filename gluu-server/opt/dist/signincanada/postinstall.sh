@@ -19,6 +19,8 @@ echo 'Installing logstash...'
 rpm --import /etc/pki/rpm-gpg/GPG-KEY-elasticsearch
 yum install -y /opt/dist/app/logstash-*-x86_64.rpm
 /usr/share/logstash/bin/logstash-plugin install file:///opt/dist/app/logstash-offline-plugins-8.2.2.zip
+sed -i "s/^# api\.enabled: true/api\.enabled: false/" /etc/logstash/logstash.yml
+systemctl enable logstash
 
 echo 'Enabling the couchbase health check service...'
 systemctl enable cbcheck
