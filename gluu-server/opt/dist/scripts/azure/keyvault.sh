@@ -102,7 +102,7 @@ fetchSecret MFAKey > ${KV_DIR}/secrets/MFAKey
 fetchSecret NotifyKey > ${KV_DIR}/secrets/NotifyKey
 
 # Get the Azure Logs workspace key
-fetchSecret LogWorkspaceKey > ${KV_DIR}/secrets/LogWorkspaceKey
+echo "LOG_WORKSPACE_KEY=$(fetchSecret LogWorkspaceKey)" > ${KV_DIR}/secrets/LogWorkspaceKey
 
 # Get the "salt"
 salt=$(fetchSecret APsalt)
