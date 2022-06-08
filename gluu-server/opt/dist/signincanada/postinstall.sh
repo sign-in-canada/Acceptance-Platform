@@ -15,6 +15,11 @@ yum clean all
 yum install -y /opt/dist/app/oniguruma-6.8.2-1.el7.x86_64.rpm /opt/dist/app/jq-1.6-2.el7.x86_64.rpm
 systemctl enable keyvault
 
+echo 'Installing logstash...'
+rpm --import /etc/pki/rpm-gpg/GPG-KEY-elasticsearch
+yum install -y /opt/dist/app/logstash-*-x86_64.rpm
+/usr/share/logsash/bin/logstash-plugin install file:///opt/dist/app/logstash-offline-plugins-8.2.2.zip
+
 echo 'Enabling the couchbase health check service...'
 systemctl enable cbcheck
 
