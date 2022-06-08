@@ -123,7 +123,7 @@ stages:
           mkdir -P gluu-server/etc/pki/rpm-gpg
           wget https://sicpub.blob.core.windows.net/software/GPG-KEY-elasticsearch \
             -P gluu-server/etc/pki/rpm-gpg
-          docker run -i -v $(Build.SourcesDirectory)/gluu-server/opt/dist/app:/srv/logstash docker.elastic.co/logstash/logstash:8.2.2 /bin/sh < pipeline-utils/logstash/offline-plugins.sh
+          docker run -i -u $(id -u) -v $(Build.SourcesDirectory)/gluu-server/opt/dist/app:/srv/logstash docker.elastic.co/logstash/logstash:8.2.2 /bin/sh < pipeline-utils/logstash/offline-plugins.sh
       displayName: 'Downlaoding Logstash and packaging plugins'
       continueOnError: false
 
