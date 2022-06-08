@@ -27,7 +27,7 @@ echo >> /etc/systemd/system/logstash.service.d/override.conf
 echo "[Service]" >> /etc/systemd/system/logstash.service.d/override.conf
 echo "EnvironmentFile=/run/keyvault/secrets/LogWorkspaceKey" >> /etc/systemd/system/logstash.service.d/override.conf
 install -m 644 /opt/dist/signincanada/logstash/* /etc/logstash/conf.d
-echo '*.*          @127.0.0.1:1514' > /opt/gluu-server/etc/rsyslog.d/logstash.conf
+echo '*.*          @127.0.0.1:1514' > /etc/rsyslog.d/logstash.conf
 systemctl enable logstash
 
 echo 'Enabling the couchbase health check service...'
