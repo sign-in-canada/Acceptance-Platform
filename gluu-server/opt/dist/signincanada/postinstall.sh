@@ -15,6 +15,21 @@ yum clean all
 yum install -y /opt/dist/app/oniguruma-6.8.2-1.el7.x86_64.rpm /opt/dist/app/jq-1.6-2.el7.x86_64.rpm
 systemctl enable keyvault
 
+echo 'Installing and configuring logstash...'
+rpm --import /etc/pki/rpm-gpg/GPG-KEY-elasticsearch
+yum install -y /opt/dist/app/logstash-*-x86_64.rpm
+/usr/share/logstash/bin/logstash-plugin install file:///opt/dist/app/logstash-offline-plugins-8.2.2.zip
+sed -i "s/^# api\.enabled: true/api\.enabled: false/" /etc/logstash/logstash.yml
+mkdir /etc/systemd/system/logstash.service.d
+echo "[Unit]" > /etc/systemd/system/logstash.service.d/override.conf
+echo "After=keyvault.service" >> /etc/systemd/system/logstash.service.d/override.conf
+echo >> /etc/systemd/system/logstash.service.d/override.conf
+echo "[Service]" >> /etc/systemd/system/logstash.service.d/override.conf
+echo "EnvironmentFile=/run/keyvault/secrets/LogWorkspaceKey" >> /etc/systemd/system/logstash.service.d/override.conf
+install -m 644 /opt/dist/signincanada/logstash/* /etc/logstash/conf.d
+echo '*.*          @127.0.0.1:1514' > /etc/rsyslog.d/logstash.conf
+systemctl enable logstash
+
 echo 'Enabling the couchbase health check service...'
 systemctl enable cbcheck
 
