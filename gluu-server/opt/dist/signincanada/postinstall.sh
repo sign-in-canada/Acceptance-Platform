@@ -83,6 +83,5 @@ if grep Red /etc/redhat-release ; then
    yum remove -y epel-release
 fi
 yum clean all
-yum install -y jq
 yum update -y
 echo 'Done.'
