@@ -7,9 +7,6 @@ systemctl stop httpd oxauth identity fido2 idp passport
 echo 'Clearing jetty temp files'
 rm -rf /opt/jetty-9.4/temp/*
 
-echo 'Fixing oxauth.war permissions...'
-chown jetty:gluu /opt/gluu/jetty/oxauth/webapps/oxauth.war
-
 echo 'Enabling the keyvault service...'
 if grep Red /etc/redhat-release ; then
    yum remove -y epel-release
@@ -60,6 +57,7 @@ systemctl enable notify
 
 echo 'Removing unused Gluu authentication pages...'
 zip -d -q /opt/gluu/jetty/oxauth/webapps/oxauth.war "/auth/*"
+chown jetty:gluu /opt/gluu/jetty/oxauth/webapps/oxauth.war
 
 if [ -d /opt/shibboleth-idp/conf ] ; then
    echo 'Configuring Shibboleth...'
