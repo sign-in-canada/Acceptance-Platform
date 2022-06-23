@@ -3,6 +3,7 @@ Description=Perform a Couchbase health check before starting Gluu
 After=keyvault.service
 Before=identity.service
 Before=oxauth.service
+Before=fido2.service
 
 [Service]
 Type=oneshot
