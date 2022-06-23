@@ -7,6 +7,9 @@ systemctl stop httpd oxauth identity fido2 idp passport
 echo 'Clearing jetty temp files'
 rm -rf /opt/jetty-9.4/temp/*
 
+echo 'Fixing oxauth.war permissions...'
+chown jetty:gluu /opt/gluu/jetty/oxauth/webapps/oxauth.war
+
 echo 'Enabling the keyvault service...'
 if grep Red /etc/redhat-release ; then
    yum remove -y epel-release
