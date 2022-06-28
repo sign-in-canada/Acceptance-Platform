@@ -63,7 +63,7 @@ stages:
         mkdir -p gluu-server/opt/dist/app
         wget http://mirror.csclub.uwaterloo.ca/fedora/epel/7/x86_64/Packages/j/jq-1.6-2.el7.x86_64.rpm \
           -P gluu-server/opt/dist/app
-        wget http://mirror.csclub.uwaterloo.ca/fedora/epel/7/x86_64/Packages/o/oniguruma-6.8.2-1.el7.x86_64.rpm \
+        wget http://mirror.csclub.uwaterloo.ca/fedora/epel/7/x86_64/Packages/o/oniguruma-6.8.2-2.el7.x86_64.rpm \
           -P gluu-server/opt/dist/app
       displayName: 'Downloading jq'
       continueOnError: false
@@ -82,7 +82,7 @@ stages:
 
     - script: |
         cd gluu-server/opt/dist/gluu
-        mv passport-version_5.3.0-node_modules.tar.gz passport-version_4.3.1-node_modules.tar.gz
+        mv passport-version_5.3.0-node_modules.tar.gz passport-version_4.4.0-node_modules.tar.gz
       displayName: 'Renaming node modules'
       continueOnError: true
 
@@ -95,34 +95,6 @@ stages:
         artifactName: 'node-services'
         targetPath: '$(Pipeline.Workspace)/s/gluu-server/opt/dist/signincanada'
       displayName: 'Downloading node-services tarball'
-
-    - script: |
-        wget https://sicpub.blob.core.windows.net/software/oxauth-server-4.3.2-SNAPSHOT.war \
-          -O gluu-server/opt/dist/gluu/oxauth.war
-        echo 'Checking download integrity'
-        echo "69dabc770491935eb214d8880a4b6ef7269aa1443e07850002c52dba5c9f4dc0" gluu-server/opt/dist/gluu/oxauth.war | sha256sum -c
-        result=$?
-        if [ $result -ne 0 ] ; then
-          echo "Failed"
-          exit 1
-        fi
-        echo 'Passed'
-      displayName: 'Downlaoding the Gluu 4.3.2 WAR'
-      continueOnError: false
-
-    - script: |
-        wget https://sicpub.blob.core.windows.net/software/idp.war \
-          -O gluu-server/opt/dist/gluu/idp.war
-        echo 'Checking download integrity'
-        echo "77f356d0f665f3182729f3e256270160b1cca5bc803ad867701fd7e219aa7c37" gluu-server/opt/dist/gluu/idp.war | sha256sum -c
-        result=$?
-        if [ $result -ne 0 ] ; then
-          echo "Failed"
-          exit 1
-        fi
-        echo 'Passed'
-      displayName: 'Downlaoding the Patched Shibboleth WAR'
-      continueOnError: false
 
     - script: |
         wget https://artifacts.elastic.co/downloads/logstash/logstash-8.2.2-x86_64.rpm \

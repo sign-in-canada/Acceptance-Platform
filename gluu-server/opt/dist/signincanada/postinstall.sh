@@ -36,19 +36,6 @@ systemctl enable cbcheck
 echo "Enabling the passport key extraction service"
 systemctl enable passportkeys
 
-echo "Patching fido2 log4j configuration"
-rm -rf /opt/jetty-9.4/temp/*
-if [ -d /opt/gluu/jetty/fido2 ] ; then
-   mkdir -p /tmp/patch/fido2
-   pushd /tmp/patch/fido2
-   /opt/jre/bin/jar -xf /opt/dist/gluu/fido2.war
-   sed -i 's/\${log4j\.default\.log\.level}/INFO/g' ./WEB-INF/classes/log4j2.xml
-   rm -v /opt/gluu/jetty/fido2/webapps/fido2.war
-   /opt/jre/bin/jar -cf /opt/gluu/jetty/fido2/webapps/fido2.war *
-   popd 2>&1
-   rm -rf /tmp/patch/fido2
-fi
-
 echo 'Installing the Custom UI and dependencies...'
 tar xzf /opt/dist/signincanada/custom.tgz -C /opt/gluu/jetty/oxauth/custom
 chown -R jetty:jetty /opt/gluu/jetty/oxauth/custom
@@ -70,6 +57,7 @@ systemctl enable notify
 
 echo 'Removing unused Gluu authentication pages...'
 zip -d -q /opt/gluu/jetty/oxauth/webapps/oxauth.war "/auth/*"
+chown jetty:gluu /opt/gluu/jetty/oxauth/webapps/oxauth.war
 
 if [ -d /opt/shibboleth-idp/conf ] ; then
    echo 'Configuring Shibboleth...'
@@ -95,6 +83,5 @@ if grep Red /etc/redhat-release ; then
    yum remove -y epel-release
 fi
 yum clean all
-yum install -y jq
 yum update -y
 echo 'Done.'

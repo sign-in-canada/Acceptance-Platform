@@ -30,7 +30,7 @@ export encodeSalt=$(awk -F'= ' '{print $2}' /etc/gluu/conf/salt)
 for kid in $kids ; do
     echo "Extracting $kid"
     # Extract the individual key
-    /opt/jre/bin/keytool -importkeystore -srckeystore /etc/certs/oxauth-keys.jks -destkeystore /run/keyvault/keys/${kid}.p12 -alias ${kid} -srcstorepass $keyStoreSecret -deststorepass $keyStoreSecret
+    /opt/jre/bin/keytool -importkeystore -srckeystore /etc/certs/oxauth-keys.pkcs12 -srcstoretype pkcs12 -destkeystore /run/keyvault/keys/${kid}.p12 -alias ${kid} -srcstorepass $keyStoreSecret -deststorepass $keyStoreSecret
     # Convert the private key to AES-encrypted PKCS8
     openssl pkcs12 -in /run/keyvault/keys/${kid}.p12 -nocerts -passin pass:${keyStoreSecret} -nodes -nocerts |
         openssl pkcs8  -topk8 -v2 aes256 -out /run/keyvault/keys/${kid}.pem -passout env:encodeSalt

@@ -62,7 +62,7 @@
                 <overWriteIfNewer>true</overWriteIfNewer>
                 <includeScope>runtime</includeScope>
                 <overWriteIfNewer>true</overWriteIfNewer>
-                <excludeArtifactIds>jackson-core,jackson-annotations,jackson-databind,nimbus-jose-jwt,jna,jna-platform</excludeArtifactIds>
+                <excludeArtifactIds>jackson-core,jackson-annotations,jackson-databind,nimbus-jose-jwt,jna,jna-platform,slf4j-api</excludeArtifactIds>
               </configuration>
             </execution>
           </executions>
