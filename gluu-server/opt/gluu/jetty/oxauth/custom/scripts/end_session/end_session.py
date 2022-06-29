@@ -101,7 +101,6 @@ class EndSession(EndSessionType):
             params["spNameQualifier"] = spNameQualifier
 
         jsonParams = json.dumps(params)
-        print(jsonParams)
         encryptedParams = CdiUtil.bean(EncryptionService).encrypt(jsonParams)
         # Need to translate from base64 to base64url to make it URL-friendly for passport
         # See RFC4648 section 5
