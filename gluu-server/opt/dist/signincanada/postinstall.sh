@@ -18,7 +18,7 @@ systemctl enable keyvault
 echo 'Installing and configuring logstash...'
 rpm --import /etc/pki/rpm-gpg/GPG-KEY-elasticsearch
 yum install -y /opt/dist/app/logstash-*-x86_64.rpm
-/usr/share/logstash/bin/logstash-plugin install file:///opt/dist/app/logstash-offline-plugins-8.2.2.zip
+/usr/share/logstash/bin/logstash-plugin install file:///opt/dist/app/logstash-offline-plugins-8.3.0.zip
 sed -i "s/^# api\.enabled: true/api\.enabled: false/" /etc/logstash/logstash.yml
 mkdir /etc/systemd/system/logstash.service.d
 echo "[Unit]" > /etc/systemd/system/logstash.service.d/override.conf
