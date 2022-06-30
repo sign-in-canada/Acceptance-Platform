@@ -15,5 +15,21 @@
       "maxSizeMb": 5,
       "maxHistory": 1
     }
+  },
+  "preview": {
+      "sampling": {
+          "overrides": [
+              {
+                  "attributes": [
+                      {
+                          "key": "code.namespace",
+                          "value": "org.gluu.service.timer.TimerJob",
+                          "matchType": "strict"
+                      }
+                  ],
+                  "percentage": 0
+              }
+          ]
+      }
   }
 }
