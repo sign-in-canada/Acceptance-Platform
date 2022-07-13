@@ -18,23 +18,30 @@ stages:
       vmImage: 'ubuntu-latest'
 
     steps:
+
+    - task: Maven@3
+      inputs:
+        mavenPomFile: '$(Build.SourcesDirectory)/pipeline-utils/azure-sdk/pom.xml'
+        goals: 'package'
+      displayName: 'Downloading Azure Java SDK libraries'
+      continueOnError: false
+
     - script: |
         ls -al $(Pipeline.Workspace)
         cd gluu-server/opt/gluu/jetty/oxauth/custom
+        mkdir libs
+        cp -R $(Build.SourcesDirectory)/pipeline-utils/azure-sdk/target/dependency/*.jar libs
         tar -czv --owner=root --group=root -f custom.tgz *
         mv custom.tgz $(Pipeline.Workspace)/s/gluu-server/opt/dist/signincanada
         cd $(Pipeline.Workspace)
         ls -al s/gluu-server/opt/dist/signincanada
         tar -tvf s/gluu-server/opt/dist/signincanada/custom.tgz
-      displayName: 'Packaging UI'
+      displayName: 'Packaging oxAuth custom UI and libraries'
       continueOnError: false
 
     - script: |
-        echo 'Downloading AppInsights SDK'
-        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.6.4/applicationinsights-core-2.6.4.jar \
-          -P gluu-server/opt/dist/signincanada
         echo 'Downloading AppInsights Agent'
-        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.2.10/applicationinsights-agent-3.2.10.jar \
+        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.3.0/applicationinsights-agent-3.3.0.jar \
           -P gluu-server/opt/azure
         ls -al 
       displayName: 'Downloading AppInsights'
@@ -56,7 +63,7 @@ stages:
         mkdir -p gluu-server/opt/dist/app
         wget http://mirror.csclub.uwaterloo.ca/fedora/epel/7/x86_64/Packages/j/jq-1.6-2.el7.x86_64.rpm \
           -P gluu-server/opt/dist/app
-        wget http://mirror.csclub.uwaterloo.ca/fedora/epel/7/x86_64/Packages/o/oniguruma-6.8.2-1.el7.x86_64.rpm \
+        wget http://mirror.csclub.uwaterloo.ca/fedora/epel/7/x86_64/Packages/o/oniguruma-6.8.2-2.el7.x86_64.rpm \
           -P gluu-server/opt/dist/app
       displayName: 'Downloading jq'
       continueOnError: false
@@ -67,7 +74,7 @@ stages:
         project: '7302639f-e704-47c3-9557-99b4e04a75bc'
         definition: '285'
         runVersion: 'latestFromBranch'
-        runBranch: "refs/heads/sic/main"
+        runBranch: "refs/heads/sic/develop"
         artifactName: 'gluu-passport'
         targetPath: '$(Pipeline.Workspace)/s/gluu-server/opt/dist/gluu'
       displayName: 'Download gluu-passport tarballs'
@@ -75,7 +82,7 @@ stages:
 
     - script: |
         cd gluu-server/opt/dist/gluu
-        mv passport-version_5.3.0-node_modules.tar.gz passport-version_4.3.1-node_modules.tar.gz
+        mv passport-version_5.3.0-node_modules.tar.gz passport-version_4.4.0-node_modules.tar.gz
       displayName: 'Renaming node modules'
       continueOnError: true
 
@@ -90,31 +97,13 @@ stages:
       displayName: 'Downloading node-services tarball'
 
     - script: |
-        wget https://sicpub.blob.core.windows.net/software/oxauth-server-4.3.2-SNAPSHOT.war \
-          -O gluu-server/opt/dist/gluu/oxauth.war
-        echo 'Checking download integrity'
-        echo "69dabc770491935eb214d8880a4b6ef7269aa1443e07850002c52dba5c9f4dc0" gluu-server/opt/dist/gluu/oxauth.war | sha256sum -c
-        result=$?
-        if [ $result -ne 0 ] ; then
-          echo "Failed"
-          exit 1
-        fi
-        echo 'Passed'
-      displayName: 'Downlaoding the Gluu 4.3.2 WAR'
-      continueOnError: false
-
-    - script: |
-        wget https://sicpub.blob.core.windows.net/software/idp.war \
-          -O gluu-server/opt/dist/gluu/idp.war
-        echo 'Checking download integrity'
-        echo "77f356d0f665f3182729f3e256270160b1cca5bc803ad867701fd7e219aa7c37" gluu-server/opt/dist/gluu/idp.war | sha256sum -c
-        result=$?
-        if [ $result -ne 0 ] ; then
-          echo "Failed"
-          exit 1
-        fi
-        echo 'Passed'
-      displayName: 'Downlaoding the Patched Shibboleth WAR'
+        wget https://artifacts.elastic.co/downloads/logstash/logstash-8.3.2-x86_64.rpm \
+          -P gluu-server/opt/dist/app
+          mkdir -P gluu-server/etc/pki/rpm-gpg
+          wget https://sicpub.blob.core.windows.net/software/GPG-KEY-elasticsearch \
+            -P gluu-server/etc/pki/rpm-gpg
+          docker run -i -u $(id -u) -v $(Build.SourcesDirectory)/gluu-server/opt/dist/app:/srv/logstash docker.elastic.co/logstash/logstash:8.3.2 /bin/sh < pipeline-utils/logstash/offline-plugins.sh
+      displayName: 'Downlaoding Logstash and packaging plugins'
       continueOnError: false
 
     - script: |

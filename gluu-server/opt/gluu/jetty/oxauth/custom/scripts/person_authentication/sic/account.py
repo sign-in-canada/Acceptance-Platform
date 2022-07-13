@@ -43,7 +43,7 @@ class Account:
     def find(self, externalProfile):
         externalUid = externalProfile.get("externalUid")
         if externalUid is not None:
-            user = self.userService.getUserByAttribute("oxExternalUid", externalUid)
+            user = self.userService.getUserByAttribute("oxExternalUid", externalUid, True)
         else:
             raise AccountError("Account. Create. External profile is missing externalUid")
 

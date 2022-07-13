@@ -7,5 +7,5 @@
                 <Property name="jetty.webapps" default="." />/idp.war
         </Set>
         <Set name="extractWAR">true</Set>
-
+        <Set name="extraClasspath">custom/libs/*</Set>
 </Configure>

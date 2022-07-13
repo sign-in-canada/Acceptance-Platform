@@ -3,18 +3,61 @@
 #
 
 from org.gluu.model.custom.script.type.logout import EndSessionType
+from org.gluu.service.cdi.util import CdiUtil
+from org.gluu.oxauth.service.common import EncryptionService
 
+from org.apache.commons.lang3 import StringUtils
+
+import json
+import time
 class EndSession(EndSessionType):
     def __init__(self, currentTimeMillis):
         self.currentTimeMillis = currentTimeMillis
 
     def init(self, customScript, configurationAttributes):
-        print ("EndSession script. Initialized successfully")
+        self.name = customScript.getName()
 
+        self.pageTemplate = ("<!DOCTYPE html>"
+                         + "<html>"
+                         +    "<head>"
+                         +    "<title>Logout / D&eacute;connecter</title>"
+                         +       "<script>"
+                         +           "const rp_initiated = %s;"
+                         +           "const post_logout_redirect_uri = '%s';"
+                         +           "window.onload = function() {"
+                         +              "if (rp_initiated) {"
+                         +                 "passportResponse = document.getElementById('passport').contentDocument.getElementsByTagName('body')[0].textContent;"
+                         +                 "if (passportResponse === 'Success') {"
+                         +                    "window.location.replace(post_logout_redirect_uri)"
+                         +                  "} else {"
+                         +                     "window.location.replace('/oxauth/partial.htm')"
+                         +                  "}"
+                         +              "} else {"
+                         +                  "window.location.replace('/passport/logout/response/Success')"
+                         +              "}"
+                         +           "};"
+                         +           "window.onerror = function() {"
+                         +              "if (rp_initiated) {"
+                         +                 "window.location.replace('/oxauth/partial.htm')"
+                         +              "} else {"
+                         +                 "window.location.replace('/passport/logout/response/Responder')"
+                         +              "}"
+                         +           "}"
+                         +       "</script>"
+                         +    "</head>"
+                         +    "<body>"
+                         +       "<img style='display:block;margin-left:auto;margin-right:auto;width:20;padding:10%% 0;' src='/oxauth/ext/resources/assets/icon_flag_rotation_080x080.gif'/>"
+                         +       "%s"
+                         +    "<body>"
+                         + "<html>")
+
+        self.iframeTemplate = "<iframe height='0' width='0' src='%s' sandbox='allow-same-origin allow-scripts allow-popups allow-forms'></iframe>"
+
+        print ("%s: Initialized successfully." % self.name)
         return True
 
     def destroy(self, configurationAttributes):
-        print ("EndSession script. Destroyed successfully")
+        print ("%s: Destroyed successfully." % self.name)
         return True
 
     def getApiVersion(self):
@@ -25,36 +68,42 @@ class EndSession(EndSessionType):
     # Note :
     # context is reference of org.gluu.oxauth.service.external.context.EndSessionContext (in https://github.com/GluuFederation/oxauth project, )
     def getFrontchannelHtml(self, context):
-        
-        notIssuedByPassport = context.getPostLogoutRedirectUri().lower().find("/passport/logout/response") == -1
+        session = context.getSessionId()
+        postLogoutRedirectUri = context.getPostLogoutRedirectUri()
+        rpInitiated  = postLogoutRedirectUri.lower().find("/passport/logout/response") == -1
+        iframes = []
 
-        page = "<!DOCTYPE html>\n<html>\n<head>\n\t<script>\n" \
-                "\t\twindow.onload = function() {\n"
+        for frontchannelLogoutUri in context.getFrontchannelLogoutUris():
+            iframes.append(self.iframeTemplate % frontchannelLogoutUri)
 
-        if notIssuedByPassport:
-            page = page + "\t\t\tif (document.getElementById('passport').contentDocument.getElementsByTagName('body')[0].textContent == 'Success') { window.location.replace('" + context.getPostLogoutRedirectUri() + "')} else { window.location.replace('/oxauth/partial.htm') }\n\t\t}\n"
-        else: 
-            page = page + "\t\t\twindow.location.replace('" + context.getPostLogoutRedirectUri() + "');\n\t\t}\n"
+        if rpInitiated:
+            iframes.append("<iframe id='passport' height='0' width='0' src='%s' sandbox='allow-same-origin allow-scripts allow-popups allow-forms'></iframe>" % self.getPassportRequest(session))
 
-        page = page + "\t\twindow.onerror = function() {\n" 
-
-        if notIssuedByPassport:
-            page = page + "\t\t\twindow.location.replace('/oxauth/partial.htm');\n\t\t}\n"
-        else: 
-            page = page + "\t\t\twindow.location.replace('/passport/logout/response/responder');\n\t\t}\n"
-
-        page = page + "\t</script>\n" \
-                "\t<title>Logout / D&eacute;connecter</title>\n" \
-                "</head>\n" \
-                "<body>\n" \
-                "\t<img style='display:block;margin-left:auto;margin-right:auto;width:20;padding:10% 0;' src='/oxauth/ext/resources/assets/icon_flag_rotation_080x080.gif'/>\n"
-
-        for frontchannelLogoutUri in context.getFrontchannelLogoutUris() :
-            page = page + "\t<iframe height='0' width='0' src='%s' sandbox='allow-same-origin allow-scripts allow-popups allow-forms'></iframe>\n" % frontchannelLogoutUri
-
-        if notIssuedByPassport:
-            page = page + "\t<iframe id='passport' height='0' width='0' src='/passport/logout/request' sandbox='allow-same-origin allow-scripts allow-popups allow-forms'></iframe>\n"
-
-        page = page + "</body>\n</html>"
-
+        page = self.pageTemplate % ("true" if rpInitiated else "false", postLogoutRedirectUri, " ".join(iframes))
         return page
+
+    def getPassportRequest(self, session):
+        sessionAttributes = session.getSessionAttributes()
+
+        persistentId = sessionAttributes.get("persistentId")
+        spNameQualifier, nameQualifier, nameId = tuple(persistentId.split("|"))
+
+        params = {"provider": sessionAttributes.get("provider"),
+                  "nameIDFormat": "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
+                  "nameID": nameId,
+                  "sessionIndex": sessionAttributes.get("sessionIndex"),
+                  "exp": int(time.time()) + 60}
+
+        if nameQualifier != "undefined":
+            params["nameQualifier"] = nameQualifier
+
+        if spNameQualifier != "undefined":
+            params["spNameQualifier"] = spNameQualifier
+
+        jsonParams = json.dumps(params)
+        encryptedParams = CdiUtil.bean(EncryptionService).encrypt(jsonParams)
+        # Need to translate from base64 to base64url to make it URL-friendly for passport
+        # See RFC4648 section 5
+        encodedParams = StringUtils.replaceChars(encryptedParams, "/+", "_-")
+
+        return "/passport/logout/request/" + encodedParams

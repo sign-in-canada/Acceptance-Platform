@@ -182,13 +182,13 @@ class PersonAuthentication(PersonAuthenticationType):
         if step == 1:
             httpRequest = externalContext.getRequest()
             # Bookmark detection
-            #if httpRequest.getHeader("referer") is None:
-            #    if StringHelper.isNotEmpty(clientUri):
-            #        facesService.redirectToExternalURL(clientUri)
-            #        return True
-            #    else:
-            #        print("%s: prepareForStep. clientUri is missing for client %s" % (self.name, self.getClient(session).getClientName()))
-            #        return False
+            if httpRequest.getHeader("referer") is None:
+                if StringHelper.isNotEmpty(clientUri):
+                    facesService.redirectToExternalURL(clientUri)
+                    return True
+                else:
+                    print("%s: prepareForStep. clientUri is missing for client %s" % (self.name, self.getClient(session).getClientName()))
+                    return False
 
             # forceAuthn workaround
             prompt2 = httpRequest.getParameter("prompt2")
@@ -545,7 +545,6 @@ class PersonAuthentication(PersonAuthenticationType):
         session = identity.getSessionId()
 
         tokenResponse = ServerUtil.getFirstValue(requestParameters, "fido2Registration")
-        print ("%s. Authenticate. Got fido2 registration response: %s" % (self.name, tokenResponse))
         metaDataConfiguration = self.getFidoMetaDataConfiguration()
         attestationService = Fido2ClientFactory.instance().createAttestationService(metaDataConfiguration)
         attestationStatus = attestationService.verify(tokenResponse)
@@ -567,7 +566,6 @@ class PersonAuthentication(PersonAuthenticationType):
         session = identity.getSessionId()
 
         tokenResponse = ServerUtil.getFirstValue(requestParameters, "fido2Authentication")
-        print ("%s. Authenticate. Got fido2 authentication response: %s" % (self.name, tokenResponse))
         metaDataConfiguration = self.getFidoMetaDataConfiguration()
         assertionService = Fido2ClientFactory.instance().createAssertionService(metaDataConfiguration)
         assertionStatus = assertionService.verify(tokenResponse)
