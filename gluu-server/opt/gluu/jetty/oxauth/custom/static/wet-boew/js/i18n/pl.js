@@ -184,6 +184,7 @@ wb.i18nDict = {
 	info1000: "&#160;",
 	lenMenu: "Pokaż _MENU_ wpisów",
 	filter: "Filtruj pozycje",
+	tbFilterInst: "This table provides a sorting feature via the buttons across the column header row with only one instance visible at a time.",
 
 	/* Geomap */
 	"geo-mapctrl": "@geo-mapctrl@",
@@ -227,6 +228,7 @@ wb.i18nDict = {
 	"wb-enable": "Switch to standard version",
 	"disable-notice-h": "Notice: Basic HTML",
 	"disable-notice": "You are viewing Basic HTML view. Some features may be disabled.",
+	"skip-prefix": "Skip to:",
 
 	/* Dismissable content */
 	"dismiss": "Dismiss",
@@ -269,6 +271,7 @@ $.extend( $.validator.messages, {
 	equalTo: "Proszę o podanie tej samej wartości ponownie.",
 	extension: "Proszę o podanie wartości z prawidłowym rozszerzeniem.",
 	nipPL: "Proszę o podanie prawidłowego numeru NIP.",
+	phonePL: "Proszę o podanie prawidłowego numeru telefonu",
 	maxlength: $.validator.format( "Proszę o podanie nie więcej niż {0} znaków." ),
 	minlength: $.validator.format( "Proszę o podanie przynajmniej {0} znaków." ),
 	rangelength: $.validator.format( "Proszę o podanie wartości o długości od {0} do {1} znaków." ),
