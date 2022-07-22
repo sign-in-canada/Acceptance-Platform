@@ -38,6 +38,7 @@ import java
 import sys
 import json
 import time
+import uuid
 
 class SICError(Exception):
     """Base class for exceptions in this module."""
@@ -469,8 +470,7 @@ class PersonAuthentication(PersonAuthenticationType):
             if rpConfig.get("mfaProvider"): 
                 mfaId = self.account.getExternalUid(user, "mfa")
                 if mfaId is None:
-                    mfaId = self.account.addExternalUid(user, "mfa")
-                    userChanged = True
+                    mfaId = uuid.uuid4().hex
                 identity.setWorkingParameter("mfaId", mfaId)
 
             if newUser:
@@ -514,11 +514,13 @@ class PersonAuthentication(PersonAuthenticationType):
                 return authenticationService.authenticate(identity.getWorkingParameter("userId"))
 
         elif step == self.STEP_2FA:
-            user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "oxExternalUid", "locale")
-            mfaExternalId = self.account.getExternalUid(user, "mfa")
-            if externalProfile.get("externalUid").split(":", 1)[1] != mfaExternalId:
+            mfaId = identity.getWorkingParameter("mfaId")
+            if externalProfile.get("externalUid").split(":", 1)[1] != mfaId:
                 # Got the wrong MFA PAI. Authentication failed!
                 return False
+
+            user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "oxExternalUid", "locale")
+            self.account.addExternalUid(user, "mfa", mfaId)
 
             # Accept locale from the 2nd-factor CSP
             locale = externalProfile.get("locale")[0]
@@ -526,9 +528,9 @@ class PersonAuthentication(PersonAuthenticationType):
                 languageBean.setLocaleCode(locale)
                 if locale != user.getAttribute("locale", True, False):
                     user.setAttribute("locale", locale, False)
-                    userService.updateUser(user)
 
-            userId = identity.getWorkingParameter("userId")
+            userService.updateUser(user)
+
             if self.getNextStep(configurationAttributes, requestParameters, step) < 0:
                 return authenticationService.authenticate(identity.getWorkingParameter("userId"))
 
