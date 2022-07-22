@@ -235,6 +235,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 # Coordinate single-sign-on (SSO)
                 maxAge = (sessionAttributes.get(AuthorizeRequestParam.MAX_AGE) or self.getClient(session).getDefaultMaxAge())
                 if (identity.getWorkingParameter("forceAuthn")
+                    or rpConfig.get("mfaProvider")
                     or ("GCCF" in self.passport.getProvider(provider)["options"] and maxAge < 1200)): # 1200 is 20 minutes, the SSO timeout on GCKey and CBS
                     passportOptions["forceAuthn"] = "true"
 
