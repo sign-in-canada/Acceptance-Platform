@@ -182,7 +182,7 @@ class PersonAuthentication(PersonAuthenticationType):
         if step == 1:
             httpRequest = externalContext.getRequest()
             # Bookmark detection
-            if httpRequest.getHeader("referer") is None:
+            if httpRequest.getHeader("referer") is None and not rpConfig.get("allowBookmarks"):
                 if StringHelper.isNotEmpty(clientUri):
                     facesService.redirectToExternalURL(clientUri)
                     return True
