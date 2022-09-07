@@ -79,9 +79,5 @@ echo "Configuring Couchbase scan consistency"
 sed -i 's/not_bounded/request_plus/g' /etc/gluu/conf/gluu-couchbase.properties
 
 echo "Updating packages..."
-if grep Red /etc/redhat-release ; then
-   yum remove -y epel-release
-fi
-yum clean all
 yum update -y
 echo 'Done.'
