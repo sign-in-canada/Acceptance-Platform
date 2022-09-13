@@ -1,13 +1,1722 @@
 /*!
  * Web Experience Toolkit (WET) / Boîte à outils de l'expérience Web (BOEW)
  * wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
- * v4.0.35 - 2020-04-30
+ * v4.0.51.1 - 2022-06-29
  *
  *//*! Modernizr (Custom Build) | MIT & BSD */
+/*! @license DOMPurify 2.3.5 | (c) Cure53 and other contributors | Released under the Apache license 2.0 and Mozilla Public License 2.0 | github.com/cure53/DOMPurify/blob/2.3.5/LICENSE */
+
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+  typeof define === 'function' && define.amd ? define(factory) :
+  (global = global || self, global.DOMPurify = factory());
+}(this, function () { 'use strict';
+
+  function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+  var hasOwnProperty = Object.hasOwnProperty,
+      setPrototypeOf = Object.setPrototypeOf,
+      isFrozen = Object.isFrozen,
+      getPrototypeOf = Object.getPrototypeOf,
+      getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+  var freeze = Object.freeze,
+      seal = Object.seal,
+      create = Object.create; // eslint-disable-line import/no-mutable-exports
+
+  var _ref = typeof Reflect !== 'undefined' && Reflect,
+      apply = _ref.apply,
+      construct = _ref.construct;
+
+  if (!apply) {
+    apply = function apply(fun, thisValue, args) {
+      return fun.apply(thisValue, args);
+    };
+  }
+
+  if (!freeze) {
+    freeze = function freeze(x) {
+      return x;
+    };
+  }
+
+  if (!seal) {
+    seal = function seal(x) {
+      return x;
+    };
+  }
+
+  if (!construct) {
+    construct = function construct(Func, args) {
+      return new (Function.prototype.bind.apply(Func, [null].concat(_toConsumableArray(args))))();
+    };
+  }
+
+  var arrayForEach = unapply(Array.prototype.forEach);
+  var arrayPop = unapply(Array.prototype.pop);
+  var arrayPush = unapply(Array.prototype.push);
+
+  var stringToLowerCase = unapply(String.prototype.toLowerCase);
+  var stringMatch = unapply(String.prototype.match);
+  var stringReplace = unapply(String.prototype.replace);
+  var stringIndexOf = unapply(String.prototype.indexOf);
+  var stringTrim = unapply(String.prototype.trim);
+
+  var regExpTest = unapply(RegExp.prototype.test);
+
+  var typeErrorCreate = unconstruct(TypeError);
+
+  function unapply(func) {
+    return function (thisArg) {
+      for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        args[_key - 1] = arguments[_key];
+      }
+
+      return apply(func, thisArg, args);
+    };
+  }
+
+  function unconstruct(func) {
+    return function () {
+      for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        args[_key2] = arguments[_key2];
+      }
+
+      return construct(func, args);
+    };
+  }
+
+  /* Add properties to a lookup table */
+  function addToSet(set, array) {
+    if (setPrototypeOf) {
+      // Make 'in' and truthy checks like Boolean(set.constructor)
+      // independent of any properties defined on Object.prototype.
+      // Prevent prototype setters from intercepting set as a this value.
+      setPrototypeOf(set, null);
+    }
+
+    var l = array.length;
+    while (l--) {
+      var element = array[l];
+      if (typeof element === 'string') {
+        var lcElement = stringToLowerCase(element);
+        if (lcElement !== element) {
+          // Config presets (e.g. tags.js, attrs.js) are immutable.
+          if (!isFrozen(array)) {
+            array[l] = lcElement;
+          }
+
+          element = lcElement;
+        }
+      }
+
+      set[element] = true;
+    }
+
+    return set;
+  }
+
+  /* Shallow clone an object */
+  function clone(object) {
+    var newObject = create(null);
+
+    var property = void 0;
+    for (property in object) {
+      if (apply(hasOwnProperty, object, [property])) {
+        newObject[property] = object[property];
+      }
+    }
+
+    return newObject;
+  }
+
+  /* IE10 doesn't support __lookupGetter__ so lets'
+   * simulate it. It also automatically checks
+   * if the prop is function or getter and behaves
+   * accordingly. */
+  function lookupGetter(object, prop) {
+    while (object !== null) {
+      var desc = getOwnPropertyDescriptor(object, prop);
+      if (desc) {
+        if (desc.get) {
+          return unapply(desc.get);
+        }
+
+        if (typeof desc.value === 'function') {
+          return unapply(desc.value);
+        }
+      }
+
+      object = getPrototypeOf(object);
+    }
+
+    function fallbackValue(element) {
+      console.warn('fallback value for', element);
+      return null;
+    }
+
+    return fallbackValue;
+  }
+
+  var html = freeze(['a', 'abbr', 'acronym', 'address', 'area', 'article', 'aside', 'audio', 'b', 'bdi', 'bdo', 'big', 'blink', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'center', 'cite', 'code', 'col', 'colgroup', 'content', 'data', 'datalist', 'dd', 'decorator', 'del', 'details', 'dfn', 'dialog', 'dir', 'div', 'dl', 'dt', 'element', 'em', 'fieldset', 'figcaption', 'figure', 'font', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hgroup', 'hr', 'html', 'i', 'img', 'input', 'ins', 'kbd', 'label', 'legend', 'li', 'main', 'map', 'mark', 'marquee', 'menu', 'menuitem', 'meter', 'nav', 'nobr', 'ol', 'optgroup', 'option', 'output', 'p', 'picture', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'section', 'select', 'shadow', 'small', 'source', 'spacer', 'span', 'strike', 'strong', 'style', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'template', 'textarea', 'tfoot', 'th', 'thead', 'time', 'tr', 'track', 'tt', 'u', 'ul', 'var', 'video', 'wbr']);
+
+  // SVG
+  var svg = freeze(['svg', 'a', 'altglyph', 'altglyphdef', 'altglyphitem', 'animatecolor', 'animatemotion', 'animatetransform', 'circle', 'clippath', 'defs', 'desc', 'ellipse', 'filter', 'font', 'g', 'glyph', 'glyphref', 'hkern', 'image', 'line', 'lineargradient', 'marker', 'mask', 'metadata', 'mpath', 'path', 'pattern', 'polygon', 'polyline', 'radialgradient', 'rect', 'stop', 'style', 'switch', 'symbol', 'text', 'textpath', 'title', 'tref', 'tspan', 'view', 'vkern']);
+
+  var svgFilters = freeze(['feBlend', 'feColorMatrix', 'feComponentTransfer', 'feComposite', 'feConvolveMatrix', 'feDiffuseLighting', 'feDisplacementMap', 'feDistantLight', 'feFlood', 'feFuncA', 'feFuncB', 'feFuncG', 'feFuncR', 'feGaussianBlur', 'feImage', 'feMerge', 'feMergeNode', 'feMorphology', 'feOffset', 'fePointLight', 'feSpecularLighting', 'feSpotLight', 'feTile', 'feTurbulence']);
+
+  // List of SVG elements that are disallowed by default.
+  // We still need to know them so that we can do namespace
+  // checks properly in case one wants to add them to
+  // allow-list.
+  var svgDisallowed = freeze(['animate', 'color-profile', 'cursor', 'discard', 'fedropshadow', 'font-face', 'font-face-format', 'font-face-name', 'font-face-src', 'font-face-uri', 'foreignobject', 'hatch', 'hatchpath', 'mesh', 'meshgradient', 'meshpatch', 'meshrow', 'missing-glyph', 'script', 'set', 'solidcolor', 'unknown', 'use']);
+
+  var mathMl = freeze(['math', 'menclose', 'merror', 'mfenced', 'mfrac', 'mglyph', 'mi', 'mlabeledtr', 'mmultiscripts', 'mn', 'mo', 'mover', 'mpadded', 'mphantom', 'mroot', 'mrow', 'ms', 'mspace', 'msqrt', 'mstyle', 'msub', 'msup', 'msubsup', 'mtable', 'mtd', 'mtext', 'mtr', 'munder', 'munderover']);
+
+  // Similarly to SVG, we want to know all MathML elements,
+  // even those that we disallow by default.
+  var mathMlDisallowed = freeze(['maction', 'maligngroup', 'malignmark', 'mlongdiv', 'mscarries', 'mscarry', 'msgroup', 'mstack', 'msline', 'msrow', 'semantics', 'annotation', 'annotation-xml', 'mprescripts', 'none']);
+
+  var text = freeze(['#text']);
+
+  var html$1 = freeze(['accept', 'action', 'align', 'alt', 'autocapitalize', 'autocomplete', 'autopictureinpicture', 'autoplay', 'background', 'bgcolor', 'border', 'capture', 'cellpadding', 'cellspacing', 'checked', 'cite', 'class', 'clear', 'color', 'cols', 'colspan', 'controls', 'controlslist', 'coords', 'crossorigin', 'datetime', 'decoding', 'default', 'dir', 'disabled', 'disablepictureinpicture', 'disableremoteplayback', 'download', 'draggable', 'enctype', 'enterkeyhint', 'face', 'for', 'headers', 'height', 'hidden', 'high', 'href', 'hreflang', 'id', 'inputmode', 'integrity', 'ismap', 'kind', 'label', 'lang', 'list', 'loading', 'loop', 'low', 'max', 'maxlength', 'media', 'method', 'min', 'minlength', 'multiple', 'muted', 'name', 'nonce', 'noshade', 'novalidate', 'nowrap', 'open', 'optimum', 'pattern', 'placeholder', 'playsinline', 'poster', 'preload', 'pubdate', 'radiogroup', 'readonly', 'rel', 'required', 'rev', 'reversed', 'role', 'rows', 'rowspan', 'spellcheck', 'scope', 'selected', 'shape', 'size', 'sizes', 'span', 'srclang', 'start', 'src', 'srcset', 'step', 'style', 'summary', 'tabindex', 'title', 'translate', 'type', 'usemap', 'valign', 'value', 'width', 'xmlns', 'slot']);
+
+  var svg$1 = freeze(['accent-height', 'accumulate', 'additive', 'alignment-baseline', 'ascent', 'attributename', 'attributetype', 'azimuth', 'basefrequency', 'baseline-shift', 'begin', 'bias', 'by', 'class', 'clip', 'clippathunits', 'clip-path', 'clip-rule', 'color', 'color-interpolation', 'color-interpolation-filters', 'color-profile', 'color-rendering', 'cx', 'cy', 'd', 'dx', 'dy', 'diffuseconstant', 'direction', 'display', 'divisor', 'dur', 'edgemode', 'elevation', 'end', 'fill', 'fill-opacity', 'fill-rule', 'filter', 'filterunits', 'flood-color', 'flood-opacity', 'font-family', 'font-size', 'font-size-adjust', 'font-stretch', 'font-style', 'font-variant', 'font-weight', 'fx', 'fy', 'g1', 'g2', 'glyph-name', 'glyphref', 'gradientunits', 'gradienttransform', 'height', 'href', 'id', 'image-rendering', 'in', 'in2', 'k', 'k1', 'k2', 'k3', 'k4', 'kerning', 'keypoints', 'keysplines', 'keytimes', 'lang', 'lengthadjust', 'letter-spacing', 'kernelmatrix', 'kernelunitlength', 'lighting-color', 'local', 'marker-end', 'marker-mid', 'marker-start', 'markerheight', 'markerunits', 'markerwidth', 'maskcontentunits', 'maskunits', 'max', 'mask', 'media', 'method', 'mode', 'min', 'name', 'numoctaves', 'offset', 'operator', 'opacity', 'order', 'orient', 'orientation', 'origin', 'overflow', 'paint-order', 'path', 'pathlength', 'patterncontentunits', 'patterntransform', 'patternunits', 'points', 'preservealpha', 'preserveaspectratio', 'primitiveunits', 'r', 'rx', 'ry', 'radius', 'refx', 'refy', 'repeatcount', 'repeatdur', 'restart', 'result', 'rotate', 'scale', 'seed', 'shape-rendering', 'specularconstant', 'specularexponent', 'spreadmethod', 'startoffset', 'stddeviation', 'stitchtiles', 'stop-color', 'stop-opacity', 'stroke-dasharray', 'stroke-dashoffset', 'stroke-linecap', 'stroke-linejoin', 'stroke-miterlimit', 'stroke-opacity', 'stroke', 'stroke-width', 'style', 'surfacescale', 'systemlanguage', 'tabindex', 'targetx', 'targety', 'transform', 'transform-origin', 'text-anchor', 'text-decoration', 'text-rendering', 'textlength', 'type', 'u1', 'u2', 'unicode', 'values', 'viewbox', 'visibility', 'version', 'vert-adv-y', 'vert-origin-x', 'vert-origin-y', 'width', 'word-spacing', 'wrap', 'writing-mode', 'xchannelselector', 'ychannelselector', 'x', 'x1', 'x2', 'xmlns', 'y', 'y1', 'y2', 'z', 'zoomandpan']);
+
+  var mathMl$1 = freeze(['accent', 'accentunder', 'align', 'bevelled', 'close', 'columnsalign', 'columnlines', 'columnspan', 'denomalign', 'depth', 'dir', 'display', 'displaystyle', 'encoding', 'fence', 'frame', 'height', 'href', 'id', 'largeop', 'length', 'linethickness', 'lspace', 'lquote', 'mathbackground', 'mathcolor', 'mathsize', 'mathvariant', 'maxsize', 'minsize', 'movablelimits', 'notation', 'numalign', 'open', 'rowalign', 'rowlines', 'rowspacing', 'rowspan', 'rspace', 'rquote', 'scriptlevel', 'scriptminsize', 'scriptsizemultiplier', 'selection', 'separator', 'separators', 'stretchy', 'subscriptshift', 'supscriptshift', 'symmetric', 'voffset', 'width', 'xmlns']);
+
+  var xml = freeze(['xlink:href', 'xml:id', 'xlink:title', 'xml:space', 'xmlns:xlink']);
+
+  // eslint-disable-next-line unicorn/better-regex
+  var MUSTACHE_EXPR = seal(/\{\{[\s\S]*|[\s\S]*\}\}/gm); // Specify template detection regex for SAFE_FOR_TEMPLATES mode
+  var ERB_EXPR = seal(/<%[\s\S]*|[\s\S]*%>/gm);
+  var DATA_ATTR = seal(/^data-[\-\w.\u00B7-\uFFFF]/); // eslint-disable-line no-useless-escape
+  var ARIA_ATTR = seal(/^aria-[\-\w]+$/); // eslint-disable-line no-useless-escape
+  var IS_ALLOWED_URI = seal(/^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i // eslint-disable-line no-useless-escape
+  );
+  var IS_SCRIPT_OR_DATA = seal(/^(?:\w+script|data):/i);
+  var ATTR_WHITESPACE = seal(/[\u0000-\u0020\u00A0\u1680\u180E\u2000-\u2029\u205F\u3000]/g // eslint-disable-line no-control-regex
+  );
+
+  var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+  function _toConsumableArray$1(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+  var getGlobal = function getGlobal() {
+    return typeof window === 'undefined' ? null : window;
+  };
+
+  /**
+   * Creates a no-op policy for internal use only.
+   * Don't export this function outside this module!
+   * @param {?TrustedTypePolicyFactory} trustedTypes The policy factory.
+   * @param {Document} document The document object (to determine policy name suffix)
+   * @return {?TrustedTypePolicy} The policy created (or null, if Trusted Types
+   * are not supported).
+   */
+  var _createTrustedTypesPolicy = function _createTrustedTypesPolicy(trustedTypes, document) {
+    if ((typeof trustedTypes === 'undefined' ? 'undefined' : _typeof(trustedTypes)) !== 'object' || typeof trustedTypes.createPolicy !== 'function') {
+      return null;
+    }
+
+    // Allow the callers to control the unique policy name
+    // by adding a data-tt-policy-suffix to the script element with the DOMPurify.
+    // Policy creation with duplicate names throws in Trusted Types.
+    var suffix = null;
+    var ATTR_NAME = 'data-tt-policy-suffix';
+    if (document.currentScript && document.currentScript.hasAttribute(ATTR_NAME)) {
+      suffix = document.currentScript.getAttribute(ATTR_NAME);
+    }
+
+    var policyName = 'dompurify' + (suffix ? '#' + suffix : '');
+
+    try {
+      return trustedTypes.createPolicy(policyName, {
+        createHTML: function createHTML(html$$1) {
+          return html$$1;
+        }
+      });
+    } catch (_) {
+      // Policy creation failed (most likely another DOMPurify script has
+      // already run). Skip creating the policy, as this will only cause errors
+      // if TT are enforced.
+      console.warn('TrustedTypes policy ' + policyName + ' could not be created.');
+      return null;
+    }
+  };
+
+  function createDOMPurify() {
+    var window = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : getGlobal();
+
+    var DOMPurify = function DOMPurify(root) {
+      return createDOMPurify(root);
+    };
+
+    /**
+     * Version label, exposed for easier checks
+     * if DOMPurify is up to date or not
+     */
+    DOMPurify.version = '2.3.5';
+
+    /**
+     * Array of elements that DOMPurify removed during sanitation.
+     * Empty if nothing was removed.
+     */
+    DOMPurify.removed = [];
+
+    if (!window || !window.document || window.document.nodeType !== 9) {
+      // Not running in a browser, provide a factory function
+      // so that you can pass your own Window
+      DOMPurify.isSupported = false;
+
+      return DOMPurify;
+    }
+
+    var originalDocument = window.document;
+
+    var document = window.document;
+    var DocumentFragment = window.DocumentFragment,
+        HTMLTemplateElement = window.HTMLTemplateElement,
+        Node = window.Node,
+        Element = window.Element,
+        NodeFilter = window.NodeFilter,
+        _window$NamedNodeMap = window.NamedNodeMap,
+        NamedNodeMap = _window$NamedNodeMap === undefined ? window.NamedNodeMap || window.MozNamedAttrMap : _window$NamedNodeMap,
+        HTMLFormElement = window.HTMLFormElement,
+        DOMParser = window.DOMParser,
+        trustedTypes = window.trustedTypes;
+
+
+    var ElementPrototype = Element.prototype;
+
+    var cloneNode = lookupGetter(ElementPrototype, 'cloneNode');
+    var getNextSibling = lookupGetter(ElementPrototype, 'nextSibling');
+    var getChildNodes = lookupGetter(ElementPrototype, 'childNodes');
+    var getParentNode = lookupGetter(ElementPrototype, 'parentNode');
+
+    // As per issue #47, the web-components registry is inherited by a
+    // new document created via createHTMLDocument. As per the spec
+    // (http://w3c.github.io/webcomponents/spec/custom/#creating-and-passing-registries)
+    // a new empty registry is used when creating a template contents owner
+    // document, so we use that as our parent document to ensure nothing
+    // is inherited.
+    if (typeof HTMLTemplateElement === 'function') {
+      var template = document.createElement('template');
+      if (template.content && template.content.ownerDocument) {
+        document = template.content.ownerDocument;
+      }
+    }
+
+    var trustedTypesPolicy = _createTrustedTypesPolicy(trustedTypes, originalDocument);
+    var emptyHTML = trustedTypesPolicy ? trustedTypesPolicy.createHTML('') : '';
+
+    var _document = document,
+        implementation = _document.implementation,
+        createNodeIterator = _document.createNodeIterator,
+        createDocumentFragment = _document.createDocumentFragment,
+        getElementsByTagName = _document.getElementsByTagName;
+    var importNode = originalDocument.importNode;
+
+
+    var documentMode = {};
+    try {
+      documentMode = clone(document).documentMode ? document.documentMode : {};
+    } catch (_) {}
+
+    var hooks = {};
+
+    /**
+     * Expose whether this browser supports running the full DOMPurify.
+     */
+    DOMPurify.isSupported = typeof getParentNode === 'function' && implementation && typeof implementation.createHTMLDocument !== 'undefined' && documentMode !== 9;
+
+    var MUSTACHE_EXPR$$1 = MUSTACHE_EXPR,
+        ERB_EXPR$$1 = ERB_EXPR,
+        DATA_ATTR$$1 = DATA_ATTR,
+        ARIA_ATTR$$1 = ARIA_ATTR,
+        IS_SCRIPT_OR_DATA$$1 = IS_SCRIPT_OR_DATA,
+        ATTR_WHITESPACE$$1 = ATTR_WHITESPACE;
+    var IS_ALLOWED_URI$$1 = IS_ALLOWED_URI;
+
+    /**
+     * We consider the elements and attributes below to be safe. Ideally
+     * don't add any new ones but feel free to remove unwanted ones.
+     */
+
+    /* allowed element names */
+
+    var ALLOWED_TAGS = null;
+    var DEFAULT_ALLOWED_TAGS = addToSet({}, [].concat(_toConsumableArray$1(html), _toConsumableArray$1(svg), _toConsumableArray$1(svgFilters), _toConsumableArray$1(mathMl), _toConsumableArray$1(text)));
+
+    /* Allowed attribute names */
+    var ALLOWED_ATTR = null;
+    var DEFAULT_ALLOWED_ATTR = addToSet({}, [].concat(_toConsumableArray$1(html$1), _toConsumableArray$1(svg$1), _toConsumableArray$1(mathMl$1), _toConsumableArray$1(xml)));
+
+    /*
+     * Configure how DOMPUrify should handle custom elements and their attributes as well as customized built-in elements.
+     * @property {RegExp|Function|null} tagNameCheck one of [null, regexPattern, predicate]. Default: `null` (disallow any custom elements)
+     * @property {RegExp|Function|null} attributeNameCheck one of [null, regexPattern, predicate]. Default: `null` (disallow any attributes not on the allow list)
+     * @property {boolean} allowCustomizedBuiltInElements allow custom elements derived from built-ins if they pass CUSTOM_ELEMENT_HANDLING.tagNameCheck. Default: `false`.
+     */
+    var CUSTOM_ELEMENT_HANDLING = Object.seal(Object.create(null, {
+      tagNameCheck: {
+        writable: true,
+        configurable: false,
+        enumerable: true,
+        value: null
+      },
+      attributeNameCheck: {
+        writable: true,
+        configurable: false,
+        enumerable: true,
+        value: null
+      },
+      allowCustomizedBuiltInElements: {
+        writable: true,
+        configurable: false,
+        enumerable: true,
+        value: false
+      }
+    }));
+
+    /* Explicitly forbidden tags (overrides ALLOWED_TAGS/ADD_TAGS) */
+    var FORBID_TAGS = null;
+
+    /* Explicitly forbidden attributes (overrides ALLOWED_ATTR/ADD_ATTR) */
+    var FORBID_ATTR = null;
+
+    /* Decide if ARIA attributes are okay */
+    var ALLOW_ARIA_ATTR = true;
+
+    /* Decide if custom data attributes are okay */
+    var ALLOW_DATA_ATTR = true;
+
+    /* Decide if unknown protocols are okay */
+    var ALLOW_UNKNOWN_PROTOCOLS = false;
+
+    /* Output should be safe for common template engines.
+     * This means, DOMPurify removes data attributes, mustaches and ERB
+     */
+    var SAFE_FOR_TEMPLATES = false;
+
+    /* Decide if document with <html>... should be returned */
+    var WHOLE_DOCUMENT = false;
+
+    /* Track whether config is already set on this instance of DOMPurify. */
+    var SET_CONFIG = false;
+
+    /* Decide if all elements (e.g. style, script) must be children of
+     * document.body. By default, browsers might move them to document.head */
+    var FORCE_BODY = false;
+
+    /* Decide if a DOM `HTMLBodyElement` should be returned, instead of a html
+     * string (or a TrustedHTML object if Trusted Types are supported).
+     * If `WHOLE_DOCUMENT` is enabled a `HTMLHtmlElement` will be returned instead
+     */
+    var RETURN_DOM = false;
+
+    /* Decide if a DOM `DocumentFragment` should be returned, instead of a html
+     * string  (or a TrustedHTML object if Trusted Types are supported) */
+    var RETURN_DOM_FRAGMENT = false;
+
+    /* Try to return a Trusted Type object instead of a string, return a string in
+     * case Trusted Types are not supported  */
+    var RETURN_TRUSTED_TYPE = false;
+
+    /* Output should be free from DOM clobbering attacks? */
+    var SANITIZE_DOM = true;
+
+    /* Keep element content when removing element? */
+    var KEEP_CONTENT = true;
+
+    /* If a `Node` is passed to sanitize(), then performs sanitization in-place instead
+     * of importing it into a new Document and returning a sanitized copy */
+    var IN_PLACE = false;
+
+    /* Allow usage of profiles like html, svg and mathMl */
+    var USE_PROFILES = {};
+
+    /* Tags to ignore content of when KEEP_CONTENT is true */
+    var FORBID_CONTENTS = null;
+    var DEFAULT_FORBID_CONTENTS = addToSet({}, ['annotation-xml', 'audio', 'colgroup', 'desc', 'foreignobject', 'head', 'iframe', 'math', 'mi', 'mn', 'mo', 'ms', 'mtext', 'noembed', 'noframes', 'noscript', 'plaintext', 'script', 'style', 'svg', 'template', 'thead', 'title', 'video', 'xmp']);
+
+    /* Tags that are safe for data: URIs */
+    var DATA_URI_TAGS = null;
+    var DEFAULT_DATA_URI_TAGS = addToSet({}, ['audio', 'video', 'img', 'source', 'image', 'track']);
+
+    /* Attributes safe for values like "javascript:" */
+    var URI_SAFE_ATTRIBUTES = null;
+    var DEFAULT_URI_SAFE_ATTRIBUTES = addToSet({}, ['alt', 'class', 'for', 'id', 'label', 'name', 'pattern', 'placeholder', 'role', 'summary', 'title', 'value', 'style', 'xmlns']);
+
+    var MATHML_NAMESPACE = 'http://www.w3.org/1998/Math/MathML';
+    var SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
+    var HTML_NAMESPACE = 'http://www.w3.org/1999/xhtml';
+    /* Document namespace */
+    var NAMESPACE = HTML_NAMESPACE;
+    var IS_EMPTY_INPUT = false;
+
+    /* Parsing of strict XHTML documents */
+    var PARSER_MEDIA_TYPE = void 0;
+    var SUPPORTED_PARSER_MEDIA_TYPES = ['application/xhtml+xml', 'text/html'];
+    var DEFAULT_PARSER_MEDIA_TYPE = 'text/html';
+    var transformCaseFunc = void 0;
+
+    /* Keep a reference to config to pass to hooks */
+    var CONFIG = null;
+
+    /* Ideally, do not touch anything below this line */
+    /* ______________________________________________ */
+
+    var formElement = document.createElement('form');
+
+    var isRegexOrFunction = function isRegexOrFunction(testValue) {
+      return testValue instanceof RegExp || testValue instanceof Function;
+    };
+
+    /**
+     * _parseConfig
+     *
+     * @param  {Object} cfg optional config literal
+     */
+    // eslint-disable-next-line complexity
+    var _parseConfig = function _parseConfig(cfg) {
+      if (CONFIG && CONFIG === cfg) {
+        return;
+      }
+
+      /* Shield configuration object from tampering */
+      if (!cfg || (typeof cfg === 'undefined' ? 'undefined' : _typeof(cfg)) !== 'object') {
+        cfg = {};
+      }
+
+      /* Shield configuration object from prototype pollution */
+      cfg = clone(cfg);
+
+      /* Set configuration parameters */
+      ALLOWED_TAGS = 'ALLOWED_TAGS' in cfg ? addToSet({}, cfg.ALLOWED_TAGS) : DEFAULT_ALLOWED_TAGS;
+      ALLOWED_ATTR = 'ALLOWED_ATTR' in cfg ? addToSet({}, cfg.ALLOWED_ATTR) : DEFAULT_ALLOWED_ATTR;
+      URI_SAFE_ATTRIBUTES = 'ADD_URI_SAFE_ATTR' in cfg ? addToSet(clone(DEFAULT_URI_SAFE_ATTRIBUTES), cfg.ADD_URI_SAFE_ATTR) : DEFAULT_URI_SAFE_ATTRIBUTES;
+      DATA_URI_TAGS = 'ADD_DATA_URI_TAGS' in cfg ? addToSet(clone(DEFAULT_DATA_URI_TAGS), cfg.ADD_DATA_URI_TAGS) : DEFAULT_DATA_URI_TAGS;
+      FORBID_CONTENTS = 'FORBID_CONTENTS' in cfg ? addToSet({}, cfg.FORBID_CONTENTS) : DEFAULT_FORBID_CONTENTS;
+      FORBID_TAGS = 'FORBID_TAGS' in cfg ? addToSet({}, cfg.FORBID_TAGS) : {};
+      FORBID_ATTR = 'FORBID_ATTR' in cfg ? addToSet({}, cfg.FORBID_ATTR) : {};
+      USE_PROFILES = 'USE_PROFILES' in cfg ? cfg.USE_PROFILES : false;
+      ALLOW_ARIA_ATTR = cfg.ALLOW_ARIA_ATTR !== false; // Default true
+      ALLOW_DATA_ATTR = cfg.ALLOW_DATA_ATTR !== false; // Default true
+      ALLOW_UNKNOWN_PROTOCOLS = cfg.ALLOW_UNKNOWN_PROTOCOLS || false; // Default false
+      SAFE_FOR_TEMPLATES = cfg.SAFE_FOR_TEMPLATES || false; // Default false
+      WHOLE_DOCUMENT = cfg.WHOLE_DOCUMENT || false; // Default false
+      RETURN_DOM = cfg.RETURN_DOM || false; // Default false
+      RETURN_DOM_FRAGMENT = cfg.RETURN_DOM_FRAGMENT || false; // Default false
+      RETURN_TRUSTED_TYPE = cfg.RETURN_TRUSTED_TYPE || false; // Default false
+      FORCE_BODY = cfg.FORCE_BODY || false; // Default false
+      SANITIZE_DOM = cfg.SANITIZE_DOM !== false; // Default true
+      KEEP_CONTENT = cfg.KEEP_CONTENT !== false; // Default true
+      IN_PLACE = cfg.IN_PLACE || false; // Default false
+      IS_ALLOWED_URI$$1 = cfg.ALLOWED_URI_REGEXP || IS_ALLOWED_URI$$1;
+      NAMESPACE = cfg.NAMESPACE || HTML_NAMESPACE;
+      if (cfg.CUSTOM_ELEMENT_HANDLING && isRegexOrFunction(cfg.CUSTOM_ELEMENT_HANDLING.tagNameCheck)) {
+        CUSTOM_ELEMENT_HANDLING.tagNameCheck = cfg.CUSTOM_ELEMENT_HANDLING.tagNameCheck;
+      }
+
+      if (cfg.CUSTOM_ELEMENT_HANDLING && isRegexOrFunction(cfg.CUSTOM_ELEMENT_HANDLING.attributeNameCheck)) {
+        CUSTOM_ELEMENT_HANDLING.attributeNameCheck = cfg.CUSTOM_ELEMENT_HANDLING.attributeNameCheck;
+      }
+
+      if (cfg.CUSTOM_ELEMENT_HANDLING && typeof cfg.CUSTOM_ELEMENT_HANDLING.allowCustomizedBuiltInElements === 'boolean') {
+        CUSTOM_ELEMENT_HANDLING.allowCustomizedBuiltInElements = cfg.CUSTOM_ELEMENT_HANDLING.allowCustomizedBuiltInElements;
+      }
+
+      PARSER_MEDIA_TYPE =
+      // eslint-disable-next-line unicorn/prefer-includes
+      SUPPORTED_PARSER_MEDIA_TYPES.indexOf(cfg.PARSER_MEDIA_TYPE) === -1 ? PARSER_MEDIA_TYPE = DEFAULT_PARSER_MEDIA_TYPE : PARSER_MEDIA_TYPE = cfg.PARSER_MEDIA_TYPE;
+
+      // HTML tags and attributes are not case-sensitive, converting to lowercase. Keeping XHTML as is.
+      transformCaseFunc = PARSER_MEDIA_TYPE === 'application/xhtml+xml' ? function (x) {
+        return x;
+      } : stringToLowerCase;
+
+      if (SAFE_FOR_TEMPLATES) {
+        ALLOW_DATA_ATTR = false;
+      }
+
+      if (RETURN_DOM_FRAGMENT) {
+        RETURN_DOM = true;
+      }
+
+      /* Parse profile info */
+      if (USE_PROFILES) {
+        ALLOWED_TAGS = addToSet({}, [].concat(_toConsumableArray$1(text)));
+        ALLOWED_ATTR = [];
+        if (USE_PROFILES.html === true) {
+          addToSet(ALLOWED_TAGS, html);
+          addToSet(ALLOWED_ATTR, html$1);
+        }
+
+        if (USE_PROFILES.svg === true) {
+          addToSet(ALLOWED_TAGS, svg);
+          addToSet(ALLOWED_ATTR, svg$1);
+          addToSet(ALLOWED_ATTR, xml);
+        }
+
+        if (USE_PROFILES.svgFilters === true) {
+          addToSet(ALLOWED_TAGS, svgFilters);
+          addToSet(ALLOWED_ATTR, svg$1);
+          addToSet(ALLOWED_ATTR, xml);
+        }
+
+        if (USE_PROFILES.mathMl === true) {
+          addToSet(ALLOWED_TAGS, mathMl);
+          addToSet(ALLOWED_ATTR, mathMl$1);
+          addToSet(ALLOWED_ATTR, xml);
+        }
+      }
+
+      /* Merge configuration parameters */
+      if (cfg.ADD_TAGS) {
+        if (ALLOWED_TAGS === DEFAULT_ALLOWED_TAGS) {
+          ALLOWED_TAGS = clone(ALLOWED_TAGS);
+        }
+
+        addToSet(ALLOWED_TAGS, cfg.ADD_TAGS);
+      }
+
+      if (cfg.ADD_ATTR) {
+        if (ALLOWED_ATTR === DEFAULT_ALLOWED_ATTR) {
+          ALLOWED_ATTR = clone(ALLOWED_ATTR);
+        }
+
+        addToSet(ALLOWED_ATTR, cfg.ADD_ATTR);
+      }
+
+      if (cfg.ADD_URI_SAFE_ATTR) {
+        addToSet(URI_SAFE_ATTRIBUTES, cfg.ADD_URI_SAFE_ATTR);
+      }
+
+      if (cfg.FORBID_CONTENTS) {
+        if (FORBID_CONTENTS === DEFAULT_FORBID_CONTENTS) {
+          FORBID_CONTENTS = clone(FORBID_CONTENTS);
+        }
+
+        addToSet(FORBID_CONTENTS, cfg.FORBID_CONTENTS);
+      }
+
+      /* Add #text in case KEEP_CONTENT is set to true */
+      if (KEEP_CONTENT) {
+        ALLOWED_TAGS['#text'] = true;
+      }
+
+      /* Add html, head and body to ALLOWED_TAGS in case WHOLE_DOCUMENT is true */
+      if (WHOLE_DOCUMENT) {
+        addToSet(ALLOWED_TAGS, ['html', 'head', 'body']);
+      }
+
+      /* Add tbody to ALLOWED_TAGS in case tables are permitted, see #286, #365 */
+      if (ALLOWED_TAGS.table) {
+        addToSet(ALLOWED_TAGS, ['tbody']);
+        delete FORBID_TAGS.tbody;
+      }
+
+      // Prevent further manipulation of configuration.
+      // Not available in IE8, Safari 5, etc.
+      if (freeze) {
+        freeze(cfg);
+      }
+
+      CONFIG = cfg;
+    };
+
+    var MATHML_TEXT_INTEGRATION_POINTS = addToSet({}, ['mi', 'mo', 'mn', 'ms', 'mtext']);
+
+    var HTML_INTEGRATION_POINTS = addToSet({}, ['foreignobject', 'desc', 'title', 'annotation-xml']);
+
+    /* Keep track of all possible SVG and MathML tags
+     * so that we can perform the namespace checks
+     * correctly. */
+    var ALL_SVG_TAGS = addToSet({}, svg);
+    addToSet(ALL_SVG_TAGS, svgFilters);
+    addToSet(ALL_SVG_TAGS, svgDisallowed);
+
+    var ALL_MATHML_TAGS = addToSet({}, mathMl);
+    addToSet(ALL_MATHML_TAGS, mathMlDisallowed);
+
+    /**
+     *
+     *
+     * @param  {Element} element a DOM element whose namespace is being checked
+     * @returns {boolean} Return false if the element has a
+     *  namespace that a spec-compliant parser would never
+     *  return. Return true otherwise.
+     */
+    var _checkValidNamespace = function _checkValidNamespace(element) {
+      var parent = getParentNode(element);
+
+      // In JSDOM, if we're inside shadow DOM, then parentNode
+      // can be null. We just simulate parent in this case.
+      if (!parent || !parent.tagName) {
+        parent = {
+          namespaceURI: HTML_NAMESPACE,
+          tagName: 'template'
+        };
+      }
+
+      var tagName = stringToLowerCase(element.tagName);
+      var parentTagName = stringToLowerCase(parent.tagName);
+
+      if (element.namespaceURI === SVG_NAMESPACE) {
+        // The only way to switch from HTML namespace to SVG
+        // is via <svg>. If it happens via any other tag, then
+        // it should be killed.
+        if (parent.namespaceURI === HTML_NAMESPACE) {
+          return tagName === 'svg';
+        }
+
+        // The only way to switch from MathML to SVG is via
+        // svg if parent is either <annotation-xml> or MathML
+        // text integration points.
+        if (parent.namespaceURI === MATHML_NAMESPACE) {
+          return tagName === 'svg' && (parentTagName === 'annotation-xml' || MATHML_TEXT_INTEGRATION_POINTS[parentTagName]);
+        }
+
+        // We only allow elements that are defined in SVG
+        // spec. All others are disallowed in SVG namespace.
+        return Boolean(ALL_SVG_TAGS[tagName]);
+      }
+
+      if (element.namespaceURI === MATHML_NAMESPACE) {
+        // The only way to switch from HTML namespace to MathML
+        // is via <math>. If it happens via any other tag, then
+        // it should be killed.
+        if (parent.namespaceURI === HTML_NAMESPACE) {
+          return tagName === 'math';
+        }
+
+        // The only way to switch from SVG to MathML is via
+        // <math> and HTML integration points
+        if (parent.namespaceURI === SVG_NAMESPACE) {
+          return tagName === 'math' && HTML_INTEGRATION_POINTS[parentTagName];
+        }
+
+        // We only allow elements that are defined in MathML
+        // spec. All others are disallowed in MathML namespace.
+        return Boolean(ALL_MATHML_TAGS[tagName]);
+      }
+
+      if (element.namespaceURI === HTML_NAMESPACE) {
+        // The only way to switch from SVG to HTML is via
+        // HTML integration points, and from MathML to HTML
+        // is via MathML text integration points
+        if (parent.namespaceURI === SVG_NAMESPACE && !HTML_INTEGRATION_POINTS[parentTagName]) {
+          return false;
+        }
+
+        if (parent.namespaceURI === MATHML_NAMESPACE && !MATHML_TEXT_INTEGRATION_POINTS[parentTagName]) {
+          return false;
+        }
+
+        // Certain elements are allowed in both SVG and HTML
+        // namespace. We need to specify them explicitly
+        // so that they don't get erronously deleted from
+        // HTML namespace.
+        var commonSvgAndHTMLElements = addToSet({}, ['title', 'style', 'font', 'a', 'script']);
+
+        // We disallow tags that are specific for MathML
+        // or SVG and should never appear in HTML namespace
+        return !ALL_MATHML_TAGS[tagName] && (commonSvgAndHTMLElements[tagName] || !ALL_SVG_TAGS[tagName]);
+      }
+
+      // The code should never reach this place (this means
+      // that the element somehow got namespace that is not
+      // HTML, SVG or MathML). Return false just in case.
+      return false;
+    };
+
+    /**
+     * _forceRemove
+     *
+     * @param  {Node} node a DOM node
+     */
+    var _forceRemove = function _forceRemove(node) {
+      arrayPush(DOMPurify.removed, { element: node });
+      try {
+        // eslint-disable-next-line unicorn/prefer-dom-node-remove
+        node.parentNode.removeChild(node);
+      } catch (_) {
+        try {
+          node.outerHTML = emptyHTML;
+        } catch (_) {
+          node.remove();
+        }
+      }
+    };
+
+    /**
+     * _removeAttribute
+     *
+     * @param  {String} name an Attribute name
+     * @param  {Node} node a DOM node
+     */
+    var _removeAttribute = function _removeAttribute(name, node) {
+      try {
+        arrayPush(DOMPurify.removed, {
+          attribute: node.getAttributeNode(name),
+          from: node
+        });
+      } catch (_) {
+        arrayPush(DOMPurify.removed, {
+          attribute: null,
+          from: node
+        });
+      }
+
+      node.removeAttribute(name);
+
+      // We void attribute values for unremovable "is"" attributes
+      if (name === 'is' && !ALLOWED_ATTR[name]) {
+        if (RETURN_DOM || RETURN_DOM_FRAGMENT) {
+          try {
+            _forceRemove(node);
+          } catch (_) {}
+        } else {
+          try {
+            node.setAttribute(name, '');
+          } catch (_) {}
+        }
+      }
+    };
+
+    /**
+     * _initDocument
+     *
+     * @param  {String} dirty a string of dirty markup
+     * @return {Document} a DOM, filled with the dirty markup
+     */
+    var _initDocument = function _initDocument(dirty) {
+      /* Create a HTML document */
+      var doc = void 0;
+      var leadingWhitespace = void 0;
+
+      if (FORCE_BODY) {
+        dirty = '<remove></remove>' + dirty;
+      } else {
+        /* If FORCE_BODY isn't used, leading whitespace needs to be preserved manually */
+        var matches = stringMatch(dirty, /^[\r\n\t ]+/);
+        leadingWhitespace = matches && matches[0];
+      }
+
+      if (PARSER_MEDIA_TYPE === 'application/xhtml+xml') {
+        // Root of XHTML doc must contain xmlns declaration (see https://www.w3.org/TR/xhtml1/normative.html#strict)
+        dirty = '<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body>' + dirty + '</body></html>';
+      }
+
+      var dirtyPayload = trustedTypesPolicy ? trustedTypesPolicy.createHTML(dirty) : dirty;
+      /*
+       * Use the DOMParser API by default, fallback later if needs be
+       * DOMParser not work for svg when has multiple root element.
+       */
+      if (NAMESPACE === HTML_NAMESPACE) {
+        try {
+          doc = new DOMParser().parseFromString(dirtyPayload, PARSER_MEDIA_TYPE);
+        } catch (_) {}
+      }
+
+      /* Use createHTMLDocument in case DOMParser is not available */
+      if (!doc || !doc.documentElement) {
+        doc = implementation.createDocument(NAMESPACE, 'template', null);
+        try {
+          doc.documentElement.innerHTML = IS_EMPTY_INPUT ? '' : dirtyPayload;
+        } catch (_) {
+          // Syntax error if dirtyPayload is invalid xml
+        }
+      }
+
+      var body = doc.body || doc.documentElement;
+
+      if (dirty && leadingWhitespace) {
+        body.insertBefore(document.createTextNode(leadingWhitespace), body.childNodes[0] || null);
+      }
+
+      /* Work on whole document or just its body */
+      if (NAMESPACE === HTML_NAMESPACE) {
+        return getElementsByTagName.call(doc, WHOLE_DOCUMENT ? 'html' : 'body')[0];
+      }
+
+      return WHOLE_DOCUMENT ? doc.documentElement : body;
+    };
+
+    /**
+     * _createIterator
+     *
+     * @param  {Document} root document/fragment to create iterator for
+     * @return {Iterator} iterator instance
+     */
+    var _createIterator = function _createIterator(root) {
+      return createNodeIterator.call(root.ownerDocument || root, root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_COMMENT | NodeFilter.SHOW_TEXT, null, false);
+    };
+
+    /**
+     * _isClobbered
+     *
+     * @param  {Node} elm element to check for clobbering attacks
+     * @return {Boolean} true if clobbered, false if safe
+     */
+    var _isClobbered = function _isClobbered(elm) {
+      return elm instanceof HTMLFormElement && (typeof elm.nodeName !== 'string' || typeof elm.textContent !== 'string' || typeof elm.removeChild !== 'function' || !(elm.attributes instanceof NamedNodeMap) || typeof elm.removeAttribute !== 'function' || typeof elm.setAttribute !== 'function' || typeof elm.namespaceURI !== 'string' || typeof elm.insertBefore !== 'function');
+    };
+
+    /**
+     * _isNode
+     *
+     * @param  {Node} obj object to check whether it's a DOM node
+     * @return {Boolean} true is object is a DOM node
+     */
+    var _isNode = function _isNode(object) {
+      return (typeof Node === 'undefined' ? 'undefined' : _typeof(Node)) === 'object' ? object instanceof Node : object && (typeof object === 'undefined' ? 'undefined' : _typeof(object)) === 'object' && typeof object.nodeType === 'number' && typeof object.nodeName === 'string';
+    };
+
+    /**
+     * _executeHook
+     * Execute user configurable hooks
+     *
+     * @param  {String} entryPoint  Name of the hook's entry point
+     * @param  {Node} currentNode node to work on with the hook
+     * @param  {Object} data additional hook parameters
+     */
+    var _executeHook = function _executeHook(entryPoint, currentNode, data) {
+      if (!hooks[entryPoint]) {
+        return;
+      }
+
+      arrayForEach(hooks[entryPoint], function (hook) {
+        hook.call(DOMPurify, currentNode, data, CONFIG);
+      });
+    };
+
+    /**
+     * _sanitizeElements
+     *
+     * @protect nodeName
+     * @protect textContent
+     * @protect removeChild
+     *
+     * @param   {Node} currentNode to check for permission to exist
+     * @return  {Boolean} true if node was killed, false if left alive
+     */
+    var _sanitizeElements = function _sanitizeElements(currentNode) {
+      var content = void 0;
+
+      /* Execute a hook if present */
+      _executeHook('beforeSanitizeElements', currentNode, null);
+
+      /* Check if element is clobbered or can clobber */
+      if (_isClobbered(currentNode)) {
+        _forceRemove(currentNode);
+        return true;
+      }
+
+      /* Check if tagname contains Unicode */
+      if (stringMatch(currentNode.nodeName, /[\u0080-\uFFFF]/)) {
+        _forceRemove(currentNode);
+        return true;
+      }
+
+      /* Now let's check the element's type and name */
+      var tagName = transformCaseFunc(currentNode.nodeName);
+
+      /* Execute a hook if present */
+      _executeHook('uponSanitizeElement', currentNode, {
+        tagName: tagName,
+        allowedTags: ALLOWED_TAGS
+      });
+
+      /* Detect mXSS attempts abusing namespace confusion */
+      if (!_isNode(currentNode.firstElementChild) && (!_isNode(currentNode.content) || !_isNode(currentNode.content.firstElementChild)) && regExpTest(/<[/\w]/g, currentNode.innerHTML) && regExpTest(/<[/\w]/g, currentNode.textContent)) {
+        _forceRemove(currentNode);
+        return true;
+      }
+
+      /* Mitigate a problem with templates inside select */
+      if (tagName === 'select' && regExpTest(/<template/i, currentNode.innerHTML)) {
+        _forceRemove(currentNode);
+        return true;
+      }
+
+      /* Remove element if anything forbids its presence */
+      if (!ALLOWED_TAGS[tagName] || FORBID_TAGS[tagName]) {
+        /* Keep content except for bad-listed elements */
+        if (KEEP_CONTENT && !FORBID_CONTENTS[tagName]) {
+          var parentNode = getParentNode(currentNode) || currentNode.parentNode;
+          var childNodes = getChildNodes(currentNode) || currentNode.childNodes;
+
+          if (childNodes && parentNode) {
+            var childCount = childNodes.length;
+
+            for (var i = childCount - 1; i >= 0; --i) {
+              parentNode.insertBefore(cloneNode(childNodes[i], true), getNextSibling(currentNode));
+            }
+          }
+        }
+
+        if (!FORBID_TAGS[tagName] && _basicCustomElementTest(tagName)) {
+          if (CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof RegExp && regExpTest(CUSTOM_ELEMENT_HANDLING.tagNameCheck, tagName)) return false;
+          if (CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof Function && CUSTOM_ELEMENT_HANDLING.tagNameCheck(tagName)) return false;
+        }
+
+        _forceRemove(currentNode);
+        return true;
+      }
+
+      /* Check whether element has a valid namespace */
+      if (currentNode instanceof Element && !_checkValidNamespace(currentNode)) {
+        _forceRemove(currentNode);
+        return true;
+      }
+
+      if ((tagName === 'noscript' || tagName === 'noembed') && regExpTest(/<\/no(script|embed)/i, currentNode.innerHTML)) {
+        _forceRemove(currentNode);
+        return true;
+      }
+
+      /* Sanitize element content to be template-safe */
+      if (SAFE_FOR_TEMPLATES && currentNode.nodeType === 3) {
+        /* Get the element's text content */
+        content = currentNode.textContent;
+        content = stringReplace(content, MUSTACHE_EXPR$$1, ' ');
+        content = stringReplace(content, ERB_EXPR$$1, ' ');
+        if (currentNode.textContent !== content) {
+          arrayPush(DOMPurify.removed, { element: currentNode.cloneNode() });
+          currentNode.textContent = content;
+        }
+      }
+
+      /* Execute a hook if present */
+      _executeHook('afterSanitizeElements', currentNode, null);
+
+      return false;
+    };
+
+    /**
+     * _isValidAttribute
+     *
+     * @param  {string} lcTag Lowercase tag name of containing element.
+     * @param  {string} lcName Lowercase attribute name.
+     * @param  {string} value Attribute value.
+     * @return {Boolean} Returns true if `value` is valid, otherwise false.
+     */
+    // eslint-disable-next-line complexity
+    var _isValidAttribute = function _isValidAttribute(lcTag, lcName, value) {
+      /* Make sure attribute cannot clobber */
+      if (SANITIZE_DOM && (lcName === 'id' || lcName === 'name') && (value in document || value in formElement)) {
+        return false;
+      }
+
+      /* Allow valid data-* attributes: At least one character after "-"
+          (https://html.spec.whatwg.org/multipage/dom.html#embedding-custom-non-visible-data-with-the-data-*-attributes)
+          XML-compatible (https://html.spec.whatwg.org/multipage/infrastructure.html#xml-compatible and http://www.w3.org/TR/xml/#d0e804)
+          We don't need to check the value; it's always URI safe. */
+      if (ALLOW_DATA_ATTR && !FORBID_ATTR[lcName] && regExpTest(DATA_ATTR$$1, lcName)) ; else if (ALLOW_ARIA_ATTR && regExpTest(ARIA_ATTR$$1, lcName)) ; else if (!ALLOWED_ATTR[lcName] || FORBID_ATTR[lcName]) {
+        if (
+        // First condition does a very basic check if a) it's basically a valid custom element tagname AND
+        // b) if the tagName passes whatever the user has configured for CUSTOM_ELEMENT_HANDLING.tagNameCheck
+        // and c) if the attribute name passes whatever the user has configured for CUSTOM_ELEMENT_HANDLING.attributeNameCheck
+        _basicCustomElementTest(lcTag) && (CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof RegExp && regExpTest(CUSTOM_ELEMENT_HANDLING.tagNameCheck, lcTag) || CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof Function && CUSTOM_ELEMENT_HANDLING.tagNameCheck(lcTag)) && (CUSTOM_ELEMENT_HANDLING.attributeNameCheck instanceof RegExp && regExpTest(CUSTOM_ELEMENT_HANDLING.attributeNameCheck, lcName) || CUSTOM_ELEMENT_HANDLING.attributeNameCheck instanceof Function && CUSTOM_ELEMENT_HANDLING.attributeNameCheck(lcName)) ||
+        // Alternative, second condition checks if it's an `is`-attribute, AND
+        // the value passes whatever the user has configured for CUSTOM_ELEMENT_HANDLING.tagNameCheck
+        lcName === 'is' && CUSTOM_ELEMENT_HANDLING.allowCustomizedBuiltInElements && (CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof RegExp && regExpTest(CUSTOM_ELEMENT_HANDLING.tagNameCheck, value) || CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof Function && CUSTOM_ELEMENT_HANDLING.tagNameCheck(value))) ; else {
+          return false;
+        }
+        /* Check value is safe. First, is attr inert? If so, is safe */
+      } else if (URI_SAFE_ATTRIBUTES[lcName]) ; else if (regExpTest(IS_ALLOWED_URI$$1, stringReplace(value, ATTR_WHITESPACE$$1, ''))) ; else if ((lcName === 'src' || lcName === 'xlink:href' || lcName === 'href') && lcTag !== 'script' && stringIndexOf(value, 'data:') === 0 && DATA_URI_TAGS[lcTag]) ; else if (ALLOW_UNKNOWN_PROTOCOLS && !regExpTest(IS_SCRIPT_OR_DATA$$1, stringReplace(value, ATTR_WHITESPACE$$1, ''))) ; else if (!value) ; else {
+        return false;
+      }
+
+      return true;
+    };
+
+    /**
+     * _basicCustomElementCheck
+     * checks if at least one dash is included in tagName, and it's not the first char
+     * for more sophisticated checking see https://github.com/sindresorhus/validate-element-name
+     * @param {string} tagName name of the tag of the node to sanitize
+     */
+    var _basicCustomElementTest = function _basicCustomElementTest(tagName) {
+      return tagName.indexOf('-') > 0;
+    };
+
+    /**
+     * _sanitizeAttributes
+     *
+     * @protect attributes
+     * @protect nodeName
+     * @protect removeAttribute
+     * @protect setAttribute
+     *
+     * @param  {Node} currentNode to sanitize
+     */
+    var _sanitizeAttributes = function _sanitizeAttributes(currentNode) {
+      var attr = void 0;
+      var value = void 0;
+      var lcName = void 0;
+      var l = void 0;
+      /* Execute a hook if present */
+      _executeHook('beforeSanitizeAttributes', currentNode, null);
+
+      var attributes = currentNode.attributes;
+
+      /* Check if we have attributes; if not we might have a text node */
+
+      if (!attributes) {
+        return;
+      }
+
+      var hookEvent = {
+        attrName: '',
+        attrValue: '',
+        keepAttr: true,
+        allowedAttributes: ALLOWED_ATTR
+      };
+      l = attributes.length;
+
+      /* Go backwards over all attributes; safely remove bad ones */
+      while (l--) {
+        attr = attributes[l];
+        var _attr = attr,
+            name = _attr.name,
+            namespaceURI = _attr.namespaceURI;
+
+        value = stringTrim(attr.value);
+        lcName = transformCaseFunc(name);
+
+        /* Execute a hook if present */
+        hookEvent.attrName = lcName;
+        hookEvent.attrValue = value;
+        hookEvent.keepAttr = true;
+        hookEvent.forceKeepAttr = undefined; // Allows developers to see this is a property they can set
+        _executeHook('uponSanitizeAttribute', currentNode, hookEvent);
+        value = hookEvent.attrValue;
+        /* Did the hooks approve of the attribute? */
+        if (hookEvent.forceKeepAttr) {
+          continue;
+        }
+
+        /* Remove attribute */
+        _removeAttribute(name, currentNode);
+
+        /* Did the hooks approve of the attribute? */
+        if (!hookEvent.keepAttr) {
+          continue;
+        }
+
+        /* Work around a security issue in jQuery 3.0 */
+        if (regExpTest(/\/>/i, value)) {
+          _removeAttribute(name, currentNode);
+          continue;
+        }
+
+        /* Sanitize attribute content to be template-safe */
+        if (SAFE_FOR_TEMPLATES) {
+          value = stringReplace(value, MUSTACHE_EXPR$$1, ' ');
+          value = stringReplace(value, ERB_EXPR$$1, ' ');
+        }
+
+        /* Is `value` valid for this attribute? */
+        var lcTag = transformCaseFunc(currentNode.nodeName);
+        if (!_isValidAttribute(lcTag, lcName, value)) {
+          continue;
+        }
+
+        /* Handle invalid data-* attribute set by try-catching it */
+        try {
+          if (namespaceURI) {
+            currentNode.setAttributeNS(namespaceURI, name, value);
+          } else {
+            /* Fallback to setAttribute() for browser-unrecognized namespaces e.g. "x-schema". */
+            currentNode.setAttribute(name, value);
+          }
+
+          arrayPop(DOMPurify.removed);
+        } catch (_) {}
+      }
+
+      /* Execute a hook if present */
+      _executeHook('afterSanitizeAttributes', currentNode, null);
+    };
+
+    /**
+     * _sanitizeShadowDOM
+     *
+     * @param  {DocumentFragment} fragment to iterate over recursively
+     */
+    var _sanitizeShadowDOM = function _sanitizeShadowDOM(fragment) {
+      var shadowNode = void 0;
+      var shadowIterator = _createIterator(fragment);
+
+      /* Execute a hook if present */
+      _executeHook('beforeSanitizeShadowDOM', fragment, null);
+
+      while (shadowNode = shadowIterator.nextNode()) {
+        /* Execute a hook if present */
+        _executeHook('uponSanitizeShadowNode', shadowNode, null);
+
+        /* Sanitize tags and elements */
+        if (_sanitizeElements(shadowNode)) {
+          continue;
+        }
+
+        /* Deep shadow DOM detected */
+        if (shadowNode.content instanceof DocumentFragment) {
+          _sanitizeShadowDOM(shadowNode.content);
+        }
+
+        /* Check attributes, sanitize if necessary */
+        _sanitizeAttributes(shadowNode);
+      }
+
+      /* Execute a hook if present */
+      _executeHook('afterSanitizeShadowDOM', fragment, null);
+    };
+
+    /**
+     * Sanitize
+     * Public method providing core sanitation functionality
+     *
+     * @param {String|Node} dirty string or DOM node
+     * @param {Object} configuration object
+     */
+    // eslint-disable-next-line complexity
+    DOMPurify.sanitize = function (dirty, cfg) {
+      var body = void 0;
+      var importedNode = void 0;
+      var currentNode = void 0;
+      var oldNode = void 0;
+      var returnNode = void 0;
+      /* Make sure we have a string to sanitize.
+        DO NOT return early, as this will return the wrong type if
+        the user has requested a DOM object rather than a string */
+      IS_EMPTY_INPUT = !dirty;
+      if (IS_EMPTY_INPUT) {
+        dirty = '<!-->';
+      }
+
+      /* Stringify, in case dirty is an object */
+      if (typeof dirty !== 'string' && !_isNode(dirty)) {
+        // eslint-disable-next-line no-negated-condition
+        if (typeof dirty.toString !== 'function') {
+          throw typeErrorCreate('toString is not a function');
+        } else {
+          dirty = dirty.toString();
+          if (typeof dirty !== 'string') {
+            throw typeErrorCreate('dirty is not a string, aborting');
+          }
+        }
+      }
+
+      /* Check we can run. Otherwise fall back or ignore */
+      if (!DOMPurify.isSupported) {
+        if (_typeof(window.toStaticHTML) === 'object' || typeof window.toStaticHTML === 'function') {
+          if (typeof dirty === 'string') {
+            return window.toStaticHTML(dirty);
+          }
+
+          if (_isNode(dirty)) {
+            return window.toStaticHTML(dirty.outerHTML);
+          }
+        }
+
+        return dirty;
+      }
+
+      /* Assign config vars */
+      if (!SET_CONFIG) {
+        _parseConfig(cfg);
+      }
+
+      /* Clean up removed elements */
+      DOMPurify.removed = [];
+
+      /* Check if dirty is correctly typed for IN_PLACE */
+      if (typeof dirty === 'string') {
+        IN_PLACE = false;
+      }
+
+      if (IN_PLACE) {
+        /* Do some early pre-sanitization to avoid unsafe root nodes */
+        if (dirty.nodeName) {
+          var tagName = transformCaseFunc(dirty.nodeName);
+          if (!ALLOWED_TAGS[tagName] || FORBID_TAGS[tagName]) {
+            throw typeErrorCreate('root node is forbidden and cannot be sanitized in-place');
+          }
+        }
+      } else if (dirty instanceof Node) {
+        /* If dirty is a DOM element, append to an empty document to avoid
+           elements being stripped by the parser */
+        body = _initDocument('<!---->');
+        importedNode = body.ownerDocument.importNode(dirty, true);
+        if (importedNode.nodeType === 1 && importedNode.nodeName === 'BODY') {
+          /* Node is already a body, use as is */
+          body = importedNode;
+        } else if (importedNode.nodeName === 'HTML') {
+          body = importedNode;
+        } else {
+          // eslint-disable-next-line unicorn/prefer-dom-node-append
+          body.appendChild(importedNode);
+        }
+      } else {
+        /* Exit directly if we have nothing to do */
+        if (!RETURN_DOM && !SAFE_FOR_TEMPLATES && !WHOLE_DOCUMENT &&
+        // eslint-disable-next-line unicorn/prefer-includes
+        dirty.indexOf('<') === -1) {
+          return trustedTypesPolicy && RETURN_TRUSTED_TYPE ? trustedTypesPolicy.createHTML(dirty) : dirty;
+        }
+
+        /* Initialize the document to work on */
+        body = _initDocument(dirty);
+
+        /* Check we have a DOM node from the data */
+        if (!body) {
+          return RETURN_DOM ? null : RETURN_TRUSTED_TYPE ? emptyHTML : '';
+        }
+      }
+
+      /* Remove first element node (ours) if FORCE_BODY is set */
+      if (body && FORCE_BODY) {
+        _forceRemove(body.firstChild);
+      }
+
+      /* Get node iterator */
+      var nodeIterator = _createIterator(IN_PLACE ? dirty : body);
+
+      /* Now start iterating over the created document */
+      while (currentNode = nodeIterator.nextNode()) {
+        /* Fix IE's strange behavior with manipulated textNodes #89 */
+        if (currentNode.nodeType === 3 && currentNode === oldNode) {
+          continue;
+        }
+
+        /* Sanitize tags and elements */
+        if (_sanitizeElements(currentNode)) {
+          continue;
+        }
+
+        /* Shadow DOM detected, sanitize it */
+        if (currentNode.content instanceof DocumentFragment) {
+          _sanitizeShadowDOM(currentNode.content);
+        }
+
+        /* Check attributes, sanitize if necessary */
+        _sanitizeAttributes(currentNode);
+
+        oldNode = currentNode;
+      }
+
+      oldNode = null;
+
+      /* If we sanitized `dirty` in-place, return it. */
+      if (IN_PLACE) {
+        return dirty;
+      }
+
+      /* Return sanitized string or DOM */
+      if (RETURN_DOM) {
+        if (RETURN_DOM_FRAGMENT) {
+          returnNode = createDocumentFragment.call(body.ownerDocument);
+
+          while (body.firstChild) {
+            // eslint-disable-next-line unicorn/prefer-dom-node-append
+            returnNode.appendChild(body.firstChild);
+          }
+        } else {
+          returnNode = body;
+        }
+
+        if (ALLOWED_ATTR.shadowroot) {
+          /*
+            AdoptNode() is not used because internal state is not reset
+            (e.g. the past names map of a HTMLFormElement), this is safe
+            in theory but we would rather not risk another attack vector.
+            The state that is cloned by importNode() is explicitly defined
+            by the specs.
+          */
+          returnNode = importNode.call(originalDocument, returnNode, true);
+        }
+
+        return returnNode;
+      }
+
+      var serializedHTML = WHOLE_DOCUMENT ? body.outerHTML : body.innerHTML;
+
+      /* Sanitize final string template-safe */
+      if (SAFE_FOR_TEMPLATES) {
+        serializedHTML = stringReplace(serializedHTML, MUSTACHE_EXPR$$1, ' ');
+        serializedHTML = stringReplace(serializedHTML, ERB_EXPR$$1, ' ');
+      }
+
+      return trustedTypesPolicy && RETURN_TRUSTED_TYPE ? trustedTypesPolicy.createHTML(serializedHTML) : serializedHTML;
+    };
+
+    /**
+     * Public method to set the configuration once
+     * setConfig
+     *
+     * @param {Object} cfg configuration object
+     */
+    DOMPurify.setConfig = function (cfg) {
+      _parseConfig(cfg);
+      SET_CONFIG = true;
+    };
+
+    /**
+     * Public method to remove the configuration
+     * clearConfig
+     *
+     */
+    DOMPurify.clearConfig = function () {
+      CONFIG = null;
+      SET_CONFIG = false;
+    };
+
+    /**
+     * Public method to check if an attribute value is valid.
+     * Uses last set config, if any. Otherwise, uses config defaults.
+     * isValidAttribute
+     *
+     * @param  {string} tag Tag name of containing element.
+     * @param  {string} attr Attribute name.
+     * @param  {string} value Attribute value.
+     * @return {Boolean} Returns true if `value` is valid. Otherwise, returns false.
+     */
+    DOMPurify.isValidAttribute = function (tag, attr, value) {
+      /* Initialize shared config vars if necessary. */
+      if (!CONFIG) {
+        _parseConfig({});
+      }
+
+      var lcTag = transformCaseFunc(tag);
+      var lcName = transformCaseFunc(attr);
+      return _isValidAttribute(lcTag, lcName, value);
+    };
+
+    /**
+     * AddHook
+     * Public method to add DOMPurify hooks
+     *
+     * @param {String} entryPoint entry point for the hook to add
+     * @param {Function} hookFunction function to execute
+     */
+    DOMPurify.addHook = function (entryPoint, hookFunction) {
+      if (typeof hookFunction !== 'function') {
+        return;
+      }
+
+      hooks[entryPoint] = hooks[entryPoint] || [];
+      arrayPush(hooks[entryPoint], hookFunction);
+    };
+
+    /**
+     * RemoveHook
+     * Public method to remove a DOMPurify hook at a given entryPoint
+     * (pops it from the stack of hooks if more are present)
+     *
+     * @param {String} entryPoint entry point for the hook to remove
+     */
+    DOMPurify.removeHook = function (entryPoint) {
+      if (hooks[entryPoint]) {
+        arrayPop(hooks[entryPoint]);
+      }
+    };
+
+    /**
+     * RemoveHooks
+     * Public method to remove all DOMPurify hooks at a given entryPoint
+     *
+     * @param  {String} entryPoint entry point for the hooks to remove
+     */
+    DOMPurify.removeHooks = function (entryPoint) {
+      if (hooks[entryPoint]) {
+        hooks[entryPoint] = [];
+      }
+    };
+
+    /**
+     * RemoveAllHooks
+     * Public method to remove all DOMPurify hooks
+     *
+     */
+    DOMPurify.removeAllHooks = function () {
+      hooks = {};
+    };
+
+    return DOMPurify;
+  }
+
+  var purify = createDOMPurify();
+
+  return purify;
+
+}));
+//# sourceMappingURL=purify.js.map
+
+/**
+ * jQuery fixes
+ *
+ * Note: The following analysis and/or changes was required also to be applied in our code base:
+ *	- Ensure there is no JSONP ajax call
+ *	- Ensure to not use self closing tag when a closing tag is usally needed.
+ *		ex: `<div />` need to change for `<div></div>`
+ *		This is applicable to all tags except the one in this list: area|br|col|embed|hr|img|input|link|meta|param
+ *	- Review how `<tr>`, `<td>`, `<script>` and `<link>` are inserted with `$()`.
+ *		Their insersion need to be completed differently like the by using the javascript DOM interface.
+ *	- All content that related to jQuery DOM manipulation are sanitized with DOMPurify
+ *	- You can't use jQuery for parsing XML document, you can use DOMParser() as an alternative
+ *	- Ensure AJAX and fetch are sanitized before they response are used
+ */
+/*
+
+// Test case for the jQuery fixes bellow
+
+Test: jQuery()
+
+	- Run in your browser console
+	> $( "<p>abc<iframe//src=jAva&Tab;script:alert(3)>def</p>" ).appendTo( "#wb-cont" );
+	result: No iframe inserted around the heading level 1
+
+Test:
+jQuery.html()
+jQuery.append()
+jQuery.prepend()
+jQuery.before()
+jQuery.after()
+
+	- Use the data-ajax demo page: /demos/data-ajax/data-ajax-en.html
+	- Insert the following in the ajaxed in file: <p>abc<iframe//src=jAva&Tab;script:alert(3)>def</p>
+	- Check if the dirty HTML are cleaned for the example: "append", "prepend", "before", "after"
+	- The data-ajax-replace will also test the jQuery.html() function.
+
+Test: jQuery.replaceWith()
+
+	- Run in your browser console
+	> $("#wb-cont").replaceWith( "<p>abc<iframe//src=jAva&Tab;script:alert(3)>def</p>" );
+	result: No iframe inserted around the heading level 1
+
+Test: jQuery.parseHTML()
+
+	- Run in your browser console, pass unsafe HTML and it should return sanitized HTML
+	> jQuery.parseHTML( "<p>abc<iframe//src=jAva&Tab;script:alert(3)>def</p>" );
+	result: return an array with 1 element, [ p ]
+
+Test: jQuery.htmlPrefilter()
+
+	- Run in your browser console
+	> jQuery.htmlPrefilter( "<tr/>" );
+	result: return <tr/>
+
+Test: jQuery.extend
+
+	- Run in your browser console
+	> var dataFromAPI = JSON.parse( '{ "new": "property", "__proto__": { "polluted": "true" } }' );
+	> var myObject = jQuery.extend( '{ "new": "property" }', dataFromAPI );
+	> console.log( myObject.polluted );
+	result: > undefined
+
+*/
+
+( function( jQuery, DOMPurify, window ) {
+"use strict";
+
+/**
+ * Copied from: https://git.drupalcode.org/project/drupal/-/commit/d2f26902ef5d6de58caaf2a7c766eb2115b1c17e
+ *
+ * This is almost verbatim copied from jQuery 3.4.0.
+ *
+ * Only two minor changes have been made:
+ * - The call to isFunction() is changed to jQuery.isFunction().
+ * - The two calls to Array.isArray() is changed to jQuery.isArray().
+ *
+ * The above two changes ensure compatibility with all older jQuery versions
+ * (1.4.4 - 3.3.1) and older browser versions (e.g., IE8).
+ */
+jQuery.extend = jQuery.fn.extend = function() {
+	var options, name, src, copy, copyIsArray, clone,
+		target = arguments[ 0 ] || {},
+		i = 1,
+		length = arguments.length,
+		deep = false;
+
+	// Handle a deep copy situation
+	if ( typeof target === "boolean" ) {
+		deep = target;
+
+		// Skip the boolean and the target
+		target = arguments[ i ] || {};
+		i++;
+	}
+
+	// Handle case when target is a string or something (possible in deep copy)
+	if ( typeof target !== "object" && !jQuery.isFunction( target ) ) {
+		target = {};
+	}
+
+	// Extend jQuery itself if only one argument is passed
+	if ( i === length ) {
+		target = this;
+		i--;
+	}
+
+	for ( ; i < length; i++ ) {
+
+		// Only deal with non-null/undefined values
+		options = arguments[ i ];
+		if ( options !== undefined || options !== null ) {
+
+			// Extend the base object
+			for ( name in options ) {
+				copy = options[ name ];
+
+				// Prevent Object.prototype pollution
+				// Prevent never-ending loop
+				if ( name === "__proto__" || target === copy ) {
+					continue;
+				}
+
+				// Recurse if we're merging plain objects or arrays
+				if ( deep && copy && ( jQuery.isPlainObject( copy ) ||
+					( copyIsArray = jQuery.isArray( copy ) ) ) ) {
+					src = target[ name ];
+
+					// Ensure proper type for the source value
+					if ( copyIsArray && !jQuery.isArray( src ) ) {
+						clone = [];
+					} else if ( !copyIsArray && !jQuery.isPlainObject( src ) ) {
+						clone = {};
+					} else {
+						clone = src;
+					}
+					copyIsArray = false;
+
+					// Never move original objects, clone them
+					target[ name ] = jQuery.extend( deep, clone, copy );
+
+					// Don't bring in undefined values
+				} else if ( copy !== undefined ) {
+					target[ name ] = copy;
+				}
+			}
+		}
+	}
+
+	// Return the modified object
+	return target;
+};
+
+/**
+ * Security advisories: https://github.com/jquery/jquery/security/advisories/GHSA-gxr4-xjj5-5px2
+ */
+jQuery.htmlPrefilter = function( html ) {
+	return html;
+};
+
+/**
+ * Security advisories: https://github.com/jquery/jquery/security/advisories/GHSA-jpcq-cgw6-v4j6
+ *
+ * This implementation leverage DOMPurify for filtering every string prior DOM manipulation by jQuery
+ *
+ */
+var localParseHTML = jQuery.parseHTML,
+	append = jQuery.fn.append,
+	prepend = jQuery.fn.prepend,
+	before = jQuery.fn.before,
+	after = jQuery.fn.after,
+	replaceWith = jQuery.fn.replaceWith,
+	jqInit = jQuery.fn.init,
+	dataTableAllowedTag = [
+		"<tbody/>",
+		"<tr/>",
+		"<td />",
+		"<td/>"
+	],
+	sanitize = function( html ) {
+
+		// Add an exception for DataTable plugin
+		if ( window.DataTable && dataTableAllowedTag.indexOf( html ) !== -1 ) {
+			return html;
+		}
+
+		return DOMPurify.sanitize( html );
+	};
+
+jQuery.parseHTML = function( data, context, keepScripts ) {
+	return localParseHTML( sanitize( data ), context, keepScripts );
+};
+
+jQuery.domManip = null;
+
+jQuery.append = jQuery.fn.append = function() {
+	var args = arguments,
+		value = args[ 0 ];
+	if ( typeof value === "string" ) {
+		value = sanitize( value );
+		args[ 0 ] = value;
+	}
+	return append.apply( this, args );
+};
+
+jQuery.prepend = jQuery.fn.prepend = function() {
+	var args = arguments,
+		value = args[ 0 ];
+	if ( typeof value === "string" ) {
+		value = sanitize( value );
+		args[ 0 ] = value;
+	}
+	return prepend.apply( this, args );
+};
+
+jQuery.before = jQuery.fn.before = function() {
+	var args = arguments,
+		value = args[ 0 ];
+	if ( typeof value === "string" ) {
+		value = sanitize( value );
+		args[ 0 ] = value;
+	}
+	return before.apply( this, args );
+};
+
+jQuery.after = jQuery.fn.after = function() {
+	var args = arguments,
+		value = args[ 0 ];
+	if ( typeof value === "string" ) {
+		value = sanitize( value );
+		args[ 0 ] = value;
+	}
+	return after.apply( this, args );
+};
+
+jQuery.replaceWith = jQuery.fn.replaceWith = function() {
+	var args = arguments,
+		value = args[ 0 ];
+	if ( typeof value === "string" ) {
+		value = sanitize( value );
+		args[ 0 ] = value;
+	}
+	return replaceWith.apply( this, args );
+};
+
+jQuery.fn.init = function( selector, context, root ) {
+	if ( typeof selector === "string" ) {
+		selector = sanitize( selector );
+	}
+	return new jqInit( selector, context, root );
+};
+
+jQuery.html = function( value ) {
+	return jQuery.html( sanitize( value ) );
+};
+
+} )( jQuery, DOMPurify, window );
+
 /* Modernizr (Custom Build) | MIT & BSD
  * Build: https://modernizr.com/download/#-elem_details-elem_progress_meter-mathml-cors-load-mq-css3-input-inputtypes-svg-cssclasses-csstransitions-fontface-backgroundsize-borderimage-teststyles-testprops-testallprops-hasevents-prefixes-domprefixes
  */
 ;window.Modernizr=function(e,t,n){function L(e){f.cssText=e}function A(e,t){return L(p.join(e+";")+(t||""))}function O(e,t){return typeof e===t}function M(e,t){return!!~(""+e).indexOf(t)}function _(e,t){for(var r in e){var i=e[r];if(!M(i,"-")&&f[i]!==n)return t=="pfx"?i:!0}return!1}function D(e,t,r){for(var i in e){var s=t[e[i]];if(s!==n)return r===!1?e[i]:O(s,"function")?s.bind(r||t):s}return!1}function P(e,t,n){var r=e.charAt(0).toUpperCase()+e.slice(1),i=(e+" "+v.join(r+" ")+r).split(" ");return O(t,"string")||O(t,"undefined")?_(i,t):(i=(e+" "+m.join(r+" ")+r).split(" "),D(i,t,n))}function H(){i.input=function(n){for(var r=0,i=n.length;r<i;r++)w[n[r]]=n[r]in l;return w.list&&(w.list=!!t.createElement("datalist")&&!!e.HTMLDataListElement),w}("autocomplete autofocus list placeholder max min multiple pattern required step".split(" ")),i.inputtypes=function(e){for(var r=0,i,s,u,a=e.length;r<a;r++)l.setAttribute("type",s=e[r]),i=l.type!=="text",i&&(l.value=c,l.style.cssText="position:absolute;visibility:hidden;",/^range$/.test(s)&&l.style.WebkitAppearance!==n?(o.appendChild(l),u=t.defaultView,i=u.getComputedStyle&&u.getComputedStyle(l,null).WebkitAppearance!=="textfield"&&l.offsetHeight!==0,o.removeChild(l)):/^(search|tel)$/.test(s)||(/^(url|email)$/.test(s)?i=l.checkValidity&&l.checkValidity()===!1:i=l.value!=c)),b[e[r]]=!!i;return b}("search tel url email datetime date month week time datetime-local number range color".split(" "))}var r="2.8.3",i={},s=!0,o=t.documentElement,u="modernizr",a=t.createElement(u),f=a.style,l=t.createElement("input"),c=":)",h={}.toString,p=" -webkit- -moz- -o- -ms- ".split(" "),d="Webkit Moz O ms",v=d.split(" "),m=d.toLowerCase().split(" "),g={svg:"http://www.w3.org/2000/svg"},y={},b={},w={},E=[],S=E.slice,x,T=function(e,n,r,i){var s,a,f,l,c=t.createElement("div"),h=t.body,p=h||t.createElement("body");if(parseInt(r,10))while(r--)f=t.createElement("div"),f.id=i?i[r]:u+(r+1),c.appendChild(f);return s=["&#173;",'<style id="s',u,'">',e,"</style>"].join(""),c.id=u,(h?c:p).innerHTML+=s,p.appendChild(c),h||(p.style.background="",p.style.overflow="hidden",l=o.style.overflow,o.style.overflow="hidden",o.appendChild(p)),a=n(c,e),h?c.parentNode.removeChild(c):(p.parentNode.removeChild(p),o.style.overflow=l),!!a},N=function(t){var n=e.matchMedia||e.msMatchMedia;if(n)return n(t)&&n(t).matches||!1;var r;return T("@media "+t+" { #"+u+" { position: absolute; } }",function(t){r=(e.getComputedStyle?getComputedStyle(t,null):t.currentStyle)["position"]=="absolute"}),r},C={}.hasOwnProperty,k;!O(C,"undefined")&&!O(C.call,"undefined")?k=function(e,t){return C.call(e,t)}:k=function(e,t){return t in e&&O(e.constructor.prototype[t],"undefined")},Function.prototype.bind||(Function.prototype.bind=function(t){var n=this;if(typeof n!="function")throw new TypeError;var r=S.call(arguments,1),i=function(){if(this instanceof i){var e=function(){};e.prototype=n.prototype;var s=new e,o=n.apply(s,r.concat(S.call(arguments)));return Object(o)===o?o:s}return n.apply(t,r.concat(S.call(arguments)))};return i}),y.backgroundsize=function(){return P("backgroundSize")},y.borderimage=function(){return P("borderImage")},y.csstransitions=function(){return P("transition")},y.fontface=function(){var e;return T('@font-face {font-family:"font";src:url("https://")}',function(n,r){var i=t.getElementById("smodernizr"),s=i.sheet||i.styleSheet,o=s?s.cssRules&&s.cssRules[0]?s.cssRules[0].cssText:s.cssText||"":"";e=/src/i.test(o)&&o.indexOf(r.split(" ")[0])===0}),e},y.svg=function(){return!!t.createElementNS&&!!t.createElementNS(g.svg,"svg").createSVGRect};for(var B in y)k(y,B)&&(x=B.toLowerCase(),i[x]=y[B](),E.push((i[x]?"":"no-")+x));return i.input||H(),i.addTest=function(e,t){if(typeof e=="object")for(var r in e)k(e,r)&&i.addTest(r,e[r]);else{e=e.toLowerCase();if(i[e]!==n)return i;t=typeof t=="function"?t():t,typeof s!="undefined"&&s&&(o.className+=" "+(t?"":"no-")+e),i[e]=t}return i},L(""),a=l=null,i._version=r,i._prefixes=p,i._domPrefixes=m,i._cssomPrefixes=v,i.mq=N,i.testProp=function(e){return _([e])},i.testAllProps=P,i.testStyles=T,o.className=o.className.replace(/(^|\s)no-js(\s|$)/,"$1$2")+(s?" js "+E.join(" "):""),i}(this,this.document),function(e,t,n){function r(e){return"[object Function]"==d.call(e)}function i(e){return"string"==typeof e}function s(){}function o(e){return!e||"loaded"==e||"complete"==e||"uninitialized"==e}function u(){var e=v.shift();m=1,e?e.t?h(function(){("c"==e.t?k.injectCss:k.injectJs)(e.s,0,e.a,e.x,e.e,1)},0):(e(),u()):m=0}function a(e,n,r,i,s,a,f){function l(t){if(!d&&o(c.readyState)&&(w.r=d=1,!m&&u(),c.onload=c.onreadystatechange=null,t)){"img"!=e&&h(function(){b.removeChild(c)},50);for(var r in T[n])T[n].hasOwnProperty(r)&&T[n][r].onload()}}var f=f||k.errorTimeout,c=t.createElement(e),d=0,g=0,w={t:r,s:n,e:s,a:a,x:f};1===T[n]&&(g=1,T[n]=[]),"object"==e?c.data=n:(c.src=n,c.type=e),c.width=c.height="0",c.onerror=c.onload=c.onreadystatechange=function(){l.call(this,g)},v.splice(i,0,w),"img"!=e&&(g||2===T[n]?(b.insertBefore(c,y?null:p),h(l,f)):T[n].push(c))}function f(e,t,n,r,s){return m=0,t=t||"j",i(e)?a("c"==t?E:w,e,t,this.i++,n,r,s):(v.splice(this.i++,0,e),1==v.length&&u()),this}function l(){var e=k;return e.loader={load:f,i:0},e}var c=t.documentElement,h=e.setTimeout,p=t.getElementsByTagName("script")[0],d={}.toString,v=[],m=0,g="MozAppearance"in c.style,y=g&&!!t.createRange().compareNode,b=y?c:p.parentNode,c=e.opera&&"[object Opera]"==d.call(e.opera),c=!!t.attachEvent&&!c,w=g?"object":c?"script":"img",E=c?"script":w,S=Array.isArray||function(e){return"[object Array]"==d.call(e)},x=[],T={},N={timeout:function(e,t){return t.length&&(e.timeout=t[0]),e}},C,k;k=function(e){function t(e){var e=e.split("!"),t=x.length,n=e.pop(),r=e.length,n={url:n,origUrl:n,prefixes:e},i,s,o;for(s=0;s<r;s++)o=e[s].split("="),(i=N[o.shift()])&&(n=i(n,o));for(s=0;s<t;s++)n=x[s](n);return n}function o(e,i,s,o,u){var a=t(e),f=a.autoCallback;a.url.split(".").pop().split("?").shift(),a.bypass||(i&&(i=r(i)?i:i[e]||i[o]||i[e.split("/").pop().split("?")[0]]),a.instead?a.instead(e,i,s,o,u):(T[a.url]?a.noexec=!0:T[a.url]=1,s.load(a.url,a.forceCSS||!a.forceJS&&"css"==a.url.split(".").pop().split("?").shift()?"c":n,a.noexec,a.attrs,a.timeout),(r(i)||r(f))&&s.load(function(){l(),i&&i(a.origUrl,u,o),f&&f(a.origUrl,u,o),T[a.url]=2})))}function u(e,t){function n(e,n){if(e){if(i(e))n||(f=function(){var e=[].slice.call(arguments);l.apply(this,e),c()}),o(e,f,t,0,u);else if(Object(e)===e)for(p in h=function(){var t=0,n;for(n in e)e.hasOwnProperty(n)&&t++;return t}(),e)e.hasOwnProperty(p)&&(!n&&!--h&&(r(f)?f=function(){var e=[].slice.call(arguments);l.apply(this,e),c()}:f[p]=function(e){return function(){var t=[].slice.call(arguments);e&&e.apply(this,t),c()}}(l[p])),o(e[p],f,t,p,u))}else!n&&c()}var u=!!e.test,a=e.load||e.both,f=e.callback||s,l=f,c=e.complete||s,h,p;n(u?e.yep:e.nope,!!a),a&&n(a)}var a,f,c=this.yepnope.loader;if(i(e))o(e,0,c,0);else if(S(e))for(a=0;a<e.length;a++)f=e[a],i(f)?o(f,0,c,0):S(f)?k(f):Object(f)===f&&u(f,c);else Object(e)===e&&u(e,c)},k.addPrefix=function(e,t){N[e]=t},k.addFilter=function(e){x.push(e)},k.errorTimeout=1e4,null==t.readyState&&t.addEventListener&&(t.readyState="loading",t.addEventListener("DOMContentLoaded",C=function(){t.removeEventListener("DOMContentLoaded",C,0),t.readyState="complete"},0)),e.yepnope=l(),e.yepnope.executeStack=u,e.yepnope.injectJs=function(e,n,r,i,a,f){var l=t.createElement("script"),c,d,i=i||k.errorTimeout;l.src=e;for(d in r)l.setAttribute(d,r[d]);n=f?u:n||s,l.onreadystatechange=l.onload=function(){!c&&o(l.readyState)&&(c=1,n(),l.onload=l.onreadystatechange=null)},h(function(){c||(c=1,n(1))},i),a?l.onload():p.parentNode.insertBefore(l,p)},e.yepnope.injectCss=function(e,n,r,i,o,a){var i=t.createElement("link"),f,n=a?u:n||s;i.href=e,i.rel="stylesheet",i.type="text/css";for(f in r)i.setAttribute(f,r[f]);o||(p.parentNode.insertBefore(i,p),h(n,0))}}(this,document),Modernizr.load=function(){yepnope.apply(window,[].slice.call(arguments,0))},Modernizr.addTest("details",function(){var e=document,t=e.createElement("details"),n,r,i;return"open"in t?(r=e.body||function(){var t=e.documentElement;return n=!0,t.insertBefore(e.createElement("body"),t.firstElementChild||t.firstChild)}(),t.innerHTML="<summary>a</summary>b",t.style.display="block",r.appendChild(t),i=t.offsetHeight,t.open=!0,i=i!=t.offsetHeight,r.removeChild(t),n&&r.parentNode.removeChild(r),i):!1}),Modernizr.addTest("progressbar",function(){return document.createElement("progress").max!==undefined}),Modernizr.addTest("meter",function(){return document.createElement("meter").max!==undefined}),Modernizr.addTest("mathml",function(){var e=!1;if(document.createElementNS){var t="http://www.w3.org/1998/Math/MathML",n=document.createElement("div");n.style.position="absolute";var r=n.appendChild(document.createElementNS(t,"math")).appendChild(document.createElementNS(t,"mfrac"));r.appendChild(document.createElementNS(t,"mi")).appendChild(document.createTextNode("xx")),r.appendChild(document.createElementNS(t,"mi")).appendChild(document.createTextNode("yy")),document.body.appendChild(n),e=n.offsetHeight>n.offsetWidth}return e}),Modernizr.addTest("cors",!!(window.XMLHttpRequest&&"withCredentials"in new XMLHttpRequest));
+
 /**
  * @title WET-BOEW Vapour loader
  * @overview Helper methods for WET
@@ -34,25 +1743,20 @@ var getUrlParts = function( url ) {
 			host: a.host,
 			hostname: a.hostname,
 			port: a.port,
-			pathname: a.pathname.replace( /^([^\/])/, "/$1" ), // Prefix pathname with a slash in browsers that don't natively do it (i.e. all versions of IE and possibly early versions of Edge). See pull request #8110.
+			pathname: a.pathname.replace( /^([^/])/, "/$1" ), // Prefix pathname with a slash in browsers that don't natively do it (i.e. all versions of IE and possibly early versions of Edge). See pull request #8110.
 			protocol: a.protocol,
 			hash: a.hash,
 			search: a.search,
 
 			// A collection of the parameters of the query string part of the URL.
 			params: ( function() {
-				var results = {},
-					queryString = encodeURI( decodeURI( a.search.replace( /^\?/, "" ) ) ).replace( /'/g, "%27" ).split( "&" ),
-					len = queryString.length,
-					key, strings, i;
-
-				for ( i = 0; i !== len; i += 1 ) {
-					if ( ( key = queryString[ i ] ) !== null ) {
-						strings = key.split( "=" );
-						results[ strings[ 0 ] ] = strings[ 1 ];
-					}
+				var queryString = a.search.replace( /(^\?)/, "" );
+				if ( !queryString ) {
+					return {};
 				}
-				return results;
+				return queryString.split( "&" ).map( function( n ) {
+					return ( n = n.split( "=" ), this[ n[ 0 ] ] = decodeURIComponent( n[ 1 ] ), this );
+				}.bind( {} ) )[ 0 ];
 			}() )
 		};
 	},
@@ -72,17 +1776,41 @@ var getUrlParts = function( url ) {
 
 	/**
 	 * @variable i18n
-	 * @return {string} of HTML document language
+	 * @return {string} of WET document language
 	 */
-	lang = document.documentElement.lang,
+	lang = ( function( ele ) {
+		let lang = document.documentElement.lang;
+		const shortLangLength = 2;
+
+		// Perform extra checks if the page uses a long language code
+		if ( lang.length > shortLangLength ) {
+			let longLangs = [ "pt-BR", "zh-Hans" ]; // Built-in long language codes
+
+			// Check if any custom long language codes have been specified
+			// Specify by adding data-wb-core and data-lang-long="en-CA en-US etc" attributes to WET's script element (e.g. wet-boew.js or wet-boew.min.js)
+			if ( ele[ 0 ].hasAttribute( "data-wb-core" ) &&  ele[ 0 ].hasAttribute( "data-lang-long" ) ) {
+				const longLangsCustom = ele.attr( "data-lang-long" ).split( " " );
+
+				// Add extra language codes to the beginning of the longLangs array to match them more quickly
+				longLangs = longLangsCustom.concat( longLangs );
+			}
+
+			// Shorten the language code if it doesn't exist in the longLangs array
+			if ( longLangs.indexOf( lang ) === -1 ) {
+				lang = lang.substring( 0, shortLangLength );
+			}
+		}
+
+		return lang;
+	}( $src ) ),
 
 	paths = ( function( ele ) {
 		var paths = {};
 
 		paths.home = ele.prop( "src" )
-				.split( "?" )[ 0 ].split( "/" )
-				.slice( 0, -1 )
-				.join( "/" );
+			.split( "?" )[ 0 ].split( "/" )
+			.slice( 0, -1 )
+			.join( "/" );
 		paths.asset = paths.home + "/../assets";
 		paths.template = paths.home + "/assets/templates";
 		paths.dep = paths.home + "/deps";
@@ -118,7 +1846,7 @@ var getUrlParts = function( url ) {
 		while ( (
 			div.innerHTML = "<!--[if gt IE " + ( v += 1 ) + "]><i></i><![endif]-->",
 			all[ 0 ]
-		) ) {};
+		) ) { /* empty */ }
 
 		return v > 4 ? v : undef;
 	}() ),
@@ -139,7 +1867,10 @@ var getUrlParts = function( url ) {
 
 		try {
 			disabledSaved = localStorage.getItem( "wbdisable" ) || disabledSaved;
-		} catch ( e ) {}
+		} catch ( e ) {
+
+			/* swallow error */
+		}
 
 		disabled = currentpage.params.wbdisable || disabledSaved;
 		return ( typeof disabled === "string" ) ? ( disabled.toLowerCase() === "true" ) : Boolean( disabled );
@@ -168,7 +1899,7 @@ var getUrlParts = function( url ) {
 		initQueue: 0,
 
 		getPath: function( property ) {
-			return this.hasOwnProperty( property ) ? this[ property ] : undef;
+			return Object.prototype.hasOwnProperty.call( this, property ) ? this[ property ] : undef;
 		},
 
 		getMode: function() {
@@ -213,9 +1944,9 @@ var getUrlParts = function( url ) {
 				// Trigger any nested elements (excluding nested within nested)
 				$elm
 					.find( wb.allSelectors )
-						.addClass( "wb-init" )
-						.filter( ":not(#" + $elm.attr( "id" ) + " .wb-init .wb-init)" )
-							.trigger( "timerpoke.wb" );
+					.addClass( "wb-init" )
+					.filter( ":not(#" + $elm.attr( "id" ) + " .wb-init .wb-init)" )
+					.trigger( "timerpoke.wb" );
 
 				// Identify that the component is ready
 				$elm.trigger( "wb-ready." + componentName, context );
@@ -571,6 +2302,7 @@ Modernizr.load( [
 
 			// Defer loading the polyfill till an element is detected due to the size
 			if ( !Modernizr.mathml ) {
+				let isTrident = new Boolean( window.navigator.msSaveOrOpenBlob );
 
 				// Bind the init event of the plugin
 				$document.one( "timerpoke.wb wb-init." + componentName, selector, function() {
@@ -578,18 +2310,67 @@ Modernizr.load( [
 					// Start initialization
 					wb.init( document, componentName, selector );
 
+					// Disable MathJax's context menu to more closely mimic native MathML implementations
+					window.MathJax = {
+						options: {
+							enableMenu: false
+						}
+					};
+
+					// Extra tasks for IE11
+					if ( isTrident ) {
+
+						// Load an ES6 polyfill
+						Modernizr.load( "timeout=500!https://polyfill.io/v3/polyfill.min.js?features=es6" );
+
+						// Specify the CDN's font URL
+						// Note: IE11 is unable to resolve this on its own
+						window.MathJax.chtml = {
+							fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/woff-v2"
+						};
+					}
+
 					// Load the MathML dependency. Since the polyfill is only loaded
 					// when !Modernizr.mathml, we can skip the test here.
 					Modernizr.load( [ {
-						load: "timeout=500!https://cdn.jsdelivr.net/npm/mathjax@2.7.1/MathJax.js?config=Accessible",
-						complete: function() {
-							Modernizr.load( [ {
-								test: window.MathJax === undefined,
-								yep: "mthjx!MathJax.js?config=Accessible"
-							} ] );
 
-							// Identify that initialization has completed
-							wb.ready( $document, componentName );
+						// Load latest version of MathJax 3 from a CDN
+						// Also load a CSS workaround for a MathJax 3.2.0 bug (refer to CSS file for details)
+						load: [
+							"timeout=500!https://cdn.jsdelivr.net/npm/mathjax@3/es5/mml-chtml.js",
+							"plyfll!mathml.min.css"
+						],
+						complete: function() {
+
+							// Wait a moment to reduce the risk of a race condition
+							setTimeout( function() {
+
+								// Specify a font URL for a local copy of MathJax 3 for IE11
+								// Note: Useful if IE11 has internet access but fails to reach the CDN
+								if ( isTrident && !window.MathJax.startup ) {
+									window.MathJax.chtml.fontURL = paths.js + "/MathJax/output/chtml/fonts/woff-v2";
+								}
+
+								// Fall back on a local copy of MathJax 3 if the CDN is unreachable
+								// Note: Won't work with IE11 in isolated networks (ES6 polyfill has no local fallback)
+								Modernizr.load( [ {
+									test: window.MathJax.startup,
+									nope: "mthjx!mml-chtml.js",
+									complete: function() {
+
+										// Try loading a local copy of MathJax 2 as a last dith effort
+										Modernizr.load( [ {
+											test: window.MathJax.startup,
+											nope: "mthjx!MathJax.js?config=Accessible",
+											complete: function() {
+
+												// Identify that initialization has completed
+												wb.ready( $document, componentName );
+											}
+										} ] );
+									}
+								} ] );
+							}, 100 );
 						}
 					} ] );
 				} );
@@ -752,6 +2533,41 @@ wb.pickElements = function( $elm, numOfElm ) {
 	} );
 };
 
+/* ---------------------------------
+Adds a link to the Skip links navigation
+@param text: Text to display in the anchor or button
+@param attr: JSO with { attribute: value, ... } to add attributes to the anchor or button. Minimum is { href: "#your-anchor" } for the anchor tag
+@param isBtn: (Optional) Bool if true element is a button, otherwise it is an anchor by default
+@param isLast: (Optional) Bool if true element will be inserted last in the list
+-------------------------------- */
+wb.addSkipLink = function( text, attr, isBtn, isLast ) {
+	var list = document.getElementById( "wb-tphp" ),
+		li = document.createElement( "li" ),
+		elm = document.createElement( ( isBtn ? "button" : "a" ) ),
+		key;
+
+	// Add skip link's proprietary classes to new element
+	li.className = "wb-slc";
+	elm.className = "wb-sl";
+
+	// Add given attributes to element
+	for ( key in attr ) {
+		elm.setAttribute( key, attr[ key ] );
+	}
+
+	// Append text and new element to the skip link list (after main content)
+	elm.appendChild( document.createTextNode( text ) );
+	li.appendChild( elm );
+
+	if ( isLast ) {
+		list.appendChild( li );
+	} else {
+		list.insertBefore( li, list.childNodes[ 2 ] );
+	}
+
+	return true;
+};
+
 } )( jQuery, wb );
 
 ( function( wb ) {
@@ -761,11 +2577,12 @@ wb.pickElements = function( $elm, numOfElm ) {
 // Escapes the characters in a string for use in a jQuery selector
 // Based on https://totaldev.com/content/escaping-characters-get-valid-jquery-id
 wb.jqEscape = function( selector ) {
+	// eslint-disable-next-line no-useless-escape
 	return selector.replace( /([;&,\.\+\*\~':"\\\!\^\/#$%@\[\]\(\)=>\|])/g, "\\$1" );
 };
 
 // RegEx used by formattedNumCompare
-wb.formattedNumCompareRegEx = /(<[^>]*>|[^\d\.])/g;
+wb.formattedNumCompareRegEx = /(<[^>]*>|[^\d.])/g;
 
 // Compares two formatted numbers (e.g., 1.2.12 or 1,000,345)
 wb.formattedNumCompare = function( a, b ) {
@@ -1699,7 +3516,7 @@ wb.normalizeDiacritics = function( str ) {
 		i, character;
 	for ( i = 0; i !== len; i += 1 ) {
 		character = chars[ i ];
-		if ( diacritics.hasOwnProperty( character ) ) {
+		if ( Object.prototype.hasOwnProperty.call( diacritics, character ) ) {
 			chars[ i ] = diacritics[ character ];
 			normalized = true;
 		}
@@ -1838,6 +3655,100 @@ wb.escapeAttribute = function( str ) {
 	return str.replace( /'/g, "&#39;" ).replace( /"/g, "&#34;" );
 };
 
+/*
+* Find most common Personal Identifiable Information (PII) in a string and return either the cleaned string either true/false
+* @param {string} str (required) - the content that needs to be verified
+*
+* @param {boolean} scope - if true will scrub the content
+* @param {object} (optional) the 2nd param (scope) can also be an object having the following properties (optional):
+* 	{string} any key name of the default patterns e.g. email, digits, etc. with the value 1. The function will only scrub the content that match the regex of the default patterns passed in this object
+* 	{regex} customCase - this param is a regex. It will search and replace the values corresponding that pattern
+*
+* @param {object} opts (optional) - the 3rd param of the function that can contain the following properties (optional):
+* 	{boolean} isCustomExclusive - if true, it will scrubb only the custom regex if the regex is the only property of the "scope" object
+* 	{bolean} useFullBlock - if true, it will replace the scrubbed characters with the "█" symbol;
+* 	{string} replaceWith - this string will replace the scrubbed content
+*
+
+* @return {string | true | false}
+* @example
+* wb.findPotentialPII( "email:test@test.com, phone:123 123 1234", true )
+* returns "email:, phone:",
+*
+* wb.findPotentialPII( "email:test@test.com, phone:123 123 1234", false )
+* returns true
+*
+* wb.findPotentialPII( "email:test@test.com, phone:123 123 1234", { email:1 }{ replaceWith: [REDACTED/CAVIARDÉ] } )
+* returns "email:[REDACTED/CAVIARDÉ], phone:123 123 1234"
+*
+* wb.findPotentialPII( "email:test@test.com, phone:123 123 1234, numéro de cas 12345678", { "customCase":/\b(?:case[\s-]?number[\s\-\\.]?(?:\d{5,10}))|(?:numéro[\s-]?de[\s-]?cas[\s\-\\.]?(?:\d{5,10}))/ig }, { useFullBlock:1})
+* returns "phone:████████████, email:█████████████, postalCode:██████, ██████████████████████"
+*/
+wb.findPotentialPII = function( str, scope, opts ) {
+	if ( str && typeof str  !== "string" ) {
+		return false;
+	}
+	var oRegEx = {
+			digits: /\d(?:[\s\-\\.\\/]?\d){8,}(?!\d)/ig, //9digits or more pattern
+			passport: /\b[A-Za-z]{2}[\s\\.-]*?\d{6}\b/ig, //canadian nr passport pattern
+			email: /\b(?:[a-zA-Z0-9_\-\\.]+)(?:@|%40)(?:[a-zA-Z0-9_\-\\.]+)\.(?:[a-zA-Z]{2,5})\b/ig, //email pattern
+			postalCode: /\b[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d\b/ig, //postal code pattern
+			username: /\b(?:(username|user)[:=][a-zA-Z0-9_\-\\.]+)\b/ig,
+			password: /\b(?:(password|pass)[:=][^\s#&]+)\b/ig
+		},
+		isFound = false,
+		txtMarker = opts && opts.replaceWith ? opts.replaceWith : "",
+		toClean = typeof scope === "object" ? true : scope,
+		arMatchedStr,
+		settings = opts || {},
+		defaultSettings = {
+			isCustomExclusive: false,
+			useFullBlock: false,
+			replaceWith: ""
+		},
+		isFullBlock = settings.useFullBlock || false,
+		validatedScope = typeof scope === "object" ? {} : oRegEx;
+	settings = $.extend( {}, defaultSettings, settings );
+
+	if ( Object.keys( validatedScope ).length === 0 ) {
+		if ( settings.isCustomExclusive ) {
+			for ( var key in scope ) {
+				if ( scope[ key ] instanceof RegExp ) {
+					validatedScope[ key ] = scope[ key ];
+				}
+			}
+		} else {
+			if ( Object.keys( scope ).length === 1 && Object.values( scope )[ 0 ] instanceof RegExp ) {
+				validatedScope = oRegEx;
+				validatedScope[ Object.keys( scope )[ 0 ] ] = Object.values( scope )[ 0 ];
+			} else {
+				for ( var keyScope in scope ) {
+					if ( Object.prototype.hasOwnProperty.call( oRegEx, keyScope ) ) {
+						validatedScope [ keyScope ] = oRegEx [ keyScope ];
+					} else {
+						if ( scope[ keyScope ]  instanceof RegExp ) {
+							validatedScope [ keyScope ] = scope [ keyScope ];
+						}
+					}
+				}
+			}
+		}
+	}
+
+	for ( var valKey in validatedScope ) {
+		arMatchedStr = str.match( validatedScope[ valKey ] );
+		if ( arMatchedStr ) {
+			isFound = true;
+			if ( toClean ) {
+				txtMarker = isFullBlock ? "█".repeat( arMatchedStr[ 0 ].length ) : txtMarker;
+				str = str.replaceAll( validatedScope[ valKey ], txtMarker );
+			}
+		}
+	}
+
+	return toClean && isFound ? str : isFound;
+};
+
 } )( wb );
 
 ( function( $, undef ) {
@@ -1917,14 +3828,14 @@ function focusable( element, isTabIndexNotNaN, visibility ) {
 	if ( visibility ) {
 		return ( /input|select|textarea|button|object/.test( nodeName ) ? !element.disabled :
 			nodeName === "a" ?
-			element.href || isTabIndexNotNaN :
-			isTabIndexNotNaN ) &&
+				element.href || isTabIndexNotNaN :
+				isTabIndexNotNaN ) &&
 		visible( element ); /* the element and all of its ancestors must be visible */
 	} else {
 		return ( /input|select|textarea|button|object/.test( nodeName ) ? !element.disabled :
 			nodeName === "a" ?
-			element.href || isTabIndexNotNaN :
-			isTabIndexNotNaN );
+				element.href || isTabIndexNotNaN :
+				isTabIndexNotNaN );
 	}
 }
 
@@ -1947,9 +3858,9 @@ $.extend( $.expr[ ":" ], {
 
 	// support: jQuery <1.8
 
-	function( elem, i, match ) {
-		return !!$.data( elem, match[ 3 ] );
-	},
+		function( elem, i, match ) {
+			return !!$.data( elem, match[ 3 ] );
+		},
 	focusable: function( element ) {
 		return focusable( element, !isNaN( $.attr( element, "tabindex" ) ), true );
 	},
@@ -1964,6 +3875,192 @@ $.extend( $.expr[ ":" ], {
 } );
 
 } )( jQuery );
+
+/**
+ * String.prototype.replaceAll() polyfill
+ * https://gomakethings.com/how-to-replace-a-section-of-a-string-with-another-one-with-vanilla-js/
+ * @author Chris Ferdinandi
+ * @license MIT
+ */
+if ( !String.prototype.replaceAll ) {
+	String.prototype.replaceAll = function( str, newStr ) {
+
+		// If a regex pattern
+		if ( Object.prototype.toString.call( str ).toLowerCase() === "[object regexp]" ) {
+			return this.replace( str, newStr );
+		}
+
+		// If a string
+		return this.replace( new RegExp( str, "g" ), newStr );
+
+	};
+}
+
+/**
+ * @title WET-BOEW Add to calendar
+ * @overview Create an add to calendar button for an event
+ * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
+ * @author @ricokola
+ */
+( function( $, wb ) {
+"use strict";
+
+/*
+ * Variable and function definitions.
+ * These are global to the plugin - meaning that they will be initialized once per page,
+ * not once per instance of plugin on the page. So, this is a good place to define
+ * variables that are common to all instances of the plugin on a page.
+ */
+var componentName = "wb-addcal",
+	selector = ".provisional." + componentName,
+	initEvent = "wb-init." + componentName,
+	$document = wb.doc,
+
+	/**
+	* @method init
+	* @param {jQuery Event} event Event that triggered the function call
+	*/
+	init = function( event ) {
+
+		// Start initialization
+		// returns DOM object = proceed with init
+		// returns undefined = do not proceed with init (e.g., already initialized)
+		var elm = wb.init( event, componentName, selector ),
+			$elm = $( elm );
+
+		if ( elm ) {
+
+			wb.ready( $( elm ), componentName );
+
+			var properties = elm.querySelectorAll( "[property]" ),
+				event_details = new Object(),
+				place_details = [],
+				i,
+				i_len,
+				prop_cache,
+				googleLink,
+				icsFile,
+				i18nDict = {
+					en: {
+						"addcal-addto": "Add to",
+						"addcal-calendar": "calendar",
+						"addcal-ical": "iCal format (iPhone, Outlook...)"
+					},
+					fr: {
+						"addcal-addto": "Ajouter au",
+						"addcal-calendar": "calendrier",
+						"addcal-ical": "Format iCal (iPhone, Outlook....)"
+					}
+				};
+
+			// Initiate dictionary
+			i18nDict = i18nDict[ $( "html" ).attr( "lang" ) || "en" ];
+			i18nDict = {
+				addto: i18nDict[ "addcal-addto" ],
+				calendar: i18nDict[ "addcal-calendar" ],
+				ical: i18nDict[ "addcal-ical" ]
+			};
+
+			// Set date stamp with the date modified
+			event_details.dtStamp = dtToISOString( $( "time[property='dateModified']" ) );
+
+			i_len = properties.length;
+			for ( i = 0; i < i_len; i++ ) {
+				prop_cache = properties[ i ];
+				switch ( prop_cache.getAttribute( "property" ) ) {
+				case "name":
+					if ( $( prop_cache ).parentsUntil( ( "." + componentName ), "[typeof=Place]" ).length ) {
+						event_details.placeName = prop_cache.textContent;
+					} else {
+						event_details.name = prop_cache.textContent;
+					}
+					break;
+				case "description":
+					event_details.description = prop_cache.textContent.replace( /(\r\n|\n|\r)/gm, " " );
+					break;
+				case "startDate":
+					event_details.sDate = dtToISOString( $( "time[property='startDate']" ) );
+					break;
+				case "endDate":
+					event_details.eDate = dtToISOString( $( "time[property='endDate']" ) );
+					break;
+				case "location":
+					if ( !prop_cache.getAttribute( "typeof" ) ) {
+						event_details.placeName = prop_cache.textContent;
+					}
+					break;
+				case "streetAddress":
+					event_details.placeAddress = prop_cache.textContent;
+					break;
+				case "addressLocality":
+					event_details.placeLocality = prop_cache.textContent;
+					break;
+				case "addressRegion":
+					event_details.placeRegion = prop_cache.textContent;
+					break;
+				case "postalCode":
+					event_details.placePostalCode = prop_cache.textContent;
+					break;
+				}
+			}
+
+			place_details.push( ( event_details.placeName || "" ), ( event_details.placeAddress || "" ), ( event_details.placeLocality || "" ), ( event_details.placeRegion || "" ), ( event_details.placePostalCode || "" ) );
+
+			// Error handling
+			if ( !event_details.name ) {
+				throw componentName + ": Event title is missing.";
+			} else if ( !event_details.sDate ) {
+				throw componentName + ": Start date is missing.";
+			} else if ( !event_details.eDate ) {
+				throw componentName + ": End date is missing.";
+			}
+
+			// Set Unique Identifier (UID) and Date Stamp (DSTAMP)
+			event_details.uid = window.location.href.replace( /\.|-|\/|:|[G-Zg-z]/g, "" ).toUpperCase().substr( -10 ) + "-" + event_details.sDate + "-" + event_details.dtStamp;
+
+			// Set google calendar link
+			googleLink = encodeURI( "https://www.google.com/calendar/render?action=TEMPLATE" +  "&text=" + event_details.name +  "&details=" +
+			event_details.description +  "&dates=" + event_details.sDate + "/" + event_details.eDate + "&location=" + place_details.join( " " ) );
+
+			// Set ICS file for Outlook, Apple and other calendars
+			icsFile = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//WET-BOEW//Add to Calendar v4.0//\nBEGIN:VEVENT\nDTSTAMP:" + event_details.dtStamp + "\nSUMMARY:" + event_details.name +  "\nDESCRIPTION:" + event_details.description + "\nUID:" + event_details.uid + "\nDTSTART:" + event_details.sDate + "\nDTEND:" + event_details.eDate + "\nLOCATION:" + place_details.join( " " ) + "\nEND:VEVENT\nEND:VCALENDAR";
+
+			elm.dataset.icsFile = icsFile;
+
+			// Create and add details summary to the wb-addcal event and initiate the unordered list
+			$elm.append( "<details class='max-content " + componentName + "-buttons'><summary>" + i18nDict.addto + " " + i18nDict.calendar +
+			"</summary><ul class='list-unstyled mrgn-bttm-0 mrgn-tp-sm'><li><a class='btn btn-link btn-lg mrgn-top-lg' href='" + googleLink.replace( /'/g, "%27" ) + "'>Google<span class='sr-only'>" + i18nDict.calendar + "</span></a></li><li><button class='btn btn-link btn-lg download-ics'>" + i18nDict.ical +
+			"<span class='sr-only'>Calendar</span></button></li></ul></details>" );
+		}
+
+		wb.ready( $( elm ), componentName );
+
+	};
+
+// Convert date to ISO string and formating for ICS file
+var dtToISOString = function( date ) {
+	if ( date.is( "[datetime]" ) ) {
+		date = date.attr( "datetime" );
+	} else {
+		date = date.text();
+	}
+
+	return new Date( date ).toISOString().replace( /\..*[0-9]/g, "" ).replace( /-|:|\./g, "" );
+};
+
+$document.on( "click", ".download-ics", function( event ) {
+	var icsFile = $( event.currentTarget ).parentsUntil( "." + componentName ).parent()[ 0 ];
+	icsFile =  $( icsFile ).attr( "data-ics-file" );
+	wb.download( new Blob( [ icsFile ], { type: "text/calendar;charset=utf-8" } ), "evenement-gc-event.ics" );
+} );
+
+// Bind the init event of the plugin
+$document.on( "timerpoke.wb " + initEvent, selector, init );
+
+// Add the timer poke to initialize the plugin
+wb.add( selector );
+
+} )( jQuery, wb );
 
 /**
  * @title WET-BOEW Ajax Fetch [ ajax-fetch ]
@@ -1993,7 +4090,8 @@ $document.on( "ajax-fetch.wb", function( event ) {
 		urlSubParts = url.split( "#" ),
 		urlHash = urlSubParts[ 1 ],
 		selector = urlParts[ 1 ] || ( urlHash ? "#" + urlHash : false ),
-		fetchData, callerId, fetchNoCacheURL, urlSub,
+		fetchData = {},
+		callerId, fetchNoCacheURL, urlSub,
 		fetchNoCache = fetchOpts.nocache,
 		fetchNoCacheKey = fetchOpts.nocachekey || wb.cacheBustKey || "wbCacheBust";
 
@@ -2028,6 +4126,14 @@ $document.on( "ajax-fetch.wb", function( event ) {
 		}
 		callerId = caller.id;
 
+		// Ensure we don't allow jsonp load
+		if ( fetchOpts.dataType && fetchOpts.dataType === "jsonp" ) {
+			fetchOpts.dataType = "json";
+		}
+		if ( fetchOpts.jsonp ) {
+			fetchOpts.jsonp = false;
+		}
+
 		$.ajax( fetchOpts )
 			.done( function( response, status, xhr ) {
 				var responseType = typeof response;
@@ -2036,14 +4142,14 @@ $document.on( "ajax-fetch.wb", function( event ) {
 					response = $( "<div>" + response + "</div>" ).find( selector );
 				}
 
-				fetchData = {
-					response: response,
-					status: status,
-					xhr: xhr
-				};
+				fetchData.pointer = $( "<div id='" + wb.getId() + "' data-type='" + responseType + "'></div>" )
+					.append( responseType === "string" ? response : "" );
 
-				fetchData.pointer = $( "<div id='" + wb.getId() + "' data-type='" + responseType + "' />" )
-										.append( responseType === "string" ? response : "" );
+				response = $( response );
+
+				fetchData.response = response;
+				fetchData.status = status;
+				fetchData.xhr = xhr;
 
 				$( "#" + callerId ).trigger( {
 					type: "ajax-fetched.wb",
@@ -2066,10 +4172,10 @@ $document.on( "ajax-fetch.wb", function( event ) {
 } )( jQuery, wb );
 
 /**
- * @title WET-BOEW Set background image sourceset
- * @overview Detects the change in screen width and replace the background image accordingly
+ * @title WET-BOEW Set background image
+ * @overview Apply a background image or detects the change in screen width and replace the background image accordingly
  * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
- * @author @namjohn920
+ * @author @namjohn920, @duboisp
  */
 ( function( $, wb ) {
 "use strict";
@@ -2082,13 +4188,17 @@ $document.on( "ajax-fetch.wb", function( event ) {
  */
 var $document = wb.doc,
 	$window = wb.win,
-	componentName = "wb-bgimg-srcset",
-	selector = ".provisional[data-bgimg-srcset]",
-	inputs = {},
-	elm,
+	componentName = "wb-bgimg",
+	selector = "[data-bgimg-srcset], [data-bgimg]",
+	bgViews = {},
 	ids = [],
 
 	init = function( event ) {
+
+		var elm, elmId,
+			bgImg, bgimgSrcset, bgRawViews,
+			i, i_len, i_views,
+			imgSrc, imgSize;
 
 		// Start initialization
 		// returns DOM object = proceed with init
@@ -2096,31 +4206,50 @@ var $document = wb.doc,
 		elm = wb.init( event, componentName, selector );
 
 		if ( elm ) {
-			ids.push( elm.id );
-			var userInputs;
-			if ( elm.dataset.bgimgSrcset ) {
-				userInputs = elm.dataset.bgimgSrcset.split( "," );
-			};
 
-			var i_len = userInputs.length;
-			inputs[ elm.id ] = [];
+			// Ensure the feature have an ID.
+			if ( !elm.id ) {
+				elm.id = wb.getId();
+			}
+			elmId = elm.id;
 
-			for ( var i = 0; i < i_len; i++ ) {
-				userInputs[ i ] = userInputs[ i ].trim();
-				userInputs[ i ] = userInputs[ i ].split( " " );
-				userInputs[ i ][ 1 ] = parseInt( userInputs[ i ][ 1 ].substring( 0, userInputs[ i ][ 1 ].length - 1 ) );
-				inputs[ elm.id ].push( userInputs[ i ] );
+			// Apply default background image
+			bgImg = elm.dataset.bgimg;
+			if ( bgImg ) {
+				elm.style.backgroundImage = "url(" + bgImg + ")";
 			}
 
-			inputs[ elm.id ].sort(
-				function( a, b ) {
-					return a[ 1 ] > b[ 1 ] ? 1 : -1;
+			// Apply background image set if defined
+			bgimgSrcset = elm.dataset.bgimgSrcset;
+			if ( bgimgSrcset ) {
+				ids.push( elm.id );
+				bgRawViews = elm.dataset.bgimgSrcset.split( "," );
+				i_len = bgRawViews.length;
+				bgViews[ elmId ] = [];
+
+				for ( i = 0; i < i_len; i++ ) {
+					i_views = bgRawViews[ i ].trim().split( " " );
+
+					imgSrc = i_views[ 0 ];
+					imgSize =  i_views[ i_views.length - 1 ];
+
+					imgSize = parseInt( imgSize.substring( 0, imgSize.length - 1 ) );
+					bgViews[ elmId ].push( [ imgSrc, imgSize ] );
 				}
-			);
 
-			selectImage();
+				bgViews[ elmId ].sort(
+					function( a, b ) {
+						return a[ 1 ] > b[ 1 ] ? 1 : -1;
+					}
+				);
 
-				// Identify that initialization has completed
+				selectImage();
+
+				// Add the resize listener
+				$window.on( "resize", selectImage );
+			}
+
+			// Identify that initialization has completed
 			wb.ready( $( elm ), componentName );
 		}
 	},
@@ -2128,15 +4257,18 @@ var $document = wb.doc,
 	selectImage = function() {
 		var screenWidth = window.innerWidth,
 			optimizedLink = {},
-			i_len = ids.length;
+			i, i_len = ids.length, j,
+			optimizedSize, currentId, currentId_len,
+			currentInput,
+			link, elm;
 
-		for ( var i = 0; i < i_len; i++ ) {
-			var optimizedSize = Infinity,
-				currentId = inputs[ ids[ i ] ],
-				currentId_len = inputs[ ids[ i ] ].length;
+		for ( i = 0; i < i_len; i++ ) {
+			optimizedSize = Infinity;
+			currentId = bgViews[ ids[ i ] ];
+			currentId_len = currentId.length;
 
-			for ( var j = 0; j < currentId_len; j++ ) {
-				var currentInput = currentId[ j ];
+			for ( j = 0; j < currentId_len; j++ ) {
+				currentInput = currentId[ j ];
 				if ( currentInput[ 1 ] >= screenWidth ) {
 					if ( optimizedSize > currentInput[ 1 ] ) {
 						optimizedSize = currentInput[ 1 ];
@@ -2149,55 +4281,9 @@ var $document = wb.doc,
 			}
 		}
 
-		for ( var link in optimizedLink ) {
-			var elm = document.getElementById( link );
+		for ( link in optimizedLink ) {
+			elm = document.getElementById( link );
 			elm.style.backgroundImage = "url(" + optimizedLink[ link ] + ")";
-		}
-	};
-
-$window.on( "resize", selectImage );
-
-	// Bind the init event of the plugin
-$document.on( "timerpoke.wb wb-init." + componentName, selector, init );
-
-	// Add the timer poke to initialize the plugin
-wb.add( selector );
-
-} )( jQuery, wb );
-
-/**
- * @title WET-BOEW Set background image
- * @overview to be replaced by CSS 4: background-image:attr(data-bgimg, url)
- * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
- * @author @duboisp
- */
-( function( $, wb ) {
-"use strict";
-
-/*
- * Variable and function definitions.
- * These are global to the plugin - meaning that they will be initialized once per page,
- * not once per instance of plugin on the page. So, this is a good place to define
- * variables that are common to all instances of the plugin on a page.
- */
-var $document = wb.doc,
-	componentName = "wb-bgimg",
-	selector = ".provisional[data-bgimg], .provisional [data-bgimg], [data-bgimg]",
-
-	init = function( event ) {
-
-		// Start initialization
-		// returns DOM object = proceed with init
-		// returns undefined = do not proceed with init (e.g., already initialized)
-		var elm = wb.init( event, componentName, selector );
-
-		if ( elm ) {
-
-			//to be replaced by CSS 4: background-image:attr(data-bgimg, url)
-			elm.style.backgroundImage = "url(" + elm.dataset.bgimg + ")";
-
-			// Identify that initialization has completed
-			wb.ready( $( elm ), componentName );
 		}
 	};
 
@@ -2381,7 +4467,7 @@ var componentName = "wb-calevt",
 			},
 			objEventsList = obj.find( "ol > li, ul > li" ),
 			iLen = objEventsList.length,
-			dateTimeRegExp = /datetime\s+\{date\:\s*(\d+-\d+-\d+)\}/,
+			dateTimeRegExp = /datetime\s+\{date:\s*(\d+-\d+-\d+)\}/,
 			i, $event, event, $objTitle, title, link, href, target,
 			linkId, date, tCollection, tCollectionTemp,	strDate1,
 			strDate2, z, zLen, className, dateClass;
@@ -2540,10 +4626,11 @@ var componentName = "wb-calevt",
 
 						//Determine the focus based on the day before
 						if ( dayIndex && $days[ dayIndex - 1 ].parentNode.nodeName === "A" ) {
-							$day.wrap( "<a href='javascript:;' class='cal-evt' tabindex='-1'></a>" );
+							$day.wrap( "<a class='cal-evt' tabindex='-1'></a>" );
 						} else {
-							$day.wrap( "<a href='javascript:;' class='cal-evt'></a>" );
+							$day.wrap( "<a class='cal-evt'></a>" );
 						}
+						$day.parent().attr( "href", "javascript:;" );
 					}
 
 					//Add the event to the list
@@ -2651,7 +4738,7 @@ wb.add( selector );
 
 } )( jQuery, window, wb );
 
-( function( $, window, document, wb, undef ) {
+( function( $, DOMPurify, window, document, wb, undef ) {
 
 var i18nText,
 	$document = wb.doc,
@@ -2793,13 +4880,14 @@ var i18nText,
 
 	createDays = function( calendar, year, month ) {
 		var $container = $( calendar ).find( ".cal-days" ),
+			daysContainer = $container.get( 0 ),
 			dayCount = 1,
 			textCurrentDay = i18nText.currDay,
 			lib = calendar.lib,
 			minDate = lib.minDate,
 			maxDate = lib.maxDate,
 			callback = lib.daysCallback,
-			cells = "",
+			row, cell,
 			date, firstDay, lastDay, currYear, currMonth, currDay, week, day, className, isCurrentDate, isoDate, printDate, breakAtEnd, days, inRange;
 
 		date = new Date( year, month, 1 );
@@ -2814,14 +4902,21 @@ var i18nText,
 		currMonth = date.getMonth();
 		currDay = date.getDate();
 
+		// Clean all existing rows
+		$container.empty();
+
 		for ( week = 1; week < 7; week += 1 ) {
-			cells += "<tr>";
+			row = daysContainer.insertRow();
+
 			for ( day = 0; day < 7; day += 1 ) {
 
 				if ( ( week === 1 && day < firstDay ) || ( dayCount > lastDay ) ) {
 
 					// Creates empty cells | Cree les cellules vides
-					cells += "<td class='cal-empty'>&#160;</td>";
+					cell = row.insertCell();
+					cell.classList.add( "cal-empty" );
+					cell.textContent = " ";
+
 				} else {
 
 					// Creates date cells | Cree les cellules de date
@@ -2832,7 +4927,9 @@ var i18nText,
 					isoDate = date.toLocalISOString().substr( 0, 10 );
 					printDate = displayDate( date ) + ( isCurrentDate ? "<span class='wb-inv'>" + textCurrentDay + "</span>" : "" );
 
-					cells += "<td class='" + className + "'><time datetime='" + isoDate  + "'>" + printDate + "</time></td>";
+					cell = row.insertCell();
+					cell.setAttribute( "class", className );
+					cell.innerHTML = DOMPurify.sanitize( "<time datetime='" + isoDate  + "'>" + printDate + "</time>" );
 
 					if ( dayCount >= lastDay ) {
 						breakAtEnd = true;
@@ -2841,13 +4938,10 @@ var i18nText,
 					dayCount += 1;
 				}
 			}
-			cells += "</tr>";
 			if ( breakAtEnd ) {
 				break;
 			}
 		}
-
-		$container.empty().append( cells );
 
 		if ( callback ) {
 			days = $container.find( "time" );
@@ -3005,9 +5099,8 @@ $document.on( "keydown", selector, function( event ) {
 		case 33:
 			date.setDate( minDate.getDate() );
 
+			//page down
 			/* falls through */
-
-		//page down
 		case 34:
 			modifier = ( which === 33 ? -1 : 1 );
 
@@ -3120,7 +5213,7 @@ $document.on( "keydown", selector, function( event ) {
 	}
 }() );
 
-} )( jQuery, window, document, wb );
+} )( jQuery, DOMPurify, window, document, wb );
 
 /**
  * Web Experience Toolkit (WET) / Boîte à outils de l'expérience Web (BOEW)
@@ -3161,7 +5254,7 @@ var componentName = "wb-charts",
 			captionHtml = $caption.html() || "",
 			captionText = $caption.text() || "",
 			valuePoint = 0,
-			dataCellUnitRegExp = /[^\+\-\.\, 0-9]+[^\-\+0-9]*/,
+			dataCellUnitRegExp = /[^+\-., 0-9]+[^\-+0-9]*/,
 			lowestFlotDelta, $imgContainer, $placeHolder,
 			$wetChartContainer, htmlPlaceHolder, figurehtml,
 			cellValue, datacolgroupfound, dataGroup, header,
@@ -3358,7 +5451,7 @@ var componentName = "wb-charts",
 				return target;
 			}
 			for ( key in cachedObj ) {
-				if ( !cachedObj.hasOwnProperty( key ) ) {
+				if ( !Object.prototype.hasOwnProperty.call( cachedObj, key ) ) {
 					continue;
 				}
 				target[ scopekey ][ key ] = cachedObj[ key ];
@@ -3445,7 +5538,7 @@ var componentName = "wb-charts",
 
 			// Merge and override the function.
 			for ( key in fn ) {
-				if ( !fn.hasOwnProperty( key ) ) {
+				if ( !Object.prototype.hasOwnProperty.call( fn, key ) ) {
 					continue;
 				}
 				tblFn = key.split( "/" );
@@ -3865,7 +5958,7 @@ var componentName = "wb-charts",
 
 			$summary = $( "<summary>" + captionHtml + i18nText.tableMention + "</summary>" );
 			$elm
-				.wrap( "<details/>" )
+				.wrap( "<details></details>" )
 				.before( $summary );
 
 			$summary.trigger( "wb-init.wb-details" );
@@ -4360,7 +6453,8 @@ var componentName = "wb-collapsible",
 					}
 
 				}
-			} catch ( e ) {}
+			} catch ( e ) {
+				/* swallow error */}
 
 			// Identify that initialization has completed
 			wb.ready( $details, componentName );
@@ -4392,11 +6486,13 @@ if ( Modernizr.details ) {
 			if ( isClosed ) {
 				try {
 					localStorage.setItem( key, "open" );
-				} catch ( e ) {}
+				} catch ( e ) {
+					/* swallow error */}
 			} else {
 				try {
 					localStorage.setItem( key, "closed" );
-				} catch ( e ) {}
+				} catch ( e ) {
+					/* swallow error */}
 			}
 		} else if ( which === 13 || which === 32 ) {
 			event.preventDefault();
@@ -4418,7 +6514,7 @@ wb.add( selector );
 
 /**
  * @title WET-BOEW Country Content
- * @overview A basic AjaxLoader wrapper that inserts AJAXed in content based on a visitors country as resolved by https://freegeoip.net
+ * @overview A basic AjaxLoader wrapper that inserts AJAXed in content based on a visitors country as resolved by freegeoip.app
  * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
  * @author @nschonni
  */
@@ -4483,16 +6579,17 @@ var componentName = "wb-ctrycnt",
 
 			// From https://github.com/aFarkas/webshim/blob/master/src/shims/geolocation.js#L89-L127
 			$.ajax( {
-				url: "https://freegeoip.net/json/",
-				dataType: "jsonp",
+				url: "https://freegeoip.app/json/",
+				dataType: "json",
 				cache: true,
-				jsonp: "callback",
 				success: function( data ) {
 					if ( data ) {
 						countryCode = data.country_code;
 						try {
 							localStorage.setItem( "countryCode", countryCode );
 						} catch ( error ) {
+
+							/* swallow error */
 						}
 					}
 
@@ -4640,14 +6737,16 @@ var componentName = "wb-data-ajax",
 				return {};
 			}
 
-			url = getURL( dtAttr.url, dtAttr.httpref );
-			if ( !url ) {
-				return {};
-			}
 			ajaxType = dtAttr.type;
 			if ( ajaxTypes.indexOf( ajaxType ) === -1 ) {
 				throw "Invalid ajax type";
 			}
+
+			url = getURL( dtAttr.url, dtAttr.httpref );
+			if ( !url ) {
+				return { "type": ajaxType };
+			}
+
 			nocache = dtAttr.nocache;
 			nocachekey = dtAttr.nocachekey;
 		}
@@ -4753,6 +6852,65 @@ for ( s = 0; s !== selectorsLength; s += 1 ) {
 }
 
 } )( jQuery, window, wb );
+
+/**
+ * Web Experience Toolkit (WET) / Boîte à outils de l'expérience Web (BOEW)
+ * @title Data Fusion Query
+ * @overview Map a query parameter value into an input value
+ * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
+ * @author @duboisp
+ *
+ */
+( function( document, $, wb ) {
+"use strict";
+
+/**
+ * Variable and function definitions.
+ * These are global to the plugin - meaning that they will be initialized once per page,
+ * not once per instance of plugin on the page. So, this is a good place to define
+ * variables that are common to all instances of the plugin on a page.
+ */
+var componentName = "wb-data-fusion-query",
+	selector = "[data-fusion-query][name]",
+	initEvent = "wb-init." + componentName,
+
+
+	/**
+	 * @method init
+	 * @param {jQuery Event} event Event that triggered the function call
+	 */
+	init = function( event ) {
+
+		// Start initialization
+		// returns DOM object = proceed with init
+		// returns undefined = do not proceed with init (e.g., already initialized)
+		var elm = wb.init( event, componentName, selector ),
+			$elm,
+			inputName,
+			queryParamValue;
+
+		if ( elm ) {
+			$elm = $( elm );
+
+			// Retrieve the query parameter value and set it on the input
+			inputName = $elm.attr( "name" );
+			queryParamValue = wb.pageUrlParts.params[ inputName ];
+			if ( queryParamValue ) {
+				$elm.val( queryParamValue.replace( /\+/g, " " ) );
+			}
+
+			// Identify that initialization has completed
+			wb.ready( $elm, componentName );
+		}
+	};
+
+// Bind the init event of the plugin
+wb.doc.on( "timerpoke.wb " + initEvent, selector, init );
+
+// Add the timer poke to initialize the plugin
+wb.add( selector );
+
+} )( document, jQuery, wb );
 
 /**
  * @title WET-BOEW Data InView
@@ -5070,6 +7228,88 @@ wb.add( selector );
 } )( jQuery, window, wb );
 
 /**
+ * @title WET-BOEW Details closed on small screen
+ * @overview Closes details on defined viewport and down if they were not engaged, default is small
+ * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
+ * @author @thomasgohard
+ */
+( function( $, wb ) {
+"use strict";
+
+/*
+* Variable and function definitions.
+* These are global to the plugin - meaning that they will be initialized once per page,
+* not once per instance of plugin on the page. So, this is a good place to define
+* variables that are common to all instances of the plugin on a page.
+*/
+var componentName = "wb-details-close",
+	selector = ".provisional." + componentName,
+	initEvent = "wb-init" + selector,
+	$document = wb.doc,
+	views = [ "xxs", "xs", "sm", "md", "lg", "xl" ],
+	viewsClass = [ "xxsmallview", "xsmallview", "smallview", "mediumview", "largeview", "xlargeview" ],
+	breakpoint,
+
+	/**
+	 * @method init
+	 * @param {jQuery Event} event Event that triggered the function call
+	 */
+	init = function( event ) {
+
+		// Start initialization
+		// returns DOM object = proceed with init
+		// returns undefined = do not proceed with init (e.g., already initialized)
+		var elm = wb.init( event, componentName, selector ),
+			$elm, i;
+
+		if ( elm ) {
+			$elm = $( elm );
+
+			// Get the plugin JSON configuration set on attribute data-wb-details-close
+			// Will define one set settings for all .wb-details-close on the page
+			breakpoint = $elm.data( "breakpoint" ) || "sm";
+
+			// reset breakpoint if config is passed
+			if ( views.length === viewsClass.length ) {
+				i = views.indexOf( breakpoint );
+				viewsClass = viewsClass.slice( 0, i + 1 );
+			}
+
+			hideOnBreakpoint();
+
+			// Identify that initialization has completed
+			wb.ready( $elm, componentName );
+		}
+	},
+
+	/**
+	 * Toggle details depending on breakpoint
+	 * @method hideOnBreakpoint
+	 * @param {jQuery DOM element | jQuery Event} $elm Element targetted by this plugin, which is the details
+	 */
+	hideOnBreakpoint = function() {
+		var $elm = $( selector ),
+			viewsSelector = "html." + viewsClass.join( ", html." );
+
+		// If within the targetted views, keep details closed
+		if ( $( viewsSelector ).length ) {
+			$elm.removeAttr( "open" );
+		} else {
+
+			// If not, keep opened
+			$elm.attr( "open", "" );
+		}
+	};
+
+// Bind the init event of the plugin
+$document.on( "timerpoke.wb " + initEvent, selector, init );
+
+// Add the timer poke to initialize the plugin
+wb.add( selector );
+
+} )( jQuery, wb );
+
+/**
  * @title WET-BOEW Dismissable content plugin
  * @overview Enables content to be dismissed
  * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
@@ -5185,6 +7425,58 @@ $document.on( "click vclick", "." + dismissClass, function( event ) {
 		dismissContent( elm.parentNode );
 	}
 } );
+
+// Add the timer poke to initialize the plugin
+wb.add( selector );
+
+} )( jQuery, window, wb );
+
+/**
+ * @title eqht
+ * @overview Provide ability to have equal height containers and nested containers inside a WET-BOEW grid
+ * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
+ * @author @luc-bertrand-hrsdc
+ */
+( function( $, window, wb ) {
+"use strict";
+
+/*
+ * Variable and function definitions.
+ * These are global to the plugin - meaning that they will be initialized once per page,
+ * not once per instance of plugin on the page. So, this is a good place to define
+ * variables that are common to all instances of the plugin on a page.
+ */
+var componentName = "wb-eqht-grd",
+	selector = "." + componentName + " .eqht-trgt",
+	initEvent = "wb-init" + selector,
+	$document = wb.doc,
+
+	/**
+	 * @method init
+	 * @param {jQuery Event} event Event that triggered the function call
+	 */
+	init = function( event ) {
+
+		// Start initialization
+		// returns DOM object = proceed with init
+		// returns undefined = do not proceed with init (e.g., already initialized)
+		var elm = wb.init( event, componentName, selector ),
+			$elm,
+			$eqhtParents;
+
+		if ( elm ) {
+			$elm = $( elm );
+			$elm.addClass( "hght-inhrt" );
+			$eqhtParents = $elm.parentsUntil( "[class*='" + componentName + "']" );
+			$eqhtParents.addClass( "hght-inhrt" );
+
+			// Identify that initialization has completed
+			wb.ready( $elm, componentName );
+		}
+	};
+
+// Bind the init event of the plugin
+$document.on( "timerpoke.wb " + initEvent, selector, init );
 
 // Add the timer poke to initialize the plugin
 wb.add( selector );
@@ -5408,6 +7700,157 @@ wb.add( selector );
 } )( jQuery, window, wb );
 
 /**
+* @title WET-BOEW Exit script plugin
+* @overview Plugin redirects users to non secure site
+* @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
+* @author @ipaksc
+*/
+( function( $, window, wb ) {
+"use strict";
+var componentName = "wb-exitscript",
+	selector = "." + componentName,
+	initEvent = "wb-init" + selector,
+	$document = wb.doc,
+	exiturlparam = componentName + "-urlparam",
+	moDalId = componentName + "-modal",
+	i18n,
+	i18nDict = {
+		en: {
+			"msgboxHeader": "Warning",
+			"exitMsg": "You are about to leave a secure site, do you wish to continue?",
+			"targetWarning": "The link will open in a new browser window.",
+			"yesBtn": "Yes",
+			"cancelBtn": "Cancel"
+
+		},
+		fr: {
+			"msgboxHeader": "Avertissement",
+			"exitMsg": "Vous êtes sur le point de quitter un site sécurisé. Voulez-vous continuer?",
+			"targetWarning": "Le lien s'ouvrira dans une nouvelle fenêtre de navigateur.",
+			"yesBtn": "Oui",
+			"cancelBtn": "Annuler"
+
+		}
+	},
+
+	/**
+	 * @method init
+	 * @param {jQuery Event} event Event that triggered the function call
+	 */
+	init = function( event ) {
+		var elm = wb.init( event, componentName, selector ),
+			settings,
+			queryString = window.location.search,
+			urlParams = new URLSearchParams( queryString ),
+			originalURL = urlParams.get( "exturl" ),
+			$elm;
+		if ( elm ) {
+			$elm = $( elm );
+			settings = $.extend(
+				true,
+				window[ componentName ],
+				wb.getData( $elm, componentName )
+
+			);
+
+			$elm.data( componentName, settings );
+
+			if ( settings.url ) {
+				$( this ).attr( "href", settings.url + "?exturl=" +  encodeURIComponent( this.href ) );
+			}
+
+			i18n = i18nDict[ wb.lang || "en" ];
+
+			// This conditional statement for a middle static exit page, to retrieve the URL to the non-secure site.
+			if ( $elm.hasClass( exiturlparam ) ) {
+				this.outerHTML = "<a href='" + originalURL + "'>" + originalURL + "</a>";
+			}
+			wb.ready( $elm, componentName );
+		}
+	};
+
+$document.on( "click", selector, function( event ) {
+
+	var elm = event.currentTarget,
+		$elm = $( elm ),
+		wrapper,
+		targetAttribute = "",
+		moDal = document.createDocumentFragment(),
+		tpl = document.createElement( "div" ),
+		settings =  $elm.data( componentName ),
+		msgboxHeader = i18n.msgboxHeader,
+		yesBtn = i18n.yesBtn,
+		cancelBtn = i18n.cancelBtn,
+		exitMsg = i18n.exitMsg,
+		targetWarning = i18n.targetWarning;
+
+	if ( settings.i18n ) {
+		msgboxHeader =  settings.i18n.msgboxHeader || i18n.msgboxHeader;
+		yesBtn = settings.i18n.yesBtn || i18n.yesBtn;
+		cancelBtn = settings.i18n.cancelBtn || i18n.cancelBtn;
+		exitMsg = settings.i18n.exitMsg || i18n.exitMsg;
+		targetWarning = settings.i18n.targetWarning || i18n.targetWarning;
+	}
+
+	if ( !settings.url ) {
+
+		event.preventDefault();
+	}
+
+	if ( this.hasAttribute( "target" ) ) {
+		targetAttribute = "target='" + this.getAttribute( "target" ) + "'";
+	} else {
+		targetAttribute = "target='" + targetAttribute + "'";
+	}
+
+	if ( this.getAttribute( "target" ) === "_blank" ) {
+		exitMsg = exitMsg  + " " + targetWarning;
+	}
+
+	if ( document.getElementById( moDalId ) ) {
+		document.getElementById( moDalId ).remove();
+
+	}
+
+	if ( !settings.url ) {
+		tpl.innerHTML = "<section id='" + moDalId + "' " + "class='mfp-hide modal-dialog modal-content overlay-def'>" +
+			"<header class='modal-header'><h2 class='modal-title'>" + msgboxHeader + "</h2></header>" +
+			"<div class='modal-body'>" +
+			"<p>" + exitMsg + "</p>" +
+			"</div>" +
+			"<div class='modal-footer'>" +
+			"<ul class='list-inline text-center'>" +
+			"<li><a class='btn btn-default pull-right popup-modal-dismiss'" + targetAttribute + " href='" + this.getAttribute( "href" ) + "'>" + yesBtn + "</a></li>" +
+			"<li><button class='btn btn-primary popup-modal-dismiss pull-left'>" + cancelBtn + "</button></li>" +
+			"</ul></div></section>";
+		moDal.appendChild( tpl );
+		wrapper = moDal.firstChild;
+		wrapper = wrapper.firstChild;
+		document.body.appendChild( wrapper );
+
+		$( wrapper ).trigger( "open.wb-lbx", [
+			[ {
+				src: "#" + moDalId,
+				type: "inline"
+			} ],
+
+			true
+
+		] );
+
+	}
+
+} );
+
+// Bind the init event of the plugin
+$document.on( "timerpoke.wb " + initEvent, selector, init );
+
+// Add the timer poke to initialize the plugin
+wb.add( selector );
+
+} )( jQuery, window, wb );
+
+/**
 * @title WET-BOEW Facebook embedded page
 * @overview Helps with implementing Facebook embedded pages.
 * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
@@ -5416,12 +7859,12 @@ wb.add( selector );
 ( function( $, window, wb ) {
 "use strict";
 
-	/*
-	* Variable and function definitions.
-	* These are global to the plugin - meaning that they will be initialized once per page,
-	* not once per instance of plugin on the page. So, this is a good place to define
-	* variables that are common to all instances of the plugin on a page.
-	*/
+/*
+* Variable and function definitions.
+* These are global to the plugin - meaning that they will be initialized once per page,
+* not once per instance of plugin on the page. So, this is a good place to define
+* variables that are common to all instances of the plugin on a page.
+*/
 var componentName = "wb-facebook",
 	selector = "." + componentName,
 	initEvent = "wb-init" + selector,
@@ -5486,7 +7929,7 @@ wb.add( selector );
  *
  *     <link href="favion.ico" rel='icon' data-rel="apple-touch-icon-precomposed" data-filename="my-mobile-favicon.ico"/>
  */
-( function( $, window, wb ) {
+( function( $, document, wb ) {
 "use strict";
 
 /*
@@ -5555,7 +7998,14 @@ var componentName = "wb-favicon",
 
 		// Create the mobile favicon if it doesn't exist
 		if ( !isFaviconMobile ) {
-			faviconMobile = $( "<link rel='" + data.rel + "' sizes='" + data.sizes + "' class='" + componentName + "'/>" );
+			var lnk = document.createElement( "link" );
+			lnk.setAttribute( "rel", data.rel  );
+			lnk.setAttribute( "sizes", data.sizes );
+			lnk.setAttribute( "class", componentName );
+
+			document.head.appendChild( lnk );
+
+			faviconMobile = $( lnk );
 		}
 
 		// Only add/update a mobile favicon that was created by the plugin
@@ -5625,7 +8075,7 @@ $document.on( mobileEvent + " " + iconEvent, selector, function( event, data ) {
 // Add the timer poke to initialize the plugin
 wb.add( selector );
 
-} )( jQuery, window, wb );
+} )( jQuery, document, wb );
 
 /**
  * @title WET-BOEW Feeds
@@ -5672,7 +8122,7 @@ var componentName = "wb-feeds",
 				};
 
 			// due to CORS we cannot default to simple ajax pulls of the image. We have to inline the content box
-			return "<li><a class='feed-flickr' href='javascript:;' data-flickr='" +
+			return "<li><a class='feed-flickr' href='#' data-flickr='" +
 				wb.escapeAttribute( JSON.stringify( flickrData ) ) + "'><img src='" + flickrData.thumbnail + "' alt='" +
 				wb.escapeAttribute( flickrData.title ) + "' title='" + wb.escapeAttribute( flickrData.title ) +
 				"' class='img-responsive'/></a></li>";
@@ -5690,11 +8140,11 @@ var componentName = "wb-feeds",
 			};
 
 			// Due to CORS we cannot default to simple ajax pulls of the image. We have to inline the content box
-			return "<li class='col-md-4 col-sm-6 feed-youtube' data-youtube='" +
-				wb.escapeAttribute( JSON.stringify( youtubeDate ) ) + "'><a href='javascript:;'><img src='" +
+			return "<li class='col-md-4 col-sm-6'><button class='btn btn-lnk feed-youtube' data-youtube='" +
+				wb.escapeAttribute( JSON.stringify( youtubeDate ) ) + "'><img src='" +
 				wb.pageUrlParts.protocol + "//img.youtube.com/vi/" + youtubeDate.videoId + "/mqdefault.jpg' alt='" +
 				wb.escapeAttribute( youtubeDate.title ) + "' title='" + wb.escapeAttribute( youtubeDate.title ) +
-				"' class='img-responsive' /></a></li>";
+				"' class='img-responsive' /></button></li>";
 		},
 
 		/**
@@ -5787,8 +8237,8 @@ var componentName = "wb-feeds",
 			// Lets bind some variables to the node to ensure safe ajax thread counting
 
 			$content.data( "toProcess", feeds.length )
-					.data( "feedLimit", limit )
-					.data( "entries", [] );
+				.data( "feedLimit", limit )
+				.data( "entries", [] );
 
 			for ( i = last; i !== -1; i -= 1 ) {
 				fElem = feeds.eq( i );
@@ -5866,7 +8316,6 @@ var componentName = "wb-feeds",
 	 */
 	corsEntry = function( xmlDoc, limit ) {
 		var entries = xmlDoc.getElementsByTagName( "entry" ).length,
-			limit = limit,
 			arr_entry = [],
 			corsObj = {},
 			jsonString = JSON.stringify( xmlToJson( xmlDoc ) ),
@@ -6046,10 +8495,10 @@ var componentName = "wb-feeds",
 				$elm.empty().addClass( "waiting" );
 				$details
 					.children( "summary" )
-						.on( "click.wb-feeds", function( event ) {
-							var $summary = $( event.currentTarget ).off( "click.wb-feeds" );
-							activateFeed( $summary.parent().find( feedContSelector ) );
-						} );
+					.on( "click.wb-feeds", function( event ) {
+						var $summary = $( event.currentTarget ).off( "click.wb-feeds" );
+						activateFeed( $summary.parent().find( feedContSelector ) );
+					} );
 			}
 		}
 
@@ -6069,6 +8518,10 @@ var componentName = "wb-feeds",
 		var result = $elm.data( componentName + "-result" ),
 			postProcess = $elm.data( componentName + "-postProcess" ),
 			i, postProcessSelector;
+
+		if ( !result ) {
+			return;
+		}
 
 		$elm.empty()
 			.removeClass( "waiting" )
@@ -6096,7 +8549,7 @@ $document.on( "ajax-fetched.wb data-ready.wb-feeds", selector + " " + feedLinkSe
 		$emlRss = $( eventTarget ).parentsUntil( selector ).parent();
 		switch ( event.type ) {
 		case "ajax-fetched":
-			response = event.fetch.response;
+			response = event.fetch.response.get( 0 );
 			if ( response.documentElement ) {
 				limit = getLimit( $emlRss[ Object.keys( $emlRss )[ 0 ] ] );
 				data = corsEntry( response, limit );
@@ -6132,7 +8585,7 @@ $document.on( "click", selector + " .feed-youtube", function( event ) {
 		youtubeData = wb.getData( event.currentTarget, "youtube" ),
 		videoUrl = wb.pageUrlParts.protocol + "//www.youtube.com/watch?v=" + youtubeData.videoId,
 		videoSource = "<figure class='wb-mltmd'><video title='" + youtubeData.title + "'>" +
-			"<source type='video/youtube' src='" + videoUrl + "' />" +
+			"<source type='video/youtube' src='" + videoUrl + "'></source>" +
 			"</video><figcaption><p>" +  youtubeData.title + "</p>" +
 			"</figcaption></figure>";
 
@@ -6437,6 +8890,7 @@ wb.add( selector );
  */
 var componentName = "wb-fnote",
 	selector = "." + componentName,
+	modFlag = "data-" + componentName,
 	initEvent = "wb-init" + selector,
 	setFocusEvent = "setfocus.wb",
 	$document = wb.doc,
@@ -6458,7 +8912,7 @@ var componentName = "wb-fnote",
 			footnoteDd = elm.getElementsByTagName( "dd" );
 			footnoteDt = elm.getElementsByTagName( "dt" );
 
-			// Apply aria-labelledby and set initial event handlers for return to referrer links
+			// Set initial event handlers for return to referrer links
 			len = footnoteDd.length;
 			for ( i = 0; i !== len; i += 1 ) {
 				dd = footnoteDd[ i ];
@@ -6471,7 +8925,7 @@ var componentName = "wb-fnote",
 			$elm.find( "dd p.fn-rtn a span span" ).remove();
 
 			// Listen for footnote reference links that get clicked
-			$document.on( "click vclick", "main :not(" + selector + ") sup a.fn-lnk", function( event ) {
+			$document.on( "click", "main :not(" + selector + ") sup a.fn-lnk", function( event ) {
 				var eventTarget = event.target,
 					which = event.which,
 					refId, $refLinkDest;
@@ -6482,7 +8936,8 @@ var componentName = "wb-fnote",
 					$refLinkDest = $document.find( refId );
 
 					$refLinkDest.find( "p.fn-rtn a" )
-								.attr( "href", "#" + eventTarget.parentNode.id );
+						.attr( "href", "#" + eventTarget.parentNode.id )
+						.attr( modFlag, true );
 
 					// Assign focus to $refLinkDest
 					$refLinkDest.trigger( setFocusEvent );
@@ -6491,21 +8946,39 @@ var componentName = "wb-fnote",
 			} );
 
 			// Listen for footnote return links that get clicked
-			$document.on( "click vclick", selector + " dd p.fn-rtn a", function( event ) {
+			$document.on( "click", selector + " dd p.fn-rtn a", function( event ) {
 				var which = event.which,
+					$elmTarget = $( event.target ),
 					ref,
-					refId;
+					refId,
+					refIdSrc,
+					refIdDashIdx,
+					searchRefId;
 
 				// Ignore middle/right mouse button
 				if ( !which || which === 1 ) {
-					ref = event.target.getAttribute( "href" );
+					ref = $elmTarget.attr( "href" );
 
 					// Focus on associated referrer link (if the return link points to an ID)
 					if ( ref.charAt( 0 ) === "#" ) {
-						refId = "#" + wb.jqEscape( ref.substring( 1 ) );
+						refId = wb.jqEscape( ref.substring( 1 ) );
+
+						// When first clicked, ensure we send the user on the first instance when the id follow the recommend pattern
+						refIdDashIdx = refId.indexOf( "-" );
+						if ( refIdDashIdx !== -1 && !$elmTarget.attr( modFlag ) ) {
+							searchRefId = refId.substring( 0, refIdDashIdx + 1 );
+							refIdSrc = wb.jqEscape( $( "sup[id^='" + searchRefId + "']:first()" ).attr( "id" ) );
+							if ( !refIdSrc || refId !== refIdSrc ) {
+								console.warn( componentName + " - Relink first reference of " + ref + " for #" + refIdSrc );
+								refId = refIdSrc;
+								$elmTarget
+									.attr( "href", "#" + refId )
+									.attr( modFlag, true );
+							}
+						}
 
 						// Assign focus to the link
-						$document.find( refId + " a" ).trigger( setFocusEvent );
+						$document.find( "#" + refId + " a" ).trigger( setFocusEvent );
 						return false;
 					}
 				}
@@ -6607,11 +9080,7 @@ var componentName = "wb-frmvld",
 						formDOM = $form.get( 0 ),
 						formId = $form.attr( "id" ),
 						labels = formDOM.getElementsByTagName( "label" ),
-						$formElms = $form.find( "input, select, textarea" ),
-						$inputs = $formElms.filter( "input" ),
-						$pattern = $inputs.filter( "[pattern]" ),
 						submitted = false,
-						$required = $formElms.filter( "[required], [data-rule-required], .required" ),
 						errorFormId = "errors-" + ( !formId ? "default" : formId ),
 						settings = $.extend(
 							true,
@@ -6632,28 +9101,25 @@ var componentName = "wb-frmvld",
 						labels[ i ].innerHTML += " ";
 					}
 
-					// Remove the pattern attribute until it is safe to use with jQuery Validation
-					len = $pattern.length;
-					for ( i = 0; i !== len; i += 1 ) {
-						$pattern.eq( i ).removeAttr( "pattern" );
-					}
+					// Hide "required" label text in older forms from screen readers
+					// Prevents redundant "required" announcements on semantically-required fields whose labels mention they're required
+					$form.find( "strong.required:not([aria-hidden='true'])" ).each( function() {
+						const $requiredText = $( this ),
+							$label = $requiredText.closest( "label" ),
+							fieldId = $label.attr( "for" );
+						let $field = fieldId ? $( "#" + fieldId ) : $label.find( ":input" ).first();
 
-					// Change form attributes and values that interfere with validation in IE7/8
-					// TODO: Need better way of dealing with this rather than browser sniffing
-					if ( wb.ieVersion > 0 && wb.ieVersion < 9 ) {
-						len = $required.length;
-						$required.removeAttr( "required" );
-						for ( i = 0; i !== len; i += 1 ) {
-							$required[ i ].setAttribute( "data-rule-required", "true" );
+						// If the label's field has yet to be found, look for fields that refer to the label via aria-labelledby
+						if ( !$field.length ) {
+							const labelId = $label.attr( "id" ) || $requiredText.closest( "id" );
+							$field = $form.find( "[aria-labelledby~='" + labelId + "']:input" ).first();
 						}
-						$inputs.filter( "[type=date]" ).each( function() {
-							var $this = $( this ),
-								$parent = $this.wrap( "<div/>" ).parent(),
-								newElm = $( $parent.html().replace( "type=date", "type=text" ) );
-							$parent.replaceWith( newElm );
-						} );
-						$formElms = $form.find( "input, select, textarea" );
-					}
+
+						// Hide the "required" text if its field is semantically-required
+						if ( $field.is( "[required], [aria-required='true']" ) ) {
+							$requiredText.attr( "aria-hidden", "true" );
+						}
+					} );
 
 					// The jQuery validation plug-in in action
 					validator = $form.validate( {
@@ -6716,8 +9182,8 @@ var componentName = "wb-frmvld",
 
 							//Std If we have a label and the input field is inside the label
 							// need to add a css-implicite-input
-							if ( $form.find( "label" ).find( "input[name='" + $element.attr( "name" ) + "']" ).length > 0 ) {
-								$error.insertBefore( $form.find( "input[name='" + $element.attr( "name" ) + "']" ) );
+							if ( $form.find( "label" ).find( ".wb-server-error + input.css-implicite-input[name='" + $element.attr( "name" ) + "']" ).length > 0 ) {
+								$error.insertBefore( $form.find( ".wb-server-error + input.css-implicite-input[name='" + $element.attr( "name" ) + "']" ) );
 								return;
 							}
 
@@ -6749,8 +9215,8 @@ var componentName = "wb-frmvld",
 									i18nText.formNotSubmitted + $errors.length +
 									(
 										$errors.length !== 1 ?
-										i18nText.errorsFound :
-										i18nText.errorFound
+											i18nText.errorsFound :
+											i18nText.errorFound
 									) + "</" + summaryHeading + "><ul>";
 								$errorfields
 									.closest( ".form-group" )
@@ -6806,7 +9272,7 @@ var componentName = "wb-frmvld",
 									// Update the aria-live region as necessary
 									i = 0;
 									for ( key in errorMap ) {
-										if ( errorMap.hasOwnProperty( key ) ) {
+										if ( Object.prototype.hasOwnProperty.call( errorMap, key ) ) {
 											i += 1;
 											break;
 										}
@@ -6862,11 +9328,6 @@ var componentName = "wb-frmvld",
 
 						invalidHandler: function() {
 							submitted = true;
-						},
-
-						/* adds on tab validation */
-						onfocusout: function( element ) {
-							this.element( element );
 						}
 
 					} ); /* end of validate() */
@@ -6993,12 +9454,213 @@ wb.add( selector );
 } )( jQuery, wb );
 
 /**
+ * @title WET-BOEW JSON Fetch [ json-fetch ]
+ * @overview Load and filter data from a JSON file
+ * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
+ * @author @duboisp
+ */
+/*global jsonpointer */
+( function( $, wb ) {
+"use strict";
+
+/*
+ * Variable and function definitions.
+ * These are global to the plugin - meaning that they will be initialized once per page,
+ * not once per instance of plugin on the page. So, this is a good place to define
+ * variables that are common to all instances of the plugin on a page.
+ */
+var $document = wb.doc,
+	component = "json-fetch",
+	fetchEvent = component + ".wb",
+	jsonCache = { },
+	jsonCacheBacklog = { },
+	completeJsonFetch = function( callerId, refId, response, status, xhr, selector ) {
+		if ( !window.jsonpointer ) {
+
+			// JSON pointer library is loaded but not executed in memory yet, we need to wait a tick before to continue
+			setTimeout( function() {
+				completeJsonFetch( callerId, refId, response, status, xhr, selector );
+			}, 100 );
+			return false;
+		}
+		if ( selector ) {
+			response = jsonpointer.get( response, selector );
+		}
+		$( "#" + callerId ).trigger( {
+			type: "json-fetched.wb",
+			fetch: {
+				response: response,
+				status: status,
+				xhr: xhr,
+				refId: refId
+			}
+		}, this );
+	};
+
+// Event binding
+$document.on( fetchEvent, function( event ) {
+
+	var caller = event.element || event.target,
+		fetchOpts = event.fetch || { url: "" },
+		urlParts = fetchOpts.url.split( "#" ),
+		url = urlParts[ 0 ],
+		fetchNoCache = fetchOpts.nocache,
+		fetchNoCacheKey = fetchOpts.nocachekey || wb.cacheBustKey || "wbCacheBust",
+		fetchNoCacheValue,
+		fetchCacheURL,
+		hashPart,
+		datasetName,
+		selector = urlParts[ 1 ] || false,
+		callerId, refId = fetchOpts.refId,
+		cachedResponse;
+
+	// Filter out any events triggered by descendants
+	if ( caller === event.target || event.currentTarget === event.target ) {
+
+		if ( !caller.id ) {
+			caller.id = wb.getId();
+		}
+		callerId = caller.id;
+
+		if ( selector ) {
+
+			// If a Dataset Name exist let it managed by wb-jsonpatch plugin
+			hashPart = selector.split( "/" );
+			datasetName = hashPart[ 0 ];
+
+			// A dataset name must start with "[" character, if it is a letter, then follow JSON Schema (to be implemented)
+			if ( datasetName.charCodeAt( 0 ) === 91 ) {
+
+				// Let the wb-jsonpatch plugin to manage it
+				$( "#" + callerId ).trigger( {
+					type: "postpone.wb-jsonmanager",
+					postpone: {
+						callerId: callerId,
+						refId: refId,
+						dsname: datasetName,
+						selector: selector.substring( datasetName.length )
+					}
+				} );
+				return;
+			}
+			fetchOpts.url = url;
+		}
+
+		if ( fetchNoCache ) {
+			if ( fetchNoCache === "nocache" ) {
+				fetchNoCacheValue = wb.guid();
+			} else {
+				fetchNoCacheValue = wb.sessionGUID();
+			}
+			fetchCacheURL = fetchNoCacheKey + "=" + fetchNoCacheValue;
+
+			if ( url.indexOf( "?" ) !== -1 ) {
+				url = url + "&" + fetchCacheURL;
+			} else {
+				url = url + "?" + fetchCacheURL;
+			}
+			fetchOpts.url = url;
+		}
+
+		Modernizr.load( {
+			load: "site!deps/jsonpointer" + wb.getMode() + ".js",
+			complete: function() {
+
+				// Ensure this fetch has an URL. There is no URL when only using dataset name (a virtual JSON file).
+				if ( !url ) {
+					return;
+				}
+
+				if ( !fetchOpts.nocache ) {
+					cachedResponse = jsonCache[ url ];
+
+					if ( cachedResponse ) {
+						completeJsonFetch( callerId, refId, cachedResponse, "success", undefined, selector );
+						return;
+					} else {
+						if ( !jsonCacheBacklog[ url ] ) {
+							jsonCacheBacklog[ url ] = [ ];
+						} else {
+							jsonCacheBacklog[ url ].push( {
+								"callerId": callerId,
+								"refId": refId,
+								"selector": selector
+							} );
+							return;
+						}
+					}
+				}
+
+				// Ensure we only receive JSON data and don't allow jsonp
+				// jQuery will raise an error if other data format is received
+				fetchOpts.dataType = "json";
+				if ( fetchOpts.jsonp ) {
+					fetchOpts.jsonp = false;
+				}
+
+				// Sending Data
+				if ( fetchOpts.data ) {
+					try {
+						fetchOpts.data = ( typeof fetchOpts.data === "string" ? fetchOpts.data : JSON.stringify( fetchOpts.data ) );
+					} catch ( err ) {
+						throw "JSON fetch - Data being sent to server - " + err;
+					}
+
+					fetchOpts.method = fetchOpts.method || "POST";
+					fetchOpts.contentType = fetchOpts.contentType || "application/json";
+				}
+
+				$.ajax( fetchOpts )
+					.done( function( response, status, xhr ) {
+						var i, i_len, i_cache, backlog;
+
+						if ( !fetchOpts.nocache ) {
+							try {
+								jsonCache[ url ] = response;
+							} catch ( error ) {
+								return;
+							}
+						}
+
+						completeJsonFetch( callerId, refId, response, status, xhr, selector );
+
+						if ( jsonCacheBacklog[ url ] ) {
+							backlog = jsonCacheBacklog[ url ];
+
+							i_len = backlog.length;
+
+							for ( i = 0; i !== i_len; i += 1 ) {
+								i_cache = backlog[ i ];
+								completeJsonFetch( i_cache.callerId, i_cache.refId, response, status, xhr, i_cache.selector );
+							}
+						}
+
+					} )
+					.fail( function( xhr, status, error ) {
+						$( "#" + callerId ).trigger( {
+							type: "json-failed.wb",
+							fetch: {
+								xhr: xhr,
+								status: status,
+								error: error,
+								refId: refId
+							}
+						}, this );
+					}, this );
+			}
+		} );
+	}
+} );
+
+} )( jQuery, wb );
+
+/**
  * @title WET-BOEW Lightbox
  * @overview Helps build a photo gallery on a web page.
  * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
  * @author @pjackson28
  */
-( function( $, window, document, wb, undef ) {
+( function( $, DOMPurify, window, document, wb, undef ) {
 "use strict";
 
 /*
@@ -7138,6 +9800,8 @@ var componentName = "wb-lbx",
 					var $item = this.currItem,
 						$content = this.contentContainer,
 						$wrap = this.wrap,
+						$container = $wrap.find( ".mfp-container" ),
+						$containerParent = $container.parent(),
 						$modal = $wrap.find( ".modal-dialog" ),
 						$buttons = $wrap.find( ".mfp-close, .mfp-arrow" ),
 						len = $buttons.length,
@@ -7158,15 +9822,21 @@ var componentName = "wb-lbx",
 						$content.attr( "role", "document" );
 					}
 
-					$wrap.append( "<span tabindex='0' class='lbx-end wb-inv'></span>" )
-						.find( ".activate-open" )
-						.trigger( "wb-activate" );
-
 					this.contentContainer.attr( "data-pgtitle", document.getElementsByTagName( "H1" )[ 0 ].textContent );
+
+					trapTabbing( $wrap );
+
+					if ( !$containerParent.is( "dialog" ) ) {
+						$container.wrap( "<dialog class='mfp-container' open='open'></dialog>" );
+					} else {
+						$containerParent.attr( "open", "open" );
+					}
 				},
 				close: function() {
 					$document.find( "body" ).removeClass( "wb-modal" );
 					$document.find( modalHideSelector ).removeAttr( "aria-hidden" );
+					this.wrap.find( "dialog" ).removeAttr( "open" );
+
 				},
 				change: function() {
 					var $item = this.currItem,
@@ -7223,6 +9893,9 @@ var componentName = "wb-lbx",
 						selector = filter || ( urlHash ? "#" + urlHash : false ),
 						$response;
 
+					// Sanitize the response
+					mfpResponse.data = DOMPurify.sanitize( mfpResponse.data );
+
 					// Provide the ability to filter the AJAX response HTML
 					// by the URL hash or a selector
 					// TODO: Should be dealt with upstream by Magnific Popup
@@ -7235,10 +9908,13 @@ var componentName = "wb-lbx",
 
 					$response
 						.find( ".modal-title, h1" )
-							.first()
-								.attr( "id", "lbx-title" );
+						.first()
+						.attr( "id", "lbx-title" );
 
 					mfpResponse.data = $response;
+				},
+				ajaxContentAdded: function() {
+					trapTabbing( this.wrap );
 				}
 			};
 		}
@@ -7281,10 +9957,29 @@ var componentName = "wb-lbx",
 
 				$( footer ).append( overlayCloseFtr );
 				if ( !hasFooter ) {
-					$modal.append( footer );
+					$( footer ).insertAfter( $modal.find( ".modal-body" ) );
 				}
 			}
 		}
+	},
+	trapTabbing = function( $wrap ) {
+
+		$wrap.on( "keydown", function( e ) {
+			if ( e.which === 9 ) {
+				var tabbable = $wrap.find( ".mfp-container :tabbable:visible" ),
+					firstTabbable = tabbable.first()[ 0 ],
+					lastTabbable = tabbable.last()[ 0 ],
+					currentFocus = $( document.activeElement )[ 0 ];
+
+				if ( !e.shiftKey && currentFocus === lastTabbable ) {
+					e.preventDefault();
+					firstTabbable.focus();
+				} else if ( e.shiftKey && ( currentFocus === firstTabbable || currentFocus === $wrap[ 0 ] ) ) {
+					e.preventDefault();
+					lastTabbable.focus();
+				}
+			}
+		} );
 	};
 
 // Bind the init event of the plugin
@@ -7293,7 +9988,7 @@ $document.on( "timerpoke.wb " + initEvent, selector, init );
 // Handler for clicking on a same page link within the overlay to outside the overlay
 $document.on( "click vclick", ".mfp-wrap a[href^='#']", function( event ) {
 	var which = event.which,
-		eventTarget = event.target,
+		eventTarget = event.currentTarget,
 		$lightbox, linkTarget;
 
 	// Ignore middle/right mouse buttons
@@ -7364,7 +10059,7 @@ $( document ).on( "open" + selector, function( event, items, modal, title, ajax 
 // Add the timer poke to initialize the plugin
 wb.add( selector );
 
-} )( jQuery, window, document, wb );
+} )( jQuery, DOMPurify, window, document, wb );
 
 /**
  * @title WET-BOEW Menu plugin
@@ -7501,11 +10196,11 @@ var componentName = "wb-menu",
 
 			if ( elm && subItemsLength === 0 && elm.nodeName.toLowerCase() === "a" ) {
 				sectionHtml += "<li>" + $item[ 0 ].innerHTML.replace(
-						/(<a\s)/,
-						"$1" + menuitem + itemsLength +
+					/(<a\s)/,
+					"$1" + menuitem + itemsLength +
 							posinset + ( k + 1 ) +
 							"' tabindex='-1' "
-					) + "</li>";
+				) + "</li>";
 			} else {
 				sectionHtml += createCollapsibleSection( elm, k, itemsLength, $subItems, $subItems.length );
 			}
@@ -7682,7 +10377,7 @@ var componentName = "wb-menu",
 				panelDOM.innerHTML = "<header class='modal-header'><div class='modal-title'>" +
 						document.getElementById( "wb-glb-mn" )
 							.getElementsByTagName( "h2" )[ 0 ]
-								.innerHTML +
+							.innerHTML +
 						"</div></header><div class='modal-body'>" + panel + "</div>";
 				panelDOM.className += " wb-overlay modal-content overlay-def wb-panel-r";
 
@@ -7700,14 +10395,14 @@ var componentName = "wb-menu",
 				 */
 				$ajaxed
 					.find( ":discoverable" )
-						.attr( "tabindex", "-1" );
+					.attr( "tabindex", "-1" );
 
 				if ( $menu.length !== 0 ) {
 					$menu[ 0 ].setAttribute( "tabindex", "0" );
 					drizzleAria( $menu );
 					$menu
 						.filter( "[aria-haspopup=true]" )
-							.append( "<span class='expicon glyphicon glyphicon-chevron-down'></span>" );
+						.append( "<span class='expicon glyphicon glyphicon-chevron-down'></span>" );
 				}
 
 				// Replace elements
@@ -7727,9 +10422,9 @@ var componentName = "wb-menu",
 						// If not at the top level, then add wb-navcurr to the top level
 						if ( !$menuItem.hasClass( ".mb-item" ) ) {
 							$menuItem = $menuItem
-											.closest( "details" )
-												.children( "summary" )
-													.addClass( "wb-navcurr" );
+								.closest( "details" )
+								.children( "summary" )
+								.addClass( "wb-navcurr" );
 						}
 					}
 
@@ -7739,7 +10434,7 @@ var componentName = "wb-menu",
 						$menuItem
 							.trigger( "click" )
 							.parent()
-								.prop( "open", "open" );
+							.prop( "open", "open" );
 					}
 
 					// Identify that initialization has completed
@@ -7806,20 +10501,20 @@ var componentName = "wb-menu",
 		$elm
 			.removeClass( "sm-open" )
 			.children( ".open" )
-				.removeClass( "open" )
-				.attr( {
-					"aria-hidden": "true",
-					"aria-expanded": "false"
-				} )
+			.removeClass( "open" )
+			.attr( {
+				"aria-hidden": "true",
+				"aria-expanded": "false"
+			} )
 
-				// Close nested submenus
-				.find( "details" )
-					.removeAttr( "open" )
-					.children( "ul" )
-						.attr( {
-							"aria-hidden": "true",
-							"aria-expanded": "false"
-						} );
+		// Close nested submenus
+			.find( "details" )
+			.removeAttr( "open" )
+			.children( "ul" )
+			.attr( {
+				"aria-hidden": "true",
+				"aria-expanded": "false"
+			} );
 
 		if ( removeActive ) {
 			$elm.removeClass( "active" );
@@ -7845,11 +10540,11 @@ var componentName = "wb-menu",
 			menu
 				.addClass( "sm-open" )
 				.children( ".sm" )
-					.addClass( "open" )
-					.attr( {
-						"aria-hidden": "false",
-						"aria-expanded": "true"
-					} );
+				.addClass( "open" )
+				.attr( {
+					"aria-hidden": "false",
+					"aria-expanded": "true"
+				} );
 		}
 	},
 
@@ -7964,11 +10659,11 @@ $document.on( "click", selector + " [role=menu] [aria-haspopup=true]", function(
 	if ( !isOpen ) {
 		$( parent )
 			.closest( "[role^='menu']" )
-				.find( "[aria-hidden=false]" )
-					.parent()
-						.find( "[aria-haspopup=true]" )
-							.not( menuItem )
-								.trigger( "click" );
+			.find( "[aria-hidden=false]" )
+			.parent()
+			.find( "[aria-haspopup=true]" )
+			.not( menuItem )
+			.trigger( "click" );
 
 		// Ensure the opened menu is in view if in a mobile panel
 		menuContainer = document.getElementById( "mb-pnl" );
@@ -8123,11 +10818,11 @@ $document.on( "keydown", selector + " [role=menuitem]", function( event ) {
 					if ( !isOpen ) {
 						$( parent )
 							.closest( "[role^='menu']" )
-								.find( "[aria-hidden=false]" )
-									.parent()
-										.find( "[aria-haspopup=true]" )
-											.not( menuItem )
-												.trigger( "click" );
+							.find( "[aria-hidden=false]" )
+							.parent()
+							.find( "[aria-haspopup=true]" )
+							.not( menuItem )
+							.trigger( "click" );
 
 						// Ensure the opened menu is in view if in a mobile panel
 						menuContainer = document.getElementById( "mb-pnl" );
@@ -8150,7 +10845,7 @@ $document.on( "keydown", selector + " [role=menuitem]", function( event ) {
 							"aria-hidden": "false"
 						} )
 						.find( "[role=menuitem]:first" )
-							.trigger( "setfocus.wb" );
+						.trigger( "setfocus.wb" );
 				}
 
 			// Escape, left / right arrow without a submenu
@@ -8194,8 +10889,8 @@ $document.on( "keydown", selector + " [role=menuitem]", function( event ) {
 						event.preventDefault();
 						$menu.closest( "li" )
 							.find( menuitemSelector )
-								.trigger( "click" )
-								.trigger( "setfocus.wb" );
+							.trigger( "click" )
+							.trigger( "setfocus.wb" );
 
 					// No higher-level menu but the current submenu is open
 					} else if ( $menuItem.parent().children( "ul" ).attr( "aria-hidden" ) === "false" ) {
@@ -8255,7 +10950,7 @@ wb.add( selector );
  * @author WET Community
  */
 /* globals YT */
-( function( $, window, wb, undef ) {
+( function( $, DOMPurify, window, wb, undef ) {
 "use strict";
 
 /* Local scoped variables*/
@@ -8286,6 +10981,7 @@ var componentName = "wb-mltmd",
 		"timeupdate",
 		"waiting",
 		"canplay",
+		"seeked",
 		"progress",
 		captionsLoadedEvent,
 		captionsLoadFailedEvent,
@@ -8344,7 +11040,10 @@ var componentName = "wb-mltmd",
 								}
 							}
 						}
-					} catch ( err ) { }
+					} catch ( err ) {
+
+						/* swallow error */
+					}
 				} );
 
 				//
@@ -8542,22 +11241,22 @@ var componentName = "wb-mltmd",
 	parseXml = function( content ) {
 		var captions = [],
 			captionSelector = "[begin]",
-			captionElements = content.find( captionSelector ),
+			parser = new DOMParser(),
+			doc = parser.parseFromString( content, "application/xml" ),
+			captionElements = doc.querySelectorAll( captionSelector ),
 			len = captionElements.length,
 			i, captionElement, begin, end;
 
 		for ( i = 0; i !== len; i += 1 ) {
-			captionElement = $( captionElements[ i ] );
-			begin = parseTime( captionElement.attr( "begin" ) );
-			end = captionElement.attr( "end" ) !== undef ?
-				parseTime( captionElement.attr( "end" ) ) :
-				parseTime( captionElement.attr( "dur" ) ) + begin;
+			captionElement = captionElements[ i ];
 
-			captionElement = captionElement.clone();
-			captionElement.find( captionSelector ).detach();
+			begin = parseTime( captionElement.getAttribute( "begin" ) + "" );
+			end = captionElement.hasAttribute( "end" ) ?
+				parseTime( captionElement.getAttribute( "end" ) + "" ) :
+				parseTime( captionElement.getAttribute( "dur" ) + "" ) + begin;
 
 			captions[ captions.length ] = {
-				text: captionElement.html(),
+				text: DOMPurify.sanitize( captionElement.textContent ),
 				begin: begin,
 				end: end
 			};
@@ -8583,12 +11282,29 @@ var componentName = "wb-mltmd",
 				return data.replace( /<img|object [^>]*>/g, "" );
 			},
 			success: function( data ) {
-				elm.trigger( {
-					type: captionsLoadedEvent,
-					captions: data.indexOf( "<html" ) !== -1 ?
-						parseHtml( $( data ) ) :
-						parseXml( $( data ) )
-				} );
+
+				var captionItems;
+
+				if ( data.indexOf( "<html" ) !== -1 ) {
+
+					// Sanitize the response
+					captionItems = parseHtml( $( DOMPurify.sanitize( data, { WHOLE_DOCUMENT: true } ) ) );
+				} else {
+
+					// Response is sanitized in the XML parser function
+					captionItems = parseXml( data );
+				}
+
+				if ( captionItems.length ) {
+					elm.trigger( {
+						type: captionsLoadedEvent,
+						captions: captionItems
+					} );
+				} else {
+					elm.trigger( {
+						type: captionsLoadFailedEvent
+					} );
+				}
 			},
 			error: function( response, textStatus, errorThrown ) {
 				elm.trigger( {
@@ -8607,10 +11323,18 @@ var componentName = "wb-mltmd",
 	 * @fires ccloaded.wb-mltmd
 	 */
 	loadCaptionsInternal = function( elm, obj ) {
-		elm.trigger( {
-			type: captionsLoadedEvent,
-			captions: parseHtml( obj )
-		} );
+		var captionItems = parseHtml( obj );
+
+		if ( captionItems.length ) {
+			elm.trigger( {
+				type: captionsLoadedEvent,
+				captions: captionItems
+			} );
+		} else {
+			elm.trigger( {
+				type: captionsLoadFailedEvent
+			} );
+		}
 	},
 
 	/**
@@ -9015,10 +11739,10 @@ $document.on( renderUIEvent, selector, function( event, type, data ) {
 
 		// Create the share widgets if needed
 		if ( data.shareUrl !== undef ) {
-			$( "<div class='wb-share' data-wb-share=\'{\"type\": \"" +
+			$( "<div class='wb-share' data-wb-share='{\"type\": \"" +
 				( type === "audio" ? type : "video" ) + "\", \"title\": \"" +
 				data.title.replace( /'/g, "&apos;" ) + "\", \"url\": \"" + data.shareUrl +
-				"\", \"pnlId\": \"" + data.id + "-shr\"}\'></div>" )
+				"\", \"pnlId\": \"" + data.id + "-shr\"}'></div>" )
 				.insertBefore( $media.parent() )
 				.trigger( "wb-init.wb-share" );
 		}
@@ -9054,7 +11778,7 @@ $document.on( "click", selector, function( event ) {
 	// JSPerf for multiple class matching https://jsperf.com/hasclass-vs-is-stackoverflow/7
 	if ( className.match( /playpause|-play|-pause|display/ ) || $target.is( "object" ) || $target.is( "video" ) ) {
 		this.player( "getPaused" ) || this.player( "getEnded" ) ? this.player( "play" ) : this.player( "pause" );
-	} else if ( className.match( /\bcc\b|-subtitles/ )  ) {
+	} else if ( className.match( /(^|\s)cc\b|-subtitles/ ) && !$target.attr( "disabled" ) && !$target.parent().attr( "disabled" ) ) {
 		this.player( "setCaptionsVisible", !this.player( "getCaptionsVisible" ) );
 	} else if ( className.match( /\bmute\b|-volume-(up|off)/ ) ) {
 		this.player( "setMuted", !this.player( "getMuted" ) );
@@ -9174,9 +11898,9 @@ $document.on( multimediaEvents, selector, function( event, simulated ) {
 		$button
 			.attr( "title", buttonData )
 			.children( "span" )
-				.toggleClass( "glyphicon-play", !isPlay )
-				.toggleClass( "glyphicon-pause", isPlay )
-				.html( invStart + buttonData + invEnd );
+			.toggleClass( "glyphicon-play", !isPlay )
+			.toggleClass( "glyphicon-pause", isPlay )
+			.html( invStart + buttonData + invEnd );
 		break;
 
 	case "volumechange":
@@ -9190,9 +11914,9 @@ $document.on( multimediaEvents, selector, function( event, simulated ) {
 				"aria-pressed": isMuted
 			} )
 			.children( "span" )
-				.toggleClass( "glyphicon-volume-up", !isMuted )
-				.toggleClass( "glyphicon-volume-off", isMuted )
-				.html( invStart + buttonData + invEnd );
+			.toggleClass( "glyphicon-volume-up", !isMuted )
+			.toggleClass( "glyphicon-volume-off", isMuted )
+			.html( invStart + buttonData + invEnd );
 		$slider = $this.find( "input[type='range']" );
 		$slider[ 0 ].value = isMuted ? 0 : volume;
 		$slider.trigger( "wb-update.wb-slider" );
@@ -9238,11 +11962,15 @@ $document.on( multimediaEvents, selector, function( event, simulated ) {
 
 	case "ccloadfail":
 		if ( eventNamespace === componentName ) {
-			$this.find( ".wb-mm-cc" )
-				.append( "<p class='errmsg'><span>" + i18nText.cc_error + "</span></p>" )
-				.end()
-				.find( ".cc" )
-				.attr( "disabled", "" );
+			if ( !$this.hasClass( "errmsg" ) ) {
+				$this.addClass( "cc_on errmsg" )
+					.find( ".wb-mm-cc" )
+					.append( "<div>" + i18nText.cc_error + "</div>" )
+					.end()
+					.find( ".cc" )
+					.attr( "disabled", "" )
+					.removeAttr( "aria-pressed" );
+			}
 		}
 		break;
 
@@ -9268,6 +11996,7 @@ $document.on( multimediaEvents, selector, function( event, simulated ) {
 		break;
 
 	case "canplay":
+	case "seeked":
 		this.loading = clearTimeout( this.loading );
 		$this.removeClass( "waiting" );
 		break;
@@ -9326,7 +12055,7 @@ window.youTube = {
 
 wb.add( selector );
 
-} )( jQuery, window, wb );
+} )( jQuery, DOMPurify, window, wb );
 
 /**
  * @title WET-BOEW NavCurrent
@@ -9365,7 +12094,7 @@ var componentName = "wb-navcurr",
 				menuLinksArray = [],
 				menuLinksUrlArray = [],
 				windowLocation = window.location,
-				pageUrl = windowLocation.hostname + windowLocation.pathname.replace( /^([^\/])/, "/$1" ),
+				pageUrl = windowLocation.hostname + windowLocation.pathname.replace( /^([^/])/, "/$1" ),
 				pageUrlQuery = windowLocation.search,
 				match = false,
 				className = classNameOverride ? classNameOverride : componentName,
@@ -9382,7 +12111,7 @@ var componentName = "wb-navcurr",
 					linkHref = link.getAttribute( "href" );
 					if ( linkHref !== null ) {
 						if ( linkHref.length !== 0 && linkHref.charAt( 0 ) !== "#" ) {
-							linkUrl = link.hostname + link.pathname.replace( /^([^\/])/, "/$1" );
+							linkUrl = link.hostname + link.pathname.replace( /^([^/])/, "/$1" );
 							linkQuery = link.search;
 							linkQueryLen = linkQuery.length;
 							if ( pageUrl.slice( -linkUrl.length ) === linkUrl && ( linkQueryLen === 0 || pageUrlQuery.slice( -linkQueryLen ) === linkQuery ) ) {
@@ -9412,7 +12141,7 @@ var componentName = "wb-navcurr",
 							linkHref = ( child && child.nodeName === "A" ) ? child.getAttribute( "href" ) : "";
 							if ( linkHref && linkHref.charAt( 0 ) !== "#" ) {
 								localBreadcrumbLinksArray.push( child );
-								localBreadcrumbLinksUrlArray.push( child.hostname + child.pathname.replace( /^([^\/])/, "/$1" ) );
+								localBreadcrumbLinksUrlArray.push( child.hostname + child.pathname.replace( /^([^/])/, "/$1" ) );
 							}
 						}
 
@@ -9529,7 +12258,7 @@ var componentName = "wb-overlay",
 				footer = $elm.find( ".modal-footer" )[ 0 ];
 
 				var hasFooter = ( footer && footer.length !== 0 ) ? true : false,
-					hasButton = hasFooter && $( footer ).find( closeClass ).length !== 0,
+					hasButton = hasFooter && $( footer ).find( "." + closeClass ).length !== 0,
 					closeClassFtr = ( $elm.hasClass( "wb-panel-l" ) ? "pull-right " : "pull-left " )  + closeClass,
 					closeTextFtr = i18nText.close,
 					spanTextFtr = i18nText.closeOverlay,
@@ -9584,6 +12313,7 @@ var componentName = "wb-overlay",
 
 		$overlay
 			.addClass( "open" )
+			.attr( "role", "dialog" )
 			.attr( "aria-hidden", "false" );
 
 		if ( $overlay.hasClass( "wb-popup-full" ) || $overlay.hasClass( "wb-popup-mid" ) ) {
@@ -9614,6 +12344,7 @@ var componentName = "wb-overlay",
 
 		$overlay
 			.removeClass( "open" )
+			.removeAttr( "role" )
 			.attr( "aria-hidden", "true" );
 
 		if ( $overlay.hasClass( "wb-popup-full" ) || $overlay.hasClass( "wb-popup-mid" ) ) {
@@ -10125,7 +12856,7 @@ wb.add( selector );
  * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
  * @author @patheard
  */
-( function( $, window, document, wb ) {
+( function( $, DOMPurify, window, document, wb ) {
 "use strict";
 
 /*
@@ -10324,6 +13055,9 @@ var $modal, $modalLink, countdownInterval, i18n, i18nText,
 				method: settings.method,
 				success: function( response ) {
 
+					// Sanitize the response
+					response = DOMPurify.sanitize( response );
+
 					// Session is valid
 					if ( response && settings.refreshCallback( response ) ) {
 						$elm.trigger( resetEvent, settings );
@@ -10339,7 +13073,7 @@ var $modal, $modalLink, countdownInterval, i18n, i18nText,
 							body: "<p>" + i18nText.timeoutAlready + "</p>",
 							buttons: $( "<button type='button' class='" + confirmClass +
 								" btn btn-primary popup-modal-dismiss'>" + i18nText.buttonSignin + "</button>" )
-									.data( "logouturl", settings.logouturl )
+								.data( "logouturl", settings.logouturl )
 						} );
 					}
 				}
@@ -10367,11 +13101,11 @@ var $modal, $modalLink, countdownInterval, i18n, i18nText,
 
 		$buttonContinue = $( buttonStart + confirmClass +
 			" btn btn-primary popup-modal-dismiss'>" + i18nText.buttonContinue + buttonEnd )
-				.data( settings )
-				.data( "start", getCurrentTime() );
+			.data( settings )
+			.data( "start", getCurrentTime() );
 		$buttonEnd = $( buttonStart + confirmClass + " btn btn-default'>" +
 			i18nText.buttonEnd + buttonEnd )
-				.data( "logouturl", settings.logouturl );
+			.data( "logouturl", settings.logouturl );
 
 		openModal( {
 			body: "<p>" + timeoutBegin + "<br />" + i18nText.timeoutEnd + "</p>",
@@ -10569,7 +13303,7 @@ $document.on( "click", "." + confirmClass, confirm );
 // Add the timer poke to initialize the plugin
 wb.add( selector );
 
-} )( jQuery, window, document, wb );
+} )( jQuery, DOMPurify, window, document, wb );
 
 /**
  * @title WET-BOEW Share widget
@@ -10735,12 +13469,12 @@ var componentName = "wb-share",
 			id = "shr-pg" + ( pnlId.length !== 0 ? "-" + pnlId : panelCount );
 			pageHref = encodeURIComponent( settings.url );
 
-			regex = /\'|&#39;|&apos;/g;
+			regex = /'|&#39;|&apos;/g;
 			pageTitle = encodeURIComponent( settings.title )
-							.replace( regex, "%27" );
+				.replace( regex, "%27" );
 			pageImage = encodeURIComponent( settings.img );
 			pageDescription = encodeURIComponent( settings.desc )
-								.replace( regex, "%27" );
+				.replace( regex, "%27" );
 
 			// Don't create the panel for the second link (class="link-only")
 			if ( elm.className.indexOf( "link-only" ) === -1 ) {
@@ -10753,7 +13487,7 @@ var componentName = "wb-share",
 				if ( !filter || filter.length === 0 ) {
 					keys = [];
 					for ( key in sites ) {
-						if ( sites.hasOwnProperty( key ) ) {
+						if ( Object.prototype.hasOwnProperty.call( sites, key ) ) {
 							keys.push( key );
 						}
 					}
@@ -10772,10 +13506,10 @@ var componentName = "wb-share",
 					key = keys[ i ];
 					siteProperties = sites[ key ];
 					url = siteProperties.url
-							.replace( /\{u\}/, pageHref )
-							.replace( /\{t\}/, pageTitle )
-							.replace( /\{i\}/, pageImage )
-							.replace( /\{d\}/, pageDescription );
+						.replace( /\{u\}/, pageHref )
+						.replace( /\{t\}/, pageTitle )
+						.replace( /\{i\}/, pageImage )
+						.replace( /\{d\}/, pageDescription );
 					panel += "<li><a href='" + url + "' class='" + shareLink +
 						" " + ( siteProperties.isMailto ? "email" : key ) +
 						" btn btn-default' target='_blank' rel='noreferrer noopener'>" +
@@ -10941,6 +13675,7 @@ var componentName = "wb-steps",
 			 */
 			if ( form && hasStepsInitialized ) {
 				$( form ).children( "input" ).hide();
+				wb.ready( $( elm ), componentName );
 			}
 		}
 	},
@@ -11017,6 +13752,9 @@ var componentName = "wb-steps",
 				buttonGroup = fieldset.querySelector( "div.buttons" );
 				if ( legend ) {
 					legend.classList.add( "wb-steps-active" );
+					legend.tabIndex = 0;
+					legend.focus();
+					legend.tabIndex = -1;
 				}
 				if ( elm ) {
 					elm.classList.remove( "hidden" );
@@ -11105,7 +13843,8 @@ var componentName = "wb-tables",
 					processing: i18n( "process" ),
 					search: i18n( "filter" ),
 					thousands: i18n( "info1000" ),
-					zeroRecords: i18n( "infoEmpty" )
+					zeroRecords: i18n( "infoEmpty" ),
+					tblFilterInstruction: i18n( "tbFilterInst" )
 				};
 			}
 
@@ -11122,7 +13861,8 @@ var componentName = "wb-tables",
 				},
 				complete: function() {
 					var $elm = $( "#" + elmId ),
-						dataTableExt = $.fn.dataTableExt;
+						dataTableExt = $.fn.dataTableExt,
+						settings = wb.getData( $elm, componentName );
 
 					/*
 					 * Extend sorting support
@@ -11152,11 +13892,8 @@ var componentName = "wb-tables",
 						}
 					} );
 
-					// Add the container or the sorting icons
-					$elm.find( "th" ).append( "<span class='sorting-cnt'><span class='sorting-icons'></span></span>" );
-
 					// Create the DataTable object
-					$elm.dataTable( $.extend( true, {}, defaults, window[ componentName ], wb.getData( $elm, componentName ) ) );
+					$elm.dataTable( $.extend( true, {}, defaults, window[ componentName ], settings ) );
 				}
 			} );
 		}
@@ -11175,6 +13912,19 @@ $document.on( "draw.dt", selector, function( event, settings ) {
 		pHasPN = pagination.find( ".previous, .next" ).length === 2,
 		ol = document.createElement( "OL" ),
 		li = document.createElement( "LI" );
+
+	// Handle sorting/ordering
+	var order = $elm.dataTable( { "retrieve": true } ).api().order();
+	$elm.find( "th" ).each( function( index ) {
+		var $th = $( this ),
+			$btn = $th.find( "button" );
+		if ( order && order.length && order[ 0 ][ 0 ] === index ) {
+			var label = ( order[ 0 ][ 1 ] === "desc" ) ? i18nText.aria.sortAscending : i18nText.aria.sortDescending;
+			label = $btn.text() + label;
+			$btn.attr( "title", label );
+		}
+		$th.removeAttr( "aria-label" );
+	} );
 
 	// Determine if Pagination required
 	if (
@@ -11213,7 +13963,7 @@ $document.on( "draw.dt", selector, function( event, settings ) {
 		// Should be pushed upstream to DataTables
 		$elm.next( ".bottom" ).find( ".paginate_button" )
 			.attr( {
-				"href": "#" + $elm.context.id
+				"href": "#" + $elm.get( 0 ).id
 			} )
 
 			// This is required to override the datatable.js (v1.10.13) behavior to cancel the event propagation on anchor element.
@@ -11224,12 +13974,12 @@ $document.on( "draw.dt", selector, function( event, settings ) {
 			} )
 
 			.not( ".previous, .next" )
-				.attr( "aria-pressed", "false" )
-				.html( function( index, oldHtml ) {
-					return "<span class='wb-inv'>" + i18nText.paginate.page + " </span>" + oldHtml;
-				} )
-				.filter( ".current" )
-					.attr( "aria-pressed", "true" );
+			.attr( "aria-pressed", "false" )
+			.html( function( index, oldHtml ) {
+				return "<span class='wb-inv'>" + i18nText.paginate.page + " </span>" + oldHtml;
+			} )
+			.filter( ".current" )
+			.attr( "aria-pressed", "true" );
 	}
 
 	// Identify that the table has been updated
@@ -11238,6 +13988,21 @@ $document.on( "draw.dt", selector, function( event, settings ) {
 
 // Identify that initialization has completed
 $document.on( "init.dt", function( event ) {
+	var $elm = $( event.target ),
+		settings = $.extend( true, {}, defaults, window[ componentName ], wb.getData( $elm, componentName ) );
+
+	// Handle sorting/ordering
+	var ordering = ( settings && settings.ordering === false ) ? false : true;
+	if ( ordering ) {
+		$elm.find( "th" ).each( function() {
+			var $th = $( this ),
+				label = ( $th.attr( "aria-sort" ) === "ascending" ) ? i18nText.aria.sortDescending : i18nText.aria.sortAscending;
+
+			$th.html( "<button type='button' aria-controls='" + $th.attr( "aria-controls" ) +  "' title='" + $th.text().replace( /'/g, "&#39;" ) + label + "'>" + $th.html() + "<span class='sorting-cnt'><span class='sorting-icons' aria-hidden='true'></span></span></button>" );
+			$th.removeAttr( "aria-label tabindex aria-controls" );
+		} );
+		$elm.attr( "aria-label", i18nText.tblFilterInstruction );
+	}
 	wb.ready( $( event.target ), componentName );
 } );
 
@@ -11247,50 +14012,141 @@ $document.on( "submit", ".wb-tables-filter", function( event ) {
 	event.preventDefault();
 
 	var $form = $( this ),
-		$datatable = $( "#" + $form.data( "bind-to" ) ).dataTable( { "retrieve": true } ).api();
+		$datatable = $( "#" + $form.data( "bind-to" ) ).dataTable( { "retrieve": true } ).api(),
+		$toNumber = function stringToNumber( number ) {
+			number = number.replace( /[^0-9\-,.]+/g, "" );
+			if ( /[,]\d{1,2}$/.test( number ) ) {
+				number = number.replace( /(\d{2})$/, ".$1" );
+			}
+			number = number.replace( /,/g, "" );
+			return parseFloat( number );
+		},
+		$isDate = function isDate( date ) {
+			return date instanceof Date && !isNaN( date );
+		};
 
 	// Lets reset the search
 	$datatable.search( "" ).columns().search( "" ).draw();
 
 	// Lets loop throug all options
-	var $lastColumn = -1, $cbVal = "";
+	var $prevCol = -1, $cachedVal = "";
 	$form.find( "[name]" ).each( function() {
 		var $elm = $( this ),
+			$val = $elm.val(),
 			$value = "",
 			$regex = "",
+			$column = parseInt( $elm.attr( "data-column" ), 10 ),
 			$isAopts = $elm.data( "aopts" ),
-			$column = parseInt( $elm.attr( "data-column" ), 10 );
+			$aoptsSelector = "[data-aopts*='\"column\": \"" + $column + "\"']:checked",
+			$aopts = $( $aoptsSelector ),
+			$aoType = ( $aopts && $aopts.data( "aopts" ) ) ? $aopts.data( "aopts" ).type.toLowerCase() : "",
+			$fData;
 
 		// Ignore the advanced options fields
 		if ( $isAopts ) {
 			return;
 		}
 
+		// Verifies if filtering the same column
+		if ( $column !== $prevCol || $prevCol === -1 ) {
+			$cachedVal = "";
+		}
+		$prevCol = $column;
+
 		// Filters based on input type
 		if ( $elm.is( "select" ) ) {
 			$value = $elm.find( "option:selected" ).val();
-		} else if ( $elm.is( ":checkbox" ) ) {
+		} else if ( $elm.is( "input[type='number']" ) ) {
+			var $minNum, $maxNum;
 
-			// Verifies if using same checkbox list
-			if ( $column !== $lastColumn || $lastColumn === -1 ) {
-				$cbVal = "";
+			// Retain minimum number (always the first number input)
+			if ( $cachedVal === "" ) {
+				$cachedVal = parseFloat( $val );
+				$cachedVal = ( $cachedVal ) ? $cachedVal : "-0";
 			}
-			$lastColumn = $column;
+			$minNum = $cachedVal;
+
+			// Maximum number is always the current selected number
+			$maxNum = parseFloat( $val );
+
+			//Number filtering logic needs to be reviewed in order to remove the "-0" value (issue #9235)
+			// Generates a list of numbers (within the min and max number)
+			if ( !isNaN( $minNum ) && !isNaN( $maxNum ) ) {
+				$fData = $datatable.column( $column ).data().filter( function( obj ) {
+					var $num = $toNumber( obj.toString() );
+
+					if ( !isNaN( $num ) ) {
+						if ( $aoType === "and" ) {
+							if ( $cachedVal !== $maxNum && $cachedVal !== "-0" && $num >= $minNum && $num <= $maxNum ) {
+								return true;
+							}
+						} else {
+							if ( $cachedVal === $maxNum && $num >= $minNum ) {
+								return true;
+							} else if ( $cachedVal === "-0" && $num <= $maxNum ) {
+								return true;
+							} else if ( $cachedVal !== "-0" && $num >= $minNum && $num <= $maxNum ) {
+								return true;
+							}
+						}
+					}
+					return false;
+				} );
+				$fData = $fData.join( "|" );
+
+				// If no numbers match set as -0, so no results return
+				$value = ( $fData ) ? $fData : "-0";
+				$regex = "(" + $value.replace( /&nbsp;|\s/g, "\\s" ).replace( /\$/g, "\\$" ) + ")";
+			}
+		} else if ( $elm.is( "input[type='date']" ) && $val ) {
+			var $minDate, $maxDate;
+
+			// Retain minimum date (always the first date input)
+			if ( $cachedVal === "" ) {
+				$cachedVal = new Date( $val );
+				$cachedVal.setDate( $cachedVal.getDate() + 1 );
+				$cachedVal.setHours( 0, 0, 0, 0 );
+			}
+			$minDate = $cachedVal;
+
+			// Maximum date is always the current selected date
+			$maxDate = new Date( $val );
+			$maxDate.setDate( $maxDate.getDate() + 1 );
+			$maxDate.setHours( 23, 59, 59, 999 );
+
+			// Generates a list of date strings (within the min and max date)
+			$fData = $datatable.column( $column ).data().filter( function( obj ) {
+				var $date = obj.replace( /[0-9]{2}\s[0-9]{2}:/g, function( e ) {
+					return e.replace( /\s/g, "T" );
+				} );
+
+				if ( !$date.includes( "T" ) ) {
+					$date = $date + "T00:00:00";
+				}
+				$date = new Date( $date );
+				$date.setHours( 0, 0, 0, 0 );
+
+				if ( !$isDate( $minDate ) || !$isDate( $maxDate ) || !$isDate( $date ) ) {
+					return;
+				}
+				return ( $date >= $minDate && $date <= $maxDate );
+			} );
+			$fData = $fData.join( "|" );
+
+			// If no dates match set as element value, so no results return
+			$value = ( $fData ? $fData : $val );
+		} else if ( $elm.is( ":checkbox" ) ) {
 
 			// Verifies if checkbox is checked before setting value
 			if ( $elm.is( ":checked" ) ) {
-				var $aoptsSelector = "[data-aopts*='\"column\": \"" + $column + "\"']:checked",
-					$aopts = $( $aoptsSelector ),
-					$aoType = ( $aopts && $aopts.data( "aopts" ) ) ? $aopts.data( "aopts" ).type.toLowerCase() : "";
-
 				if ( $aoType === "both" ) {
-					$cbVal += "(?=.*\\b" + $elm.val() + "\\b)";
+					$cachedVal += "(?=.*\\b" + $val + "\\b)";
 				} else {
-					$cbVal += ( $cbVal.length > 0 ) ? "|" : "";
-					$cbVal += $elm.val();
+					$cachedVal += ( $cachedVal.length > 0 ) ? "|" : "";
+					$cachedVal += $val;
 				}
 
-				$value = $cbVal;
+				$value = $cachedVal;
 				$value = $value.replace( /\s/g, "\\s*" );
 
 				// Adjust regex based on advanced options
@@ -11311,7 +14167,7 @@ $document.on( "submit", ".wb-tables-filter", function( event ) {
 				}
 			}
 		} else {
-			$value = $elm.val();
+			$value = $val;
 		}
 
 		if ( $value ) {
@@ -11415,7 +14271,7 @@ var componentName = "wb-tabs",
 
 			// For backwards compatibility. Should be removed in WET v4.1
 			if ( $elm.children( ".tabpanels" ).length === 0 ) {
-				$elm.children( "[role=tabpanel], details" ).wrapAll( "<div class='tabpanels'/>" );
+				$elm.children( "[role=tabpanel], details" ).wrapAll( "<div class='tabpanels'></div>" );
 			}
 
 			$panels = $elm.find( "> .tabpanels > [role=tabpanel], > .tabpanels > details" );
@@ -11441,8 +14297,8 @@ var componentName = "wb-tabs",
 				defaults,
 				{
 					interval: $elm.hasClass( "slow" ) ?
-								9 : $elm.hasClass( "fast" ) ?
-									3 : defaults.interval,
+						9 : $elm.hasClass( "fast" ) ?
+							3 : defaults.interval,
 					excludeControls: $elm.hasClass( "exclude-controls" ),
 					excludePlay: $elm.hasClass( "exclude-play" ),
 					updateHash: $elm.hasClass( "update-hash" ),
@@ -11483,10 +14339,14 @@ var componentName = "wb-tabs",
 						try {
 							sessionStorage.setItem( pagePath + elmId + activePanel, activeId );
 						} catch ( error ) {
+
+							/* swallow error */
 						}
 					}
 				}
 			} catch ( error ) {
+
+				/* swallow error */
 			}
 
 			// Determine the current view
@@ -11589,7 +14449,7 @@ var componentName = "wb-tabs",
 				$tablist.find( "a" )
 					.filter( "[href$='" + activeId + "']" )
 					.parent()
-						.addClass( "active" );
+					.addClass( "active" );
 			}
 
 			drizzleAria( $panels, $tablist );
@@ -11718,6 +14578,7 @@ var componentName = "wb-tabs",
 		if ( !excludeControls && !excludePlay ) {
 			$tablist.append( playControl );
 		}
+		$tablist.find( "a[role=button]" ).attr( "href", "javascript:;" );
 
 		return isPlaying;
 	},
@@ -11835,17 +14696,17 @@ var componentName = "wb-tabs",
 
 		$controls
 			.find( ".active" )
-				.removeClass( "active" )
-				.children( "a" )
-					.attr( {
-						"aria-selected": "false",
-						tabindex: "-1"
-					} );
+			.removeClass( "active" )
+			.children( "a" )
+			.attr( {
+				"aria-selected": "false",
+				tabindex: "-1"
+			} );
 
 		// Update the Item x of n
 		$controls
 			.find( ".curr-index" )
-				.html( newIndex );
+			.html( newIndex );
 
 		$control
 			.attr( {
@@ -11853,7 +14714,7 @@ var componentName = "wb-tabs",
 				tabindex: "0"
 			} )
 			.parent()
-				.addClass( "active" );
+			.addClass( "active" );
 
 		// Update sessionStorage with the current active panel
 		if ( !tabSettings.ignoreSession ) {
@@ -11863,6 +14724,8 @@ var componentName = "wb-tabs",
 					$next.attr( "id" )
 				);
 			} catch ( error ) {
+
+				/* swallow error */
 			}
 		}
 
@@ -12000,10 +14863,10 @@ var componentName = "wb-tabs",
 								if ( !isInit ) {
 									$detailsElm
 										.children( "summary" )
-											.attr( {
-												"aria-expanded": isActive,
-												"aria-selected": isActive
-											} );
+										.attr( {
+											"aria-expanded": isActive,
+											"aria-selected": isActive
+										} );
 								}
 							}
 						} else if ( oldIsSmallView ) {
@@ -12020,11 +14883,11 @@ var componentName = "wb-tabs",
 									open: "open"
 								} )
 								.not( $openDetails )
-									.addClass( "fade out noheight wb-inv" )
-									.attr( {
-										"aria-hidden": "true",
-										"aria-expanded": "false"
-									} );
+								.addClass( "fade out noheight wb-inv" )
+								.attr( {
+									"aria-hidden": "true",
+									"aria-expanded": "false"
+								} );
 
 							$details.children( ".tgl-panel" ).removeAttr( "role" );
 
@@ -12238,8 +15101,8 @@ $document.on( activateEvent, selector + " [role=tabpanel]", function( event ) {
 		} else {
 			$( currentTarget )
 				.closest( selector )
-					.find( "[href$='#" + currentTarget.id + "']" )
-						.trigger( setFocusEvent );
+				.find( "[href$='#" + currentTarget.id + "']" )
+				.trigger( setFocusEvent );
 		}
 
 	// Left mouse button click or escape key
@@ -12299,6 +15162,8 @@ $document.on( activateEvent, selector + " > .tabpanels > details > summary", fun
 					details.id
 				);
 			} catch ( error ) {
+
+				/* swallow error */
 			}
 		}
 
@@ -12370,7 +15235,7 @@ var componentName = "wb-txthl",
 			} else if ( params && params.txthl ) {
 				searchCriteria = decodeURIComponent(
 					wb.pageUrlParts.params.txthl
-						.replace( /^\s+|\s+$|\|+|\"|\(|\)/g, "" ).replace( /\++/g, "|" )
+						.replace( /^\s+|\s+$|\|+|"|\(|\)/g, "" ).replace( /\++/g, "|" )
 				);
 			}
 
@@ -12485,7 +15350,7 @@ var componentName = "wb-toggle",
 	 * @param {Object} data Simple key/value data object passed when the event was triggered
 	 */
 	initAria = function( link, data ) {
-		var i, len, elm, elms, parent, tabs, tab, panel, isOpen,
+		var i, len, elm, elms, parent, tabs, tab, panel, isOpen, wrapper,
 			ariaControls = "",
 			hasOpen = false;
 
@@ -12524,12 +15389,25 @@ var componentName = "wb-toggle",
 					if ( !tab.getAttribute( "id" ) ) {
 						tab.setAttribute( "id", wb.getId() );
 					}
-					tab.setAttribute( "role", "tab" );
-					tab.setAttribute( "aria-selected", isOpen );
-					tab.setAttribute( "tabindex", isOpen ? "0" : "-1" );
-					tab.setAttribute( "aria-posinset", i + 1 );
-					tab.setAttribute( "aria-setsize", len );
 
+					//Details and summary don't support aria roles and some aria attribute that is why they are wrapped in a div
+					if ( elm.nodeName.toLowerCase() === "details" && elm.parentNode.className.toLowerCase().indexOf( "accordion" ) > -1 ) {
+						wrapper = document.createElement( "div" );
+						wrapper.classList.add( "tgl-tab" );
+						wrapper.setAttribute( "role", "tab" );
+						wrapper.setAttribute( "aria-selected", isOpen );
+						wrapper.setAttribute( "tabindex", isOpen ? "0" : "-1" );
+						wrapper.setAttribute( "aria-posinset", i + 1 );
+						wrapper.setAttribute( "aria-setsize", len );
+						parent.replaceChild( wrapper, elm );
+						wrapper.appendChild( elm );
+					} else {
+						tab.setAttribute( "role", "tab" );
+						tab.setAttribute( "aria-selected", isOpen );
+						tab.setAttribute( "tabindex", isOpen ? "0" : "-1" );
+						tab.setAttribute( "aria-posinset", i + 1 );
+						tab.setAttribute( "aria-setsize", len );
+					}
 					panel.setAttribute( "role", "tabpanel" );
 					panel.setAttribute( "aria-labelledby", tab.getAttribute( "id" ) );
 					panel.setAttribute( "aria-expanded", isOpen );
@@ -12690,6 +15568,8 @@ var componentName = "wb-toggle",
 				try {
 					data.persist.setItem( data.persistKey, stateTo );
 				} catch ( error ) {
+
+					/* swallow error */
 				}
 			}
 		}
@@ -12720,7 +15600,7 @@ var componentName = "wb-toggle",
 			if ( data.isTablist ) {
 
 				// Set the required aria attributes
-				$elms.find( selectorTab ).attr( {
+				$elms.find( selectorTab ).parents( selectorTab ).attr( {
 					"aria-selected": isOn,
 					tabindex: isOn ? "0" : "-1"
 				} );
@@ -12787,8 +15667,8 @@ var componentName = "wb-toggle",
 			return anyCollapsed ? data.stateOff : data.stateOn;
 
 		// Get the current on/off state of the elements specified by the selector and parent
-		} else if ( states.hasOwnProperty( selector ) ) {
-			return states[ selector ].hasOwnProperty( parent ) ?
+		} else if ( Object.prototype.hasOwnProperty.call( states, selector ) ) {
+			return Object.prototype.hasOwnProperty.call( states[ selector ], parent ) ?
 				states[ selector ][ parent ] :
 				states[ selector ].all;
 		}
@@ -12824,7 +15704,7 @@ var componentName = "wb-toggle",
 			// links that are restricted by parent.
 			} else {
 				for ( prop in elmsState ) {
-					if ( elmsState.hasOwnProperty( prop ) ) {
+					if ( Object.prototype.hasOwnProperty.call( elmsState, prop ) ) {
 						elmsState[ prop ] = state;
 					}
 				}
@@ -12907,7 +15787,7 @@ $document.on( "keydown", selectorTab, function( event ) {
 
 		$newPanel
 			.children( "summary" )
-				.trigger( setFocusEvent );
+			.trigger( setFocusEvent );
 	}
 } );
 
@@ -12919,7 +15799,7 @@ $document.on( "keydown", selectorPanel, function( event ) {
 		// Move focus to the summary element
 		$( event.currentTarget )
 			.prev()
-				.trigger( setFocusEvent );
+			.trigger( setFocusEvent );
 	}
 } );
 
@@ -12980,6 +15860,517 @@ wb.add( selector );
 } )( jQuery, window, wb );
 
 /**
+ * @title WET-BOEW Data Json [data-json-after], [data-json-append],
+ * [data-json-before], [data-json-prepend], [data-json-replace], [data-json-replacewith] and [data-wb-json]
+ * @overview Insert content extracted from JSON file.
+ * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
+ * @author @duboisp
+ */
+/*global jsonpointer */
+( function( $, window, wb ) {
+"use strict";
+
+/*
+ * Variable and function definitions.
+ * These are global to the plugin - meaning that they will be initialized once per page,
+ * not once per instance of plugin on the page. So, this is a good place to define
+ * variables that are common to all instances of the plugin on a page.
+ */
+var componentName = "wb-data-json",
+	shortName = "wb-json",
+	selectors = [
+		"[data-json-after]",
+		"[data-json-append]",
+		"[data-json-before]",
+		"[data-json-prepend]",
+		"[data-json-replace]",
+		"[data-json-replacewith]",
+		"[data-" + shortName + "]"
+	],
+	allowJsonTypes = [ "after", "append", "before", "prepend", "val" ],
+	allowAttrNames = /(href|src|data-*|pattern|min|max|step|low|high)/,
+	allowPropNames = /(checked|selected|disabled|required|readonly|multiple|hidden)/,
+	selectorsLength = selectors.length,
+	selector = selectors.join( "," ),
+	initEvent = "wb-init." + componentName,
+	updateEvent = "wb-update." + componentName,
+	contentUpdatedEvent = "wb-contentupdated",
+	dataQueue = componentName + "-queue",
+	$document = wb.doc,
+	s,
+
+	/**
+	 * @method init
+	 * @param {jQuery Event} event Event that triggered this handler
+	 * @param {string} ajaxType The type of JSON operation, either after, append, before or replace
+	 */
+	init = function( event ) {
+
+		// Start initialization
+		// returns DOM object = proceed with init
+		// returns undefined = do not proceed with init (e.g., already initialized)
+		var elm = wb.init( event, componentName, selector ),
+			$elm;
+
+		if ( elm ) {
+
+			var jsonCoreTypes = [
+					"before",
+					"replace",
+					"replacewith",
+					"after",
+					"append",
+					"prepend"
+				],
+				jsonType, jsondata,
+				i, i_len = jsonCoreTypes.length, i_cache,
+				lstCall = [],
+				url;
+
+			$elm = $( elm );
+
+			for ( i = 0; i !== i_len; i += 1 ) {
+				jsonType = jsonCoreTypes[ i ];
+				url = elm.getAttribute( "data-json-" + jsonType );
+				if ( url !== null ) {
+					lstCall.push( {
+						type: jsonType,
+						url: url
+					} );
+				}
+			}
+
+			// Identify that initialization has completed
+			wb.ready( $elm, componentName );
+
+			jsondata = wb.getData( $elm, shortName );
+
+			if ( jsondata && jsondata.url ) {
+				lstCall.push( jsondata );
+			} else if ( jsondata && $.isArray( jsondata ) ) {
+				i_len = jsondata.length;
+				for ( i = 0; i !== i_len; i += 1 ) {
+					lstCall.push( jsondata[ i ] );
+				}
+			}
+
+			// Save it to the dataJSON object.
+			$elm.data( dataQueue, lstCall );
+
+			i_len = lstCall.length;
+			for ( i = 0; i !== i_len; i += 1 ) {
+				i_cache = lstCall[ i ];
+				loadJSON( elm, i_cache.url, i, i_cache.nocache, i_cache.nocachekey, i_cache.data, i_cache.contenttype, i_cache.method );
+			}
+
+		}
+	},
+
+	loadJSON = function( elm, url, refId, nocache, nocachekey, data, contentType, method ) {
+		var $elm = $( elm ),
+			fetchObj = {
+				url: url,
+				refId: refId,
+				nocache: nocache,
+				nocachekey: nocachekey,
+				data: data,
+				contentType: contentType,
+				method: method
+			};
+
+		$elm.trigger( {
+			type: "json-fetch.wb",
+			fetch: fetchObj
+		} );
+	},
+
+
+	// Manage JSON value After the json data has been fetched. This function can deal with array.
+	jsonFetched = function( event ) {
+
+		var elm = event.target,
+			$elm = $( elm ),
+			lstCall = $elm.data( dataQueue ),
+			fetchObj = event.fetch,
+			itmSettings = lstCall[ fetchObj.refId ],
+			jsonType = itmSettings.type,
+			attrname = itmSettings.prop || itmSettings.attr,
+			showEmpty = itmSettings.showempty,
+			content = fetchObj.response,
+			typeOfContent = typeof content,
+			jQueryCaching;
+
+		if ( showEmpty || typeOfContent !== "undefined" ) {
+
+			if ( showEmpty && typeOfContent === "undefined" ) {
+				content = "";
+			}
+
+			//Prevents the force caching of nested resources
+			jQueryCaching = jQuery.ajaxSettings.cache;
+			jQuery.ajaxSettings.cache = true;
+
+			// "replace" and "replaceWith" doesn't map to a jQuery function
+			if ( !jsonType ) {
+				jsonType = "template";
+				applyTemplate( elm, itmSettings, content );
+
+				// Trigger wet
+				if ( itmSettings.trigger ) {
+					$elm
+						.find( wb.allSelectors )
+						.addClass( "wb-init" )
+						.filter( ":not(#" + elm.id + " .wb-init .wb-init)" )
+						.trigger( "timerpoke.wb" );
+				}
+			} else if ( jsonType === "replace" ) {
+				$elm.html( content );
+			} else if ( jsonType === "replacewith" ) {
+				$elm.replaceWith( content );
+			} else if ( jsonType === "addclass" ) {
+				$elm.addClass( content );
+			} else if ( jsonType === "removeclass" ) {
+				$elm.removeClass( content );
+			} else if ( jsonType === "prop" && attrname && allowPropNames.test( attrname ) ) {
+				$elm.prop( attrname, content );
+			} else if ( jsonType === "attr" && attrname && allowAttrNames.test( attrname ) ) {
+				$elm.attr( attrname, content );
+			} else if ( typeof $elm[ jsonType ] === "function" && allowJsonTypes.indexOf( jsonType ) !== -1 ) {
+				$elm[ jsonType ]( content );
+			} else {
+				throw componentName + " do not support type: " + jsonType;
+			}
+
+			//Resets the initial jQuery caching setting
+			jQuery.ajaxSettings.cache = jQueryCaching;
+
+			$elm.trigger( contentUpdatedEvent, { "json-type": jsonType, "content": content } );
+		}
+	},
+
+	// Apply the template as per the configuration
+	applyTemplate = function( elm, settings, content ) {
+
+		var mapping = settings.mapping || [ {} ],
+			mapping_len,
+			filterTrueness = settings.filter || [],
+			filterFaslseness = settings.filternot || [],
+			queryAll = settings.queryall,
+			i, i_len, i_cache,
+			j, j_cache, j_cache_attr,
+			basePntr,
+			clone, selElements,
+			cached_node,
+			cached_textContent,
+			cached_value,
+			selectorToClone = settings.tobeclone,
+			elmClass = elm.className,
+			elmAppendTo = elm,
+			dataTable,
+			dataTableAddRow,
+			template = settings.source ? document.querySelector( settings.source ) : elm.querySelector( "template" );
+
+		// If combined with wb-tables plugin
+		if ( elm.tagName === "TABLE" && elmClass.indexOf( "wb-tables" ) !== -1 ) {
+
+			//  Wait for its initialization before to applyTemplate
+			if ( elmClass.indexOf( "wb-tables-inited" ) === -1 ) {
+				$( elm ).one( "wb-ready.wb-tables,init.dt", function( ) {
+					applyTemplate( elm, settings, content );
+				} );
+				return;
+			}
+
+			// Edge case, when both plugin are ready at the same time, just wait for the next tick
+			if ( !$.fn.dataTable.isDataTable( elm ) && elmClass.indexOf( componentName + "-dtwait" ) === -1 ) {
+				elm.classList.add( componentName + "-dtwait" );
+				setTimeout( function( ) {
+					applyTemplate( elm, settings, content );
+				}, 50 );
+				return;
+			}
+
+			dataTable = $( elm ).dataTable( { "retrieve": true } ).api();
+			dataTableAddRow = dataTable.row.add;
+			selectorToClone = "tr"; // Only table row can be added
+		}
+
+		if ( !$.isArray( content ) ) {
+			if ( typeof content !== "object" ) {
+				content = [ content ];
+			} else {
+				content = $.map( content, function( val, index ) {
+					if ( typeof val === "object" && !$.isArray( val ) ) {
+						if ( !val[ "@id" ] ) {
+							val[ "@id" ] = index;
+						}
+					} else {
+						val = {
+							"@id": index,
+							"@value": val
+						};
+					}
+					return [ val ];
+				} );
+			}
+		}
+		i_len = content.length;
+
+		if ( !$.isArray( mapping ) ) {
+			mapping = [ mapping ];
+		}
+		mapping_len = mapping.length;
+
+		if ( !template ) {
+			return;
+		}
+
+		// Needed when executing sub-template that wasn't polyfill, like in IE11
+		if ( !template.content ) {
+			wb.tmplPolyfill( template );
+		}
+
+		if ( settings.appendto ) {
+			elmAppendTo = $( settings.appendto ).get( 0 );
+		}
+
+		for ( i = 0; i < i_len; i += 1 ) {
+			i_cache = content[ i ];
+
+			if ( filterPassJSON( i_cache, filterTrueness, filterFaslseness ) ) {
+
+				basePntr = "/" + i;
+
+				if ( !selectorToClone ) {
+					clone = template.content.cloneNode( true );
+				} else {
+					clone = template.content.querySelector( selectorToClone ).cloneNode( true );
+				}
+
+				if ( queryAll ) {
+					selElements = clone.querySelectorAll( queryAll );
+				}
+
+				for ( j = 0; j < mapping_len || j === 0; j += 1 ) {
+					j_cache = mapping[ j ];
+
+					// Get the node used to insert content
+					if ( selElements ) {
+						cached_node = selElements[ j ];
+					} else if ( j_cache.selector ) {
+						cached_node = clone.querySelector( j_cache.selector );
+					} else {
+						cached_node = clone;
+					}
+					j_cache_attr = j_cache.attr;
+					if ( j_cache_attr ) {
+						if ( !cached_node.hasAttribute( j_cache_attr ) ) {
+							cached_node.setAttribute( j_cache_attr, "" );
+						}
+						cached_node = cached_node.getAttributeNode( j_cache_attr );
+					}
+
+					// Get the value
+					if ( typeof i_cache === "string" ) {
+						cached_value = i_cache;
+					} else if ( typeof j_cache === "string" ) {
+						cached_value = jsonpointer.get( content, basePntr + j_cache );
+					} else {
+						cached_value = jsonpointer.get( content, basePntr + j_cache.value );
+					}
+
+					// Placeholder text replacement if any
+					if ( j_cache.placeholder ) {
+						cached_textContent = cached_node.textContent || "";
+						cached_value = cached_textContent.replace( j_cache.placeholder, cached_value );
+					}
+
+					// Set the value to the node
+					if ( $.isArray( cached_value ) ) {
+						applyTemplate( cached_node, j_cache, cached_value );
+					} else if ( j_cache.isHTML ) {
+						cached_node.innerHTML = cached_value;
+					} else {
+						cached_node.textContent = cached_value;
+					}
+				}
+
+				if ( dataTableAddRow ) {
+
+					// If wb-tables, use its API to add rows
+					dataTableAddRow( $( clone ) );
+				} else {
+					elmAppendTo.appendChild( clone );
+				}
+			}
+		}
+
+		// Refresh the dataTable display
+		if ( dataTableAddRow ) {
+			dataTable.draw();
+		}
+	},
+
+	// Filtering a JSON
+	// Return true if trueness && falseness
+	// Return false if !( trueness && falseness )
+	// trueness and falseness is an array of { "path": "", "value": "" } object
+	filterPassJSON = function( obj, trueness, falseness ) {
+		var i, i_cache,
+			trueness_len = trueness.length,
+			falseness_len = falseness.length,
+			compareResult = false,
+			isEqual;
+
+		if ( trueness_len || falseness_len ) {
+
+			for ( i = 0; i < trueness_len; i += 1 ) {
+				i_cache = trueness[ i ];
+				isEqual = _equalsJSON( jsonpointer.get( obj, i_cache.path ), i_cache.value );
+
+				if ( i_cache.optional ) {
+					compareResult = compareResult || isEqual;
+				} else if ( !isEqual ) {
+					return false;
+				} else {
+					compareResult = true;
+				}
+			}
+			if ( trueness_len && !compareResult ) {
+				return false;
+			}
+
+			for ( i = 0; i < falseness_len; i += 1 ) {
+				i_cache = falseness[ i ];
+				isEqual = _equalsJSON( jsonpointer.get( obj, i_cache.path ), i_cache.value );
+
+				if ( isEqual && !i_cache.optional || isEqual && i_cache.optional ) {
+					return false;
+				}
+			}
+
+		}
+		return true;
+	},
+
+	//
+	_equalsJSON = function( a, b ) {
+		switch ( typeof a ) {
+		case "undefined":
+			return false;
+		case "boolean":
+		case "string":
+		case "number":
+			return a === b;
+		case "object":
+			if ( a === null ) {
+				return b === null;
+			}
+			var i, l;
+			if ( $.isArray( a ) ) {
+				if (  $.isArray( b ) || a.length !== b.length ) {
+					return false;
+				}
+				for ( i = 0, l = a.length; i < l; i++ ) {
+					if ( !_equalsJSON( a[ i ], b[ i ] ) ) {
+						return false;
+					}
+				}
+				return true;
+			}
+			var bKeys = _objectKeys( b ),
+				bLength = bKeys.length;
+			if ( _objectKeys( a ).length !== bLength ) {
+				return false;
+			}
+			for ( i = 0; i < bLength; i++ ) {
+				if ( !_equalsJSON( a[ i ], b[ i ] ) ) {
+					return false;
+				}
+			}
+			return true;
+		default:
+			return false;
+		}
+	},
+	_objectKeys = function( obj ) {
+		var keys;
+		if ( $.isArray( obj ) ) {
+			keys = new Array( obj.length );
+			for ( var k = 0; k < keys.length; k++ ) {
+				keys[ k ] = "" + k;
+			}
+			return keys;
+		}
+		if ( Object.keys ) {
+			return Object.keys( obj );
+		}
+		keys = [];
+		for ( var i in obj ) {
+			if ( Object.prototype.hasOwnProperty.call( obj, i ) ) {
+				keys.push( i );
+			}
+		}
+		return keys;
+	},
+
+	// Manage JSON value After the json data has been fetched
+	jsonUpdate = function( event ) {
+		var elm = event.target,
+			$elm = $( elm ),
+			lstCall = $elm.data( dataQueue ),
+			refId = lstCall.length,
+			wbJsonConfig = event[ "wb-json" ];
+
+		if ( !( wbJsonConfig.url && ( wbJsonConfig.type || wbJsonConfig.source ) ) ) {
+			throw "Data JSON update not configured properly";
+		}
+
+		lstCall.push( wbJsonConfig );
+		$elm.data( dataQueue, lstCall );
+
+		loadJSON( elm, wbJsonConfig.url, refId );
+	};
+
+$document.on( "json-failed.wb", selector, function( ) {
+	throw "Bad JSON Fetched from url in " + componentName;
+} );
+
+// Load template polyfill
+Modernizr.load( {
+	test: ( "content" in document.createElement( "template" ) ),
+	nope: "site!deps/template" + wb.getMode() + ".js"
+} );
+
+$document.on( "timerpoke.wb " + initEvent + " " + updateEvent + " json-fetched.wb", selector, function( event ) {
+
+	if ( event.currentTarget === event.target ) {
+		switch ( event.type ) {
+
+		case "timerpoke":
+		case "wb-init":
+			init( event );
+			break;
+		case "wb-update":
+			jsonUpdate( event );
+			break;
+		default:
+			jsonFetched( event );
+			break;
+		}
+	}
+
+	return true;
+} );
+
+// Add the timerpoke to initialize the plugin
+for ( s = 0; s !== selectorsLength; s += 1 ) {
+	wb.add( selectors[ s ] );
+}
+
+} )( jQuery, window, wb );
+
+/**
  * @title WET-BOEW Disable Event
  * @overview Event creates the active offer for users that have disabled the event.
  * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
@@ -13011,20 +16402,18 @@ var componentName = "wb-disable",
 			$html = wb.html,
 			i18n = wb.i18n,
 			pageUrl = wb.pageUrlParts,
-			li, param,
+			param,
 			noticeHeader = i18n( "disable-notice-h" ),
 			noticeBody = i18n( "disable-notice" ),
 			noticehtml = "<section",
 			noticehtmlend = "</a>.</p></section>";
 
 		if ( elm ) {
-			li = document.createElement( "li" );
-			li.className = "wb-slc";
 
 			// Rebuild the query string
 			for ( param in pageUrl.params ) {
-				if ( param && pageUrl.params.hasOwnProperty( param ) && param !== "wbdisable" ) {
-					nQuery += param + "=" + pageUrl.params[ param ] + "&#38;";
+				if ( param && Object.prototype.hasOwnProperty.call( pageUrl.params, param ) && param !== "wbdisable" ) {
+					nQuery += param + "=" + pageUrl.params[ param ] + "&";
 				}
 			}
 
@@ -13036,10 +16425,13 @@ var componentName = "wb-disable",
 
 						// Store preference for WET plugins and polyfills to be disabled in localStorage
 						localStorage.setItem( "wbdisable", "true" );
-					} catch ( e ) {}
+					} catch ( e ) {
+
+						/* swallow error */
+					}
 
 					// Add notice and link to re-enable WET plugins and polyfills
-					noticehtml = noticehtml + " class='alert alert-warning text-center'><h2>" + noticeHeader + "</h2><p>" + noticeBody + "</p><p><a rel='alternate' property='significantLink' href='" + nQuery + "wbdisable=false'>" + i18n( "wb-enable" ) + noticehtmlend;
+					noticehtml = noticehtml + " class='container-fluid bg-warning text-center mrgn-tp-sm py-4'><h2 class='mrgn-tp-0'>" + noticeHeader + "</h2><p>" + noticeBody + "</p><p><a rel='alternate' property='significantLink' href='" + nQuery + "wbdisable=false'>" + i18n( "wb-enable" ) + noticehtmlend;
 					$( elm ).after( noticehtml );
 					return true;
 				} else {
@@ -13052,20 +16444,23 @@ var componentName = "wb-disable",
 					}
 
 					// Remove variable from URL
-					var lc = window.location.href.replace( "wbdisable=false", "" ).replace( "?#", "#" );
+					var lc = window.location.href.replace( /&?wbdisable=false/gi, "" ).replace( "?&", "?" ).replace( "?#", "#" );
 					if ( lc.indexOf( "?" ) === ( lc.length - 1 ) ) {
 						lc = lc.replace( "?", "" );
 					}
 					window.history.replaceState( "", "", lc );
 				}
 			} catch ( error ) {
+
+				/* swallow error */
 			}
 
 			// Append the Basic HTML version link version
-			li.innerHTML = "<a class='wb-sl' rel='alternate' href='" + nQuery + "wbdisable=true'>" + i18n( "wb-disable" ) + "</a>";
-
 			// Add link to disable WET plugins and polyfills
-			elm.appendChild( li );
+			wb.addSkipLink( i18n( "wb-disable" ), {
+				href: nQuery + "wbdisable=true",
+				rel: "alternate"
+			}, false, true );
 
 			// Identify that initialization has completed
 			wb.ready( $document, componentName );
@@ -13126,14 +16521,14 @@ $document.on( setFocusEvent, function( event ) {
 				$closedPanel = $closedPanels.eq( i );
 				$closedPanel.closest( ".wb-tabs" )
 					.find( "#" + $closedPanel.attr( "aria-labelledby" ) )
-						.trigger( "click" );
+					.trigger( "click" );
 			}
 		}
 
 		// Set the tabindex to -1 (as needed) to ensure the element is focusable
 		$elm
 			.filter( ":not([tabindex], a[href], button, input, textarea, select)" )
-				.attr( "tabindex", "-1" );
+			.attr( "tabindex", "-1" );
 
 		// Assigns focus to an element (delay allows for revealing of hidden content)
 		setTimeout( function() {
@@ -13178,6 +16573,737 @@ $document.on( clickEvents, linkSelector, function( event ) {
 } )( jQuery, wb );
 
 /**
+ * @title WET-BOEW JSON Manager
+ * @overview Manage JSON dataset, execute JSON patch operation.
+ * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
+ * @author @duboisp
+ */
+/*global jsonpointer, jsonpatch */
+( function( $, window, wb ) {
+"use strict";
+
+/*
+ * Variable and function definitions.
+ * These are global to the plugin - meaning that they will be initialized once per page,
+ * not once per instance of plugin on the page. So, this is a good place to define
+ * variables that are common to all instances of the plugin on a page.
+ */
+var componentName = "wb-jsonmanager",
+	selector = "[data-" + componentName + "]",
+	initEvent = "wb-init." + componentName,
+	postponeEvent = "postpone." + componentName,
+	patchesEvent = "patches." + componentName,
+	jsonFailedClass = "jsonfail",
+	reloadFlag = "data-" + componentName + "-reload",
+	dsNameRegistered = [],
+	datasetCache = {},
+	datasetCacheSettings = {},
+	dsDelayed = {},
+	dsPostponePatches = {},
+	$document = wb.doc,
+	defaults = {
+		ops: [
+			{
+				name: "wb-count",
+				fn: function( obj, key, tree ) {
+					var countme = obj[ key ],
+						len = 0, i_len, i,
+						filter = this.filter || [ ],
+						filternot = this.filternot || [ ];
+
+					if ( !$.isArray( filter ) ) {
+						filter = [ filter ];
+					}
+					if ( !$.isArray( filternot ) ) {
+						filternot = [ filternot ];
+					}
+
+					if ( ( filter.length || filternot.length ) && $.isArray( countme ) ) {
+
+						// Iterate in obj[key] / item and check if is true for the given path is any.
+						i_len = countme.length;
+
+						for ( i = 0; i !== i_len; i = i + 1 ) {
+							if ( filterPassJSON( countme[ i ], filter, filternot ) ) {
+								len = len + 1;
+							}
+						}
+					} else if ( $.isArray( countme ) ) {
+						len = countme.length;
+					}
+					jsonpatch.apply( tree, [
+						{ op: "add", path: this.set, value: len }
+					] );
+				}
+			},
+			{
+				name: "wb-first",
+				fn: function( obj, key, tree ) {
+					var currObj = obj[ key ];
+					if ( !$.isArray( currObj ) || currObj.length === 0 ) {
+						return;
+					}
+
+					jsonpatch.apply( tree, [
+						{ op: "add", path: this.set, value: currObj[ 0 ] }
+					] );
+				}
+			},
+			{
+				name: "wb-last",
+				fn: function( obj, key, tree ) {
+					var currObj = obj[ key ];
+					if ( !$.isArray( currObj ) || currObj.length === 0 ) {
+						return;
+					}
+
+					jsonpatch.apply( tree, [
+						{ op: "add", path: this.set, value: currObj[ currObj.length - 1 ] }
+					] );
+				}
+			},
+			{
+				name: "wb-nbtolocal",
+				fn: function( obj, key, tree ) {
+					var val = obj[ key ],
+						loc = this.locale || window.wb.lang,
+						suffix = this.suffix || "",
+						prefix = this.prefix || "";
+
+					if ( typeof val === "string" ) {
+						val = parseFloat( val );
+						if ( isNaN( val ) ) {
+							return;
+						}
+					}
+
+					jsonpatch.apply( tree, [
+						{ op: "replace", path: this.path, value: prefix + val.toLocaleString( loc ) + suffix  }
+					] );
+				}
+			},
+			{
+				name: "wb-toDateISO",
+				fn: function( obj, key, tree ) {
+					if ( !this.set ) {
+						jsonpatch.apply( tree, [
+							{ op: "replace", path: this.path, value: wb.date.toDateISO( obj[ key ] ) }
+						] );
+					} else {
+						jsonpatch.apply( tree, [
+							{ op: "add", path: this.set, value: wb.date.toDateISO( obj[ key ] ) }
+						] );
+					}
+				}
+			},
+			{
+				name: "wb-toDateTimeISO",
+				fn: function( obj, key, tree ) {
+					if ( !this.set ) {
+						jsonpatch.apply( tree, [
+							{ op: "replace", path: this.path, value: wb.date.toDateISO( obj[ key ], true ) }
+						] );
+					} else {
+						jsonpatch.apply( tree, [
+							{ op: "add", path: this.set, value: wb.date.toDateISO( obj[ key ], true ) }
+						] );
+					}
+				}
+			}
+		],
+		opsArray: [
+			{
+				name: "wb-toDateISO",
+				fn: function( arr )  {
+					var setval = this.set,
+						pathval = this.path,
+						i, i_len = arr.length;
+					for ( i = 0; i !== i_len; i += 1 ) {
+						if ( setval ) {
+							jsonpatch.apply( arr, [
+								{ op: "wb-toDateISO", set: "/" + i + setval, path: "/" + i + pathval }
+							] );
+						} else {
+							jsonpatch.apply( arr, [
+								{ op: "wb-toDateISO", path: "/" + i + pathval }
+							] );
+						}
+					}
+				}
+			},
+			{
+				name: "wb-toDateTimeISO",
+				fn: function( arr ) {
+					var setval = this.set,
+						pathval = this.path,
+						i, i_len = arr.length;
+					for ( i = 0; i !== i_len; i += 1 ) {
+						if ( setval ) {
+							jsonpatch.apply( arr, [
+								{ op: "wb-toDateTimeISO", set: "/" + i + setval, path: "/" + i + pathval }
+							] );
+						} else {
+							jsonpatch.apply( arr, [
+								{ op: "wb-toDateTimeISO", path: "/" + i + pathval }
+							] );
+						}
+					}
+				}
+			}
+		],
+		opsRoot: [],
+		settings: { }
+	},
+
+	// Add debug information after the JSON manager element
+	debugPrintOut = function( $elm, name, json, patches ) {
+		$elm.after( "<p lang=\"en\"><strong>JSON Manager Debug</strong> (" +  name + ")</p><ul lang=\"en\"><li>JSON: <pre><code>" + JSON.stringify( json ) + "</code></pre></li><li>Patches: <pre><code>" + JSON.stringify( patches ) + "</code></pre>" );
+	},
+
+	/**
+	 * @method init
+	 * @param {jQuery Event} event Event that triggered the function call
+	 */
+	init = function( event ) {
+
+		// Start initialization
+		// returns DOM object = proceed with init
+		// returns undefined = do not proceed with init (e.g., already initialized)
+		var elm = wb.init( event, componentName, selector ),
+			$elm,
+			jsSettings = window[ componentName ] || { },
+			ops, opsArray, opsRoot,
+			i, i_len, i_cache,
+			url, dsName;
+
+		if ( elm ) {
+			$elm = $( elm );
+
+			// Load handlebars
+			Modernizr.load( {
+
+				// For loading multiple dependencies
+				load: "site!deps/json-patch" + wb.getMode() + ".js",
+				testReady: function() {
+					return window.jsonpatch;
+				},
+				complete: function() {
+					var elmData = wb.getData( $elm, componentName );
+
+					if ( !defaults.registered ) {
+						ops = defaults.ops.concat( jsSettings.ops || [ ] );
+						opsArray = defaults.opsArray.concat( jsSettings.opsArray || [ ] );
+						opsRoot = defaults.opsRoot.concat( jsSettings.opsRoot || [ ] );
+
+						if ( ops.length ) {
+							for ( i = 0, i_len = ops.length; i !== i_len; i++ ) {
+								i_cache = ops[ i ];
+								jsonpatch.registerOps( i_cache.name, i_cache.fn );
+							}
+						}
+						if ( opsArray.length ) {
+							for ( i = 0, i_len = opsArray.length; i !== i_len; i++ ) {
+								i_cache = opsArray[ i ];
+								jsonpatch.registerOpsArray( i_cache.name, i_cache.fn );
+							}
+						}
+						if ( opsRoot.length ) {
+							for ( i = 0, i_len = opsRoot.length; i !== i_len; i++ ) {
+								i_cache = opsRoot[ i ];
+								jsonpatch.registerOpsRoot( i_cache.name, i_cache.fn );
+							}
+						}
+						defaults.settings = $.extend( {}, defaults.settings, jsSettings.settings || {} );
+						defaults.registered = true;
+					}
+
+					dsName = elmData.name;
+
+					if ( !dsName || dsName in dsNameRegistered ) {
+						throw "Dataset name must be unique";
+					}
+					dsNameRegistered.push( dsName );
+
+					url = elmData.url;
+
+					if ( url ) {
+
+						// Fetch the JSON
+						$elm.trigger( {
+							type: "json-fetch.wb",
+							fetch: {
+								url: url,
+								nocache: elmData.nocache,
+								nocachekey: elmData.nocachekey,
+								data: elmData.data,
+								contentType: elmData.contenttype,
+								method: elmData.method
+							}
+						} );
+
+						// If the URL is a dataset, make it ready
+						if ( url.charCodeAt( 0 ) === 35 && url.charCodeAt( 1 ) === 91 ) {
+							wb.ready( $elm, componentName );
+						}
+					} else {
+
+						// Do an empty fetch to ensure jsonPointer is loaded and correctly initialized
+						$elm.trigger( {
+							type: "json-fetch.wb"
+						} );
+						wb.ready( $elm, componentName );
+					}
+				}
+			} );
+		}
+	},
+
+
+	// Filtering a JSON
+	// Return true if trueness && falseness
+	// Return false if !( trueness && falseness )
+	// trueness and falseness is an array of { "path": "", "value": "" } object
+	filterPassJSON = function( obj, trueness, falseness ) {
+		var i, i_cache,
+			trueness_len = trueness.length,
+			falseness_len = falseness.length,
+			compareResult = false,
+			isEqual;
+
+		if ( trueness_len || falseness_len ) {
+
+			for ( i = 0; i < trueness_len; i += 1 ) {
+				i_cache = trueness[ i ];
+				isEqual = _equalsJSON( jsonpointer.get( obj, i_cache.path ), i_cache.value );
+
+				if ( i_cache.optional ) {
+					compareResult = compareResult || isEqual;
+				} else if ( !isEqual ) {
+					return false;
+				} else {
+					compareResult = true;
+				}
+			}
+			if ( trueness_len && !compareResult ) {
+				return false;
+			}
+
+			for ( i = 0; i < falseness_len; i += 1 ) {
+				i_cache = falseness[ i ];
+				isEqual = _equalsJSON( jsonpointer.get( obj, i_cache.path ), i_cache.value );
+
+				if ( isEqual && !i_cache.optional || isEqual && i_cache.optional ) {
+					return false;
+				}
+			}
+
+		}
+		return true;
+	},
+
+	// Utility function to compare two JSON value
+	_equalsJSON = function( a, b ) {
+		switch ( typeof a ) {
+		case "undefined":
+			return false;
+		case "boolean":
+		case "string":
+		case "number":
+			return a === b;
+		case "object":
+			if ( a === null ) {
+				return b === null;
+			}
+			var i, l;
+			if ( $.isArray( a ) ) {
+				if (  $.isArray( b ) || a.length !== b.length ) {
+					return false;
+				}
+				for ( i = 0, l = a.length; i < l; i++ ) {
+					if ( !_equalsJSON( a[ i ], b[ i ] ) ) {
+						return false;
+					}
+				}
+				return true;
+			}
+			var bKeys = _objectKeys( b ),
+				bLength = bKeys.length;
+			if ( _objectKeys( a ).length !== bLength ) {
+				return false;
+			}
+			for ( i = 0; i < bLength; i++ ) {
+				if ( !_equalsJSON( a[ i ], b[ i ] ) ) {
+					return false;
+				}
+			}
+			return true;
+		default:
+			return false;
+		}
+	},
+	_objectKeys = function( obj ) {
+		var keys;
+		if ( $.isArray( obj ) ) {
+			keys = new Array( obj.length );
+			for ( var k = 0; k < keys.length; k++ ) {
+				keys[ k ] = "" + k;
+			}
+			return keys;
+		}
+		if ( Object.keys ) {
+			return Object.keys( obj );
+		}
+		keys = [];
+		for ( var i in obj ) {
+			if ( Object.prototype.hasOwnProperty.call( obj, i ) ) {
+				keys.push( i );
+			}
+		}
+		return keys;
+	},
+
+	// Create series of patches for filtering
+	getPatchesToFilter = function( JSONsource, filterPath, filterTrueness, filterFaslseness ) {
+		var filterObj,
+			i, i_len;
+
+		if ( !$.isArray( filterTrueness ) ) {
+			filterTrueness = [ filterTrueness ];
+		}
+		if ( !$.isArray( filterFaslseness ) ) {
+			filterFaslseness = [ filterFaslseness ];
+		}
+
+		filterObj = jsonpointer.get( JSONsource, filterPath );
+		if ( $.isArray( filterObj ) ) {
+			i_len = filterObj.length - 1;
+			for ( i = i_len; i !== -1; i -= 1 ) {
+				if ( !filterPassJSON( filterObj[ i ], filterTrueness, filterFaslseness ) ) {
+					jsonpatch.apply( JSONsource, [ { op: "remove", path: filterPath + "/" + i } ] );
+				}
+			}
+		}
+		return JSONsource;
+	};
+
+// IE dedicated patch to support ECMA-402 but limited to English and French number formatting
+if ( wb.ie ) {
+	Number.prototype.toLocaleString = function( locale ) {
+
+		var splitVal = this.toString().split( "." ),
+			integer = splitVal[ 0 ],
+			decimal = splitVal[ 1 ],
+			intLength = integer.length,
+			nbSection = intLength % 3 || 3,
+			strValue = integer.substr( 0, nbSection ),
+			isFrenchLoc = ( locale === "fr" ),
+			thousandSep = ( isFrenchLoc ? " " : "," ),
+			i;
+
+		for ( i = nbSection; i < intLength; i = i + 3 ) {
+			strValue = strValue + thousandSep + integer.substr( i, 3 );
+		}
+		if ( decimal.length ) {
+			if ( isFrenchLoc ) {
+				strValue = strValue + "," + decimal;
+			} else {
+				strValue = strValue + "." + decimal;
+			}
+		}
+		return strValue;
+	};
+}
+
+$document.on( "json-failed.wb", selector, function( event ) {
+	var elm = event.target,
+		$elm;
+
+	if ( elm === event.currentTarget ) {
+		$elm = $( elm );
+		$elm.addClass( jsonFailedClass );
+
+		// Identify that initialization has completed
+		wb.ready( $elm, componentName );
+	}
+} );
+
+$document.on( "json-fetched.wb", selector, function( event ) {
+	var elm = event.target,
+		$elm = $( elm ),
+		settings,
+		dsName,
+		JSONresponse = event.fetch.response,
+		isArrayResponse = $.isArray( JSONresponse ),
+		resultSet,
+		i, i_len, i_cache, backlog, selector,
+		patches, filterTrueness, filterFaslseness, filterPath;
+
+
+	if ( elm === event.currentTarget ) {
+
+		settings = wb.getData( $elm, componentName );
+		dsName = "[" + settings.name + "]";
+		patches = settings.patches || [];
+		filterPath = settings.fpath;
+		filterTrueness = settings.filter || [];
+		filterFaslseness = settings.filternot || [];
+
+		if ( !$.isArray( patches ) ) {
+			patches = [ patches ];
+		}
+
+		if ( isArrayResponse ) {
+			JSONresponse = $.extend( [], JSONresponse );
+		} else {
+			JSONresponse = $.extend( {}, JSONresponse );
+		}
+
+		// Apply a filtering
+		if ( filterPath ) {
+			JSONresponse = getPatchesToFilter( JSONresponse, filterPath, filterTrueness, filterFaslseness );
+		}
+
+		// Apply the patches
+		if ( patches.length ) {
+			if ( isArrayResponse && settings.wraproot ) {
+				i_cache = { };
+				i_cache[ settings.wraproot ] = JSONresponse;
+				JSONresponse = i_cache;
+			}
+			jsonpatch.apply( JSONresponse, patches );
+		}
+
+		if ( settings.debug ) {
+			debugPrintOut( $elm, "initEvent", JSONresponse, patches );
+		}
+
+		try {
+			datasetCache[ dsName ] = JSONresponse;
+		} catch ( error ) {
+			return;
+		}
+		datasetCacheSettings[ dsName ] = settings;
+
+		if ( elm.hasAttribute( reloadFlag ) ) {
+			elm.removeAttribute( reloadFlag );
+			i_cache = dsPostponePatches[ dsName ];
+			if ( i_cache ) {
+				$elm.trigger( i_cache );
+			}
+		}
+
+		if ( !settings.wait && dsDelayed[ dsName ] ) {
+			backlog = dsDelayed[ dsName ];
+			i_len = backlog.length;
+			for ( i = 0; i !== i_len; i += 1 ) {
+				i_cache = backlog[ i ];
+				selector = i_cache.selector;
+				if ( selector.length ) {
+					try {
+						resultSet = jsonpointer.get( JSONresponse, selector );
+					} catch  ( e ) {
+						throw dsName + " - JSON selector not found: " + selector;
+					}
+				} else {
+					resultSet = JSONresponse;
+				}
+				$( "#" + i_cache.callerId ).trigger( {
+					type: "json-fetched.wb",
+					fetch: {
+						response: resultSet,
+						status: "200",
+						refId: i_cache.refId,
+						xhr: null
+					}
+				}, this );
+			}
+		}
+
+		// Identify that initialization has completed
+		wb.ready( $elm, componentName );
+	}
+} );
+
+// Apply patches to a preloaded JSON data
+$document.on( patchesEvent, selector, function( event ) {
+	var elm = event.target,
+		$elm = $( elm ),
+		patches = event.patches,
+		filterPath = event.fpath,
+		filterTrueness = event.filter || [],
+		filterFaslseness = event.filternot || [],
+		isCumulative = !!event.cumulative,
+		settings,
+		dsName,
+		dsJSON, resultSet,
+		delayedLst,
+		i, i_len, i_cache, pntrSelector;
+
+	if ( elm === event.currentTarget && $.isArray( patches ) ) {
+		settings = wb.getData( $elm, componentName );
+
+		if ( !settings ) {
+			return true;
+		}
+		dsName = "[" + settings.name + "]";
+
+		// Check if the patches need to be hold until the next json-fetch event
+		if ( elm.hasAttribute( reloadFlag ) ) {
+			dsPostponePatches[ dsName ] = event;
+			return true;
+		}
+
+		if ( !dsDelayed[ dsName ] ) {
+			throw "Applying patched on undefined dataset name: " + dsName;
+		}
+
+		dsJSON = datasetCache[ dsName ];
+		if ( !isCumulative ) {
+			dsJSON = $.extend( true, ( $.isArray( dsJSON ) ? [] : {} ), dsJSON );
+		}
+
+		// Apply a filtering
+		if ( filterPath ) {
+			dsJSON = getPatchesToFilter( dsJSON, filterPath, filterTrueness, filterFaslseness );
+		}
+
+		jsonpatch.apply( dsJSON, patches );
+
+		if ( settings.debug ) {
+			debugPrintOut( $elm, "patchesEvent", dsJSON, patches );
+		}
+
+		delayedLst = dsDelayed[ dsName ];
+		i_len = delayedLst.length;
+		for ( i = 0; i !== i_len; i += 1 ) {
+			i_cache = delayedLst[ i ];
+			pntrSelector = i_cache.selector;
+			if ( pntrSelector.length ) {
+				try {
+					resultSet = jsonpointer.get( dsJSON, pntrSelector );
+				} catch  ( e ) {
+					throw dsName + " - JSON selector not found: " + pntrSelector;
+				}
+			} else {
+				resultSet = dsJSON;
+			}
+			$( "#" + i_cache.callerId ).trigger( {
+				type: "json-fetched.wb",
+				fetch: {
+					response: resultSet,
+					status: "200",
+					refId: i_cache.refId,
+					xhr: null
+				}
+			}, this );
+		}
+	}
+} );
+
+
+// Used by the JSON-fetch plugin for when trying fetching a resource that is mapped a dataset name
+$document.on( postponeEvent, function( event ) {
+	var jsonPostpone = event.postpone,
+		dsName = jsonPostpone.dsname,
+		callerId = jsonPostpone.callerId,
+		refId = jsonPostpone.refId,
+		selector = jsonPostpone.selector,
+		resultSet;
+
+	if ( !dsDelayed[ dsName ] ) {
+		dsDelayed[ dsName ] = [ ];
+	}
+
+	// Add to the delayed updates list
+	dsDelayed[ dsName ].push( {
+		"callerId": callerId,
+		"refId": refId,
+		"selector": selector
+	} );
+
+	// Send the data if the dataset is ready?
+	if ( datasetCache[ dsName ] && !datasetCacheSettings[ dsName ].wait ) {
+		resultSet = datasetCache[ dsName ];
+		if ( selector.length ) {
+			try {
+				resultSet = jsonpointer.get( resultSet, selector );
+			} catch  ( e ) {
+				throw dsName + " - JSON selector not found: " + selector;
+			}
+		}
+		$( "#" + callerId ).trigger( {
+			type: "json-fetched.wb",
+			fetch: {
+				response: resultSet,
+				status: "200",
+				refId: refId,
+				xhr: null
+			}
+		}, this );
+	}
+
+} );
+
+/*
+ * Integration with wb-fieldflow
+ *
+ */
+function pushData( $elm, prop, data, reset ) {
+	var dtCache = $elm.data( prop );
+	if ( !dtCache || reset ) {
+		dtCache = [];
+	}
+	dtCache.push( data );
+	return $elm.data( prop, dtCache );
+}
+
+// Fieldflow "op" action
+$document.on( "op.action.wb-fieldflow", ".wb-fieldflow", function( event, data ) {
+
+	if ( !data.op ) {
+		return;
+	}
+
+	// Postpone the event for form submission
+	data.preventSubmit = true;
+	pushData( $( data.provEvt ), "wb-fieldflow-submit", data );
+} );
+
+// Fieldflow "op" submit
+$document.on( "op.submit.wb-fieldflow", ".wb-fieldflow", function( event, data ) {
+
+	// Get the hbs Plugin
+	var op = data.op,
+		source = data.source,
+		ops;
+
+	if ( !op ) {
+		return true;
+	}
+
+	if ( !$.isArray( op ) ) {
+		ops = [];
+		ops.push( op );
+	} else {
+		ops = op;
+	}
+
+	$( source ).trigger( {
+		type: "patches.wb-jsonmanager",
+		patches: ops
+	} );
+} );
+
+// Bind the init event of the plugin
+$document.on( "timerpoke.wb " + initEvent, selector, init );
+
+
+// Add the timer poke to initialize the plugin
+wb.add( selector );
+
+} )( jQuery, window, wb );
+
+/**
  * @title WET-BOEW wb-postback
  * @overview This plugin implements AJAX request for form data to submit on same page without refresh
  * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
@@ -13188,8 +17314,10 @@ $document.on( clickEvents, linkSelector, function( event ) {
 
 var $document = wb.doc,
 	componentName = "wb-postback",
-	selector = ".provisional." + componentName,
+	selector = "." + componentName,
 	initEvent = "wb-init" + selector,
+	failEvent = "fail" + selector,
+	successEvent = "success" + selector,
 	defaults = {},
 
 	init = function( event ) {
@@ -13203,25 +17331,17 @@ var $document = wb.doc,
 					defaults,
 					wb.getData( $elm, componentName )
 				),
-				attrClick = "data-wb-clicked",
+				attrEngaged = "data-wb-engaged",
 				$buttons = $( "[type=submit]", $elm ),
+				multiple = typeof $elm.data( componentName + "-multiple" ) !== "undefined",
 				classToggle = settings.toggle || "hide",
-				selectorContent = settings.content,
 				selectorSuccess = settings.success,
-				selectorFailure;
-
-			// Success selector is strict minimum
-			if ( !selectorContent ) {
-				throw componentName + " success setting is mandatory";
-			}
-
-			// Use success selector if no failure selector is provided
-			selectorFailure = settings.failure || selectorSuccess;
+				selectorFailure = settings.failure || selectorSuccess;
 
 			// Set "clicked" attribute on element that initiated the form submit
 			$buttons.on( "click", function() {
-				$buttons.removeAttr( attrClick );
-				$( this ).attr( attrClick, "" );
+				$buttons.removeAttr( attrEngaged );
+				$( this ).attr( attrEngaged, "" );
 			} );
 
 			elm.addEventListener( "submit", function( e ) {
@@ -13229,33 +17349,55 @@ var $document = wb.doc,
 				// Prevent regular form submit
 				e.preventDefault();
 
-				var data = $elm.serializeArray(),
-					$btn = $( "[type=submit][" + attrClick + "]", $elm ),
-					$selectorSuccess = $( selectorSuccess ),
-					$selectorFailure = $( selectorFailure );
-
-				if ( $btn ) {
-					data.push( { name: $btn.attr( "name" ), value: $btn.val() } );
+				//Check if the form use the validation plugin
+				if ( elm.parentElement.classList.contains( "wb-frmvld" ) ) {
+					if ( !$elm.valid() ) {
+						$( this ).attr( attrEngaged, true );
+					} else {
+						$buttons.removeAttr( attrEngaged );
+						$( this ).attr( attrEngaged, "" );
+					}
 				}
 
-				$.ajax( {
-					type: this.method,
-					url: this.attr,
-					data: $.param( data )
-				} )
-				.done( function() {
-					$selectorFailure.addClass( classToggle );
-					$selectorSuccess.removeClass( classToggle );
-				} )
-				.fail( function() {
-					$selectorSuccess.addClass( classToggle );
-					$selectorFailure.removeClass( classToggle );
-				} )
-				.always( function() {
-					if ( selectorContent ) {
-						$( selectorContent ).addClass( classToggle );
+				if ( !$( this ).attr( attrEngaged ) ) {
+					var data = $elm.serializeArray(),
+						$btn = $( "[type=submit][name][" + attrEngaged + "]", $elm ),
+						$selectorSuccess = $( selectorSuccess ),
+						$selectorFailure = $( selectorFailure );
+
+					if ( $btn.length ) {
+						data.push( { name: $btn.attr( "name" ), value: $btn.val() } );
 					}
-				} );
+					$( this ).attr( attrEngaged, true );
+
+					// Hide feedback messages
+					$selectorFailure.addClass( classToggle );
+					$selectorSuccess.addClass( classToggle );
+
+					// Send the form through ajax and ignore the response body.
+					$.ajax( {
+						type: this.method,
+						url: this.action,
+						data: $.param( data )
+					} )
+						.done( function() {
+							$elm.trigger( successEvent );
+							$selectorSuccess.removeClass( classToggle );
+						} )
+						.fail( function( response ) {
+							$elm.trigger( failEvent, response );
+							$selectorFailure.removeClass( classToggle );
+						} )
+						.always( function() {
+
+							// Make the form submittable again if multiple submits are allowed or hide
+							if ( multiple ) {
+								$elm.removeAttr( attrEngaged );
+							} else {
+								$elm.addClass( classToggle );
+							}
+						} );
+				}
 			} );
 
 			wb.ready( $( elm ), componentName );
@@ -13281,7 +17423,7 @@ wb.add( selector );
 
 var $document = wb.doc,
 	componentName = "wb-randomize",
-	selector = ".provisional[data-wb-randomize]",
+	selector = "[data-wb-randomize]",
 	initEvent = "wb-init" + selector,
 	defaults = {},
 

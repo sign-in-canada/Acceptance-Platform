@@ -184,6 +184,7 @@ wb.i18nDict = {
 	info1000: ",",
 	lenMenu: "Hiển thị _MENU_ mục",
 	filter: "Lọc mặt hàng",
+	tbFilterInst: "This table provides a sorting feature via the buttons across the column header row with only one instance visible at a time.",
 
 	/* Geomap */
 	"geo-mapctrl": "@geo-mapctrl@",
@@ -227,6 +228,7 @@ wb.i18nDict = {
 	"wb-enable": "Switch to standard version",
 	"disable-notice-h": "Notice: Basic HTML",
 	"disable-notice": "You are viewing Basic HTML view. Some features may be disabled.",
+	"skip-prefix": "Skip to:",
 
 	/* Dismissable content */
 	"dismiss": "Dismiss",
@@ -273,7 +275,7 @@ $.extend( $.validator.messages, {
 	rangelength: $.validator.format( "Hãy nhập từ {0} đến {1} kí tự." ),
 	range: $.validator.format( "Hãy nhập từ {0} đến {1}." ),
 	max: $.validator.format( "Hãy nhập từ {0} trở xuống." ),
-	min: $.validator.format( "Hãy nhập từ {1} trở lên." )
+	min: $.validator.format( "Hãy nhập từ {0} trở lên." )
 } );
 return $;
 }));
