@@ -77,6 +77,7 @@ class PersonAuthentication(PersonAuthenticationType):
             pydevd.settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
         
         self.name = customScript.getName()
+        self.level = customScript.getLevel()
         
         print ("%s: Initializing" % self.name)
 
@@ -446,6 +447,35 @@ class PersonAuthentication(PersonAuthenticationType):
                 userChanged = False
             identity.setWorkingParameter("userId", user.getUserId())
 
+            # Manage the Credential High Water Mark of Identity Assurance
+            client = self.getClient(session)
+            clientId = client.getClientId()
+            credHwmAttribute = userService.getCustomAttribute(user, "credHighWaterMark")
+
+            if credHwmAttribute is None:
+                userService.addUserAttribute(user, "credHighWaterMark", clientId + "|" + str(self.level), True)
+                userService.updateUser(user)
+            else:
+                credHwms = credHwmAttribute.getValues()
+                clientFound = False
+
+                for i in range(len(credHwms)):
+                    cid, level = tuple(credHwms[i].split("|"))
+                    if cid == clientId: 
+                        if int(level) < self.level: 
+                            credHwms[i] = cid + "|" + str(self.level)
+                            userService.updateUser(user)
+                            
+                        clientFound = True
+                        break
+                
+                if not clientFound:
+                    newCredHwmsLen = len(credHwms) + 1
+                    updatedCredHwms = Arrays.copyOf(credHwms, newCredHwmsLen)
+                    updatedCredHwms[newCredHwmsLen-1] = clientId + "|" + str(self.level)
+                    credHwmAttribute.setValues(Arrays.asList(updatedCredHwms))
+                    userService.updateUser(user)
+    
             # Update the preferred language if it has changed
             locale = ServerUtil.getFirstValue(requestParameters, "locale")
             if locale:
