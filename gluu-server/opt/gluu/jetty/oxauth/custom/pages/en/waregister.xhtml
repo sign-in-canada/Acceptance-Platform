@@ -59,8 +59,6 @@
 				console.log('Executing get attestation Fido2 request', attestation_request);
 
 				request = JSON.parse(attestation_request);
-        request.authenticatorSelection.userVerification = 'discouraged'
-        console.log('Executing modified attestation Fido2 request', JSON.stringify(request));
 				webauthn.createCredential(request).then(data => {
 					document.getElementById('fido2Registration').value = JSON.stringify(webauthn.responseToObject(data));
 

@@ -24,7 +24,6 @@ from org.gluu.oxauth.util import ServerUtil
 from org.gluu.oxauth.i18n import LanguageBean
 from org.gluu.jsf2.service import FacesResources, FacesService
 from org.gluu.oxauth.model.authorize import AuthorizeRequestParam
-from org.gluu.fido2.client import Fido2ClientFactory
 from org.gluu.util import StringHelper
 
 from java.util import Arrays
@@ -55,7 +54,7 @@ if REMOTE_DEBUG:
         print ("Failed to import pydevd: %s" % ex)
         raise
 
-from sic import passport, account, crypto
+from sic import passport, account, fido
 
 class PersonAuthentication(PersonAuthenticationType):
 
@@ -105,16 +104,12 @@ class PersonAuthentication(PersonAuthenticationType):
 
         self.passport = passport.Passport()
         self.passport.init(configurationAttributes, self.name)
-        
-        # Configure FIDO2
+
         if configurationAttributes.containsKey("fido2_server_uri"):
+            # Configure FIDO2
             print ("%s: Enabling FIDO2 support" % self.name)
-            self.fido2_server_uri = configurationAttributes.get("fido2_server_uri").getValue2()
-            self.fido2_domain = None
-            if configurationAttributes.containsKey("fido2_domain"):
-                self.fido2_domain = configurationAttributes.get("fido2_domain").getValue2()
-            self.metaDataLoaderLock = ReentrantLock()
-            self.fidoMetaDataConfiguration = None
+            self.fido = fido.Fido()
+            self.fido.init(configurationAttributes, self.name)
 
         self.account = account.Account()
 
@@ -270,35 +265,12 @@ class PersonAuthentication(PersonAuthenticationType):
 
         elif step in {self.STEP_FIDO_REGISTER, self.STEP_FIDO_AUTH}:
             userId = identity.getWorkingParameter("userId")
-            metaDataConfiguration = self.getFidoMetaDataConfiguration()
-
             if step == self.STEP_FIDO_REGISTER:
-                try:
-                    attestationService = Fido2ClientFactory.instance().createAttestationService(metaDataConfiguration)
-                    attestationRequest = json.dumps({'username': userId,
-                                                     'displayName': userId,
-                                                     'attestation' : 'direct',
-                                                     'timeout': 120000,
-                                                     'userVerification': 'discouraged'}, separators=(',', ':'))
-                    attestationResponse = attestationService.register(attestationRequest).readEntity(java.lang.String)
-                except ClientErrorException as ex:
-                    print ("%s. Prepare for step. Failed to start FIDO2 attestation flow. Exception:" % self.name, sys.exc_info()[1])
-                    return False
-                identity.setWorkingParameter("fido2_attestation_request", ServerUtil.asJson(attestationResponse))
-                print(ServerUtil.asJson(attestationResponse))
-
+                attestationRequest = self.fido.generateAttestationRequest(userId)
+                identity.setWorkingParameter("fido2_attestation_request", attestationRequest)
             elif step == self.STEP_FIDO_AUTH:
-                userId = identity.getWorkingParameter("userId")
-                metaDataConfiguration = self.getFidoMetaDataConfiguration()
-                fidoDeviceCount = userService.countFidoAndFido2Devices(userId, self.fido2_domain)
-                try:
-                    assertionService = Fido2ClientFactory.instance().createAssertionService(metaDataConfiguration)
-                    assertionRequest = json.dumps({'username': userId, 'timeout': 120000, 'userVerification': 'discouraged'}, separators=(',', ':'))
-                    assertionResponse = assertionService.authenticate(assertionRequest).readEntity(java.lang.String)
-                except ClientErrorException as ex:
-                    print ("%s. Prepare for step. Failed to start FIDO2 assertion flow. Exception:" %self.name, sys.exc_info()[1])
-                    return False
-                identity.setWorkingParameter("fido2_assertion_request", ServerUtil.asJson(assertionResponse))
+                assertionRequest = self.fido.generateAssertionRequest(userId)
+                identity.setWorkingParameter("fido2_assertion_request", assertionRequest)
 
         return True
         
@@ -370,10 +342,10 @@ class PersonAuthentication(PersonAuthenticationType):
                 return False
 
         elif requestParameters.containsKey("fido2Registration"):
-            return self.registerFido2(identity.getWorkingParameter("userId"), requestParameters)
+            return self.fido.registerFido2(ServerUtil.getFirstValue(requestParameters, "fido2Registration"))
 
         elif requestParameters.containsKey("fido2Authentication"):
-            return self.authenticateFido2(identity.getWorkingParameter("userId"), requestParameters)
+            return self.fido.authenticateFido2(ServerUtil.getFirstValue(requestParameters, "fido2Authentication"))
 
         elif requestParameters.containsKey("fido2Nav"):
             option = self.getFormButton(requestParameters)
@@ -534,49 +506,6 @@ class PersonAuthentication(PersonAuthenticationType):
 
         return True
 
-    def registerFido2(self, userId, requestParameters):
-
-        if REMOTE_DEBUG:
-            pydevd.settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
-
-        userService = CdiUtil.bean(UserService)
-        authenticationService = CdiUtil.bean(AuthenticationService)
-        identity = CdiUtil.bean(Identity)
-        session = identity.getSessionId()
-
-        tokenResponse = ServerUtil.getFirstValue(requestParameters, "fido2Registration")
-        metaDataConfiguration = self.getFidoMetaDataConfiguration()
-        attestationService = Fido2ClientFactory.instance().createAttestationService(metaDataConfiguration)
-        attestationStatus = attestationService.verify(tokenResponse)
-
-        if attestationStatus.getStatus() != Response.Status.OK.getStatusCode():
-            print ("%s. Authenticate. Got invalid registration status from Fido2 server" % self.name)
-            return False
-
-        return authenticationService.authenticate(identity.getWorkingParameter("userId"))
-
-    def authenticateFido2(self, userId, requestParameters):
-        
-        if REMOTE_DEBUG:
-            pydevd.settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
-
-        userService = CdiUtil.bean(UserService)
-        authenticationService = CdiUtil.bean(AuthenticationService)
-        identity = CdiUtil.bean(Identity)
-        session = identity.getSessionId()
-
-        tokenResponse = ServerUtil.getFirstValue(requestParameters, "fido2Authentication")
-        metaDataConfiguration = self.getFidoMetaDataConfiguration()
-        assertionService = Fido2ClientFactory.instance().createAssertionService(metaDataConfiguration)
-        assertionStatus = assertionService.verify(tokenResponse)
-        authenticationStatusEntity = assertionStatus.readEntity(java.lang.String)
-
-        if assertionStatus.getStatus() != Response.Status.OK.getStatusCode():
-            print ("%s. Authenticate. Got invalid authentication status from Fido2 server" % self.name)
-            return False
-
-        return authenticationService.authenticate(identity.getWorkingParameter("userId"))
-
     def getPageForStep(self, configurationAttributes, step):
 
         if REMOTE_DEBUG:
@@ -713,13 +642,13 @@ class PersonAuthentication(PersonAuthenticationType):
                         return self.gotoStep(self.STEP_COLLECT)
 
         if step in {self.STEP_1FA, self.STEP_COLLECT}:
-            if rpConfig.get("fido") and userService.countFidoAndFido2Devices(userId, self.fido2_domain) > 0:
+            if rpConfig.get("fido") and userService.countFido2RegisteredDevices(userId) > 0:
                 return self.gotoStep(self.STEP_FIDO_AUTH)
             if rpConfig.get("mfaProvider"): # 2FA
                 return self.gotoStep(self.STEP_2FA)
 
         if step == self.STEP_2FA:
-            if rpConfig.get("fido") and userService.countFidoAndFido2Devices(userId, self.fido2_domain) == 0:
+            if rpConfig.get("fido") and userService.countFido2RegisteredDevices(userId) == 0:
                 return self.gotoStep(self.STEP_FIDO_REGISTER)
         
         if step == self.STEP_FIDO_AUTH:
@@ -799,35 +728,3 @@ class PersonAuthentication(PersonAuthenticationType):
         # Add it to the cache
         self.rpConfigCache[clientKey] = rpConfig
         return rpConfig
-
-    # FIDO2 Metadata loading
-    # This is deferred so that the FIDO2 service has time to start
-    def getFidoMetaDataConfiguration(self):
-        if self.fidoMetaDataConfiguration != None:
-            return self.fidoMetaDataConfiguration
-        
-        self.metaDataLoaderLock.lock()
-        # Make sure that another thread not loaded configuration already          
-        if self.fidoMetaDataConfiguration != None:
-            return self.fidoMetaDataConfiguration
-
-        try:
-            print ("%s. Initialization. Downloading Fido2 metadata" % self.name)
-            self.fido2_server_metadata_uri = self.fido2_server_uri + "/.well-known/fido2-configuration"
-
-            metaDataConfigurationService = Fido2ClientFactory.instance().createMetaDataConfigurationService(self.fido2_server_metadata_uri)
-    
-            max_attempts = 10
-            for attempt in range(1, max_attempts + 1):
-                try:
-                    self.fidoMetaDataConfiguration = metaDataConfigurationService.getMetadataConfiguration().readEntity(java.lang.String)
-                    return self.fidoMetaDataConfiguration
-                except ClientErrorException as ex:
-                    # Detect if last try or we still get Service Unavailable HTTP error
-                    if (attempt == max_attempts) or (ex.getResponse().getResponseStatus() != Response.Status.SERVICE_UNAVAILABLE):
-                        raise ex
-    
-                    java.lang.Thread.sleep(3000)
-                    print ("Attempting to load metadata: %d" % attempt)
-        finally:
-            self.metaDataLoaderLock.unlock()
