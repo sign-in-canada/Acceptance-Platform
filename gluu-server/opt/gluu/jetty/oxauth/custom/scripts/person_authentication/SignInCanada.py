@@ -867,8 +867,6 @@ class PersonAuthentication(PersonAuthenticationType):
 
         if step == self.STEP_MFA_CONFIRM:
             if requestParameters.containsKey("mfaSuccessReplaceNav:continue"):
-                #facesService = CdiUtil.bean(FacesService)
-                #facesService.redirectToExternalURL(self.getClientUri(session))
                 return self.gotoStep(self.STEP_2FA)
             else:
                 return self.gotoStep(self.STEP_MFA_CONFIRM)
