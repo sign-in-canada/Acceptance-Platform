@@ -6,7 +6,7 @@ from org.gluu.service.cdi.util import CdiUtil
 from org.gluu.oxauth.model.common import User
 from org.oxauth.persistence.model import PairwiseIdentifier
 from org.gluu.service.cdi.util import CdiUtil
-from org.gluu.oxauth.service import UserService, PairwiseIdentifierService
+from org.gluu.oxauth.service import UserService, ClientService, PairwiseIdentifierService
 from org.gluu.persist import PersistenceEntryManager
 from org.gluu.persist.model.base import CustomEntry
 from org.gluu.search.filter import Filter
@@ -14,6 +14,7 @@ from org.gluu.search.filter import Filter
 from java.net import URI
 from javax.faces.context import FacesContext
 
+import sys
 import uuid
 
 class AccountError(Exception):
@@ -24,6 +25,7 @@ class Account:
 
     def __init__(self):
         self.userService = CdiUtil.bean(UserService)
+        self.clientService = CdiUtil.bean(ClientService)
         self.pairwiseIdentifierService = CdiUtil.bean(PairwiseIdentifierService)
         self.entryManager = CdiUtil.bean(PersistenceEntryManager)
 
@@ -156,3 +158,47 @@ class Account:
             if attr not in ["provider", "externalUid"]:
                 values = externalProfile[attr]
                 user.setAttribute(attr, values)
+
+    # MFA replacement management
+    def replace2FA(self, user):
+        try:
+            # Disable the Subject Identifier of the old 2nd authenticator from the user account
+            externalUids = user.getAttributeValues("oxExternalUid")
+            externalUidsToUpdate = False
+
+            if externalUids is None:
+                return False
+            else:
+                for index, externalUid in enumerate(externalUids):
+                    if externalUid.startswith('passport-mfa'):
+                        externalUids[index] = externalUid.replace("passport-mfa", "passport-disabled-mfa")
+                        externalUidsToUpdate = True
+
+                if externalUidsToUpdate:
+                    user.setAttribute("oxExternalUid", externalUids, True)
+                    self.userService.updateUser(user)
+
+            # Disable the pairwise subjects issued to RPs that use the old 2nd authenticator
+            userInum = user.getAttribute("inum")
+            credHwmAttribute = self.userService.getCustomAttribute(user, "credHighWaterMark")
+            if credHwmAttribute is not None:
+                credHwms = credHwmAttribute.getValues()
+                for i in range(len(credHwms)):
+                    cid, level = tuple(credHwms[i].split("|"))
+                    if int(level) == 100: 
+                        client = self.clientService.getClient(cid) 
+                        if client is not None:
+                            clientSectorId = self.getSectorId(client)
+                            pairWiseIdentifier = self.pairwiseIdentifierService.findPairWiseIdentifier(userInum, clientSectorId, cid)
+
+                            if pairWiseIdentifier is not None:
+                                pwiSectorIdentifier = pairWiseIdentifier.getSectorIdentifier()
+                                if pwiSectorIdentifier is not None and not pwiSectorIdentifier.startswith('disabled.'):
+                                    pairWiseIdentifier.setSectorIdentifier("disabled." + pwiSectorIdentifier)
+                                    self.entryManager.persist(pairWiseIdentifier)
+        
+        except:
+            print ("Exception: ", sys.exc_info()[1])
+            return False
+
+        return True

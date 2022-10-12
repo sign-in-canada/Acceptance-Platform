@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html>
+<ui:composition xmlns:ui="http://xmlns.jcp.org/jsf/facelets" xmlns:c="http://xmlns.jcp.org/jsp/jstl/core" xmlns:f="http://xmlns.jcp.org/jsf/core" xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:h="http://xmlns.jcp.org/jsf/html" template="/WEB-INF/incl/layouts/GCWeb.xhtml">
+
+  <f:metadata>
+    <f:viewAction action="#{authenticator.prepareAuthenticationForStep}" />
+    <f:viewAction action="#{language.setLocaleCode('fr')}" />
+  </f:metadata>
+
+  <ui:param name="title" value="Assistance AMF" />
+  <ui:param name="locale" value="fr" />
+
+  <ui:define name="name">
+    <ui:include src="/WEB-INF/incl/content/default/name-#{view.locale.language}.xhtml" />
+  </ui:define>
+
+  <ui:define name="content">
+    <h1 property="name" id="wb-cont">Remplacement AMF</h1>
+    <div class="row">
+      <div>
+        <p>Ce service automatisé vous permettra de remplacer l'authentificateur perdu par un nouveau.</p>  
+      </div>
+      
+      <ui:include src="/WEB-INF/incl/components/userMfaContents-fr.xhtml" />
+      <div>
+        <p>Êtes-vous sûr de vouloir remplacer l'authentificateur 2FA?</p>  
+      </div>
+
+      <div class="col-md-4">
+        <nav class="mrgn-bttm-lg" role="navigation">
+          <form jsf:id="mfaReplaceNav" class="form-horizontal" jsf:action="#{authenticator.authenticate}">
+            <ul id="pager" class="pager">
+              <h2 class="wb-inv">Navigation</h2>
+              <li class="pull-left">
+                <button jsf:id="replace" class="form-control btn btn-primary" jsf:action="#{authenticator.authenticate}">Oui, je confirme pour continuer</button>                
+              </li>
+              <li class="pull-right">
+                <button jsf:id="decline" class="btn btn-default" jsf:action="#{authenticator.authenticate}">Non merci</button>
+              </li>
+            </ul>
+          </form>
+        </nav>
+      </div>
+    </div>
+  </ui:define>
+
+</ui:composition>

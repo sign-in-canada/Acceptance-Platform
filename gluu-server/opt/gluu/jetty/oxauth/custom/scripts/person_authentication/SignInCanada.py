@@ -63,10 +63,14 @@ class PersonAuthentication(PersonAuthenticationType):
     STEP_CHOOSER = 2
     STEP_1FA = 3
     STEP_COLLECT = 4
-    STEP_2FA = 5
-    STEP_FIDO_AUTH = 6
-    STEP_FIDO_REGISTER = 7
-    STEP_FIDO_CONFIRM = 8
+    STEP_MFA_HELP = 5
+    STEP_MFA_REPLACE = 6
+    STEP_MFA_CONFIRM = 7
+    STEP_2FA = 8
+    STEP_FIDO_AUTH = 9
+    STEP_FIDO_REGISTER = 10
+    STEP_FIDO_CONFIRM = 11
+
     
     def __init__(self, currentTimeMillis):
         self.currentTimeMillis = currentTimeMillis
@@ -169,13 +173,14 @@ class PersonAuthentication(PersonAuthenticationType):
         facesResources = CdiUtil.bean(FacesResources)
         facesService = CdiUtil.bean(FacesService)
         userService = CdiUtil.bean(UserService)
+        clientService = CdiUtil.bean(ClientService)
         
         session = identity.getSessionId()
         sessionAttributes = session.getSessionAttributes()
         externalContext = facesResources.getFacesContext().getExternalContext()
         uiLocales = sessionAttributes.get(AuthorizeRequestParam.UI_LOCALES)
 
-        rpConfig = self.getRPConfig(session)
+        rpConfig = self.getRPConfig(session, None)
         clientUri = self.getClientUri(session)
 
         externalContext.addResponseHeader("Content-Security-Policy", "default-src 'self' https://www.canada.ca; font-src 'self' https://fonts.gstatic.com https://use.fontawesome.com https://www.canada.ca; style-src 'self' 'unsafe-inline'; style-src-elem 'self' 'unsafe-inline' https://use.fontawesome.com https://fonts.googleapis.com https://www.canada.ca; script-src 'self' 'unsafe-inline' https://www.canada.ca https://ajax.googleapis.com; connect-src 'self' https://*.fjgc-gccf.gc.ca")
@@ -300,6 +305,33 @@ class PersonAuthentication(PersonAuthenticationType):
                     print ("%s. Prepare for step. Failed to start FIDO2 assertion flow. Exception:" %self.name, sys.exc_info()[1])
                     return False
                 identity.setWorkingParameter("fido2_assertion_request", ServerUtil.asJson(assertionResponse))
+        
+        elif step == self.STEP_MFA_REPLACE: 
+            if identity.getWorkingParameter("abort"):
+                return False
+
+            try:
+                user = userService.getUser(identity.getWorkingParameter("userId"), "credHighWaterMark")
+                credHwmAttribute = userService.getCustomAttribute(user, "credHighWaterMark")    
+                mfaContents = []
+                
+                if credHwmAttribute is not None:
+                    credHwms = credHwmAttribute.getValues()
+                    for i in range(len(credHwms)):
+                        cid, level = tuple(credHwms[i].split("|"))
+                        if int(level) == 100: 
+                            aClient = clientService.getClient(cid)                       
+                            if aClient is not None:
+                                rpc = self.getRPConfig(session, aClient)
+                                if rpc is not None and rpc.get("content") is not None and rpc.get("content") not in mfaContents:
+                                    mfaContents.append(rpc.get("content")) 
+
+            except ClientErrorException as ex:
+                print ("%s. Prepare for step. Failed to retrieve MFA client list. Exception:" %self.name, sys.exc_info()[1])
+                return False
+            
+            identity.setWorkingParameter("mfa_contents", mfaContents)
+            identity.setWorkingParameter("mfa_contents_number", len(mfaContents))
 
         return True
         
@@ -314,6 +346,7 @@ class PersonAuthentication(PersonAuthenticationType):
         languageBean = CdiUtil.bean(LanguageBean)
         userService = CdiUtil.bean(UserService)
         authenticationService = CdiUtil.bean(AuthenticationService)
+        facesResources = CdiUtil.bean(FacesResources)
 
         session = identity.getSessionId()
         sessionAttributes = session.getSessionAttributes()
@@ -326,6 +359,13 @@ class PersonAuthentication(PersonAuthenticationType):
             return self.authenticatePassportUser(configurationAttributes, requestParameters, step)
 
         elif requestParameters.containsKey("failure"):
+            externalContext = facesResources.getFacesContext().getExternalContext()
+            httpRequest = externalContext.getRequest()
+            referer = httpRequest.getHeader("referer")
+            if "mfa.auth.canada.ca" in referer: 
+                identity.setWorkingParameter("mfasupport", True)
+                return self.gotoStep(self.STEP_2FA)           
+
             # This means that passport returned an error
             if step <= self.STEP_1FA: # User Cancelled during login
                 if len(self.providers) == 1: # One provider. Redirect back to the RP
@@ -386,6 +426,28 @@ class PersonAuthentication(PersonAuthenticationType):
             elif option in {"decline", "continue"}:
                 return authenticationService.authenticate(identity.getWorkingParameter("userId"))
 
+        elif requestParameters.containsKey("mfaHelpNav"):
+           return authenticationService.authenticate(identity.getWorkingParameter("userId"))
+
+        elif requestParameters.containsKey("mfaReplaceNav"):
+            option = self.getFormButton(requestParameters)
+            if option == "replace":
+                user = userService.getUser(identity.getWorkingParameter("userId"), "inum", "uid", "oxExternalUid", "credHighWaterMark") 
+                if self.account.replace2FA(user):
+                    mfaId = self.account.addExternalUid(user, "mfa")
+                    identity.setWorkingParameter("mfaId", mfaId)
+                    identity.setWorkingParameter("mfadeletion", True)
+                    userService.updateUser(user)
+                else:
+                    print ("replace2FA(): failed to disable Subject Identifier and Pairwise Subjects of the old 2nd authenticator for user %s" %user)
+                    identity.setWorkingParameter("abort", True)
+
+            elif option == "decline": 
+                return authenticationService.authenticate(identity.getWorkingParameter("userId"))
+        
+        elif requestParameters.containsKey("mfaSuccessReplaceNav"):
+            return authenticationService.authenticate(identity.getWorkingParameter("userId"))
+
         else: # Invalid response
             print ("%s: Invalid form submission: %s." % (self.name, requestParameters.keySet().toString()))
             return False
@@ -405,7 +467,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
         session = identity.getSessionId()
         sessionAttributes = session.getSessionAttributes()
-        rpConfig = self.getRPConfig(session)
+        rpConfig = self.getRPConfig(session, None)
 
         externalProfile = self.passport.handleResponse(requestParameters)
         if externalProfile is None:
@@ -461,7 +523,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
                 for i in range(len(credHwms)):
                     cid, level = tuple(credHwms[i].split("|"))
-                    if cid == clientId: 
+                    if cid == clientId:
                         if int(level) < self.level: 
                             credHwms[i] = cid + "|" + str(self.level)
                             userService.updateUser(user)
@@ -470,12 +532,9 @@ class PersonAuthentication(PersonAuthenticationType):
                         break
                 
                 if not clientFound:
-                    newCredHwmsLen = len(credHwms) + 1
-                    updatedCredHwms = Arrays.copyOf(credHwms, newCredHwmsLen)
-                    updatedCredHwms[newCredHwmsLen-1] = clientId + "|" + str(self.level)
-                    credHwmAttribute.setValues(Arrays.asList(updatedCredHwms))
+                    userService.addUserAttribute(user, "credHighWaterMark", clientId + "|" + str(self.level), True)
                     userService.updateUser(user)
-    
+           
             # Update the preferred language if it has changed
             locale = ServerUtil.getFirstValue(requestParameters, "locale")
             if locale:
@@ -630,7 +689,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
         if uiLocales is not None:
             language = uiLocales[:2].lower()
-
+        
         if step == 1 and uiLocales is not None:
             if len(self.providers) > 1:
                 step = self.STEP_CHOOSER
@@ -656,7 +715,7 @@ class PersonAuthentication(PersonAuthenticationType):
             else:
                 return "/en/wa.xhtml"
 
-        elif step == self.STEP_FIDO_REGISTER: # FIDO Reggistration
+        elif step == self.STEP_FIDO_REGISTER: # FIDO Registration
             if language == "fr":
                 return "/fr/waregistrer.xhtml"
             else:
@@ -667,6 +726,24 @@ class PersonAuthentication(PersonAuthenticationType):
                 return "/fr/wasucces.xhtml"
             else:
                 return "/en/wasuccess.xhtml"
+
+        elif step == self.STEP_MFA_HELP: # MFA assistance
+            if language == "fr":
+                return "/fr/aideramf.xhtml"
+            else:
+                return "/en/mfahelp.xhtml"
+
+        elif step == self.STEP_MFA_REPLACE: # MFA authenticator replacement
+            if language == "fr":
+                return "/fr/remplaceramf.xhtml"
+            else:
+                return "/en/mfareplace.xhtml"
+
+        elif step == self.STEP_MFA_CONFIRM: # MFA authenticator replacement
+            if language == "fr":
+                return "/fr/remamfsucces.xhtml"
+            else:
+                return "/en/mfarepsuccess.xhtml" 
 
         else:
             print("%s. getPageForStep. Unexpected step # %s" % (self.name, step))
@@ -703,7 +780,7 @@ class PersonAuthentication(PersonAuthenticationType):
         userService = CdiUtil.bean(UserService)
         identity = CdiUtil.bean(Identity)
         session = identity.getSessionId()
-        rpConfig = self.getRPConfig(session)
+        rpConfig = self.getRPConfig(session, None)
         provider = identity.getWorkingParameter("provider")
         if provider is not None:
             providerInfo = self.passport.getProvider(provider)
@@ -749,6 +826,8 @@ class PersonAuthentication(PersonAuthenticationType):
                 return self.gotoStep(self.STEP_2FA)
 
         if step == self.STEP_2FA:
+            if identity.getWorkingParameter("mfasupport"):
+                return self.gotoStep(self.STEP_MFA_HELP)
             if rpConfig.get("fido") and userService.countFidoAndFido2Devices(userId, self.fido2_domain) == 0:
                 return self.gotoStep(self.STEP_FIDO_REGISTER)
         
@@ -767,6 +846,32 @@ class PersonAuthentication(PersonAuthenticationType):
         if step == self.STEP_FIDO_CONFIRM:
             if requestParameters.containsKey("lang"):
                 return self.gotoStep(self.STEP_FIDO_CONFIRM) # Language toggle
+
+        if step == self.STEP_MFA_HELP:
+            if requestParameters.containsKey("lang"):
+                return self.gotoStep(self.STEP_MFA_HELP) # Language toggle
+            elif requestParameters.containsKey("mfaHelpNav:decline"):
+                facesService = CdiUtil.bean(FacesService)
+                facesService.redirectToExternalURL(self.getClientUri(session))
+            elif requestParameters.containsKey("mfaHelpNav:replace"):
+                return self.gotoStep(self.STEP_MFA_REPLACE)
+
+        if step == self.STEP_MFA_REPLACE:
+            if requestParameters.containsKey("mfaReplaceNav:decline"):
+                facesService = CdiUtil.bean(FacesService)
+                facesService.redirectToExternalURL(self.getClientUri(session))
+            elif identity.getWorkingParameter("mfadeletion"):
+                return self.gotoStep(self.STEP_MFA_CONFIRM)
+            else:
+                return self.gotoStep(self.STEP_MFA_REPLACE)
+
+        if step == self.STEP_MFA_CONFIRM:
+            if requestParameters.containsKey("mfaSuccessReplaceNav:continue"):
+                #facesService = CdiUtil.bean(FacesService)
+                #facesService.redirectToExternalURL(self.getClientUri(session))
+                return self.gotoStep(self.STEP_2FA)
+            else:
+                return self.gotoStep(self.STEP_MFA_CONFIRM)
 
         # if we get this far we're done
         identity.setWorkingParameter("stepCount", originalStep)
@@ -795,9 +900,12 @@ class PersonAuthentication(PersonAuthenticationType):
 
         return clientUri
 
-    def getRPConfig(self, session):
+    def getRPConfig(self, session, aClient):
         clientService = CdiUtil.bean(ClientService)
-        client = self.getClient(session)
+        if aClient is not None:
+            client = aClient
+        else:        
+            client = self.getClient(session)
 
         # check the cache
         clientKey = "oidc:%s" % client.getClientId()

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+     <div class="alert alert-danger">
+        <p>IMPORTANT</p><br/>
+        <ui:param name="mfa_contents_number" value="#{identity.getWorkingParameter('mfa_contents_number')}" />
+        <p>Les accès des parties utilisatrices ci-dessous seront perdus en raison de cette procédure de remplacement 2FA:</p>
+        <ul>
+            <c:if test="#{mfa_contents_number eq 0}">
+                <li>N/A</li>
+            </c:if>
+
+            <c:if test="#{mfa_contents_number gt 0}">
+                <c:forEach items="${identity.getWorkingParameter('mfa_contents')}" var="content">
+                    <li><ui:include src="/WEB-INF/incl/content/#{content}/name-#{view.locale.language}.xhtml" /></li>
+                </c:forEach>    
+            </c:if>
+        </ul>
+    </div>
+</ui:composition>
