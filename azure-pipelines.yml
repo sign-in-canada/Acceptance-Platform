@@ -30,6 +30,8 @@ stages:
         ls -al $(Pipeline.Workspace)
         cd gluu-server/opt/gluu/jetty/oxauth/custom
         mkdir libs
+        wget https://ox.gluu.org/maven/javax/servlet/jstl/1.2/jstl-1.2.jar \
+          -P gluu-server/opt/gluu/jetty/oxauth/custom/libs
         cp -R $(Build.SourcesDirectory)/pipeline-utils/azure-sdk/target/dependency/*.jar libs
         tar -czv --owner=root --group=root -f custom.tgz *
         mv custom.tgz $(Pipeline.Workspace)/s/gluu-server/opt/dist/signincanada
