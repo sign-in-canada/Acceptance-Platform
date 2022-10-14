@@ -6,20 +6,87 @@
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:jsf="http://xmlns.jcp.org/jsf"
                 xmlns:p="http://xmlns.jcp.org/jsf/passthrough">
-    <h2 class="mini-h2s" style="margin-top:0em;">Use the sign-in option you registered with:</h2>
-    <form jsf:id="chooser" jsf:action="#{authenticator.authenticate}" class="form">
-        <h:messages styleClass="list-unstyled label label-danger wb-server-error" />
-        <button jsf:id="gckey" jsf:action="#{authenticator.authenticate}" class="btn btn-primary btn-call-to-action btn-1" style="color: #333 !important;" value="gckey" type="submit">
-            <i class="fab fa-canadian-maple-leaf" style="color: #333"></i>
-            &#32; Sign in with your GCKey
-        </button>
-        <button jsf:id="cbs" jsf:action="#{authenticator.authenticate}" class="btn btn-primary btn-call-to-action btn-2" style="color: #333 !important;" value="cbs" type="submit">
-            <i class="fas fa-university" style="color: #17599c;"></i>
-            &#32; Use your online banking (Sign-in Partner)
-        </button>
-        <button jsf:id="madi" jsf:action="#{authenticator.authenticate}" class="btn btn-primary btn-call-to-action btn-3" style="color: #333 !important;" value="madi" type="submit">
-            <i class="fa fa-id-card" style="color: #5c35ae;"></i>
-            &#32; Sign in with My Alberta Digital ID
-        </button>
+    <h3 class="mrgn-tp-sm">Sign in to your account</h3>
+    <div class="row mrgn-tp-md">
+        <div class="col-sm-10 col-sm-offset-1">
+            <form jsf:id="chooser" jsf:action="#{authenticator.authenticate}" class="form">
+                <ul class="list-unstyled lst-spcd-2">
+                    <li id="passkey" class="hidden">
+                        <a class="btn btn-default btn-lg btn-block p-sm-3" role="button" href="#">
+                            <span class="h4">
+                                <span class="fas fa-fingerprint fa-lg mrgn-rght-sm fa-pull-left"></span>
+                                Using a passkey on your device
+                                <span class="wb-inv"> sign-in</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a jsf:id="gckey" jsf:action="#{authenticator.authenticate}" class="btn btn-default btn-lg btn-block p-sm-3">
+                            <span class="h4">
+                                <span class="fab fa-canadian-maple-leaf fa-lg mrgn-rght-sm fa-pull-left"></span>
+                                With your GCKey user ID and password
+                                <span class="wb-inv"> sign-in</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a jsf:id="cbs" jsf:action="#{authenticator.authenticate}" class="btn btn-default btn-lg btn-block p-sm-3">
+                            <span class="h4">
+                                <span class="fas fa-university fa-lg mrgn-rght-sm fa-pull-left"></span>
+                                Through your banking sign-in partner
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a jsf:id="pt" jsf:action="#{authenticator.authenticate}" class="btn btn-default btn-lg btn-block p-sm-3">
+                            <span class="h4">
+                                <span class="fas fa-id-card fa-lg mrgn-rght-sm fa-pull-left"></span>
+                                Through your province
+                                <span class="wb-inv"> sign-in</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li id="roaming" class="show">
+                        <a class="btn btn-default btn-lg btn-block p-sm-3 wb-lbx lbx-modal" role="button" href='#signin-dialog'>
+                            <span class="h4">
+                                <span class="fas fa-key fa-lg mrgn-rght-sm fa-pull-left"></span>
+                                Using your security key
+                                <span class="wb-inv"> sign-in</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li id="nearby" class="show">
+                        <a class="btn btn-default btn-lg btn-block p-sm-3" role="button" href='#'>
+                            <span class="h4">
+                                <span class="fas fa-mobile fa-lg mrgn-rght-sm fa-pull-left"></span>
+                                Using a nearby device
+                                <span class="wb-inv"> sign-in</span>
+                            </span>
+                        </a>
+                    </li>
+                </ul>
+            </form>
+        </div>
+    </div>
+    <form method="post" action="#{request.contextPath}/postlogin.htm" id="fido2" onsubmit="return false">
+        <input type="hidden" name="assertionResponse" id="assertionResponse" />
     </form>
+    <section id="signin-dialog" class="mfp-hide modal-dialog modal-sm modal-content overlay-def">
+        <header class="modal-header">
+            <h2 class="modal-title">Sign In</h2>
+        </header>
+        <form action="javascript:void(0);">
+            <div class="modal-body">
+                    <div class="form-group">
+                        <ul id="notfounderror" class="hidden list-unstyled label label-danger wb-server-error"><li>Account not found. Please try again. </li></ul>
+                        <label for="username">Username: (Required)</label>
+                        <input type="text" audocomplete="username webauthn" class="form-control" id="username" placeholder="Enter Username" />
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button id="signin" type="submit" class="btn btn-default btn-primary pull-left">Sign In</button>
+                <button type="button" class="btn btn-default popup-modal-dismiss pull-right">Cancel</button>
+            </div>
+        </form>
+    </section>
 </ui:composition>

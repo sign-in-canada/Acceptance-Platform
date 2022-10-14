@@ -2,13 +2,13 @@
 #
 # This script has potentially 5 steps:
 #    Step 1: Prompt for language (splash page) (if ui_locales not provided)
-#    Step 2: Choose 1st factor authentication provider (if more than one choice)
+#    Step 2: Choose authentication provider (if more than one choice)
+#            (May include FIDO2 authentication)
 #    Step 3: Passport authentication for 1st factor
 #    Step 4: Legacy PAI collection (if the RP is transitioning from GCCF)
 #    Step 5: External MFA via passport (if configured)
-#    Step 6: FIDO2 authentication
-#    Step 7: FIDO2 registration
-#    Step 8: FIDO2 registration confirmation
+#    Step 6: FIDO2 registration
+#    Step 7: FIDO2 registration confirmation
 #
 # The actual steps performed will depend on thw workflow. Note that if steps 1 or 2 are skipped
 # then the step # passed by Gluu will always be 1 for the first step performed, regardless
@@ -63,9 +63,9 @@ class PersonAuthentication(PersonAuthenticationType):
     STEP_1FA = 3
     STEP_COLLECT = 4
     STEP_2FA = 5
-    STEP_FIDO_AUTH = 6
+    STEP_REGISTER = 6
     STEP_FIDO_REGISTER = 7
-    STEP_FIDO_CONFIRM = 8
+    STEP_CONFIRM = 8
     
     def __init__(self, currentTimeMillis):
         self.currentTimeMillis = currentTimeMillis
@@ -150,8 +150,7 @@ class PersonAuthentication(PersonAuthenticationType):
                              "abort",       # Used to trigger error abort back to the RP
                              "forceAuthn",  # Used to force authentication when prompt=login
                              "userId",      # Used to keep track of the user across multiple requests
-                             "mfaId",       # Used to bind a 2nd factor credential into the session
-                             "mfaFallback") # Used to bypass Fido authnetication
+                             "mfaId")       # Used to bind a 2nd factor credential into the session
 
     def prepareForStep(self, configurationAttributes, requestParameters, step):
 
@@ -172,7 +171,7 @@ class PersonAuthentication(PersonAuthenticationType):
         rpConfig = self.getRPConfig(session)
         clientUri = self.getClientUri(session)
 
-        externalContext.addResponseHeader("Content-Security-Policy", "default-src 'self' https://www.canada.ca; font-src 'self' https://fonts.gstatic.com https://use.fontawesome.com https://www.canada.ca; style-src 'self' 'unsafe-inline'; style-src-elem 'self' 'unsafe-inline' https://use.fontawesome.com https://fonts.googleapis.com https://www.canada.ca; script-src 'self' 'unsafe-inline' https://www.canada.ca https://ajax.googleapis.com; connect-src 'self' https://*.fjgc-gccf.gc.ca")
+        # externalContext.addResponseHeader("Content-Security-Policy", "default-src 'self' https://www.canada.ca; font-src 'self' https://fonts.gstatic.com https://use.fontawesome.com https://www.canada.ca; style-src 'self' 'unsafe-inline'; style-src-elem 'self' 'unsafe-inline' https://use.fontawesome.com https://fonts.googleapis.com https://www.canada.ca; script-src 'self' 'unsafe-inline' https://www.canada.ca https://ajax.googleapis.com; connect-src 'self' https://*.fjgc-gccf.gc.ca")
 
         if step == 1:
             httpRequest = externalContext.getRequest()
@@ -263,19 +262,15 @@ class PersonAuthentication(PersonAuthenticationType):
             passportRequest = self.passport.createRequest(provider, passportOptions)
             facesService.redirectToExternalURL(passportRequest)
 
-        elif step in {self.STEP_FIDO_REGISTER, self.STEP_FIDO_AUTH}:
+        elif step == self.STEP_FIDO_REGISTER:
             userId = identity.getWorkingParameter("userId")
-            if step == self.STEP_FIDO_REGISTER:
-                attestationRequest = self.fido.generateAttestationRequest(userId)
-                identity.setWorkingParameter("fido2_attestation_request", attestationRequest)
-            elif step == self.STEP_FIDO_AUTH:
-                assertionRequest = self.fido.generateAssertionRequest(userId)
-                identity.setWorkingParameter("fido2_assertion_request", assertionRequest)
+            attestationRequest = self.fido.generateAttestationRequest(userId)
+            identity.setWorkingParameter("attestation_request", attestationRequest)
 
         return True
         
     def authenticate(self, configurationAttributes, requestParameters, step):
-
+        
         if REMOTE_DEBUG:
             pydevd.settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
 
@@ -341,21 +336,30 @@ class PersonAuthentication(PersonAuthenticationType):
                 print ("%s: Invalid provider choice: %s." % (self.name, choice))
                 return False
 
-        elif requestParameters.containsKey("fido2Registration"):
-            return self.fido.registerFido2(ServerUtil.getFirstValue(requestParameters, "fido2Registration"))
+        elif requestParameters.containsKey("registration"):
+            user = self.account.register(requestParameters)
+            if user:
+                identity.setWorkingParameter("userId", user.getUserId())
+            else:
+                return False
 
-        elif requestParameters.containsKey("fido2Authentication"):
-            return self.fido.authenticateFido2(ServerUtil.getFirstValue(requestParameters, "fido2Authentication"))
+        elif requestParameters.containsKey("attestationResponse"):
+            attestationResponse = ServerUtil.getFirstValue(requestParameters, "attestationResponse")
+            if attestationResponse:
+                return self.fido.registerFido2(attestationResponse)
+            else:
+                self.account.delete(identity.getWorkingParameter("userId"))
+                return False
 
-        elif requestParameters.containsKey("fido2Nav"):
-            option = self.getFormButton(requestParameters)
-            if option == "use2FA":
-                identity.setWorkingParameter("mfaFallback", True)
-            elif option == "recover":
-                user = userService.getUser(identity.getWorkingParameter("userId"), "inum", "uid")
-                self.account.removeFido2Registrations(user)
-            elif option in {"decline", "continue"}:
-                return authenticationService.authenticate(identity.getWorkingParameter("userId"))
+        elif requestParameters.containsKey("assertionResponse"):
+            assertionResponse = ServerUtil.getFirstValue(requestParameters, "assertionResponse")
+            if assertionResponse:
+                return self.fido.authenticateFido2(assertionResponse)
+            else:
+                return False
+
+        elif requestParameters.containsKey("navigate"):
+            print ("%s: Navigate to: %s." % (self.name, self.getFormButton(requestParameters)))
 
         else: # Invalid response
             print ("%s: Invalid form submission: %s." % (self.name, requestParameters.keySet().toString()))
@@ -549,19 +553,13 @@ class PersonAuthentication(PersonAuthenticationType):
             # identity.getWorkingParameters().remove("abort")
             return "/auth/passport/passportlogin.xhtml"
 
-        elif step == self.STEP_FIDO_AUTH: # FIDO Authentication
+        elif step in {self.STEP_REGISTER, self.STEP_FIDO_REGISTER}: # Account Registration
             if language == "fr":
-                return "/fr/wa.xhtml"
+                return "/fr/registrer.xhtml"
             else:
-                return "/en/wa.xhtml"
+                return "/en/register.xhtml"
 
-        elif step == self.STEP_FIDO_REGISTER: # FIDO Reggistration
-            if language == "fr":
-                return "/fr/waregistrer.xhtml"
-            else:
-                return "/en/waregister.xhtml"
-
-        elif step == self.STEP_FIDO_CONFIRM: # FIDO Registration
+        elif step == self.STEP_CONFIRM: # Registration Confirmation
             if language == "fr":
                 return "/fr/wasucces.xhtml"
             else:
@@ -608,15 +606,25 @@ class PersonAuthentication(PersonAuthenticationType):
             providerInfo = self.passport.getProvider(provider)
 
         originalStep = step
+
         if step == 1:
              # Determine if SPLASH, CHOOSER, or 1FA
             if requestParameters.containsKey("lang"):
                 step = self.STEP_SPLASH
-            elif requestParameters.containsKey("chooser"):
+            elif requestParameters.containsKey("chooser") or requestParameters.containsKey("assertionResponse"):
                 step = self.STEP_CHOOSER
             elif requestParameters.containsKey("user") or requestParameters.containsKey("failure"):
                 step = self.STEP_1FA
-                
+
+        if requestParameters.containsKey("navigate"):
+            target = self.getFormButton(requestParameters)
+            if target == "register":
+                return self.gotoStep(self.STEP_REGISTER)
+            elif target == "cancel":
+                return self.gotoStep(self.STEP_CHOOSER)
+            elif target != "continue":
+                print ("%s: Invalid navigation target: %s"  % (self.name, target))
+
         if step == self.STEP_SPLASH:
             if len(self.providers) == 1:
                 return self.gotoStep(self.STEP_1FA)
@@ -626,10 +634,11 @@ class PersonAuthentication(PersonAuthenticationType):
         if step == self.STEP_CHOOSER:
             if requestParameters.containsKey("lang"):
                 return self.gotoStep(self.STEP_CHOOSER) # Language toggle
-            else:
+            elif requestParameters.containsKey("assertionResponse") and not ServerUtil.getFirstValue(requestParameters, "assertionResponse"):
+                return self.gotoStep(self.STEP_CHOOSER) # Cancel or Fail
+            elif not requestParameters.containsKey("assertionResponse"):
                 return self.gotoStep(self.STEP_1FA)
 
-        userId = identity.getWorkingParameter("userId")
         if step == self.STEP_1FA:
             if requestParameters.containsKey("failure"): # User cancelled
                 return self.gotoStep(self.STEP_CHOOSER)
@@ -637,35 +646,35 @@ class PersonAuthentication(PersonAuthenticationType):
                 return self.gotoStep(self.STEP_1FA)
             else:
                 if providerInfo["GCCF"] and "collect" in rpConfig:
+                    userId = identity.getWorkingParameter("userId")
                     user = userService.getUser(userId, "persistentId")
                     if self.account.getSamlSubject(user, rpConfig["collect"]) is None: # SAML PAI collection
                         return self.gotoStep(self.STEP_COLLECT)
 
         if step in {self.STEP_1FA, self.STEP_COLLECT}:
-            if rpConfig.get("fido") and userService.countFido2RegisteredDevices(userId) > 0:
-                return self.gotoStep(self.STEP_FIDO_AUTH)
             if rpConfig.get("mfaProvider"): # 2FA
                 return self.gotoStep(self.STEP_2FA)
 
-        if step == self.STEP_2FA:
-            if rpConfig.get("fido") and userService.countFido2RegisteredDevices(userId) == 0:
-                return self.gotoStep(self.STEP_FIDO_REGISTER)
-        
-        if step == self.STEP_FIDO_AUTH:
+        if step == self.STEP_REGISTER:
             if requestParameters.containsKey("lang"):
-                return self.gotoStep(self.STEP_FIDO_AUTH) # Language toggle
-            elif not requestParameters.containsKey("fido2Authentication"):
-                return self.gotoStep(self.STEP_2FA) # If the don't have thier authentiator then fallback to 2FA
+                return self.gotoStep(self.STEP_REGISTER) # Language toggle
+            elif requestParameters.containsKey("registration:register"):
+                if identity.getWorkingParameter("userId"):
+                    return self.gotoStep(self.STEP_FIDO_REGISTER)
+                else:
+                    return self.gotoStep(self.STEP_REGISTER)
+            else: # Cancel
+                return self.gotoStep(self.STEP_CHOOSER)
 
         if step == self.STEP_FIDO_REGISTER:
-            if requestParameters.containsKey("lang"):
-                return self.gotoStep(self.STEP_FIDO_REGISTER) # Language toggle
-            elif requestParameters.containsKey("fido2Registration"):
-                return self.gotoStep(self.STEP_FIDO_CONFIRM)
+            if requestParameters.containsKey("attestationResponse"):
+                return self.gotoStep(self.STEP_CONFIRM)
+            else: # Cancel
+                return self.gotoStep(self.STEP_CHOOSER)
 
-        if step == self.STEP_FIDO_CONFIRM:
+        if step == self.STEP_CONFIRM:
             if requestParameters.containsKey("lang"):
-                return self.gotoStep(self.STEP_FIDO_CONFIRM) # Language toggle
+                return self.gotoStep(self.STEP_CONFIRM) # Language toggle
 
         # if we get this far we're done
         identity.setWorkingParameter("stepCount", originalStep)
@@ -699,9 +708,9 @@ class PersonAuthentication(PersonAuthenticationType):
         client = self.getClient(session)
 
         # check the cache
-        clientKey = "oidc:%s" % client.getClientId()
-        if clientKey in self.rpConfigCache:
-            return self.rpConfigCache[clientKey]
+        #clientKey = "oidc:%s" % client.getClientId()
+        #if clientKey in self.rpConfigCache:
+        #    return self.rpConfigCache[clientKey]
 
         descriptionAttr = clientService.getCustomAttribute(client, "description")
 
@@ -726,5 +735,5 @@ class PersonAuthentication(PersonAuthenticationType):
                     rpConfig[setting] = value
 
         # Add it to the cache
-        self.rpConfigCache[clientKey] = rpConfig
+        #self.rpConfigCache[clientKey] = rpConfig
         return rpConfig

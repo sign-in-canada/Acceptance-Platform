@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html>
+<ui:composition xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                template="/WEB-INF/incl/layouts/GCWeb.xhtml">
+
+  <f:metadata>
+    <f:viewAction action="#{authenticator.prepareAuthenticationForStep}" />
+    <f:viewAction action="#{language.setLocaleCode('en')}" />
+  </f:metadata>
+
+  <ui:param name="title" value="Register for an account" />
+  <ui:param name="locale" value="en" />
+
+  <ui:define name="name">
+    <ui:include src="/WEB-INF/incl/content/default/name-#{view.locale.language}.xhtml" />
+  </ui:define>
+
+  <ui:define name="content">
+    <div class="container">
+      <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Register for an account</h1>
+    </div>
+
+    <div class="container">
+      <div class="col-md-6">
+        <div class="panel panel-default mrgn-bttm-0 brdr-rds-0">
+          <div class="panel-body">
+            <div id="signup" class="wb-frmvld show">
+              <form jsf:id="registration" jsf:action="#{authenticator.authenticate}" class="form">
+                <div class="form-group">
+                  <h:messages styleClass="list-unstyled label label-danger wb-server-error" />
+                  <label for="username">
+                    Choose a
+                    <span class="field-name">username</span>
+                    :
+                  </label>
+                  <input jsf:id="username" type="text" required="required" data-rule-nowhitespace="true" audocomplete="username" class="form-control" id="username" placeholder="Enter a username" />
+                </div>
+                <div class="form-group">
+                  <label for="memorablename">
+                    Add a
+                    <span class="field-name">memorable nickname</span>
+                    for your device: (Optional)
+                  </label>
+                  <input type="text" class="form-control" id="memorablename" placeholder="Enter a device nickname" />
+                </div>
+                <button jsf:id="register" jsf:action="#{authenticator.authenticate}" class="btn btn-default btn-primary pull-left">Register</button>
+              </form>
+            </div>
+            <form jsf:id="navigate" jsf:action="#{authenticator.authenticate}" class="form">
+                <button jsf:id="cancel" jsf:action="#{authenticator.authenticate}" class="btn btn-default pull-right">Cancel</button>
+              </form>
+          </div>
+        </div>
+      </div>
+      <div id="spinner" class="row hidden">
+        <img style='display:block;margin-left:auto;margin-right:auto;width:20;padding:10% 0;' src='/oxauth/ext/resources/assets/icon_flag_rotation_080x080.gif' />
+      </div>
+    </div>
+    <form class='hidden' method='post' action='#{request.contextPath}/postlogin.htm' id='attestation'>
+      <input type='hidden' name='attestationRequest' id='attestationRequest' value='#{identity.getWorkingParameter("attestation_request")}'/>
+      <input type='hidden' name='attestationResponse' id='attestationResponse' />
+      <input type='hidden' name='nickname' id='nickname' />
+    </form>
+  </ui:define>
+
+  <ui:define name="scripts">
+    <script src="/oxauth/ext/resources/js/base64js.js" />
+    <script src="/oxauth/ext/resources/js/base64url.js" />
+    <script src="/oxauth/ext/resources/js/webauthn.js" />
+    <script src="/oxauth/ext/resources/js/fidoregister.js" />
+  </ui:define>
+</ui:composition>
