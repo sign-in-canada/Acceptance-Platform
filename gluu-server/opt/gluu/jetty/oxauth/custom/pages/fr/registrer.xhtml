@@ -25,9 +25,9 @@
 
     <div class="container">
       <div class="col-md-6">
-        <div class="panel panel-default mrgn-bttm-0 brdr-rds-0">
+        <div id="signup" class="show panel panel-default mrgn-bttm-0 brdr-rds-0">
           <div class="panel-body">
-            <div id="signup" class="wb-frmvld show">
+            <div class="wb-frmvld show">
               <form jsf:id="registration" jsf:action="#{authenticator.authenticate}" class="form">
                 <div class="form-group">
                   <h:messages styleClass="list-unstyled label label-danger wb-server-error" />
@@ -54,9 +54,9 @@
               </form>
           </div>
         </div>
-      </div>
-      <div id="spinner" class="row hidden">
-        <img style='display:block;margin-left:auto;margin-right:auto;width:20;padding:10% 0;' src='/oxauth/ext/resources/assets/icon_flag_rotation_080x080.gif' />
+        <div id="spinner" class="row hidden">
+          <img style='display:block;margin-left:auto;margin-right:auto;width:20;padding:10% 0;' src='/oxauth/ext/resources/assets/icon_flag_rotation_080x080.gif' />
+        </div>
       </div>
     </div>
     <form class='hidden' method='post' action='#{request.contextPath}/postlogin.htm' id='attestation'>
