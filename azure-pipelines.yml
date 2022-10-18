@@ -68,6 +68,12 @@ stages:
       displayName: 'Downloading jq'
       continueOnError: false
 
+    - script: |
+        wget https://sicpub.blob.core.windows.net/software/fido2-patch.war \
+          -P gluu-server/opt/dist/signincanada
+      displayName: 'Downloading SIC FIDO2 patch'
+      continueOnError: false
+
     - task: DownloadPipelineArtifact@2
       inputs:
         buildType: 'specific'
