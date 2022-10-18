@@ -359,13 +359,6 @@ class PersonAuthentication(PersonAuthenticationType):
             return self.authenticatePassportUser(configurationAttributes, requestParameters, step)
 
         elif requestParameters.containsKey("failure"):
-            externalContext = facesResources.getFacesContext().getExternalContext()
-            httpRequest = externalContext.getRequest()
-            referer = httpRequest.getHeader("referer")
-            if "mfa.auth.canada.ca" in referer: 
-                identity.setWorkingParameter("mfasupport", True)
-                return self.gotoStep(self.STEP_2FA)           
-
             # This means that passport returned an error
             if step <= self.STEP_1FA: # User Cancelled during login
                 if len(self.providers) == 1: # One provider. Redirect back to the RP
@@ -383,10 +376,8 @@ class PersonAuthentication(PersonAuthenticationType):
                     userService.updateUser(user)
                 if self.getNextStep(configurationAttributes, requestParameters, step) < 0:
                     return authenticationService.authenticate(identity.getWorkingParameter("userId"))
-
-            elif step == self.STEP_2FA: # 2FA Failed. Redirect back to the RP
-                facesService.redirectToExternalURL(self.getClientUri(session))
-                return False
+            elif step == self.STEP_2FA: # 2FA Failed. Redirect to the MFA Help page
+                identity.setWorkingParameter("mfasupport", True)
             else:
                 print ("%s: Invalid passport failure in step %s." % (self.name, step))
                 return False
