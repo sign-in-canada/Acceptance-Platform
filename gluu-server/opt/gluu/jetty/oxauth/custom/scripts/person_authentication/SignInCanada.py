@@ -668,7 +668,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
         if step == self.STEP_FIDO_REGISTER:
             if requestParameters.containsKey("attestationResponse"):
-                if ServerUtil.getFirstValue(requestParameters, "assertionResponse"):
+                if ServerUtil.getFirstValue(requestParameters, "attestationResponse"):
                     return self.gotoStep(self.STEP_CONFIRM)
                 else: # Failed
                     return self.gotoStep(self.STEP_CHOOSER)
