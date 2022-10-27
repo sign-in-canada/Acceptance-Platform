@@ -33,7 +33,7 @@
                         <a jsf:id="cbs" jsf:action="#{authenticator.authenticate}" class="btn btn-default btn-lg btn-block p-sm-3">
                             <span class="h4">
                                 <span class="fas fa-university fa-lg mrgn-rght-sm fa-pull-left"></span>
-                                Through your banking sign-in partner
+                                Through your <em>Interac™</em> sign-in partner
                             </span>
                         </a>
                     </li>
@@ -46,7 +46,7 @@
                             </span>
                         </a>
                     </li>
-                    <li id="roaming" class="show">
+                    <li id="roaming" class="hidden">
                         <a class="btn btn-default btn-lg btn-block p-sm-3 wb-lbx lbx-modal" role="button" href='#signin-dialog'>
                             <span class="h4">
                                 <span class="fas fa-key fa-lg mrgn-rght-sm fa-pull-left"></span>
@@ -55,7 +55,7 @@
                             </span>
                         </a>
                     </li>
-                    <li id="nearby" class="show">
+                    <li id="nearby" class="hidden">
                         <a class="btn btn-default btn-lg btn-block p-sm-3" role="button" href='#'>
                             <span class="h4">
                                 <span class="fas fa-mobile fa-lg mrgn-rght-sm fa-pull-left"></span>
@@ -63,6 +63,11 @@
                                 <span class="wb-inv"> sign-in</span>
                             </span>
                         </a>
+                    </li>
+                    <li>
+                        <div class="checkbox">
+                            <label for="remember"><input id="remember" type="checkbox" value=""></input>Remember my choice on this device</label>
+                        </div>
                     </li>
                 </ul>
             </form>
