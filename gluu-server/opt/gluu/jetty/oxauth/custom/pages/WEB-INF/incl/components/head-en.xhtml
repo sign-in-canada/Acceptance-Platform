@@ -10,21 +10,23 @@
     <meta name="dcterms.language" content="eng" />
     <meta name="dcterms.subject" content="#{title != null ? title : 'Sign In'}" />
     <meta name="dcterms.issued" content="2020-02-21" />
-    <meta name="dcterms.modified" content="2022-01-07" />
+    <meta name="dcterms.modified" content="2022-07-28" />
     <meta name="dcterms.spatial" content="Canada" />
     <meta name="dcterms.type" content="navigation page - topic page" />
     <meta name="dcterms.identifier" content="Sign_In_Canada" />
 
-    <title>#{title != null ? title : "Sign In"}</title>
+    <title>#{title != null ? title : "Sign In to"}
+        <ui:insert name="name" />
+    </title>
 
     <link href="/oxauth/ext/resources/GCWeb/assets/favicon.ico" rel="icon" type="image/x-icon" />
-    <link rel="stylesheet" href="/oxauth/ext/resources/GCWeb/css/theme.min.css" />
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" />
+    <link rel="stylesheet" href="/oxauth/ext/resources/GCWeb/css/theme.min.css" integrity="sha256-DagZr5HrgP0HiX8rLgRoSjIYzmtw2owT4PzbKDSXYmc= sha512-TYkduf5s+bQNraUsofc5w5J3OEXBR54To5pMVI613kvhy47gBtNC3ZUBboRoCcgfdzebggRxzdpxkTLT+O/i6A=="/>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous"/>
     
     <link rel="schema.dcterms" href="http://purl.org/dc/terms/" />
     <noscript>
         <link rel="stylesheet" href="/oxauth/ext/resources/wet-boew/css/noscript.min.css" />
     </noscript>
 
-    <link property="logo" href="/oxauth/ext/resources/assets/wmms-blk.svg" />
+    <link property="logo" href="/oxauth/ext/resources/GCWeb/assets/wmms-blk.svg" />
 </ui:composition>

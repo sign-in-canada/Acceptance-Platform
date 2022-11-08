@@ -4,8 +4,6 @@
  * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
  * @author @LaurentGoderre
  */
-/* global jQuery, describe, it, expect, before, after, sinon */
-/* jshint unused:vars */
 ( function( $, wb ) {
 
 var runTest = Modernizr.inputtypes.date ? describe.skip : describe;
@@ -114,7 +112,7 @@ runTest( "Input type=\"date\" polyfill (date picker)", function() {
 	describe( "with a date format and error in the label", function() {
 		var label = "<label for=\"appointment\">" +
 				"<span class=\"field-name\">Appointment Date</span>" +
-				"<span class=\"datepicker-format\">(YYYY-MM-DD)</span>" +
+	"<span class=\"datepicker-format\"> (<abbr title=\"Four digits year, dash, two digits month, dash, two digits day\">YYYY-MM-DD</abbr>)</span>" +
 				"<strong class=\"error\" id=\"appointment-error\">" +
 					"<span class=\"label label-danger\">" +
 						"<span class=\"prefix\">Error 1: </span>Please enter a valid date" +

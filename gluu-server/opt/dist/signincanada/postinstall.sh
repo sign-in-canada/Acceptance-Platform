@@ -78,10 +78,14 @@ cat /opt/dist/certs/tbs-chain.pem >> /etc/certs/tbs-ca.crt
 echo "Configuring Couchbase scan consistency"
 sed -i 's/not_bounded/request_plus/g' /etc/gluu/conf/gluu-couchbase.properties
 
+echo "Patching oxTrust log4j config"
+mkdir -p /tmp/warpatch
+pushd /tmp/warpatch
+/opt/jre/bin/jar -x -f /opt/gluu/jetty/identity/webapps/identity.war WEB-INF/classes/log4j2.xml
+sed -i "s/DEBUG/INFO/g" WEB-INF/classes/log4j2.xml
+/opt/jre/bin/jar -u -f /opt/gluu/jetty/identity/webapps/identity.war WEB-INF/classes/log4j2.xml
+popd
+
 echo "Updating packages..."
-if grep Red /etc/redhat-release ; then
-   yum remove -y epel-release
-fi
-yum clean all
 yum update -y
 echo 'Done.'

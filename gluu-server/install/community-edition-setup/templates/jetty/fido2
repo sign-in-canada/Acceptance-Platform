@@ -10,7 +10,7 @@ TMPDIR=%(jetty_dist)s/temp
 
 export PYTHON_HOME=%(jython_home)s
 
-JAVA_OPTIONS="$JAVA_OPTIONS -javaagent:/opt/azure/applicationinsights-agent-3.3.0.jar"
+JAVA_OPTIONS="$JAVA_OPTIONS -javaagent:/opt/azure/applicationinsights-agent-3.2.11.jar"
 JAVA_OPTIONS="$JAVA_OPTIONS -Dapplicationinsights.configuration.file=/opt/azure/fido2.json"
 
 export APPLICATIONINSIGHTS_CONNECTION_STRING="InstrumentationKey=$(< /run/keyvault/secrets/InstrumentationKey)"

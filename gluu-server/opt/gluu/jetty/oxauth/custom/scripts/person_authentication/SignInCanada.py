@@ -232,9 +232,9 @@ class PersonAuthentication(PersonAuthenticationType):
     
             if step == self.STEP_1FA:
                 # Coordinate single-sign-on (SSO)
-                maxAge = (sessionAttributes.get(AuthorizeRequestParam.MAX_AGE) or self.getClient(session).getDefaultMaxAge())
-                if (identity.getWorkingParameter("forceAuthn")
-                    or ("GCCF" in self.passport.getProvider(provider)["options"] and maxAge < 1200)): # 1200 is 20 minutes, the SSO timeout on GCKey and CBS
+                maxAge = self.getClient(session).getDefaultMaxAge() or 1200
+                providerInfo = self.passport.getProvider(provider)
+                if (identity.getWorkingParameter("forceAuthn") or (providerInfo["GCCF"] and maxAge < 1200)): # 1200 is 20 minutes, the SSO timeout on GCKey and CBS
                     passportOptions["forceAuthn"] = "true"
 
             elif step == self.STEP_COLLECT:
