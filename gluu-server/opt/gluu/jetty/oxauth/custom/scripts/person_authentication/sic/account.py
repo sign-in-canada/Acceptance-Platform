@@ -6,13 +6,16 @@ from org.gluu.service.cdi.util import CdiUtil
 from org.gluu.oxauth.model.common import User
 from org.oxauth.persistence.model import PairwiseIdentifier
 from org.gluu.service.cdi.util import CdiUtil
-from org.gluu.oxauth.service import UserService, PairwiseIdentifierService
+from org.gluu.oxauth.service import UserService, ClientService, PairwiseIdentifierService
+from org.gluu.oxauth.security import Identity
 from org.gluu.persist import PersistenceEntryManager
 from org.gluu.persist.model.base import CustomEntry
 from org.gluu.search.filter import Filter
+from org.gluu.oxauth.model.authorize import AuthorizeRequestParam
 
 from java.net import URI
 from javax.faces.context import FacesContext
+from com.microsoft.applicationinsights import TelemetryClient
 
 import uuid
 
@@ -24,8 +27,11 @@ class Account:
 
     def __init__(self):
         self.userService = CdiUtil.bean(UserService)
+        self.clientService = CdiUtil.bean(ClientService)
+        self.identity = CdiUtil.bean(Identity)
         self.pairwiseIdentifierService = CdiUtil.bean(PairwiseIdentifierService)
         self.entryManager = CdiUtil.bean(PersistenceEntryManager)
+        self.telemetryClient = TelemetryClient()
 
     # Creation
     def create(self, externalProfile):
@@ -35,6 +41,25 @@ class Account:
             user = User()
             user.setUserId(uuid.uuid4().hex)
             user.setAttribute("oxExternalUid", externalUid, True)
+
+            provider = externalProfile.get("provider")
+            session = self.identity.getSessionId()
+            sessionAttributes = session.getSessionAttributes()
+            spNameQualifier = sessionAttributes.get("entityId")
+
+            if spNameQualifier:
+                rp = spNameQualifier
+            else:
+                clientId = sessionAttributes.get(AuthorizeRequestParam.CLIENT_ID)
+                rp = self.clientService.getClient(clientId).getClientName()
+            
+            eventProperties = {"user_id":  user.getUserId(),
+                           "csp": provider,
+                           "rp": rp,
+                           "mfa": str(provider == "mfa")}
+        
+            self.telemetryClient.trackEvent("Account Creation", eventProperties, None)
+
             return user
         else:
             raise AccountError("Account. Create. External Account is missing externalUid")
@@ -114,6 +139,12 @@ class Account:
         pairwiseSubject.setId(sub)
         pairwiseSubject.setDn(self.pairwiseIdentifierService.getDnForPairwiseIdentifier(pairwiseSubject.getId(), userInum))
         self.pairwiseIdentifierService.addPairwiseIdentifier(userInum, pairwiseSubject)
+
+        eventProperties = {"client_name": client.getClientName(),
+                           "client_id": client.getClientId(),
+                           "new_subject_id": pairwiseSubject.getId()}
+
+        self.telemetryClient.trackEvent("RP Subject ID Creation", eventProperties, None)
 
     def getOpenIdSubject(self, user, client):
         sectorIdentifier = self.getSectorId(client)
