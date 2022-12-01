@@ -28,7 +28,6 @@ class Account:
     def __init__(self):
         self.userService = CdiUtil.bean(UserService)
         self.clientService = CdiUtil.bean(ClientService)
-        self.identity = CdiUtil.bean(Identity)
         self.pairwiseIdentifierService = CdiUtil.bean(PairwiseIdentifierService)
         self.entryManager = CdiUtil.bean(PersistenceEntryManager)
         self.telemetryClient = TelemetryClient()
@@ -43,7 +42,7 @@ class Account:
             user.setAttribute("oxExternalUid", externalUid, True)
 
             provider = externalProfile.get("provider")
-            session = self.identity.getSessionId()
+            session = CdiUtil.bean(Identity).getSessionId()
             sessionAttributes = session.getSessionAttributes()
             spNameQualifier = sessionAttributes.get("entityId")
 
