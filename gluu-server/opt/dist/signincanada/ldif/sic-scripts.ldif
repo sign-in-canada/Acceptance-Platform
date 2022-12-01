@@ -173,7 +173,7 @@ oxLevel: 50
 oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
 oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/post_authn/SAML_NameID.py","description":""}
 oxRevision: 1
-oxScript::%(saml_nameid)s
+oxScript::%(post_authn_saml_nameid)s
 oxScriptType: post_authn
 programmingLanguage: python
 
