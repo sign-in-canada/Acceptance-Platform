@@ -166,7 +166,7 @@ dn: inum=A3DC-DH03,ou=scripts,o=gluu
 objectClass: top
 objectClass: oxCustomScript
 description: SAML NameID creation
-displayName: token_audit
+displayName: saml_nameid
 oxEnabled: true
 inum: A3DC-DH03
 oxLevel: 50
