@@ -4,6 +4,7 @@
 
 from org.gluu.service.cdi.util import CdiUtil
 from org.gluu.oxauth.model.common import User
+from org.gluu.oxauth.model.configuration import AppConfiguration
 from org.oxauth.persistence.model import PairwiseIdentifier
 from org.gluu.service.cdi.util import CdiUtil
 from org.gluu.oxauth.service import UserService, PairwiseIdentifierService
@@ -78,9 +79,8 @@ class Account:
         """Add a new RP SAML Subject to an account."""
 
         if nameQualifier is None:
-            facesContext = CdiUtil.bean(FacesContext)
-            serverName = facesContext.getExternalContext().getRequest().getServerName()
-            nameQualifier = "https://%s" % serverName
+            appConfiguration = CdiUtil.bean(AppConfiguration)
+            nameQualifier = appConfiguration.getIssuer()
 
         if nameId is None:
             nameId = "sic" + uuid.uuid4().hex

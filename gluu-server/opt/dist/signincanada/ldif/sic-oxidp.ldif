@@ -19,3 +19,8 @@ dn: inum=%(idp_client_id)s,ou=clients,o=gluu
 changetype: modify
 add: oxAuthPostLogoutRedirectURI
 oxAuthPostLogoutRedirectURI: https://%(hostname)s/passport/logout/response
+
+dn: inum=%(idp_client_id)s,ou=clients,o=gluu
+changetype: modify
+add: oxAttributes
+oxAttributes: {"postAuthnScripts": ["inum=A3DC-DH03,ou=scripts,o=gluu"]}
