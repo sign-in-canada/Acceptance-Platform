@@ -56,7 +56,7 @@ oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
 oxConfigurationProperty: {"value1":"key_store_file","value2":"%(passport_rp_client_jks_fn)s","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"key_store_password","value2":"%(passport_rp_client_jks_pass)s","hide":true,"description":""}
 oxConfigurationProperty: {"value1":"providers","value2":"gckey, cbs","hide":false,"description":""}
-oxConfigurationProperty: {"value1":"rp_defaults","value2":"{\"layout\":\"ATIP\",\"chooser\":\"gccf\",\"content\":\"default\",\"mfaProvider\":\"mfa\"}","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"rp_defaults","value2":"{\"layout\":\"ATIP\",\"chooser\":\"gccf\",\"content\":\"default\",\"mfa\":[\"totp\"],\"mfaProvider\":\"mfa\"}","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"fido2_server_uri","value2":"https://%(hostname)s","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"fido2_domain","value2":"%(hostname)s","hide":false,"description":""}
 oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/SignInCanada.py","description":""}
@@ -78,7 +78,7 @@ oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
 oxConfigurationProperty: {"value1":"key_store_file","value2":"%(passport_rp_client_jks_fn)s","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"key_store_password","value2":"%(passport_rp_client_jks_pass)s","hide":true,"description":""}
 oxConfigurationProperty: {"value1":"providers","value2":"gckey","hide":false,"description":""}
-oxConfigurationProperty: {"value1":"rp_defaults","value2":"{\"layout\":\"ATIP\",\"chooser\":\"gccf\",\"content\":\"default\",\"mfaProvider\":\"mfa\"}","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"rp_defaults","value2":"{\"layout\":\"ATIP\",\"chooser\":\"gccf\",\"content\":\"default\",\"mfa\":[\"totp\"],\"mfaProvider\":\"mfa\"}","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"fido2_server_uri","value2":"https://%(hostname)s","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"fido2_domain","value2":"%(hostname)s","hide":false,"description":""}
 oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/SignInCanada.py","description":""}
