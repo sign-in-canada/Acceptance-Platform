@@ -12,6 +12,7 @@
   </f:metadata>
 
   <ui:param name="title" value="Register for an account" />
+  <ui:param name="step" value="register" />
   <ui:param name="locale" value="en" />
 
   <ui:define name="name">
@@ -31,9 +32,9 @@
               <form jsf:id="registration" jsf:action="#{authenticator.authenticate}" class="form">
                 <div class="form-group">
                   <h:messages styleClass="list-unstyled label label-danger wb-server-error" />
-                  <label for="username">
+                  <label for="username" class="required">
                     Choose a
-                    <span class="field-name">username</span>
+                    <span class="field-name">username</span> <strong class="required" aria-hidden="true">(required)</strong>
                     :
                   </label>
                   <input jsf:id="username" type="text" required="required" data-rule-nowhitespace="true" audocomplete="username" class="form-control" id="username" placeholder="Enter a username" />
@@ -42,7 +43,7 @@
                   <label for="memorablename">
                     Add a
                     <span class="field-name">memorable nickname</span>
-                    for your device: (Optional)
+                    for your device: (optional)
                   </label>
                   <input type="text" class="form-control" id="memorablename" placeholder="Enter a device nickname" />
                 </div>
