@@ -4,6 +4,7 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:jsf="http://xmlns.jcp.org/jsf"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
                 template="/WEB-INF/incl/layouts/GCWeb.xhtml">
 
   <f:metadata>
@@ -28,29 +29,33 @@
       <div class="col-md-6">
         <div id="signup" class="show panel panel-default mrgn-bttm-0 brdr-rds-0">
           <div class="panel-body">
-            <div class="wb-frmvld show">
+            <div class="wb-frmvld">
+              <h:messages styleClass="list-unstyled label label-danger wb-server-error" />
               <form jsf:id="register_oob" jsf:action="#{authenticator.authenticate}" class="form">
-                <div class="form-group">
-                  <h:messages styleClass="list-unstyled label label-danger wb-server-error" />
-                  <label for="email">
-                    Enter your
-                    <span class="field-name">email address</span>
-                  </label>
-                  <input jsf:id="mail" type="email" audocomplete="email" class="form-control" placeholder="Enter your email address" />
-                </div>
-                <div class="form-group">
-                  <label for="mobile">
-                    Enter your
-                    <span class="field-name">mobile phone number</span>
-                  </label>
-                  <input jsf:id="mobile" type="tel" class="form-control" autocomplete="tel" placeholder="Enter your mobile phone number" />
-                </div>
+                <c:if test="${identity.getWorkingParameter('mfaMethod') == 'email'}">
+                  <div class="form-group">
+                    <label for="email" class="required">
+                      Enter your
+                      <span class="field-name">email address</span> <strong class="required" aria-hidden="true">(required)</strong>
+                    </label>
+                    <input jsf:id="mail" id="email" type="email" audocomplete="email" required="required" class="form-control" placeholder="Enter your email address" />
+                  </div>
+                </c:if>
+                <c:if test="${identity.getWorkingParameter('mfaMethod') == 'sms'}">
+                  <div class="form-group">
+                    <label for="mobile" class="required">
+                      Enter your
+                      <span class="field-name">mobile phone number</span> <strong class="required" aria-hidden="true">(required)</strong>
+                    </label>
+                    <input jsf:id="mobile" id="mobile" type="tel" class="form-control" required="required" autocomplete="tel" placeholder="Enter your mobile phone number" />
+                  </div>
+                </c:if>
                 <button jsf:id="register" jsf:action="#{authenticator.authenticate}" class="btn btn-default btn-primary pull-left">Register</button>
               </form>
             </div>
             <form jsf:id="navigate" jsf:action="#{authenticator.authenticate}" class="form">
-                <button jsf:id="cancel" jsf:action="#{authenticator.authenticate}" class="btn btn-default pull-right">Cancel</button>
-              </form>
+              <button jsf:id="cancel" jsf:action="#{authenticator.authenticate}" class="btn btn-default pull-right">Cancel</button>
+            </form>
           </div>
         </div>
       </div>
