@@ -28,10 +28,10 @@
       <div class="col-md-6">
         <div class="panel panel-default mrgn-bttm-0 brdr-rds-0">
           <div class="panel-body">
-            <div class="wb-frmvld show">
+            <div class="wb-frmvld">
               <form jsf:id="oob" jsf:action="#{authenticator.authenticate}" class="form">
                 <div class="form-group">
-                  <h:messages styleClass="list-unstyled label label-danger wb-server-error" />
+                  <h:message for="code" errorClass="list-unstyled label label-danger wb-server-error" layout="table" />
                   <label for="code" class="required">
                     Enter your
                     <span class="field-name">one-time code</span> <strong class="required" aria-hidden="true">(required)</strong>

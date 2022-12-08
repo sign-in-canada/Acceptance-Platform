@@ -30,10 +30,10 @@
         <div id="signup" class="show panel panel-default mrgn-bttm-0 brdr-rds-0">
           <div class="panel-body">
             <div class="wb-frmvld">
-              <h:messages styleClass="list-unstyled label label-danger wb-server-error" />
               <form jsf:id="register_oob" jsf:action="#{authenticator.authenticate}" class="form">
                 <c:if test="${identity.getWorkingParameter('mfaMethod') == 'email'}">
                   <div class="form-group">
+                    <h:message for="mail" errorClass="list-unstyled label label-danger wb-server-error" layout="table" />
                     <label for="email" class="required">
                       Enter your
                       <span class="field-name">email address</span> <strong class="required" aria-hidden="true">(required)</strong>
@@ -43,6 +43,7 @@
                 </c:if>
                 <c:if test="${identity.getWorkingParameter('mfaMethod') == 'sms'}">
                   <div class="form-group">
+                    <h:message for="mobile" errorClass="list-unstyled label label-danger wb-server-error" layout="table" />
                     <label for="mobile" class="required">
                       Enter your
                       <span class="field-name">mobile phone number</span> <strong class="required" aria-hidden="true">(required)</strong>

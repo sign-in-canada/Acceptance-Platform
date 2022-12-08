@@ -70,15 +70,15 @@ class OutOfBand:
         authenticationService = CdiUtil.bean(AuthenticationService)
         authenticationProtectionService = CdiUtil.bean(AuthenticationProtectionService)
 
-        #facesMessages.setKeepMessages()
         enteredCode = ServerUtil.getFirstValue(requestParameters, "oob:code")
 
         if enteredCode == identity.getWorkingParameter("oobCode"):
+            facesMessages.clear()
             return authenticationService.authenticate(identity.getWorkingParameter("userId"))
         else:
             if (authenticationProtectionService.isEnabled()):
                 authenticationProtectionService.storeAttempt(identity.getWorkingParameter("userId"), False)
-            facesMessages.add(FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.invalidCode"))
+            facesMessages.add("oob:code", FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.invalidCode"))
             return False
 
 
@@ -87,7 +87,6 @@ class OutOfBand:
         facesMessages = CdiUtil.bean(FacesMessages)
         languageBean = CdiUtil.bean(LanguageBean)
 
-        #facesMessages.setKeepMessages()
         mobile = ServerUtil.getFirstValue(requestParameters, "register_oob:mobile")
         mail = ServerUtil.getFirstValue(requestParameters, "register_oob:mail")
 
@@ -96,11 +95,13 @@ class OutOfBand:
             return False
 
         if not self.SendOneTimeCode(None, mail, mobile):
-            print ("mail: %s" % mail)
-            print ("mobile: %s" % mobile)
-            facesMessages.add(FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.badEmail" if StringHelper.isNotEmpty(mail) else "sic.badPhone"))
+            if StringHelper.isNotEmpty(mobile):
+                facesMessages.add("register_oob:mobile", FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.badPhone"))
+            else:
+                facesMessages.add("register_oob:mail", FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.badEmail"))
             return False
         else:
+            facesMessages.clear()
             user = self.userService.getUser(identity.getWorkingParameter("userId"), "uid")
             if mobile is not None:
                 self.userService.addUserAttribute(user, "mobile", mobile)
