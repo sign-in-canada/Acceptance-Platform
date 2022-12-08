@@ -43,7 +43,7 @@ class OutOfBand:
         self.random = SecureRandom.getInstanceStrong()
         print ("OutOfBand. Secure random seeded for  " + self.scriptName)
 
-    def SendOneTimeCode(self, userId, mail, mobile):
+    def SendOneTimeCode(self, userId=None, mail=None, mobile=None):
         identity = CdiUtil.bean(Identity)
 
         if mobile is None and mail is None:
