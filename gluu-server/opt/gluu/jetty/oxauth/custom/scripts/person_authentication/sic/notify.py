@@ -42,22 +42,8 @@ class Notify:
         valid = False
 
         try:
-            httpService = CdiUtil.bean(HttpService)
-            httpclient = httpService.getHttpsClient()
-            lang = CdiUtil.bean(LanguageBean).getLocale().getLanguage()
-
-            apiKey = "ApiKey-v1 " + self.notifyKey
-            apiUrl = self.apiUrl + "/email"
-            template_id = self.template_ids["email-fr"] if lang == 'fr' else self.template_ids["email-en"]
-            personalisation = '{"code":"' + code + '"}'
-
-            # Prepare the post data
-            postData = '{"email_address": "' + recipient + '", "template_id": "' + template_id + '", "personalisation": ' + personalisation + '}'
-            headers = {"Authorization": apiKey, "Content-Type": "application/json"}
-
-            # Execute the post request
-            resultResponse = httpService.executePost(httpclient, apiUrl, "", headers, postData)
-            httpResponse = resultResponse.getHttpResponse()
+            # Execute the post request and get the http response
+            httpResponse = self.getHttpPostResponse("email", recipient, code)
             responseEntity = httpResponse.getEntity()
 
             # Validate if Notify has placed the message in a queue, ready to be sent to the provider.
@@ -78,22 +64,8 @@ class Notify:
         valid = False
 
         try:
-            httpService = CdiUtil.bean(HttpService)
-            httpclient = httpService.getHttpsClient()
-            lang = CdiUtil.bean(LanguageBean).getLocale().getLanguage()
-
-            apiKey = "ApiKey-v1 " + self.notifyKey
-            apiUrl = self.apiUrl + "/sms"
-            template_id = self.template_ids["sms-fr"] if lang == 'fr' else self.template_ids["sms-en"]
-            personalisation = '{"code":"' + code + '"}'
-
-            # Prepare the post data
-            postData = '{"phone_number": "' + recipient + '", "template_id": "' + template_id + '", "personalisation": ' + personalisation + '}'
-            headers = {"Authorization": apiKey, "Content-Type": "application/json"}
-
-            # Execute the post request
-            resultResponse = httpService.executePost(httpclient, apiUrl, "", headers, postData)
-            httpResponse = resultResponse.getHttpResponse()
+            # Execute the post request and get the http response
+            httpResponse = self.getHttpPostResponse("sms", recipient, code)
             responseEntity = httpResponse.getEntity()
                 
             # Validate if Notify has placed the sms in a queue, ready to be sent to the provider.
@@ -108,3 +80,25 @@ class Notify:
                 EntityUtils.consume(responseEntity)
 
         return valid
+
+    def getHttpPostResponse(self, service, recipient, code):
+        httpService = CdiUtil.bean(HttpService)
+        httpclient = httpService.getHttpsClient()
+        lang = CdiUtil.bean(LanguageBean).getLocale().getLanguage()
+        apiUrl = self.apiUrl + "/" + service
+        recipient_metadata = "phone_number" if service == 'sms' else "email_address"
+        template_id = self.template_ids[service + "-fr"] if lang == 'fr' else self.template_ids[service + "-en"]
+        personalisation = '{"code":"' + code + '"}'
+
+        # Prepare the post data
+        postData = '{"' + recipient_metadata + '": "' + recipient + '", "template_id": "' + template_id + '", "personalisation": ' + personalisation + '}'
+
+        # Execute the post request
+        resultResponse = httpService.executePost(httpclient, apiUrl, "", self.getPostRequestHeaders(), postData)
+        
+        # Return HTTP response
+        return resultResponse.getHttpResponse()
+
+    def getPostRequestHeaders(self):
+        apiKey = "ApiKey-v1 " + self.notifyKey
+        return {"Authorization": apiKey, "Content-Type": "application/json"}
