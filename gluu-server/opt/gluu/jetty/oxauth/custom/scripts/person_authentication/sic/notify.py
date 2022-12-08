@@ -7,6 +7,8 @@ from org.gluu.oxauth.security import Identity
 from org.gluu.oxauth.i18n import LanguageBean
 from org.gluu.oxauth.service.net import HttpService
 from javax.ws.rs.core import Response
+from org.apache.http.util import EntityUtils
+from java.lang import String
 
 import sys
 import java
@@ -56,13 +58,18 @@ class Notify:
             # Execute the post request
             resultResponse = httpService.executePost(httpclient, apiUrl, "", headers, postData)
             httpResponse = resultResponse.getHttpResponse()
-                
+            responseEntity = httpResponse.getEntity()
+
             # Validate if Notify has placed the message in a queue, ready to be sent to the provider.
             valid = (httpResponse.getStatusLine().getStatusCode() == Response.Status.CREATED.getStatusCode())
-            
+            if not valid and responseEntity:
+                    print ("GCNotify error: %s" % String(EntityUtils.toByteArray(responseEntity)))
         except:
             message = "GCNotify Email sending Exception: " + str(sys.exc_info()[1])
-            print ("SECURITY: %s" % message)
+            print ("GCNotify error: %s" % message)
+        finally:
+            if responseEntity:
+                EntityUtils.consume(responseEntity)
 
         return valid
     
@@ -87,12 +94,17 @@ class Notify:
             # Execute the post request
             resultResponse = httpService.executePost(httpclient, apiUrl, "", headers, postData)
             httpResponse = resultResponse.getHttpResponse()
+            responseEntity = httpResponse.getEntity()
                 
             # Validate if Notify has placed the sms in a queue, ready to be sent to the provider.
             valid = (httpResponse.getStatusLine().getStatusCode() == Response.Status.CREATED.getStatusCode())
-            
+            if not valid and responseEntity:
+                    print ("GCNotify error: %s" % String(EntityUtils.toByteArray(responseEntity)))
         except:
             message = "GCNotify SMS sending Exception: " + str(sys.exc_info()[1])
-            print ("SECURITY: %s" % message)
+            print ("GCNotify error: %s" % message)
+        finally:
+            if responseEntity:
+                EntityUtils.consume(responseEntity)
 
         return valid
