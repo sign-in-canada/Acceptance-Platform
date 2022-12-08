@@ -190,7 +190,8 @@ class PersonAuthentication(PersonAuthenticationType):
                              "abort",       # Used to trigger error abort back to the RP
                              "forceAuthn",  # Used to force authentication when prompt=login
                              "userId",      # Used to keep track of the user across multiple requests
-                             "mfaId",       # Used to bind a 2nd factor credential into the session
+                             "mfaMethod",   # MFA method used to authenticate
+                             "mfaId",       # subject identifier for the external TOTP service
                              "oobCode")     # One-time-code for out-of-band
 
     def prepareForStep(self, configurationAttributes, requestParameters, step):
@@ -409,7 +410,7 @@ class PersonAuthentication(PersonAuthenticationType):
             return self.oob.RegisterOutOfBand(requestParameters)
  
         elif requestParameters.containsKey("secure"):
-            print ("%s: Chosen 2nd factor: %s." % (self.name, self.getFormButton(requestParameters)))
+            identity.setWorkingParameter("mfaMethod", self.getFormButton(requestParameters))
 
         elif requestParameters.containsKey("navigate"):
             print ("%s: Navigate to: %s." % (self.name, self.getFormButton(requestParameters)))
@@ -695,16 +696,19 @@ class PersonAuthentication(PersonAuthenticationType):
 
         if step in {self.STEP_1FA, self.STEP_COLLECT}:
             mfaMethods = rpConfig.get("mfa")
-            print (mfaMethods)
             if mfaMethods is not None:
                 user = userService.getUser(identity.getWorkingParameter("userId"), "externalId", "mobile", "mail")
                 if "fido" in mfaMethods and userService.countFido2RegisteredDevices(user.getUserId()) > 0:
+                    identity.setWorkingParameter("mfaMethod", "fido")
                     return self.gotoStep(self.STEP_FIDO)
                 elif "totp" in mfaMethods and self.account.getExternalUid(user, "mfa") is not None:
+                    identity.setWorkingParameter("mfaMethod", "totp")
                     return self.gotoStep(self.STEP_TOTP)
                 elif "sms" in mfaMethods and user.getAttribute("mobile") is not None:
+                    identity.setWorkingParameter("mfaMethod", "sms")
                     return self.gotoStep(self.STEP_OOB)
                 elif "email" in mfaMethods and user.getAttribute("mail") is not None:
+                    identity.setWorkingParameter("mfaMethod", "email")
                     return self.gotoStep(self.STEP_OOB)
                 else: # No acceptable method is registered
                     return self.gotoStep(self.STEP_UPGRADE)
