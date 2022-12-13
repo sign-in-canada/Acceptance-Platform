@@ -251,10 +251,15 @@ class PersonAuthentication(PersonAuthenticationType):
             else: # reset the chooser
                 identity.setWorkingParameter("provider", None)
 
-        if step in {self.STEP_CHOOSER, self.STEP_UPGRADE}:
+        if step == self.STEP_CHOOSER:
             # Prepare for chooser page customization.
             for param in ["layout", "chooser", "content"]:
                 identity.setWorkingParameter(param, rpConfig[param])
+
+        elif step == self.STEP_UPGRADE:
+            identity.setWorkingParameter("content", rpConfig["content"])
+            for mfaType in ["fido", "totp", "sms", "email"]:
+                identity.setWorkingParameter(mfaType + "-accepted", mfaType in rpConfig["mfa"])
 
         elif step in {self.STEP_1FA, self.STEP_COLLECT, self.STEP_TOTP}: # Passport
             

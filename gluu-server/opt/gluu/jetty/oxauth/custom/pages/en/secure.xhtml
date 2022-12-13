@@ -4,6 +4,7 @@
   xmlns:f="http://xmlns.jcp.org/jsf/core"
   xmlns:jsf="http://xmlns.jcp.org/jsf"
   xmlns:h="http://xmlns.jcp.org/jsf/html"
+  xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
   template="/WEB-INF/incl/layouts/GCWeb.xhtml">
 
   <f:metadata>
@@ -27,7 +28,7 @@
         uses secure 2-factor authentication to secure your account.
       </p>
       <p>
-        You can chose from several options that will provide improved security over your 
+        You can chose from several options that will provide improved security over your
         <h:outputText value="#{language.getMessage('sic.'.concat(identity.getWorkingParameter('provider')))}" escape="false" />
         password alone.
       </p>
@@ -46,93 +47,101 @@
 
                     <form jsf:id="secure" jsf:action="#{authenticator.authenticate}" class="form">
 
-                      <div class="mrgn-bttm-md brdr-bttm">
-                        <h3>Option 1: Use your device's built-in security</h3>
-                        <div class="mrgn-bttm-md mrgn-tp-lg">
-                          <a class="btn btn-default btn-lg btn-block" jsf:id="fido" jsf:action="#{authenticator.authenticate}">
-                            <span class="h3">
-                              <span class="fas fa-fingerprint fa-lg mrgn-rght-sm"></span>
-                              Use your device
-                            </span>
-                          </a>
+                      <c:if test="${identity.getWorkingParameter('fido-accepted')}">
+                        <div class="mrgn-bttm-md brdr-bttm">
+                          <h3>Option 1: Use your device's built-in security</h3>
+                          <div class="mrgn-bttm-md mrgn-tp-lg">
+                            <a class="btn btn-default btn-lg btn-block" jsf:id="fido" jsf:action="#{authenticator.authenticate}">
+                              <span class="h3">
+                                <span class="fas fa-fingerprint fa-lg mrgn-rght-sm"></span>
+                                Use your device
+                              </span>
+                            </a>
+                          </div>
+                          <p>
+                          About device authentication
+                          </p>
+                          <details>
+                            <summary tabindex="1" class="text-center" id="wb-auto-1" role="button"
+                              aria-expanded="false">More info</summary>
+                            <section>
+                              <p>More info goes here</p>
+                            </section>
+                          </details>
                         </div>
-                        <p>
-                    About device authentication
-                  </p>
-                        <details>
-                          <summary tabindex="1" class="text-center" id="wb-auto-1" role="button"
-                            aria-expanded="false">More info</summary>
-                          <section>
-                            <p>More info goes here</p>
-                          </section>
-                        </details>
-                      </div>
+                      </c:if>
 
-                      <div class=" mrgn-bttm-md brdr-bttm">
-                        <h3>Option 2: Use an authenticator app on your phone or tablet</h3>
-                        <div class="mrgn-bttm-md mrgn-tp-lg">
-                          <a class="btn btn-default btn-lg btn-block" jsf:id="totp" jsf:action="#{authenticator.authenticate}">
-                            <span class="h3">
-                              <span class="fas fa-mobile fa-lg mrgn-rght-sm"></span>
-                              Use an authenticator app
-                            </span>
-                          </a>
-                        </div>
-                        <p>
+                      <c:if test="${identity.getWorkingParameter('totp-accepted')}">
+                        <div class=" mrgn-bttm-md brdr-bttm">
+                          <h3>Option 2: Use an authenticator app on your phone or tablet</h3>
+                          <div class="mrgn-bttm-md mrgn-tp-lg">
+                            <a class="btn btn-default btn-lg btn-block" jsf:id="totp" jsf:action="#{authenticator.authenticate}">
+                              <span class="h3">
+                                <span class="fas fa-mobile fa-lg mrgn-rght-sm"></span>
+                                Use an authenticator app
+                              </span>
+                            </a>
+                          </div>
+                          <p>
                       About authenticator apps
-                    </p>
-                        <details>
-                          <summary tabindex="1" class="text-center" id="wb-auto-1" role="button"
-                            aria-expanded="false">More info</summary>
-                          <section>
-                            <p>More info goes here</p>
-                          </section>
-                        </details>
-                      </div>
-
-                      <div class=" mrgn-bttm-md brdr-bttm">
-                        <h3>Option 3: Receive one-time passcodes by text message</h3>
-                        <div class="mrgn-bttm-md mrgn-tp-lg">
-                          <a class="btn btn-default btn-lg btn-block" jsf:id="sms" jsf:action="#{authenticator.authenticate}">
-                            <span class="h3">
-                              <span class="fas fa-comment fa-lg mrgn-rght-sm"></span>
-                              Receive text messages
-                            </span>
-                          </a>
+                         </p>
+                          <details>
+                            <summary tabindex="1" class="text-center" id="wb-auto-1" role="button"
+                              aria-expanded="false">More info</summary>
+                            <section>
+                              <p>More info goes here</p>
+                            </section>
+                          </details>
                         </div>
-                        <p>
+                      </c:if>
+
+                      <c:if test="${identity.getWorkingParameter('sms-accepted')}">
+                        <div class=" mrgn-bttm-md brdr-bttm">
+                          <h3>Option 3: Receive one-time passcodes by text message</h3>
+                          <div class="mrgn-bttm-md mrgn-tp-lg">
+                            <a class="btn btn-default btn-lg btn-block" jsf:id="sms" jsf:action="#{authenticator.authenticate}">
+                              <span class="h3">
+                                <span class="fas fa-comment fa-lg mrgn-rght-sm"></span>
+                                Receive text messages
+                              </span>
+                            </a>
+                          </div>
+                          <p>
                         About text messages
                       </p>
-                        <details>
-                          <summary tabindex="1" class="text-center" id="wb-auto-1" role="button"
-                            aria-expanded="false">More info</summary>
-                          <section>
-                            <p>More info goes here</p>
-                          </section>
-                        </details>
-                      </div>
-
-                      <div class=" mrgn-bttm-md brdr-bttm">
-                        <h3>Option 4: Receive one-time passcodes by email</h3>
-                        <div class="mrgn-bttm-md mrgn-tp-lg">
-                          <a class="btn btn-default btn-lg btn-block" jsf:id="email" jsf:action="#{authenticator.authenticate}">
-                            <span class="h3">
-                              <span class="fas fa-envelope fa-lg mrgn-rght-sm"></span>
-                              Receive email messages
-                            </span>
-                          </a>
+                          <details>
+                            <summary tabindex="1" class="text-center" id="wb-auto-1" role="button"
+                              aria-expanded="false">More info</summary>
+                            <section>
+                              <p>More info goes here</p>
+                            </section>
+                          </details>
                         </div>
-                        <p>
+                      </c:if>
+
+                      <c:if test="${identity.getWorkingParameter('email-accepted')}">
+                        <div class=" mrgn-bttm-md brdr-bttm">
+                          <h3>Option 4: Receive one-time passcodes by email</h3>
+                          <div class="mrgn-bttm-md mrgn-tp-lg">
+                            <a class="btn btn-default btn-lg btn-block" jsf:id="email" jsf:action="#{authenticator.authenticate}">
+                              <span class="h3">
+                                <span class="fas fa-envelope fa-lg mrgn-rght-sm"></span>
+                                Receive email messages
+                              </span>
+                            </a>
+                          </div>
+                          <p>
                           About email: Not all GC services will accept this etc...
                         </p>
-                        <details>
-                          <summary tabindex="1" class="text-center" id="wb-auto-1" role="button"
-                            aria-expanded="false">More info</summary>
-                          <section>
-                            <p>More info goes here</p>
-                          </section>
-                        </details>
-                      </div>
+                          <details>
+                            <summary tabindex="1" class="text-center" id="wb-auto-1" role="button"
+                              aria-expanded="false">More info</summary>
+                            <section>
+                              <p>More info goes here</p>
+                            </section>
+                          </details>
+                        </div>
+                      </c:if>
                     </form>
                   </div>
                 </div>
