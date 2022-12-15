@@ -11,7 +11,7 @@
     <f:viewAction action="#{language.setLocaleCode('en')}" />
   </f:metadata>
 
-  <ui:param name="title" value="Enter your one time code" />
+  <ui:param name="title" value="Check your #{identity.getWorkingParameter('mfaMethod') == 'email' ? 'email' : 'messages'}" />
   <ui:param name="step" value="oob" />
   <ui:param name="locale" value="en" />
 
@@ -21,32 +21,47 @@
 
   <ui:define name="content">
     <div class="container">
-      <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Enter your one-time code</h1>
+      <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Check your #{identity.getWorkingParameter('mfaMethod') == 'email' ? 'email' : 'messages'}</h1>
     </div>
 
     <div class="container">
-      <div class="col-md-6">
-        <div class="panel panel-default mrgn-bttm-0 brdr-rds-0">
-          <div class="panel-body">
-            <div class="wb-frmvld">
-              <form jsf:id="oob" jsf:action="#{authenticator.authenticate}" class="form">
-                <div class="form-group">
-                  <h:message for="code" errorClass="list-unstyled label label-danger wb-server-error" layout="table" />
-                  <label for="code" class="required">
-                    Enter your
-                    <span class="field-name">one-time code</span> <strong class="required" aria-hidden="true">(required)</strong>
-                  </label>
-                  <input id="code" jsf:id="code" type="number" required="required" audocomplete="one-time-code" inputmode="numeric" data-rule-digits="true" data-rule-minlength="6" data-rule-maxlength="6" class="form-control" placeholder="Enter your one-time code" />
-                </div>
-                <button jsf:id="signin" jsf:action="#{authenticator.authenticate}" class="btn btn-default btn-primary pull-left">Sign in</button>
-              </form>
+      <div class="col-md-4">
+        <div class="wb-frmvld">
+          <form jsf:id="oob" jsf:action="#{authenticator.authenticate}" class="form">
+            <div class="form-group">
+              <h:message for="code" errorClass="list-unstyled label label-danger" layout="table" />
+              <label for="code" class="required">
+                Enter the 6-digit
+                <span class="field-name">code</span> we
+                 #{identity.getWorkingParameter('mfaMethod') == 'email' ? 'emailed' : 'texted'} you
+              </label>
+              <input id="code" jsf:id="code" type="text" audocomplete="one-time-code" inputmode="numeric" data-rule-digits="true" data-rule-minlength="6" data-rule-maxlength="6" class="form-control" placeholder="6-digit-code" />
             </div>
-            <form jsf:id="navigate" jsf:action="#{authenticator.authenticate}" class="form">
-                <button jsf:id="cancel" jsf:action="#{authenticator.authenticate}" class="btn btn-default pull-right">Cancel</button>
-              </form>
+            <div class="row">
+            <button jsf:id="cancel" id="cancel" jsf:action="#{authenticator.authenticate}" class="btn btn-default pull-left">Cancel</button>
+            <button jsf:id="signin" id="signin" jsf:action="#{authenticator.authenticate}" class="btn btn-default btn-primary pull-right">Continue to site</button>
           </div>
+            <div class="row">
+              <p class="text-center">
+              <a jsf:id="resend" jsf:action="#{authenticator.authenticate}">Resend code</a>
+            </p>
+            </div>
+          </form>
         </div>
       </div>
     </div>
   </ui:define>
+
+  <ui:define name="scripts">
+    <script type="javascript">
+    document.getElementById("code").addEventListener("keypress", function(event) {
+      console.log(event);
+      if (event.key === "Enter") {
+          event.preventDefault();
+          document.getElementById("signin").click();
+      }
+    });
+  </script>
+  </ui:define>
+
 </ui:composition>
