@@ -13,6 +13,7 @@ from org.gluu.oxauth.service import UserService, AuthenticationService, Authenti
 from javax.faces.application import FacesMessage
 
 from java.security import SecureRandom
+from java.time import Instant
 
 import sys
 import java
@@ -59,9 +60,9 @@ class OutOfBand:
         notifySucessful = self.notify.sendOobSMS(mobile, code) if mobile is not None else self.notify.sendOobEmail(mail, code)
         if notifySucessful:
             identity.setWorkingParameter("oobCode", code)
+            identity.setWorkingParameter("oobExpires", str(Instant.now().getEpochSecond() + 600)) # 10 minutes
 
         return notifySucessful
-
 
     def AuthenticateOutOfBand(self, requestParameters):
         identity = CdiUtil.bean(Identity)
@@ -70,17 +71,30 @@ class OutOfBand:
         authenticationService = CdiUtil.bean(AuthenticationService)
         authenticationProtectionService = CdiUtil.bean(AuthenticationProtectionService)
 
+        if requestParameters.containsKey("oob:cancel"):
+            return False
+
+        expires = int(identity.getWorkingParameter("oobExpires"))
+        print ("Expires: " + str(expires))
+        print ("Now: " + str(Instant.now().getEpochSecond()))
+        if expires < Instant.now().getEpochSecond():
+            print ("OOB Expired for %s" % identity.getWorkingParameter("userId"))
+            facesMessages.add("oob:code", FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.expiredCode"))
+            return False
+
         enteredCode = ServerUtil.getFirstValue(requestParameters, "oob:code")
+        print ("Comparing [%s] to [%s]" % (enteredCode, identity.getWorkingParameter("oobCode")))
 
         if enteredCode == identity.getWorkingParameter("oobCode"):
             facesMessages.clear()
+            print ("OOB Success for %s" % identity.getWorkingParameter("userId"))
             return authenticationService.authenticate(identity.getWorkingParameter("userId"))
         else:
+            print ("OOB Wrong for %s" % identity.getWorkingParameter("userId"))
             if (authenticationProtectionService.isEnabled()):
                 authenticationProtectionService.storeAttempt(identity.getWorkingParameter("userId"), False)
             facesMessages.add("oob:code", FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.invalidCode"))
             return False
-
 
     def RegisterOutOfBand(self, requestParameters):
         identity = CdiUtil.bean(Identity)
@@ -88,7 +102,7 @@ class OutOfBand:
         languageBean = CdiUtil.bean(LanguageBean)
 
         mobile = ServerUtil.getFirstValue(requestParameters, "register_oob:mobile")
-        mail = ServerUtil.getFirstValue(requestParameters, "register_oob:mail")
+        mail = ServerUtil.getFirstValue(requestParameters, "register_oob:email")
 
         if StringHelper.isEmpty(mobile) and StringHelper.isEmpty(mail):
             facesMessages.add(FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.pleaseEnter"))
@@ -98,7 +112,7 @@ class OutOfBand:
             if StringHelper.isNotEmpty(mobile):
                 facesMessages.add("register_oob:mobile", FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.badPhone"))
             else:
-                facesMessages.add("register_oob:mail", FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.badEmail"))
+                facesMessages.add("register_oob:email", FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.badEmail"))
             return False
         else:
             facesMessages.clear()

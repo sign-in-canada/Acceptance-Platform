@@ -180,6 +180,21 @@ class Account:
 
         return URI.create(sectorIdentifierUri).getHost()
 
+# MFA Management
+    def getMfaMethod(self, userId):
+        if self.userService.countFido2RegisteredDevices(userId) > 0:
+            return "fido"
+        else:
+            user = self.userService.getUser(userId, "externalId", "mobile", "mail")
+            if self.getExternalUid(user, "mfa") is not None:
+                return "totp"
+            elif user.getAttribute("mobile") is not None:
+                return "sms"
+            elif user.getAttribute("mail") is not None:
+                return "email"
+            else:
+                return None
+
 # FIDO2 authenticator management
 
     def removeFido2Registrations(self, user):

@@ -48,7 +48,7 @@ class SICError(Exception):
     """Base class for exceptions in this module."""
     pass
 
-sys.path.append("/opt/gluu/jetty/oxauth/custom/scripts/person_authentication")
+sys.path.append("/opt/gluu/jetty/oxauth/custom/scripts")
 
 REMOTE_DEBUG = False
 
@@ -60,7 +60,7 @@ if REMOTE_DEBUG:
         print ("Failed to import pydevd: %s" % ex)
         raise
 
-from sic import passport, account, fido, oob
+from sic import passport, account, fido, oob, rputils
 
 class PersonAuthentication(PersonAuthenticationType):
 
@@ -124,20 +124,8 @@ class PersonAuthentication(PersonAuthenticationType):
         else:
             self.providers = set([item.strip() for item in providersParam.split(",")])
 
-        # Get the defaults for RP business rule & UI configuration
-        defaultsParam = configurationAttributes.get("rp_defaults").getValue2()
-        if defaultsParam is None:
-            print ("%s: RP defaults (rp_defaults) are missing from config!" % self.name)
-            return False
-        else:
-            try:
-                self.rpDefaults = json.loads(defaultsParam)
-            except ValueError:
-                print ("%s: failed to parse RP defaults!" % self.name)
-                return False
-
-        # Keep an in-memory cache of RP Configs
-        self.rpConfigCache = {}
+        self.rputils = rputils.RPUtils()
+        self.rputils.init(configurationAttributes, self.name)
 
         self.passport = passport.Passport()
         self.passport.init(configurationAttributes, self.name)
@@ -172,7 +160,7 @@ class PersonAuthentication(PersonAuthenticationType):
         # Inject dependencies
         identity = CdiUtil.bean(Identity)
 
-        client = self.getClient(identity.getSessionId())
+        client = self.rputils.getClient(identity.getSessionId())
         defaultAcrValues = client.getDefaultAcrValues()
         # If any default ACR values are explicitly configured on the client,
         # then don't allow any others
@@ -192,7 +180,8 @@ class PersonAuthentication(PersonAuthenticationType):
                              "userId",      # Used to keep track of the user across multiple requests
                              "mfaMethod",   # MFA method used to authenticate
                              "mfaId",       # subject identifier for the external TOTP service
-                             "oobCode")     # One-time-code for out-of-band
+                             "oobCode",     # One-time-code for out-of-band
+                             "oobExpires")   # Timestamp when OOB expires
 
     def prepareForStep(self, configurationAttributes, requestParameters, step):
 
@@ -210,10 +199,12 @@ class PersonAuthentication(PersonAuthenticationType):
         externalContext = facesResources.getFacesContext().getExternalContext()
         uiLocales = sessionAttributes.get(AuthorizeRequestParam.UI_LOCALES)
 
-        rpConfig = self.getRPConfig(session)
-        clientUri = self.getClientUri(session)
+        rpConfig = self.rputils.getRPConfig(session)
+        clientUri = self.rputils.getClientUri(session)
 
         # externalContext.addResponseHeader("Content-Security-Policy", "default-src 'self' https://www.canada.ca; font-src 'self' https://fonts.gstatic.com https://use.fontawesome.com https://www.canada.ca; style-src 'self' 'unsafe-inline'; style-src-elem 'self' 'unsafe-inline' https://use.fontawesome.com https://fonts.googleapis.com https://www.canada.ca; script-src 'self' 'unsafe-inline' https://www.canada.ca https://ajax.googleapis.com; connect-src 'self' https://*.fjgc-gccf.gc.ca")
+
+        print ("Preparing for step %s" % step)
 
         if step == 1:
             httpRequest = externalContext.getRequest()
@@ -223,7 +214,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     facesService.redirectToExternalURL(clientUri)
                     return True
                 else:
-                    print("%s: prepareForStep. clientUri is missing for client %s" % (self.name, self.getClient(session).getClientName()))
+                    print("%s: prepareForStep. clientUri is missing for client %s" % (self.name, self.rputils.getClient(session).getClientName()))
                     return False
 
             # forceAuthn workaround
@@ -246,7 +237,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     facesService.redirectToExternalURL(clientUri)
                     return True
                 else:
-                    print("%s: prepareForStep. clientUri is missing for client %s" % (self.name, self.getClient(session).getClientName()))
+                    print("%s: prepareForStep. clientUri is missing for client %s" % (self.name, self.rputils.getClient(session).getClientName()))
                     return False
             else: # reset the chooser
                 identity.setWorkingParameter("provider", None)
@@ -258,8 +249,11 @@ class PersonAuthentication(PersonAuthenticationType):
 
         elif step == self.STEP_UPGRADE:
             identity.setWorkingParameter("content", rpConfig["content"])
-            for mfaType in ["fido", "totp", "sms", "email"]:
+            mfaRegistered = self.account.getMfaMethod(identity.getWorkingParameter("userId"))
+            for mfaType in rpConfig["mfa"]:
                 identity.setWorkingParameter(mfaType + "-accepted", mfaType in rpConfig["mfa"])
+                if mfaRegistered == mfaType: # Don't allow downgrading methods
+                    break
 
         elif step in {self.STEP_1FA, self.STEP_COLLECT, self.STEP_TOTP}: # Passport
             
@@ -273,7 +267,7 @@ class PersonAuthentication(PersonAuthenticationType):
     
             if step == self.STEP_1FA:
                 # Coordinate single-sign-on (SSO)
-                maxAge = self.getClient(session).getDefaultMaxAge() or 1200
+                maxAge = self.rputils.getClient(session).getDefaultMaxAge() or 1200
                 providerInfo = self.passport.getProvider(provider)
                 if (identity.getWorkingParameter("forceAuthn") or (providerInfo["GCCF"] and maxAge < 1200)): # 1200 is 20 minutes, the SSO timeout on GCKey and CBS
                     passportOptions["forceAuthn"] = "true"
@@ -333,6 +327,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
         session = identity.getSessionId()
         sessionAttributes = session.getSessionAttributes()
+        rpConfig = self.rputils.getRPConfig(session)
 
         # Clear the abort flag
         identity.setWorkingParameter("abort", False)
@@ -345,7 +340,7 @@ class PersonAuthentication(PersonAuthenticationType):
             # This means that passport returned an error
             if step <= self.STEP_1FA: # User Cancelled during login
                 if len(self.providers) == 1: # One provider. Redirect back to the RP
-                    facesService.redirectToExternalURL(self.getClientUri(session))
+                    facesService.redirectToExternalURL(self.rputils.getClientUri(session))
                 else: # Clear the previous choice to re-display the chooser
                     # locale = ServerUtil.getFirstValue(requestParameters, "ui_locale") # TODO: Update passport to send language onerror
                     # sessionAttributes.put(AuthorizeRequestParam.UI_LOCALES, locale)
@@ -361,7 +356,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     return authenticationService.authenticate(identity.getWorkingParameter("userId"))
 
             elif step == self.STEP_TOTP: # 2FA Failed. Redirect back to the RP
-                facesService.redirectToExternalURL(self.getClientUri(session))
+                facesService.redirectToExternalURL(self.rputils.getClientUri(session))
                 return False
             else:
                 print ("%s: Invalid passport failure in step %s." % (self.name, step))
@@ -415,7 +410,8 @@ class PersonAuthentication(PersonAuthenticationType):
             return self.oob.RegisterOutOfBand(requestParameters)
  
         elif requestParameters.containsKey("secure"):
-            identity.setWorkingParameter("mfaMethod", self.getFormButton(requestParameters))
+            method = ServerUtil.getFirstValue(requestParameters, "secure:method")
+            identity.setWorkingParameter("mfaMethod", method)
 
         elif requestParameters.containsKey("navigate"):
             print ("%s: Navigate to: %s." % (self.name, self.getFormButton(requestParameters)))
@@ -439,7 +435,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
         session = identity.getSessionId()
         sessionAttributes = session.getSessionAttributes()
-        rpConfig = self.getRPConfig(session)
+        rpConfig = self.rputils.getRPConfig(session)
 
         externalProfile = self.passport.handleResponse(requestParameters)
         if externalProfile is None:
@@ -540,7 +536,7 @@ class PersonAuthentication(PersonAuthenticationType):
             userService.updateUser(user)
 
             # construct an OIDC pairwise subject using the SAML PAI
-            client = self.getClient(session)
+            client = self.rputils.getClient(session)
             if not self.account.getOpenIdSubject(user, client): # unless one already exists
                 provider = identity.getWorkingParameter("provider")
                 self.account.addOpenIdSubject(user, client, provider + nameId)
@@ -626,6 +622,8 @@ class PersonAuthentication(PersonAuthenticationType):
         identity = CdiUtil.bean(Identity)
         sessionAttributes = identity.getSessionId().getSessionAttributes()
 
+        print ("Goto step %s" % step)
+
         # Mark all previous steps as passed so the workflow can skip steps
         for i in range(1, step + 1):
             sessionAttributes.put("auth_step_passed_%s" % i, "true")
@@ -640,12 +638,13 @@ class PersonAuthentication(PersonAuthenticationType):
         userService = CdiUtil.bean(UserService)
         identity = CdiUtil.bean(Identity)
         session = identity.getSessionId()
-        rpConfig = self.getRPConfig(session)
+        rpConfig = self.rputils.getRPConfig(session)
         provider = identity.getWorkingParameter("provider")
         if provider is not None:
             providerInfo = self.passport.getProvider(provider)
 
         originalStep = step
+        print ("Gluu step: %s" % originalStep)
 
         # Handle language toggles
         if requestParameters.containsKey("lang"):
@@ -700,30 +699,41 @@ class PersonAuthentication(PersonAuthenticationType):
                         return self.gotoStep(self.STEP_COLLECT)
 
         if step in {self.STEP_1FA, self.STEP_COLLECT}:
-            mfaMethods = rpConfig.get("mfa")
-            if mfaMethods is not None:
-                user = userService.getUser(identity.getWorkingParameter("userId"), "externalId", "mobile", "mail")
-                if "fido" in mfaMethods and userService.countFido2RegisteredDevices(user.getUserId()) > 0:
-                    identity.setWorkingParameter("mfaMethod", "fido")
-                    return self.gotoStep(self.STEP_FIDO)
-                elif "totp" in mfaMethods and self.account.getExternalUid(user, "mfa") is not None:
-                    identity.setWorkingParameter("mfaMethod", "totp")
-                    return self.gotoStep(self.STEP_TOTP)
-                elif "sms" in mfaMethods and user.getAttribute("mobile") is not None:
-                    identity.setWorkingParameter("mfaMethod", "sms")
-                    return self.gotoStep(self.STEP_OOB)
-                elif "email" in mfaMethods and user.getAttribute("mail") is not None:
-                    identity.setWorkingParameter("mfaMethod", "email")
-                    return self.gotoStep(self.STEP_OOB)
-                else: # No acceptable method is registered
+            mfaMethodsAcepted = rpConfig.get("mfa")
+            if mfaMethodsAcepted is not None:
+                mfaMethodRegistered = self.account.getMfaMethod(identity.getWorkingParameter("userId"))
+                identity.setWorkingParameter("mfaMethod", mfaMethodRegistered)
+                if mfaMethodRegistered is None or mfaMethodRegistered not in mfaMethodsAcepted:
                     return self.gotoStep(self.STEP_UPGRADE)
+                elif mfaMethodRegistered == "fido":
+                    return self.gotoStep(self.STEP_FIDO)
+                elif mfaMethodRegistered == "totp":
+                    return self.gotoStep(self.STEP_TOTP)
+                elif mfaMethodRegistered == "sms":
+                    return self.gotoStep(self.STEP_OOB)
+                elif mfaMethodRegistered =="email":
+                    return self.gotoStep(self.STEP_OOB)
+
+        if step == self.STEP_OOB:
+            if requestParameters.containsKey("oob:cancel"):
+                identity.setWorkingParameter("userId", None)
+                identity.setWorkingParameter("oobCode", None)
+                return self.gotoStep(self.STEP_CHOOSER)
 
         if step == self.STEP_OOB_REGISTER:
+            if requestParameters.containsKey("register_oob:cancel"):
+                return self.gotoStep(self.STEP_UPGRADE)
             if identity.getWorkingParameter("oobCode"):
                 return self.gotoStep(self.STEP_OOB)
+            elif self.getFormButton(requestParameters) == "cancel":
+                return self.gotoStep(self.STEP_CHOOSER)
 
         if step == self.STEP_UPGRADE:
-            target = self.getFormButton(requestParameters)
+            if requestParameters.containsKey("register_oob:cancel"):
+                identity.setWorkingParameter("userId", None)
+                identity.setWorkingParameter("oobCode", None)
+                return self.gotoStep(self.STEP_CHOOSER)
+            target = ServerUtil.getFirstValue(requestParameters, "secure:method")
             if target == "fido":
                 return self.gotoStep(self.STEP_REGISTER)
             elif target == "totp":
@@ -738,14 +748,14 @@ class PersonAuthentication(PersonAuthenticationType):
                 else:
                     return self.gotoStep(self.STEP_REGISTER)
             else: # Cancel
-                return self.gotoStep(self.STEP_CHOOSER)
+                return self.gotoStep(self.STEP_UPGRADE)
 
         if step == self.STEP_FIDO_REGISTER:
             if requestParameters.containsKey("attestationResponse"):
                 if ServerUtil.getFirstValue(requestParameters, "attestationResponse"):
                     return self.gotoStep(self.STEP_RESULT)
                 else: # Failed
-                    return self.gotoStep(self.STEP_CHOOSER)
+                    return self.gotoStep(self.STEP_UPGRADE)
             else: # Cancel
                 return self.gotoStep(self.STEP_CHOOSER)
 
@@ -767,54 +777,3 @@ class PersonAuthentication(PersonAuthenticationType):
             if start > -1:
                 return parameter[start + 1:]
         return None
-
-    ### Client Config Utilities
-
-    def getClient(self, session):
-        sessionAttributes = session.getSessionAttributes()
-        clientId = sessionAttributes.get(AuthorizeRequestParam.CLIENT_ID)
-        return CdiUtil.bean(ClientService).getClient(clientId)
-
-    def getClientUri(self, session):
-
-        clientUri = self.getClient(session).getClientUri()
-        if clientUri is None:
-            sessionAttributes = session.getSessionAttributes()
-            clientUri = sessionAttributes.get("entityId") # Hack!
-
-        return clientUri
-
-    def getRPConfig(self, session):
-        clientService = CdiUtil.bean(ClientService)
-        client = self.getClient(session)
-
-        # check the cache
-        #clientKey = "oidc:%s" % client.getClientId()
-        #if clientKey in self.rpConfigCache:
-        #    return self.rpConfigCache[clientKey]
-
-        descriptionAttr = clientService.getCustomAttribute(client, "description")
-
-        rpConfig = None
-        if descriptionAttr is not None:
-            description = descriptionAttr.getValue()
-            start = description.find("{")
-            if (start > -1):
-                decoder = json.JSONDecoder()
-                try:
-                    rpConfig, _ = decoder.raw_decode(description[start:])
-                except ValueError:
-                    print ("%s. getRPConfig: Failed to parse JSON config for client %s" % (self.name, client.getClientName()))
-                    print ("Exception: ", sys.exc_info()[1])
-                    pass
-
-        if rpConfig is None:
-            rpConfig = self.rpDefaults
-        else: # Populate missing settings with defaults
-            for setting, value in self.rpDefaults.items():
-                if not setting in rpConfig:
-                    rpConfig[setting] = value
-
-        # Add it to the cache
-        #self.rpConfigCache[clientKey] = rpConfig
-        return rpConfig

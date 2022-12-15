@@ -6,7 +6,7 @@ from org.gluu.service.cdi.util import CdiUtil
 from org.gluu.oxauth.service import UserService
 
 import sys
-sys.path.append("/opt/gluu/jetty/oxauth/custom/scripts/person_authentication")
+sys.path.append("/opt/gluu/jetty/oxauth/custom/scripts")
 from sic import account
 
 class PostAuthn(PostAuthnType):
