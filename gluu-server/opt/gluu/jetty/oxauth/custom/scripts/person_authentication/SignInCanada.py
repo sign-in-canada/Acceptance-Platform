@@ -15,6 +15,7 @@
 #    Step 11: FIDO2 registration
 #    Step 12: Partial Account recovery
 #    Step 13: Generic Information / Help / Confirmation page
+#    Step 14: Abort authentication and redirtect back to the RP
 #
 # The actual steps performed will depend on thw workflow. Note that if steps 1 or 2 are skipped
 # then the step # passed by Gluu will always be 1 for the first step performed, regardless
@@ -24,7 +25,7 @@
 
 from org.gluu.model.custom.script.type.auth import PersonAuthenticationType
 from org.gluu.service.cdi.util import CdiUtil
-from org.gluu.oxauth.service import AuthenticationService, ClientService, UserService
+from org.gluu.oxauth.service import AuthenticationService, UserService
 from org.gluu.oxauth.security import Identity
 from org.gluu.oxauth.util import ServerUtil
 from org.gluu.oxauth.i18n import LanguageBean
@@ -33,9 +34,6 @@ from org.gluu.oxauth.model.authorize import AuthorizeRequestParam
 from org.gluu.util import StringHelper
 
 from java.util import Arrays
-from java.util.concurrent.locks import ReentrantLock
-from javax.ws.rs.core import Response
-from javax.ws.rs import ClientErrorException
 
 from com.microsoft.applicationinsights import TelemetryClient
 
@@ -77,6 +75,7 @@ class PersonAuthentication(PersonAuthenticationType):
     STEP_FIDO_REGISTER = 11
     STEP_RECOVER = 12
     STEP_RESULT = 13
+    STEP_CANCEL = 14
 
     # Map of steps to pages
     PAGES = {
@@ -181,7 +180,8 @@ class PersonAuthentication(PersonAuthenticationType):
                              "mfaMethod",   # MFA method used to authenticate
                              "mfaId",       # subject identifier for the external TOTP service
                              "oobCode",     # One-time-code for out-of-band
-                             "oobExpires")   # Timestamp when OOB expires
+                             "oobContact",  # Mobile number or email address being registered for OOB
+                             "oobExpires")  # Timestamp when OOB expires
 
     def prepareForStep(self, configurationAttributes, requestParameters, step):
 
@@ -286,16 +286,17 @@ class PersonAuthentication(PersonAuthenticationType):
                 if provider is None:
                     print("%s: prepareForStep. mfaProvider is missing!" % self.name)
                     return False
-                mfaId = identity.getWorkingParameter("mfaId")
+                user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "oxExternalUid")
+                mfaId = self.account.getExternalUid(user, "mfa")
                 if mfaId is None:
-                    print("%s: prepareForStep. mfaId is missing!" % self.name)
-                    return False
-                else:
-                    passportOptions["login_hint"] = mfaId
-                    # The following parameters are redundant, but currently required by the 2ndFaaS
-                    passportOptions["redirect_uri"] = self.passport.getProvider(provider)["callbackUrl"]
-                    passportOptions["response_type"] = "code"
-                    passportOptions["scope"] = "openid profile"
+                    mfaId = self.account.addExternalUid(user, "mfa")
+                    userService.updateUser(user)
+                identity.setWorkingParameter("mfaId", mfaId)
+                passportOptions["login_hint"] = mfaId
+                # The following parameters are redundant, but currently required by the 2ndFaaS
+                passportOptions["redirect_uri"] = self.passport.getProvider(provider)["callbackUrl"]
+                passportOptions["response_type"] = "code"
+                passportOptions["scope"] = "openid profile"
 
             # Set the abort flag to handle back button
             identity.setWorkingParameter("abort", True)
@@ -496,14 +497,6 @@ class PersonAuthentication(PersonAuthenticationType):
                 user = self.account.addSamlSubject(user, spNameQualifier)
                 userChanged = True
 
-            # IF MFA is enabled, grab the mfaId, or create if needed
-            if rpConfig.get("mfaProvider"): 
-                mfaId = self.account.getExternalUid(user, "mfa")
-                if mfaId is None:
-                    mfaId = self.account.addExternalUid(user, "mfa")
-                    userChanged = True
-                identity.setWorkingParameter("mfaId", mfaId)
-
             if newUser:
                 userService.addUser(user, True)
             elif userChanged:
@@ -545,9 +538,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 return authenticationService.authenticate(identity.getWorkingParameter("userId"))
 
         elif step == self.STEP_TOTP:
-            user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "oxExternalUid", "locale")
-            mfaExternalId = self.account.getExternalUid(user, "mfa")
-            if externalProfile.get("externalUid").split(":", 1)[1] != mfaExternalId:
+            if externalProfile.get("externalUid").split(":", 1)[1] != identity.getWorkingParameter("mfaId"):
                 # Got the wrong MFA PAI. Authentication failed!
                 return False
 
@@ -555,6 +546,7 @@ class PersonAuthentication(PersonAuthenticationType):
             locale = externalProfile.get("locale")[0]
             if locale:
                 languageBean.setLocaleCode(locale)
+                user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "locale")
                 if locale != user.getAttribute("locale", True, False):
                     user.setAttribute("locale", locale, False)
                     userService.updateUser(user)
@@ -716,9 +708,14 @@ class PersonAuthentication(PersonAuthenticationType):
 
         if step == self.STEP_OOB:
             if requestParameters.containsKey("oob:cancel"):
-                identity.setWorkingParameter("userId", None)
                 identity.setWorkingParameter("oobCode", None)
-                return self.gotoStep(self.STEP_CHOOSER)
+                if identity.getWorkingParameter("oobContact") is not None: # Registration Cancel
+                    identity.setWorkingParameter("oobContact", None)
+                    return self.gotoStep(self.STEP_OOB_REGISTER)
+                else: # Authetication Cancel
+                    identity.setWorkingParameter("userId", None)
+                    identity.setWorkingParameter("oobContact", None)
+                    return self.gotoStep(self.STEP_CHOOSER)
 
         if step == self.STEP_OOB_REGISTER:
             if requestParameters.containsKey("register_oob:cancel"):

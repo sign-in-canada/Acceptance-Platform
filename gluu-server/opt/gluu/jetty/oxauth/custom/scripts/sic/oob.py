@@ -88,6 +88,16 @@ class OutOfBand:
         if enteredCode == identity.getWorkingParameter("oobCode"):
             facesMessages.clear()
             print ("OOB Success for %s" % identity.getWorkingParameter("userId"))
+            contact = identity.getWorkingParameter("oobContact")
+            if contact is not None: # Registration
+                mfaMethod = identity.getWorkingParameter("mfaMethod")
+                user = self.userService.getUser(identity.getWorkingParameter("userId"), "uid")
+                if mfaMethod == "sms":
+                    self.userService.addUserAttribute(user, "mobile", contact)
+                elif mfaMethod == "email":
+                    self.userService.addUserAttribute(user, "mail", contact)
+                self.userService.updateUser(user)
+
             return authenticationService.authenticate(identity.getWorkingParameter("userId"))
         else:
             print ("OOB Wrong for %s" % identity.getWorkingParameter("userId"))
@@ -118,8 +128,7 @@ class OutOfBand:
             facesMessages.clear()
             user = self.userService.getUser(identity.getWorkingParameter("userId"), "uid")
             if mobile is not None:
-                self.userService.addUserAttribute(user, "mobile", mobile)
+                identity.setWorkingParameter("oobContact", mobile)
             if mail is not None:
-                self.userService.addUserAttribute(user, "mail", mail)
-            self.userService.updateUser(user)
+                identity.setWorkingParameter("oobContact", mail)
             return True
