@@ -185,7 +185,7 @@ class Account:
         if self.userService.countFido2RegisteredDevices(userId) > 0:
             return "fido"
         else:
-            user = self.userService.getUser(userId, "externalId", "mobile", "mail")
+            user = self.userService.getUser(userId, "oxExternalUid", "mobile", "mail")
             if self.getExternalUid(user, "mfa") is not None:
                 return "totp"
             elif user.getAttribute("mobile") is not None:
