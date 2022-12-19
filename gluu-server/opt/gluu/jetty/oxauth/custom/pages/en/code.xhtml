@@ -52,16 +52,4 @@
     </div>
   </ui:define>
 
-  <ui:define name="scripts">
-    <script type="javascript">
-    document.getElementById("code").addEventListener("keypress", function(event) {
-      console.log(event);
-      if (event.key === "Enter") {
-          event.preventDefault();
-          document.getElementById("signin").click();
-      }
-    });
-  </script>
-  </ui:define>
-
 </ui:composition>
