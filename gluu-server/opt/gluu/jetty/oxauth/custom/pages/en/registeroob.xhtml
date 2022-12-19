@@ -54,8 +54,8 @@
                     <input jsf:id="mobile" id="mobile" type="tel" class="form-control" autocomplete="tel" placeholder="Enter your mobile phone number" />
                   </div>
                 </c:if>
-                <button type="button"  jsf:id="cancel" jsf:action="#{authenticator.authenticate}" class="btn btn-default pull-left">Cancel</button>
-                <button type="submit" jsf:id="register" jsf:action="#{authenticator.authenticate}" class="btn btn-default btn-primary pull-right">Continue</button>
+                <button jsf:id="register" jsf:action="#{authenticator.authenticate}" class="btn btn-default btn-primary pull-right">Continue</button>
+                <button jsf:id="cancel" jsf:action="#{authenticator.authenticate}" class="btn btn-default pull-left">Cancel</button>
               </form>
             </div>
           </div>
