@@ -31,10 +31,12 @@ from org.gluu.oxauth.security import Identity
 from org.gluu.oxauth.util import ServerUtil
 from org.gluu.oxauth.i18n import LanguageBean
 from org.gluu.jsf2.service import FacesResources, FacesService
+from org.gluu.jsf2.message import FacesMessages
 from org.gluu.oxauth.model.authorize import AuthorizeRequestParam
 from org.gluu.util import StringHelper
 
 from java.util import Arrays
+from javax.faces.application import FacesMessage
 
 from com.microsoft.applicationinsights import TelemetryClient
 
@@ -327,6 +329,7 @@ class PersonAuthentication(PersonAuthenticationType):
         languageBean = CdiUtil.bean(LanguageBean)
         userService = CdiUtil.bean(UserService)
         authenticationService = CdiUtil.bean(AuthenticationService)
+        facesMessages = CdiUtil.bean(FacesMessages)
 
         session = identity.getSessionId()
         sessionAttributes = session.getSessionAttributes()
@@ -406,8 +409,12 @@ class PersonAuthentication(PersonAuthenticationType):
             return self.oob.RegisterOutOfBand(requestParameters)
  
         elif requestParameters.containsKey("secure"):
-            method = ServerUtil.getFirstValue(requestParameters, "secure:method")
-            identity.setWorkingParameter("mfaMethod", method)
+            if requestParameters.containsKey("secure:method"):
+                method = ServerUtil.getFirstValue(requestParameters, "secure:method")
+                identity.setWorkingParameter("mfaMethod", method)
+            else:
+                facesMessages.add("secure:select", FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.pleaseChoose"))
+                return False
 
         elif requestParameters.containsKey("navigate"):
             print ("%s: Navigate to: %s." % (self.name, self.getFormButton(requestParameters)))
@@ -724,7 +731,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 return self.gotoStep(self.STEP_CHOOSER)
 
         if step == self.STEP_UPGRADE:
-            if requestParameters.containsKey("register_oob:cancel"):
+            if requestParameters.containsKey("secure:cancel"):
                 identity.setWorkingParameter("userId", None)
                 identity.setWorkingParameter("oobCode", None)
                 return self.gotoStep(self.STEP_CHOOSER)
@@ -735,6 +742,8 @@ class PersonAuthentication(PersonAuthenticationType):
                 return self.gotoStep(self.STEP_TOTP_REGISTER)
             elif target in {"email", "sms"}:
                 return self.gotoStep(self.STEP_OOB_REGISTER)
+            else:
+                return self.gotoStep(self.STEP_UPGRADE)
 
         if step == self.STEP_REGISTER:
             if requestParameters.containsKey("registration:register"):
