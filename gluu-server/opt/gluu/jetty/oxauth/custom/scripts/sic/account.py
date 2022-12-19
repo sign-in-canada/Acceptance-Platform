@@ -115,7 +115,24 @@ class Account:
         self.userService.addUserAttribute(user, "oxExternalUid", newExternalId, True)
         return sub
 
-    def replaceExternalUid(self, user, externalProfile): # For future use (switch credential)
+    def removeExternalUid(self, user, provider, sub):
+        externalUidAttribute = self.userService.getCustomAttribute(user, "oxExternalUid")
+        if externalUidAttribute is None:
+            return None
+        
+        externalUids = externalUidAttribute.getValues()
+
+        uidToDelete = "passport-" + provider + ":" + sub
+        newExternalUids = []
+        for externalUid in externalUids:
+            if externalUid != uidToDelete:
+                newExternalUids.append(externalUid)
+
+        externalUidAttribute.setValues(newExternalUids)
+        externalUidAttribute.setMultiValued(True)
+        return user
+
+    def replaceExternalUid(self, user, provider, sub): # For future use (switch credential)
          return NotImplemented
 
     # SAML RP Subject Management
