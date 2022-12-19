@@ -84,7 +84,6 @@ class PersonAuthentication(PersonAuthenticationType):
 
     # Map of steps to pages
     PAGES = {
-            STEP_SPLASH: {"en": "/lang.xhtml", "fr": "/lang.xhtml"},
             STEP_CHOOSER: {"en": "/en/select.xhtml", "fr": "/fr/choisir.xhtml"},
             STEP_REGISTER: {"en": "/en/register.xhtml", "fr": "/fr/registrer.xhtml"},
             STEP_OOB: {"en": "/en/code.xhtml", "fr": "/fr/code.xhtml"},
@@ -364,12 +363,18 @@ class PersonAuthentication(PersonAuthenticationType):
 
         elif requestParameters.containsKey("lang"):
             # Manually selected language
-            locale = self.getFormButton(requestParameters)
-            if locale in {"en-CA", "fr-CA"}:
-                languageBean.setLocaleCode(locale)
-                sessionAttributes.put(AuthorizeRequestParam.UI_LOCALES, locale)
+            if requestParameters.containsKey("lang:en-CA"):
+                locale = "en-CA"
+            elif requestParameters.containsKey("lang:fr-CA"):
+                locale = "fr-CA"
             else:
                 return False
+            languageBean.setLocaleCode(locale)
+            sessionAttributes.put(AuthorizeRequestParam.UI_LOCALES, locale)
+
+            langStep = ServerUtil.getFirstValue(requestParameters, "lang:step")
+
+            return langStep == "lang"
 
         elif requestParameters.containsKey("chooser"):
             # Chooser page
@@ -582,8 +587,11 @@ class PersonAuthentication(PersonAuthenticationType):
 
         if uiLocales is not None:
             language = uiLocales[:2].lower()
+        else:
+            print (uiLocales)
+            return "/lang.xhtml"
 
-        if step == 1 and uiLocales is not None:
+        if step == 1:
             if len(self.providers) > 1:
                 step = self.STEP_CHOOSER
             else: # Direct pass-through
