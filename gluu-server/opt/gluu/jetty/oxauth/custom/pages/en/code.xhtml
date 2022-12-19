@@ -28,14 +28,15 @@
       <div class="col-md-4">
         <div class="wb-frmvld">
           <form jsf:id="oob" jsf:action="#{authenticator.authenticate}" class="form">
-            <h:message for="resend" infoClass="label label-success" />
+            
             <div class="form-group">
               <label for="code" class="required">
                 Enter the 6-digit
                 <span class="field-name">code</span> we
                  #{identity.getWorkingParameter('mfaMethod') == 'email' ? 'emailed' : 'texted'} you
               </label>
-              <h:message for="code" errorClass="list-unstyled label label-danger" layout="table"> <a jsf:id="resendexp" jsf:action="#{authenticator.authenticate}">Resend code</a></h:message>
+              <h:message for="code" errorClass="list-unstyled label label-danger"/>
+              <h:message for="resend" infoClass="list-unstyled label label-success"/>
               <input id="code" jsf:id="code" type="text" audocomplete="one-time-code" inputmode="numeric" data-rule-digits="true" data-rule-minlength="6" data-rule-maxlength="6" class="form-control" placeholder="6-digit-code" />
             </div>
             <div class="row">

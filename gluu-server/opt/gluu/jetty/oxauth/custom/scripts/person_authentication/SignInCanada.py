@@ -36,6 +36,7 @@ from org.gluu.oxauth.model.authorize import AuthorizeRequestParam
 from org.gluu.util import StringHelper
 
 from java.util import Arrays
+from java.time import Instant
 from javax.faces.application import FacesMessage
 
 from com.microsoft.applicationinsights import TelemetryClient
@@ -724,7 +725,8 @@ class PersonAuthentication(PersonAuthenticationType):
                         return self.gotoStep(self.STEP_ABORT)
                     else:
                         return self.gotoStep(self.STEP_CHOOSER)
-            elif requestParameters.containsKey("oob:resend"):
+            elif requestParameters.containsKey("oob:resend") or int(identity.getWorkingParameter("oobExpires")) < Instant.now().getEpochSecond():
+                identity.setWorkingParameter("oobCode", None)
                 return self.gotoStep(self.STEP_OOB)
 
         if step == self.STEP_OOB_REGISTER:

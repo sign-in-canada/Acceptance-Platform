@@ -83,6 +83,7 @@ class OutOfBand:
         if expires < Instant.now().getEpochSecond():
             print ("OOB Expired for %s" % identity.getWorkingParameter("userId"))
             facesMessages.add("oob:code", FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.expiredCode"))
+            facesMessages.add("oob:resend", FacesMessage.SEVERITY_INFO, languageBean.getMessage("sic.newCode"))
             return False
 
         enteredCode = ServerUtil.getFirstValue(requestParameters, "oob:code")
