@@ -720,7 +720,12 @@ class PersonAuthentication(PersonAuthenticationType):
                 else: # Authetication Cancel
                     identity.setWorkingParameter("userId", None)
                     identity.setWorkingParameter("oobContact", None)
-                    return self.gotoStep(self.STEP_CHOOSER)
+                    if len(self.providers) == 1:
+                        return self.gotoStep(self.STEP_ABORT)
+                    else:
+                        return self.gotoStep(self.STEP_CHOOSER)
+            elif requestParameters.containsKey("oob:resend"):
+                return self.gotoStep(self.STEP_OOB)
 
         if step == self.STEP_OOB_REGISTER:
             if requestParameters.containsKey("register_oob:cancel"):
@@ -728,13 +733,20 @@ class PersonAuthentication(PersonAuthenticationType):
             if identity.getWorkingParameter("oobCode"):
                 return self.gotoStep(self.STEP_OOB)
             elif self.getFormButton(requestParameters) == "cancel":
-                return self.gotoStep(self.STEP_CHOOSER)
+                if len(self.providers) == 1:
+                    return self.gotoStep(self.STEP_ABORT)
+                else:
+                    return self.gotoStep(self.STEP_CHOOSER)
 
         if step == self.STEP_UPGRADE:
             if requestParameters.containsKey("secure:cancel"):
                 identity.setWorkingParameter("userId", None)
                 identity.setWorkingParameter("oobCode", None)
-                return self.gotoStep(self.STEP_CHOOSER)
+                if len(self.providers) == 1:
+                    return self.gotoStep(self.STEP_ABORT)
+                else:
+                    return self.gotoStep(self.STEP_CHOOSER)
+
             target = ServerUtil.getFirstValue(requestParameters, "secure:method")
             if target == "fido":
                 return self.gotoStep(self.STEP_REGISTER)
@@ -782,7 +794,11 @@ class PersonAuthentication(PersonAuthenticationType):
                 else: # Failed
                     return self.gotoStep(self.STEP_UPGRADE)
             else: # Cancel
-                return self.gotoStep(self.STEP_CHOOSER)
+                if len(self.providers) == 1:
+                    return self.gotoStep(self.STEP_ABORT)
+                else:
+                    return self.gotoStep(self.STEP_CHOOSER)
+
 
         # if we get this far we're done
         identity.setWorkingParameter("stepCount", originalStep)
