@@ -74,16 +74,18 @@ class OutOfBand:
         if requestParameters.containsKey("oob:cancel"):
             return False
 
+        if requestParameters.containsKey("oob:resend"):
+            self.SendOneTimeCode(identity.getWorkingParameter("userId"))
+            facesMessages.add("oob:resend", FacesMessage.SEVERITY_INFO, languageBean.getMessage("sic.newCode"))
+            return False
+
         expires = int(identity.getWorkingParameter("oobExpires"))
-        print ("Expires: " + str(expires))
-        print ("Now: " + str(Instant.now().getEpochSecond()))
         if expires < Instant.now().getEpochSecond():
             print ("OOB Expired for %s" % identity.getWorkingParameter("userId"))
             facesMessages.add("oob:code", FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.expiredCode"))
             return False
 
         enteredCode = ServerUtil.getFirstValue(requestParameters, "oob:code")
-        print ("Comparing [%s] to [%s]" % (enteredCode, identity.getWorkingParameter("oobCode")))
 
         if enteredCode == identity.getWorkingParameter("oobCode"):
             facesMessages.clear()
