@@ -12,10 +12,11 @@
 #    Step 8: External TOTP via passport (if configured)
 #    Step 9: Multi-factor step-up ("Secure your account")
 #    Step 10: Out-of band 2nd factor registration
-#    Step 11: FIDO2 registration
-#    Step 12: Partial Account recovery
-#    Step 13: Generic Information / Help / Confirmation page
-#    Step 14: Abort authentication and redirtect back to the RP
+#    Step 11: TOTP registration
+#    Step 12: FIDO2 registration
+#    Step 13: Partial Account recovery
+#    Step 14: Generic Information / Help / Confirmation page
+#    Step 15: Abort authentication and redirtect back to the RP
 #
 # The actual steps performed will depend on thw workflow. Note that if steps 1 or 2 are skipped
 # then the step # passed by Gluu will always be 1 for the first step performed, regardless
@@ -72,10 +73,11 @@ class PersonAuthentication(PersonAuthenticationType):
     STEP_TOTP = 8
     STEP_UPGRADE = 9
     STEP_OOB_REGISTER = 10
-    STEP_FIDO_REGISTER = 11
-    STEP_RECOVER = 12
-    STEP_RESULT = 13
-    STEP_CANCEL = 14
+    STEP_TOTP_REGISTER = 11
+    STEP_FIDO_REGISTER = 12
+    STEP_RECOVER = 13
+    STEP_RESULT = 14
+    STEP_ABORT = 15
 
     # Map of steps to pages
     PAGES = {
@@ -230,7 +232,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     step = self.STEP_1FA
 
 
-        if identity.getWorkingParameter("abort"): # Back button workaround
+        if step == self.STEP_ABORT or identity.getWorkingParameter("abort"): # Back button workaround
             # Obtain the client URI of the current client from the client configuration
             if len(self.providers) == 1: # Pass through, so send them back to the client
                 if StringHelper.isNotEmpty(clientUri):
@@ -255,7 +257,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 if mfaRegistered == mfaType: # Don't allow downgrading methods
                     break
 
-        elif step in {self.STEP_1FA, self.STEP_COLLECT, self.STEP_TOTP}: # Passport
+        elif step in {self.STEP_1FA, self.STEP_COLLECT, self.STEP_TOTP_REGISTER, self.STEP_TOTP}: # Passport
             
             passportOptions = {"ui_locales": uiLocales, "exp" : int(time.time()) + 60}
 
@@ -281,7 +283,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     print ("%s. prepareForStep: collection entityID is missing" % self.name)
                     return False
 
-            elif step == self.STEP_TOTP:
+            elif step in {self.STEP_TOTP, self.STEP_TOTP_REGISTER}:
                 provider = rpConfig.get("mfaProvider")
                 if provider is None:
                     print("%s: prepareForStep. mfaProvider is missing!" % self.name)
@@ -340,12 +342,7 @@ class PersonAuthentication(PersonAuthenticationType):
         elif requestParameters.containsKey("failure"):
             # This means that passport returned an error
             if step <= self.STEP_1FA: # User Cancelled during login
-                if len(self.providers) == 1: # One provider. Redirect back to the RP
-                    facesService.redirectToExternalURL(self.rputils.getClientUri(session))
-                else: # Clear the previous choice to re-display the chooser
-                    # locale = ServerUtil.getFirstValue(requestParameters, "ui_locale") # TODO: Update passport to send language onerror
-                    # sessionAttributes.put(AuthorizeRequestParam.UI_LOCALES, locale)
-                    identity.setWorkingParameter("provider", None)
+                identity.setWorkingParameter("provider", None)
             elif (step == self.STEP_COLLECT
                   and ServerUtil.getFirstValue(requestParameters, "failure") == "InvalidNameIDPolicy"): # PAI Collection failed. If it's a SAML SP, Create a new SIC PAI
                 spNameQualifier = sessionAttributes.get("entityId")
@@ -355,9 +352,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     userService.updateUser(user)
                 if self.getNextStep(configurationAttributes, requestParameters, step) < 0:
                     return authenticationService.authenticate(identity.getWorkingParameter("userId"))
-
             elif step == self.STEP_TOTP: # 2FA Failed. Redirect back to the RP
-                facesService.redirectToExternalURL(self.rputils.getClientUri(session))
                 return False
             else:
                 print ("%s: Invalid passport failure in step %s." % (self.name, step))
@@ -586,7 +581,7 @@ class PersonAuthentication(PersonAuthenticationType):
             else: # Direct pass-through
                 step = self.STEP_1FA
 
-        if step in {self.STEP_1FA, self.STEP_COLLECT, self.STEP_TOTP}: # Passport
+        if step in {self.STEP_1FA, self.STEP_COLLECT, self.STEP_TOTP_REGISTER, self.STEP_TOTP, self.STEP_ABORT}: # Passport
             # identity.getWorkingParameters().remove("abort")
             return "/auth/passport/passportlogin.xhtml"
 
@@ -631,6 +626,7 @@ class PersonAuthentication(PersonAuthenticationType):
         identity = CdiUtil.bean(Identity)
         session = identity.getSessionId()
         rpConfig = self.rputils.getRPConfig(session)
+        mfaMethodsAcepted = rpConfig.get("mfa")
         provider = identity.getWorkingParameter("provider")
         if provider is not None:
             providerInfo = self.passport.getProvider(provider)
@@ -681,7 +677,10 @@ class PersonAuthentication(PersonAuthenticationType):
 
         if step == self.STEP_1FA:
             if requestParameters.containsKey("failure"): # User cancelled
-                return self.gotoStep(self.STEP_CHOOSER)
+                if len(self.providers) == 1:
+                    return self.gotoStep(self.STEP_ABORT)
+                else:
+                    return self.gotoStep(self.STEP_CHOOSER)
             elif requestParameters.containsKey("chooser"): # User double-clicked
                 return self.gotoStep(self.STEP_1FA)
             else:
@@ -691,7 +690,6 @@ class PersonAuthentication(PersonAuthenticationType):
                         return self.gotoStep(self.STEP_COLLECT)
 
         if step in {self.STEP_1FA, self.STEP_COLLECT}:
-            mfaMethodsAcepted = rpConfig.get("mfa")
             if mfaMethodsAcepted is not None:
                 mfaMethodRegistered = self.account.getMfaMethod(identity.getWorkingParameter("userId"))
                 identity.setWorkingParameter("mfaMethod", mfaMethodRegistered)
@@ -734,7 +732,7 @@ class PersonAuthentication(PersonAuthenticationType):
             if target == "fido":
                 return self.gotoStep(self.STEP_REGISTER)
             elif target == "totp":
-                return self.gotoStep(self.STEP_TOTP)
+                return self.gotoStep(self.STEP_TOTP_REGISTER)
             elif target in {"email", "sms"}:
                 return self.gotoStep(self.STEP_OOB_REGISTER)
 
@@ -746,6 +744,27 @@ class PersonAuthentication(PersonAuthenticationType):
                     return self.gotoStep(self.STEP_REGISTER)
             else: # Cancel
                 return self.gotoStep(self.STEP_UPGRADE)
+
+        if step == self.STEP_TOTP:
+            if requestParameters.containsKey("failure"): # User cancelled
+                if len(self.providers) == 1:
+                    return self.gotoStep(self.STEP_ABORT)
+                else:
+                    return self.gotoStep(self.STEP_CHOOSER)
+
+        if step == self.STEP_TOTP_REGISTER:
+            if requestParameters.containsKey("failure"): # User cancelled
+                user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "oxExternalUid")
+                self.account.removeExternalUid(user, "mfa", identity.getWorkingParameter("mfaId"))
+                userService.updateUser(user)
+                identity.setWorkingParameter("mfaId", None)
+                if len(mfaMethodsAcepted) == 1:
+                    if len(self.providers) == 1:
+                        return self.gotoStep(self.STEP_ABORT)
+                    else:
+                        return self.gotoStep(self.STEP_CHOOSER)
+                else:
+                    return self.gotoStep(self.STEP_UPGRADE)
 
         if step == self.STEP_FIDO_REGISTER:
             if requestParameters.containsKey("attestationResponse"):
