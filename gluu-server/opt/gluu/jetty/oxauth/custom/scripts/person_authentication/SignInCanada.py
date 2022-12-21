@@ -734,7 +734,6 @@ class PersonAuthentication(PersonAuthenticationType):
                     else:
                         return self.gotoStep(self.STEP_CHOOSER)
             elif requestParameters.containsKey("oob:resend") or int(identity.getWorkingParameter("oobExpires")) < Instant.now().getEpochSecond():
-                identity.setWorkingParameter("oobCode", None)
                 return self.gotoStep(self.STEP_OOB)
 
         if step == self.STEP_OOB_REGISTER:

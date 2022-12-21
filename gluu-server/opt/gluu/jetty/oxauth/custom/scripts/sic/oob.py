@@ -74,8 +74,20 @@ class OutOfBand:
         if requestParameters.containsKey("oob:cancel"):
             return False
 
+        contact = identity.getWorkingParameter("oobContact")
+        print ("Contact: %s" %contact)
+
         if requestParameters.containsKey("oob:resend"):
-            self.SendOneTimeCode(identity.getWorkingParameter("userId"))
+            if contact is not None: # Registration
+                mfaMethod = identity.getWorkingParameter("mfaMethod")
+                print ("Method: %s" %mfaMethod)
+                if mfaMethod == "sms":
+                    self.SendOneTimeCode(None, None, contact)
+                elif mfaMethod == "email":
+                    self.SendOneTimeCode(None, contact, None)
+            else:
+                self.SendOneTimeCode(identity.getWorkingParameter("userId"))
+
             facesMessages.add("oob:resend", FacesMessage.SEVERITY_INFO, languageBean.getMessage("sic.newCode"))
             return False
 
@@ -91,7 +103,6 @@ class OutOfBand:
         if enteredCode == identity.getWorkingParameter("oobCode"):
             facesMessages.clear()
             print ("OOB Success for %s" % identity.getWorkingParameter("userId"))
-            contact = identity.getWorkingParameter("oobContact")
             if contact is not None: # Registration
                 mfaMethod = identity.getWorkingParameter("mfaMethod")
                 user = self.userService.getUser(identity.getWorkingParameter("userId"), "uid")
