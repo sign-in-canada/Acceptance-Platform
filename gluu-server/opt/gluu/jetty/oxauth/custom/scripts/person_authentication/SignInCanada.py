@@ -120,12 +120,18 @@ class PersonAuthentication(PersonAuthenticationType):
         print ("%s: Initializing" % self.name)
 
         # Get the list of providers and parse into a set for quick membership tests
-        providersParam = configurationAttributes.get("providers").getValue2()
+        providersParam = configurationAttributes.get("providers")
         if providersParam is None:
             print ("%s: Providers parameter is missing from config!"  % self.name)
             return False
         else:
-            self.providers = set([item.strip() for item in providersParam.split(",")])
+            self.providers = set([item.strip() for item in providersParam.getValue2().split(",")])
+
+        mfaMethodsParam = configurationAttributes.get("mfa_methods")
+        if mfaMethodsParam is not None:
+            self.mfaMethods = list([item.strip() for item in mfaMethodsParam.getValue2().split(",")])
+        else:
+            self.mfaMethods = None
 
         self.rputils = rputils.RPUtils()
         self.rputils.init(configurationAttributes, self.name)
@@ -141,8 +147,9 @@ class PersonAuthentication(PersonAuthenticationType):
 
         self.account = account.Account()
 
-        self.oob = oob.OutOfBand()
-        self.oob.init(configurationAttributes, self.name)
+        if self.mfaMethods is not None and ("sms" in self.mfaMethods or "email" in self.mfaMethods):
+            self.oob = oob.OutOfBand()
+            self.oob.init(configurationAttributes, self.name)
 
         self.telemetryClient = TelemetryClient()
 
@@ -254,8 +261,8 @@ class PersonAuthentication(PersonAuthenticationType):
         elif step == self.STEP_UPGRADE:
             identity.setWorkingParameter("content", rpConfig["content"])
             mfaRegistered = self.account.getMfaMethod(identity.getWorkingParameter("userId"))
-            for mfaType in rpConfig["mfa"]:
-                identity.setWorkingParameter(mfaType + "-accepted", mfaType in rpConfig["mfa"])
+            for mfaType in self.mfaMethods:
+                identity.setWorkingParameter(mfaType + "-accepted", mfaType in self.mfaMethods)
                 if mfaRegistered == mfaType: # Don't allow downgrading methods
                     break
 
@@ -417,7 +424,11 @@ class PersonAuthentication(PersonAuthenticationType):
         elif requestParameters.containsKey("secure"):
             if requestParameters.containsKey("secure:method"):
                 method = ServerUtil.getFirstValue(requestParameters, "secure:method")
-                identity.setWorkingParameter("mfaMethod", method)
+                if method in self.mfaMethods:
+                    identity.setWorkingParameter("mfaMethod", method)
+                else:
+                    print ("%s: Invalid MFA method choice: %s." % (self.name, method))
+                    return False
             else:
                 facesMessages.add("secure:select", FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.pleaseChoose"))
                 return False
@@ -642,7 +653,6 @@ class PersonAuthentication(PersonAuthenticationType):
         identity = CdiUtil.bean(Identity)
         session = identity.getSessionId()
         rpConfig = self.rputils.getRPConfig(session)
-        mfaMethodsAcepted = rpConfig.get("mfa")
         provider = identity.getWorkingParameter("provider")
         if provider is not None:
             providerInfo = self.passport.getProvider(provider)
@@ -706,10 +716,10 @@ class PersonAuthentication(PersonAuthenticationType):
                         return self.gotoStep(self.STEP_COLLECT)
 
         if step in {self.STEP_1FA, self.STEP_COLLECT}:
-            if mfaMethodsAcepted is not None:
+            if self.mfaMethods is not None:
                 mfaMethodRegistered = self.account.getMfaMethod(identity.getWorkingParameter("userId"))
                 identity.setWorkingParameter("mfaMethod", mfaMethodRegistered)
-                if mfaMethodRegistered is None or mfaMethodRegistered not in mfaMethodsAcepted:
+                if mfaMethodRegistered is None or mfaMethodRegistered not in self.mfaMethods:
                     return self.gotoStep(self.STEP_UPGRADE)
                 elif mfaMethodRegistered == "fido":
                     return self.gotoStep(self.STEP_FIDO)
@@ -788,7 +798,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 self.account.removeExternalUid(user, "mfa", identity.getWorkingParameter("mfaId"))
                 userService.updateUser(user)
                 identity.setWorkingParameter("mfaId", None)
-                if len(mfaMethodsAcepted) == 1:
+                if len(self.mfaMethods) == 1:
                     if len(self.providers) == 1:
                         return self.gotoStep(self.STEP_ABORT)
                     else:
