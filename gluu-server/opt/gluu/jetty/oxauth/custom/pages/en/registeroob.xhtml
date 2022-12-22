@@ -34,7 +34,7 @@
               <form jsf:id="register_oob" jsf:action="#{authenticator.authenticate}" class="form">
                 <c:if test="${identity.getWorkingParameter('mfaMethod') == 'email'}">
                   <div class="form-group">
-                    <h:message for="mail" errorClass="list-unstyled label label-danger wb-server-error" layout="table" />
+                    <h:message for="email" errorClass="list-unstyled label label-danger wb-server-error" layout="table" />
                     <label for="email" class="required">
                       Enter the
                       <span class="field-name">email address</span> 
