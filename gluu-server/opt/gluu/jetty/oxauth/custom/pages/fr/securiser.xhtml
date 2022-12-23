@@ -1,0 +1,162 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html>
+<ui:composition xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+  xmlns:f="http://xmlns.jcp.org/jsf/core"
+  xmlns:jsf="http://xmlns.jcp.org/jsf"
+  xmlns:h="http://xmlns.jcp.org/jsf/html"
+  xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+  xmlns:p="http://xmlns.jcp.org/jsf/passthrough"
+  template="/WEB-INF/incl/layouts/GCWeb.xhtml">
+
+  <f:metadata>
+    <f:viewAction action="#{authenticator.prepareAuthenticationForStep}" />
+    <f:viewAction action="#{language.setLocaleCode('fr')}" />
+  </f:metadata>
+
+  <ui:param name="title" value="Une dernière chose..." />
+  <ui:param name="locale" value="fr" />
+  <ui:param name="step" value="secure" />
+
+  <ui:define name="name">
+    <ui:include src="/WEB-INF/incl/content/default/name-#{view.locale.language}.xhtml" />
+  </ui:define>
+
+  <ui:define name="styles">
+    <style>
+      .security-badge {
+        border-radius: 10px;
+        padding-left: 10px;
+        padding-right: 10px;
+    </style>
+  </ui:define>
+
+  <ui:define name="content">
+    <div class="container">
+      <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Une dernière chose...</h1>
+      <p>
+        #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}
+        nécessite un deuxième facteur
+        <c:if test="${not empty identity.getWorkingParameter('mfaMethod')}">plus fort que celui que vous avez mis en place précédemment, </c:if>
+        pour rendre votre compte plus sécurisé.
+      </p>
+      <details>
+        <summary tabindex="0" role="button" aria-expanded="false">Apprendre encore plus</summary>
+        <section>
+          <p>L'authentification à deux facteurs confirme que vous vous connectez vraiment à votre compte.</p>
+          <p>Pensez-y comme une porte verrouillée qui ne peut être ouverte qu'avec une clé et un code secret.Quelqu'un faisant semblant d'être vous sur Internet ne devrait jamais pouvoir obtenir à la fois la clé et le code.</p>
+        </section>
+      </details>
+      <h2>Choisis une option:</h2>
+      <form jsf:id="secure" jsf:action="#{authenticator.authenticate}" class="form">
+        <div class="row wb-eqht">
+
+              <c:if test="${identity.getWorkingParameter('fido-accepted')}">
+                <div class="col-md-4">
+                <section class="hght-inhrt brdr-tp brdr-rght brdr-bttm brdr-lft mrgn-lft-sm mrgn-tp-md">
+                  <fieldset class="gc-chckbxrdio">
+                    <ul class="list-unstyled lst-spcd-2">
+                      <li class="radio mrgn-lft-md">
+                      <input type="radio" p:name="secure:method" jsf:id="fido" jsf:value="fido" id="fido" class="radio mrgn-lft-md"/>
+                      <label for="fido">
+                        <p>
+                          <strong>Clé passante</strong>
+                        </p>
+                        <p>
+                          <span class="security-badge btn-success">Le plus sécurisé</span>
+                        </p>
+                        <p>
+                        Enregistrez une clé passante sur votre appareil
+                       </p>
+                      </label>
+                      </li>
+                      </ul>
+                  </fieldset>
+                </section>
+              </div>
+              </c:if>
+
+              <c:if test="${identity.getWorkingParameter('totp-accepted')}">
+                <div class="col-md-4">
+                <section class="hght-inhrt brdr-tp brdr-rght brdr-bttm brdr-lft mrgn-lft-sm mrgn-tp-md">
+                  <fieldset class="gc-chckbxrdio">
+                    <ul class="list-unstyled lst-spcd-2">
+                    <li class="radio mrgn-lft-md">
+                      <input type="radio" p:name="secure:method" jsf:id="totp" jsf:value="totp" id="totp" class="radio mrgn-lft-md"/>
+                      <label for="totp">
+                        <p>
+                          <strong>Application Authenticator</strong>
+                        </p>
+                        <p>
+                          <span class="security-badge btn-primary">Plus sécurisé</span>
+                        </p>
+                        <p>
+                        Téléchargez ou utilisez une application d'authentification de votre choix.Génère des codes sécurisés.
+                       </p>
+                      </label>
+                    </li>
+                  </ul>
+                  </fieldset>
+                </section>
+              </div>
+              </c:if>
+
+              <c:if test="${identity.getWorkingParameter('sms-accepted')}">
+                <div class="col-md-4">
+                <section class="hght-inhrt brdr-tp brdr-rght brdr-bttm brdr-lft mrgn-lft-sm mrgn-tp-md">
+                  <fieldset class="gc-chckbxrdio">
+                    <li class="radio mrgn-lft-md">
+                      <input type="radio" p:name="secure:method" jsf:id="sms" jsf:value="sms" id="sms" />
+                      <label for="sms">
+                        <p>
+                          <strong>Message texte</strong>
+                        </p>
+                        <p>
+                          <span class="security-badge btn-warning">Moins sécurisé</span>
+                        </p>
+                        <p>
+                          Recevoir un code de code sécurisé par SMS
+                       </p>
+                      </label>
+                    </li>
+                  </fieldset>
+                </section>
+              </div>
+              </c:if>
+
+              <c:if test="${identity.getWorkingParameter('email-accepted')}">
+                <div class="col-md-4">
+                <section class="hght-inhrt brdr-tp brdr-rght brdr-bttm brdr-lft mrgn-lft-sm mrgn-tp-md">
+                  <fieldset class="gc-chckbxrdio">
+                    <li class="radio mrgn-lft-md">
+                      <input type="radio" p:name="secure:method" jsf:id="email" jsf:value="email" id="email" />
+                      <label for="email">
+                        <p>
+                          <strong>Email</strong>
+                        </p>
+                        <p>
+                          <span class="security-badge btn-danger">Le moins sécurisé</span>
+                        </p>
+                        <p>
+                          Recevoir un code sécurisé par e-mail
+                       </p>
+                      </label>
+                    </li>
+                  </fieldset>
+                </section>
+                </div>
+              </c:if>
+
+          </div>
+          <h:message for="select" errorClass="row alert alert-danger wb-server-error" />
+          <div class="row">
+          <div class="col-md-4 mrgn-tp-md">
+            <button jsf:id="select" id="select" jsf:action="#{authenticator.authenticate}" class="btn btn-default btn-primary pull-right">Continuer</button>
+            <button jsf:id="cancel" id="cancel" jsf:action="#{authenticator.authenticate}" class="btn btn-default pull-left">Annuler</button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+
+  </ui:define>
+</ui:composition>
