@@ -6,7 +6,7 @@
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:f="http://xmlns.jcp.org/jsf/core">
 
-  <f:view locale="#{locale}">
+  <f:view locale="#{locale}-CA">
 
     <head lang="#{view.locale.language}" dir="ltr">
       <ui:include src="/WEB-INF/incl/components/head-#{view.locale.language}.xhtml" />
@@ -25,7 +25,7 @@
 
         <div class="pagedetails">
 
-          <ui:include src="/WEB-INF/incl/components/problem-#{language.localeCode}.xhtml" />
+          <ui:include src="/WEB-INF/incl/components/problem-#{view.locale.language}.xhtml" />
 
           <dl id="wb-dtmd">
             <dt>#{language.localeCode eq "en" ? "Date modified:&#32;" : "Date de modification&#160;:&#32;"}</dt>
@@ -37,7 +37,7 @@
 
       </main>
 
-      <ui:include src="/WEB-INF/incl/components/footer-#{language.localeCode}.xhtml" />
+      <ui:include src="/WEB-INF/incl/components/footer-#{view.locale.language}.xhtml" />
 
     </body>
 
