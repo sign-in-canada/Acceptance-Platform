@@ -3,7 +3,7 @@
 <ui:composition xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
-                template="/WEB-INF/incl/layouts/#{not empty identity.getWorkingParameter('layout') ? identity.getWorkingParameter('layout') : 'Canada'}.xhtml">
+                template="/WEB-INF/incl/layouts/#{not empty identity.getWorkingParameter('layout') ? identity.getWorkingParameter('layout') : 'ATIP'}.xhtml">
 
   <f:metadata>
     <f:viewAction action="#{authenticator.prepareAuthenticationForStep}" />
