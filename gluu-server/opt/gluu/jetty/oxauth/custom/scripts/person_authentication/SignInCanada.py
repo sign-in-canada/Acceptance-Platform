@@ -240,7 +240,6 @@ class PersonAuthentication(PersonAuthenticationType):
                 else:
                     step = self.STEP_1FA
 
-
         if step == self.STEP_ABORT or identity.getWorkingParameter("abort"): # Back button workaround
             # Obtain the client URI of the current client from the client configuration
             if len(self.providers) == 1: # Pass through, so send them back to the client
@@ -253,13 +252,11 @@ class PersonAuthentication(PersonAuthenticationType):
             else: # reset the chooser
                 identity.setWorkingParameter("provider", None)
 
-        if step == self.STEP_CHOOSER:
-            # Prepare for chooser page customization.
-            for param in ["layout", "chooser", "content"]:
-                identity.setWorkingParameter(param, rpConfig[param])
+        # Prepare for page customization.
+        for param in ["layout", "chooser", "content"]:
+            identity.setWorkingParameter(param, rpConfig[param])
 
-        elif step == self.STEP_UPGRADE:
-            identity.setWorkingParameter("content", rpConfig["content"])
+        if step == self.STEP_UPGRADE:
             mfaRegistered = self.account.getMfaMethod(identity.getWorkingParameter("userId"))
             for mfaType in self.mfaMethods:
                 identity.setWorkingParameter(mfaType + "-accepted", mfaType in self.mfaMethods)
@@ -663,6 +660,8 @@ class PersonAuthentication(PersonAuthenticationType):
         # Handle language toggles
         if requestParameters.containsKey("lang"):
             step = self.FORMS.get(ServerUtil.getFirstValue(requestParameters, "lang:step"))
+            return self.gotoStep(step)
+
 
         # Determine the step from the form name (handles back button etc.)
         form = self.getFormName(requestParameters)
