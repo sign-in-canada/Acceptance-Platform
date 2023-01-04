@@ -60,8 +60,6 @@ oxConfigurationProperty: {"value1":"mfa_methods","value2":"totp","hide":false,"d
 oxConfigurationProperty: {"value1":"rp_defaults","value2":"{\"layout\":\"ATIP\",\"chooser\":\"gccf\",\"content\":\"default\",\"mfaProvider\":\"mfa\"}","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"fido2_server_uri","value2":"https://%(hostname)s","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"fido2_domain","value2":"%(hostname)s","hide":false,"description":""}
-oxConfigurationProperty: {"value1":"oob_api_url","value2":"https://api.notification.canada.ca/v2/notifications","hide":false,"description":""}
-oxConfigurationProperty: {"value1":"oob_template_ids","value2":"{\"email-en\":\"f928d9f3-44fd-4e94-9d35-c1d86085f14f\",\"email-fr\":\"f6a3c788-a355-4d02-be16-8d12227fb50b\",\"sms-en\":\"9451caa5-326a-432e-b411-bf605535cee7\",\"sms-fr\":\"f948fccb-a5ef-4d4f-a753-f4f7d9f6a3d3\"}","hide":false,"description":""}
 oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/SignInCanada.py","description":""}
 oxRevision: 1
 oxScript::%(person_authentication_signincanada)s
@@ -85,8 +83,6 @@ oxConfigurationProperty: {"value1":"mfa_methods","value2":"totp","hide":false,"d
 oxConfigurationProperty: {"value1":"rp_defaults","value2":"{\"layout\":\"ATIP\",\"chooser\":\"gccf\",\"content\":\"default\",\"mfaProvider\":\"mfa\"}","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"fido2_server_uri","value2":"https://%(hostname)s","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"fido2_domain","value2":"%(hostname)s","hide":false,"description":""}
-oxConfigurationProperty: {"value1":"oob_api_url","value2":"https://api.notification.canada.ca/v2/notifications","hide":false,"description":""}
-oxConfigurationProperty: {"value1":"oob_template_ids","value2":"{\"email-en\":\"f928d9f3-44fd-4e94-9d35-c1d86085f14f\",\"email-fr\":\"f6a3c788-a355-4d02-be16-8d12227fb50b\",\"sms-en\":\"9451caa5-326a-432e-b411-bf605535cee7\",\"sms-fr\":\"f948fccb-a5ef-4d4f-a753-f4f7d9f6a3d3\"}","hide":false,"description":""}
 oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/SignInCanada.py","description":""}
 oxRevision: 1
 oxScript::%(person_authentication_signincanada)s
@@ -112,6 +108,8 @@ oxConfigurationProperty: {"value1":"fido2_server_uri","value2":"https://%(hostna
 oxConfigurationProperty: {"value1":"fido2_domain","value2":"%(hostname)s","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"oob_api_url","value2":"https://api.notification.canada.ca/v2/notifications","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"oob_template_ids","value2":"{\"email-en\":\"f928d9f3-44fd-4e94-9d35-c1d86085f14f\",\"email-fr\":\"f6a3c788-a355-4d02-be16-8d12227fb50b\",\"sms-en\":\"9451caa5-326a-432e-b411-bf605535cee7\",\"sms-fr\":\"f948fccb-a5ef-4d4f-a753-f4f7d9f6a3d3\"}","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"oob_code_lifetime","value2":"600","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"lockout_threshold","value2":"100","hide":false,"description":""}
 oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/SignInCanada.py","description":""}
 oxRevision: 1
 oxScript::%(person_authentication_signincanada)s
@@ -137,6 +135,8 @@ oxConfigurationProperty: {"value1":"fido2_server_uri","value2":"https://%(hostna
 oxConfigurationProperty: {"value1":"fido2_domain","value2":"%(hostname)s","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"oob_api_url","value2":"https://api.notification.canada.ca/v2/notifications","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"oob_template_ids","value2":"{\"email-en\":\"f928d9f3-44fd-4e94-9d35-c1d86085f14f\",\"email-fr\":\"f6a3c788-a355-4d02-be16-8d12227fb50b\",\"sms-en\":\"9451caa5-326a-432e-b411-bf605535cee7\",\"sms-fr\":\"f948fccb-a5ef-4d4f-a753-f4f7d9f6a3d3\"}","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"oob_code_lifetime","value2":"600","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"lockout_threshold","value2":"100","hide":false,"description":""}
 oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/SignInCanada.py","description":""}
 oxRevision: 1
 oxScript::%(person_authentication_signincanada)s
@@ -162,6 +162,8 @@ oxConfigurationProperty: {"value1":"fido2_server_uri","value2":"https://%(hostna
 oxConfigurationProperty: {"value1":"fido2_domain","value2":"%(hostname)s","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"oob_api_url","value2":"https://api.notification.canada.ca/v2/notifications","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"oob_template_ids","value2":"{\"email-en\":\"f928d9f3-44fd-4e94-9d35-c1d86085f14f\",\"email-fr\":\"f6a3c788-a355-4d02-be16-8d12227fb50b\",\"sms-en\":\"9451caa5-326a-432e-b411-bf605535cee7\",\"sms-fr\":\"f948fccb-a5ef-4d4f-a753-f4f7d9f6a3d3\"}","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"oob_code_lifetime","value2":"600","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"lockout_threshold","value2":"100","hide":false,"description":""}
 oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/SignInCanada.py","description":""}
 oxRevision: 1
 oxScript::%(person_authentication_signincanada)s
@@ -187,6 +189,8 @@ oxConfigurationProperty: {"value1":"fido2_server_uri","value2":"https://%(hostna
 oxConfigurationProperty: {"value1":"fido2_domain","value2":"%(hostname)s","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"oob_api_url","value2":"https://api.notification.canada.ca/v2/notifications","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"oob_template_ids","value2":"{\"email-en\":\"f928d9f3-44fd-4e94-9d35-c1d86085f14f\",\"email-fr\":\"f6a3c788-a355-4d02-be16-8d12227fb50b\",\"sms-en\":\"9451caa5-326a-432e-b411-bf605535cee7\",\"sms-fr\":\"f948fccb-a5ef-4d4f-a753-f4f7d9f6a3d3\"}","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"oob_code_lifetime","value2":"600","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"lockout_threshold","value2":"100","hide":false,"description":""}
 oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/SignInCanada.py","description":""}
 oxRevision: 1
 oxScript::%(person_authentication_signincanada)s
