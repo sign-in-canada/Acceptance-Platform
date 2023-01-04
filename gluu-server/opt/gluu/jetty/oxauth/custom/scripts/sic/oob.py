@@ -74,8 +74,11 @@ class OutOfBand:
         if requestParameters.containsKey("oob:cancel"):
             return False
 
+        userId = identity.getWorkingParameter("userId")
         contact = identity.getWorkingParameter("oobContact")
-        print ("Contact: %s" %contact)
+
+        if (authenticationProtectionService.isEnabled()):
+            authenticationProtectionService.doDelayIfNeeded(userId)
 
         if requestParameters.containsKey("oob:resend"):
             if contact is not None: # Registration
@@ -86,7 +89,7 @@ class OutOfBand:
                 elif mfaMethod == "email":
                     self.SendOneTimeCode(None, contact, None)
             else:
-                self.SendOneTimeCode(identity.getWorkingParameter("userId"))
+                self.SendOneTimeCode(userId)
 
             facesMessages.add("oob:resend", FacesMessage.SEVERITY_INFO, languageBean.getMessage("sic.newCode"))
             return False
@@ -112,11 +115,11 @@ class OutOfBand:
                     self.userService.addUserAttribute(user, "mail", contact)
                 self.userService.updateUser(user)
 
-            return authenticationService.authenticate(identity.getWorkingParameter("userId"))
+            return authenticationService.authenticate(userId)
         else:
-            print ("OOB Wrong for %s" % identity.getWorkingParameter("userId"))
+            print ("OOB Wrong for %s" % userId)
             if (authenticationProtectionService.isEnabled()):
-                authenticationProtectionService.storeAttempt(identity.getWorkingParameter("userId"), False)
+                authenticationProtectionService.storeAttempt(userId, False)
             facesMessages.add("oob:code", FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.invalidCode"))
             return False
 
