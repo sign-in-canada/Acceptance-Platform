@@ -9,11 +9,14 @@ from org.gluu.jsf2.message import FacesMessages
 from org.gluu.oxauth.i18n import LanguageBean
 from org.gluu.util import StringHelper
 from org.gluu.oxauth.service import UserService, AuthenticationService, AuthenticationProtectionService
+from org.gluu.model import GluuStatus
 
 from javax.faces.application import FacesMessage
 
 from java.security import SecureRandom
 from java.time import Instant
+
+from com.microsoft.applicationinsights import TelemetryClient
 
 import sys
 import java
@@ -35,6 +38,18 @@ class OutOfBand:
 
         self.scriptName = scriptName
         print ("OutOfBand. init called from " + self.scriptName)
+
+        self.codeLifetime = 600
+        if configurationAttributes.containsKey("oob_code_lifetime"):
+            self.codeLifetime = StringHelper.toInteger(configurationAttributes.get("oob_code_lifetime").getValue2())
+        print ("OutOfBand. Code lifetime for %s is %s seconds." % (self.scriptName, self.codeLifetime))
+
+        self.lockoutThreshold = 100
+        if configurationAttributes.containsKey("lockout_threshold"):
+            self.lockoutThreshold = StringHelper.toInteger(configurationAttributes.get("lockout_threshold").getValue2())
+        print ("OutOfBand. Lockout threshold fir %s is %s failed attempts." % (self.scriptName, self.lockoutThreshold))
+
+        self.telemetryClient = TelemetryClient()
 
         self.userService=CdiUtil.bean(UserService)
 
@@ -60,7 +75,7 @@ class OutOfBand:
         notifySucessful = self.notify.sendOobSMS(mobile, code) if mobile is not None else self.notify.sendOobEmail(mail, code)
         if notifySucessful:
             identity.setWorkingParameter("oobCode", code)
-            identity.setWorkingParameter("oobExpires", str(Instant.now().getEpochSecond() + 600)) # 10 minutes
+            identity.setWorkingParameter("oobExpires", str(Instant.now().getEpochSecond() + self.codeLifetime))
 
         return notifySucessful
 
@@ -102,17 +117,25 @@ class OutOfBand:
             return False
 
         enteredCode = ServerUtil.getFirstValue(requestParameters, "oob:code")
+        user = self.userService.getUser(userId, "uid", "gluuStatus", "oxCountInvalidLogin")
+
+        if StringHelper.equals(user.getAttribute("gluuStatus"), GluuStatus.INACTIVE.getValue()):
+             facesMessages.add("oob:code", FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.LockedOut"))
+             return False
 
         if enteredCode == identity.getWorkingParameter("oobCode"):
             facesMessages.clear()
             print ("OOB Success for %s" % identity.getWorkingParameter("userId"))
             if contact is not None: # Registration
                 mfaMethod = identity.getWorkingParameter("mfaMethod")
-                user = self.userService.getUser(identity.getWorkingParameter("userId"), "uid")
                 if mfaMethod == "sms":
                     self.userService.addUserAttribute(user, "mobile", contact)
                 elif mfaMethod == "email":
                     self.userService.addUserAttribute(user, "mail", contact)
+                self.userService.updateUser(user)
+
+            if user.getAttribute("oxCountInvalidLogin") is not None:
+                user.setAttribute("oxCountInvalidLogin", "0")
                 self.userService.updateUser(user)
 
             return authenticationService.authenticate(userId)
@@ -120,7 +143,21 @@ class OutOfBand:
             print ("OOB Wrong for %s" % userId)
             if (authenticationProtectionService.isEnabled()):
                 authenticationProtectionService.storeAttempt(userId, False)
-            facesMessages.add("oob:code", FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.invalidCode"))
+
+            user = self.userService.getUser(userId, "uid", "gluuStatus", "oxCountInvalidLogin")
+            attempts = StringHelper.toInteger(user.getAttribute("oxCountInvalidLogin"), 0)
+            attempts += 1
+            user.setAttribute("oxCountInvalidLogin", StringHelper.toString(attempts))
+            if attempts >= self.lockoutThreshold:
+                self.telemetryClient.trackEvent("Account Locked",
+                                                    {"cause": "Too many failed OOB attempts",
+                                                     "user": userId}, None)
+                user.setAttribute("gluuStatus", GluuStatus.INACTIVE.getValue())
+                facesMessages.add("oob:code", FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.LockedOut"))    
+            else:
+                facesMessages.add("oob:code", FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.invalidCode"))
+            self.userService.updateUser(user)
+
             return False
 
     def RegisterOutOfBand(self, requestParameters):
