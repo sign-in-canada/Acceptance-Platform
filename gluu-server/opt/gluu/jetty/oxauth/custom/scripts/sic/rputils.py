@@ -1,7 +1,7 @@
 ### Client Config Utilities
 
 from org.gluu.service.cdi.util import CdiUtil
-from org.gluu.service import CacheService
+from org.gluu.service import LocalCacheService
 from org.gluu.oxauth.service import ClientService
 from org.gluu.oxauth.model.authorize import AuthorizeRequestParam
 
@@ -45,7 +45,7 @@ class RPUtils:
 
     def getRPConfig(self, session):
         clientService = CdiUtil.bean(ClientService)
-        cacheService = CdiUtil.bean(CacheService)
+        cacheService = CdiUtil.bean(LocalCacheService)
         client = self.getClient(session)
 
         # check the cache
