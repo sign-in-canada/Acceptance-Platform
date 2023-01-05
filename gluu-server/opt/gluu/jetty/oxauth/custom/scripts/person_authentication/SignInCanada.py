@@ -264,7 +264,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 if mfaRegistered == mfaType: # Don't allow downgrading methods
                     break
 
-        elif step in {self.STEP_1FA, self.STEP_COLLECT, self.STEP_TOTP_REGISTER, self.STEP_TOTP}: # Passport
+        if step in {self.STEP_1FA, self.STEP_COLLECT, self.STEP_TOTP_REGISTER, self.STEP_TOTP}: # Passport
             
             passportOptions = {"ui_locales": uiLocales, "exp" : int(time.time()) + 60}
 
