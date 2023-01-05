@@ -103,6 +103,7 @@ class PersonAuthentication(PersonAuthenticationType):
              "assertionResponse": STEP_FIDO,
              "secure": STEP_UPGRADE,
              "register_oob":  STEP_OOB_REGISTER,
+             "register_wa":  STEP_FIDO_REGISTER,
              "attestationResponse": STEP_FIDO_REGISTER,
              "result" : STEP_RESULT
         }
@@ -315,6 +316,11 @@ class PersonAuthentication(PersonAuthenticationType):
         elif step == self.STEP_OOB and identity.getWorkingParameter("oobCode") is None:
             self.oob.SendOneTimeCode(identity.getWorkingParameter("userId"))
 
+        elif step == self.STEP_FIDO:
+            userId = identity.getWorkingParameter("userId")
+            assertionRequest = self.fido.generateAssertionRequest(userId)
+            identity.setWorkingParameter("assertion_request", assertionRequest)
+
         elif step == self.STEP_FIDO_REGISTER:
             userId = identity.getWorkingParameter("userId")
             attestationRequest = self.fido.generateAttestationRequest(userId)
@@ -402,7 +408,7 @@ class PersonAuthentication(PersonAuthenticationType):
             if attestationResponse:
                 return self.fido.registerFido2(attestationResponse)
             else:
-                self.account.delete(identity.getWorkingParameter("userId"))
+                # self.account.delete(identity.getWorkingParameter("userId"))
                 return False
 
         elif requestParameters.containsKey("assertionResponse"):
@@ -430,7 +436,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 facesMessages.add("secure:select", FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.pleaseChoose"))
                 return False
 
-        elif requestParameters.containsKey("navigate"):
+        elif requestParameters.containsKey("result:continue"):
             print ("%s: Navigate to: %s." % (self.name, self.getFormButton(requestParameters)))
 
         else: # Invalid response
@@ -767,7 +773,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
             target = ServerUtil.getFirstValue(requestParameters, "secure:method")
             if target == "fido":
-                return self.gotoStep(self.STEP_REGISTER)
+                return self.gotoStep(self.STEP_FIDO_REGISTER)
             elif target == "totp":
                 return self.gotoStep(self.STEP_TOTP_REGISTER)
             elif target in {"email", "sms"}:

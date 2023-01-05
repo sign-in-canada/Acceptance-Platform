@@ -18,17 +18,21 @@ async function generateAssertionRequest(options) {
   }
 }
 
-async function performModalAuth() {
+async function performModalAuth(request) {
+  console.log('Model Auth')
+  console.log(request)
   if (abortController) {
     abortController.abort();
     }
-  username = document.getElementById('username').value || 'fidodiscoverer'
-  options = {
-    username: username,
-    userVerification: 'required'
-  };
-  console.log('Options:', options)
-  request = await generateAssertionRequest(options);
+  if (!request) {
+    username = 'fidodiscoverer'
+    options = {
+      username: username,
+      userVerification: 'required'
+    };
+    console.log('Options:', options)
+    request = await generateAssertionRequest(options);
+  }
   console.log(JSON.stringify(request));
   if (request) {
     try {
@@ -43,60 +47,19 @@ async function performModalAuth() {
   }
 }
 
-addEventListener('DOMContentLoaded', async (event) => {
-  if (!PublicKeyCredential) {
-    document.getElementById('roaming').classList.replace('show', 'hidden');
-    document.getElementById('nearby').classList.replace('show', 'hidden');
-  }
-  else {
-    if (PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable &&
-        await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()) {
-        document.getElementById('passkey').classList.replace('hidden', 'show');
-      }
+passkeyButton = document.getElementById('passkey')
+assertionRequest = document.getElementById('assertionRequest');
+console.log(assertionRequest);
+if (passkeyButton) {
+  passkeyButton.addEventListener('click', async event => {
+    event.preventDefault();
+    await performModalAuth();
+  })
+} else if (assertionRequest){
+  console.log("server side")
+  console.log(assertionRequest.value)
+  request = JSON.parse(assertionRequest.value.replace(/\\"/g, '"').replace(/(^"|"$)/g, ''));
+  console.log(request);
+  performModalAuth(request);
+}
 
-    if (false && PublicKeyCredential.isConditionalMediationAvailable) {
-      if (await PublicKeyCredential.isConditionalMediationAvailable()) {
-        console.log('Conditional mediation is available')
-        document.getElementById('passkey').classList.replace('hidden', 'show');
-        options = {
-          username: 'fidodiscoverer',
-          userVerification: 'required'
-        };
-        request = await generateAssertionRequest(options);
-        delete request.allowCredentials;
-        abortController = new AbortController();
-        abortSignal = abortController.signal;
-        try {
-          assertion = await webauthn.getAssertion(request, true, abortSignal);
-          if (assertion) {
-            document.getElementById('assertionResponse').value = JSON.stringify(webauthn.responseToObject(assertion));
-            document.getElementById('fido2').submit();
-          }
-        } catch (error) {
-          console.log("Conditional authentication aborted")
-        }
-      }
-    }
-  }
-})
- 
-  document.getElementById('chooser').addEventListener('submit', event => {
-    if (abortController) {
-      abortController.abort();
-      }
-    })
-
-document.getElementById('passkey').addEventListener('click', async event => {
-  event.preventDefault();
-  await performModalAuth();
-})
-
-document.getElementById('nearby').addEventListener('click', async event => {
-  event.preventDefault();
-  await performModalAuth();
-})
-
-document.getElementById('signin').addEventListener('click', async (event) => {
-  event.preventDefault();
-  await performModalAuth();
-})
