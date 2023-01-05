@@ -723,17 +723,25 @@ class PersonAuthentication(PersonAuthenticationType):
         if step in {self.STEP_1FA, self.STEP_COLLECT}:
             if self.mfaMethods is not None:
                 mfaMethodRegistered = self.account.getMfaMethod(identity.getWorkingParameter("userId"))
-                identity.setWorkingParameter("mfaMethod", mfaMethodRegistered)
                 if mfaMethodRegistered is None or mfaMethodRegistered not in self.mfaMethods:
-                    return self.gotoStep(self.STEP_UPGRADE)
-                elif mfaMethodRegistered == "fido":
-                    return self.gotoStep(self.STEP_FIDO)
-                elif mfaMethodRegistered == "totp":
-                    return self.gotoStep(self.STEP_TOTP)
-                elif mfaMethodRegistered == "sms":
-                    return self.gotoStep(self.STEP_OOB)
-                elif mfaMethodRegistered =="email":
-                    return self.gotoStep(self.STEP_OOB)
+                    if len(self.mfaMethods) > 1:
+                        return self.gotoStep(self.STEP_UPGRADE)
+                    elif self.mfaMethods[0] == "fido":
+                        return self.gotoStep(self.STEP_FIDO_REGISTER)
+                    elif self.mfaMethods[0] == "totp":
+                        return self.gotoStep(self.STEP_TOTP_REGISTER)
+                    elif self.mfaMethods[0] in {"sms", "email"}:
+                        return self.gotoStep(self.STEP_OOB_REGISTER)
+                else:
+                    identity.setWorkingParameter("mfaMethod", mfaMethodRegistered)
+                    if mfaMethodRegistered == "fido":
+                        return self.gotoStep(self.STEP_FIDO)
+                    elif mfaMethodRegistered == "totp":
+                        return self.gotoStep(self.STEP_TOTP)
+                    elif mfaMethodRegistered == "sms":
+                        return self.gotoStep(self.STEP_OOB)
+                    elif mfaMethodRegistered =="email":
+                        return self.gotoStep(self.STEP_OOB)
 
         if step == self.STEP_OOB:
             if requestParameters.containsKey("oob:cancel"):
