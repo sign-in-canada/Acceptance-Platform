@@ -257,7 +257,7 @@ class PersonAuthentication(PersonAuthenticationType):
         for param in ["layout", "chooser", "content"]:
             identity.setWorkingParameter(param, rpConfig[param])
 
-        if step == self.STEP_UPGRADE:
+        if identity.getWorkingParameter("userId") is not None and len(self.mfaMethods) > 1:
             mfaRegistered = self.account.getMfaMethod(identity.getWorkingParameter("userId"))
             for mfaType in self.mfaMethods:
                 identity.setWorkingParameter(mfaType + "-accepted", mfaType in self.mfaMethods)
