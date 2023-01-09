@@ -56,33 +56,43 @@
           <p>Think of it like a locked door that can only be opened with both a key and a secret code. Someone pretending to be you on the internet should never be able to get both the key and the code.</p>
         </section>
       </details>
+
       <h2>Choose an option:</h2>
       <form jsf:id="secure" jsf:action="#{authenticator.authenticate}" class="form">
         <div class="row wb-eqht">
               <c:if test="${identity.getWorkingParameter('fido-accepted')}">
-                <div class="col-md-12">
-                <section class="hght-inhrt brdr-tp brdr-rght brdr-bttm brdr-lft mrgn-lft-sm mrgn-tp-md">
-                  <fieldset class="radio-boxes">
+              <div class="col-md-12">
+                <section class="hght-inhrt mrgn-lft-sm mrgn-tp-md radio-boxes">
+                  <fieldset class="gc-chckbxrdio">
                     <ul class="list-unstyled lst-spcd-2">
-                      <li class="radio mrgn-lft-md">
+                    <li class="radio mrgn-lft-md">
                       <input type="radio" p:name="secure:method" jsf:id="fido" jsf:value="fido" id="fido" class="radio mrgn-lft-md"/>
                       <label for="fido">
-                        <p>
-                          <strong>Passkey</strong>
-                        </p>
-                        <p>
-                          <span class="security-badge most-secure btn-success">Most secure</span>
-                        </p>
-                        <p>
-                        Register a passkey on your device
-                       </p>
+                        <div class="row">
+                          <div class="col-xs-11 col-md-7">
+                            <p>
+                              <strong>Passkey</strong>
+                            </p>
+                            <p>
+                              <span class="security-badge-mobile most-secure visible-xs visible-sm hidden-md hidden-lg"><img src="\oxauth\ext\resources\assets\lock-icon.png" alt="closed padlock" class="lock-icon"/>Most secure</span>
+                            </p>
+                            <p class="radio-box-description">
+                              Register a passkey on your device
+                            </p>
+                          </div>
+                          <div class="col-md-3 col-md-offset-1">
+                            <p> 
+                              <span class="security-badge-desktop most-secure hidden-sm visible-md visible-lg" style="margin-top:30%;"><img src="\oxauth\ext\resources\assets\lock-icon.png" alt="icon of a closed lock" class="lock-icon"/>Most secure</span>
+                            </p>
+                          </div>
+                        </div>
                       </label>
-                      </li>
-                      </ul>
+                    </li>
+                  </ul>
                   </fieldset>
                 </section>
               </div>
-              </c:if>
+            </c:if>
 
               <c:if test="${identity.getWorkingParameter('totp-accepted')}">
                 <div class="col-md-12">
