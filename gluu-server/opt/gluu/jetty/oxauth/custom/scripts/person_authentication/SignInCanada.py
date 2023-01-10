@@ -662,18 +662,7 @@ class PersonAuthentication(PersonAuthenticationType):
         originalStep = step
         print ("Gluu step: %s" % originalStep)
 
-        # Handle language toggles
-        if requestParameters.containsKey("lang"):
-            step = self.FORMS.get(ServerUtil.getFirstValue(requestParameters, "lang:step"))
-            return self.gotoStep(step)
-
-        # Determine the step from the form name (handles back button etc.)
         form = self.getFormName(requestParameters)
-        if form in self.FORMS:
-            step = self.FORMS.get(form)
-
-        print ("Step %s, Form %s" % (step, form))
-
         if step == 1:
              # Determine if SPLASH, CHOOSER, or 1FA
             if requestParameters.containsKey("lang"):
@@ -682,6 +671,12 @@ class PersonAuthentication(PersonAuthenticationType):
                 step = self.STEP_CHOOSER
             elif requestParameters.containsKey("user") or requestParameters.containsKey("failure"):
                 step = self.STEP_1FA
+        else:
+            # Determine the step from the form name (handles back button etc.)
+            if form in self.FORMS:
+                step = self.FORMS.get(form)
+
+        print ("Step %s, Form %s" % (step, form))
 
         if requestParameters.containsKey("navigate"):
             target = self.getFormButton(requestParameters)
@@ -829,6 +824,10 @@ class PersonAuthentication(PersonAuthenticationType):
                 else:
                     return self.gotoStep(self.STEP_CHOOSER)
 
+        # Handle language toggles
+        if requestParameters.containsKey("lang"):
+            step = self.FORMS.get(ServerUtil.getFirstValue(requestParameters, "lang:step"))
+            return self.gotoStep(step)
 
         # if we get this far we're done
         identity.setWorkingParameter("stepCount", originalStep)
