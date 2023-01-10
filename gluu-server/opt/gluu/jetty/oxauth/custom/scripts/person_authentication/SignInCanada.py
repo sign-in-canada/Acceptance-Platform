@@ -216,6 +216,7 @@ class PersonAuthentication(PersonAuthenticationType):
         # externalContext.addResponseHeader("Content-Security-Policy", "default-src 'self' https://www.canada.ca; font-src 'self' https://fonts.gstatic.com https://use.fontawesome.com https://www.canada.ca; style-src 'self' 'unsafe-inline'; style-src-elem 'self' 'unsafe-inline' https://use.fontawesome.com https://fonts.googleapis.com https://www.canada.ca; script-src 'self' 'unsafe-inline' https://www.canada.ca https://ajax.googleapis.com; connect-src 'self' https://*.fjgc-gccf.gc.ca")
 
         print ("Preparing for step %s" % step)
+        print ("View ID: %s" % facesResources.getFacesContext().getViewRoot().getViewId())
 
         if step == 1:
             externalContext = facesResources.getExternalContext()
@@ -259,7 +260,7 @@ class PersonAuthentication(PersonAuthenticationType):
             identity.setWorkingParameter(param, rpConfig[param])
 
         if identity.getWorkingParameter("userId") is not None and len(self.mfaMethods) > 1:
-            mfaRegistered = self.account.getMfaMethod(identity.getWorkingParameter("userId"))
+            mfaRegistered = identity.getWorkingParameter("mfaMethod")
             for mfaType in self.mfaMethods:
                 identity.setWorkingParameter(mfaType + "-accepted", mfaType in self.mfaMethods)
                 if mfaRegistered == mfaType: # Don't allow downgrading methods
@@ -502,8 +503,10 @@ class PersonAuthentication(PersonAuthenticationType):
                 user = self.account.create(externalProfile)
                 newUser = True
             else:
+                identity.setWorkingParameter("mfaMethod", self.account.getMfaMethod(user))
                 newUser = False
                 userChanged = False
+
             identity.setWorkingParameter("userId", user.getUserId())
 
             # Update the preferred language if it has changed
@@ -721,7 +724,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
         if step in {self.STEP_1FA, self.STEP_COLLECT}:
             if self.mfaMethods is not None:
-                mfaMethodRegistered = self.account.getMfaMethod(identity.getWorkingParameter("userId"))
+                mfaMethodRegistered = identity.getWorkingParameter("mfaMethod")
                 if mfaMethodRegistered is None or mfaMethodRegistered not in self.mfaMethods:
                     if len(self.mfaMethods) > 1:
                         return self.gotoStep(self.STEP_UPGRADE)
