@@ -365,6 +365,12 @@ class PersonAuthentication(PersonAuthenticationType):
                     userService.updateUser(user)
                 if self.getNextStep(configurationAttributes, requestParameters, step) < 0:
                     return authenticationService.authenticate(identity.getWorkingParameter("userId"))
+            elif step == self.STEP_TOTP_REGISTER: 
+                user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "oxExternalUid")
+                self.account.removeExternalUid(user, "mfa", identity.getWorkingParameter("mfaId"))
+                userService.updateUser(user)
+                identity.setWorkingParameter("mfaId", None)
+                return False
             elif step == self.STEP_TOTP: # 2FA Failed. Redirect back to the RP
                 return False
             else:
@@ -800,10 +806,6 @@ class PersonAuthentication(PersonAuthenticationType):
 
         if step == self.STEP_TOTP_REGISTER:
             if requestParameters.containsKey("failure"): # User cancelled
-                user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "oxExternalUid")
-                self.account.removeExternalUid(user, "mfa", identity.getWorkingParameter("mfaId"))
-                userService.updateUser(user)
-                identity.setWorkingParameter("mfaId", None)
                 if len(self.mfaMethods) == 1:
                     if len(self.providers) == 1:
                         return self.gotoStep(self.STEP_ABORT)
