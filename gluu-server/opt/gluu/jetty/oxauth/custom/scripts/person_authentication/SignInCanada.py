@@ -208,7 +208,6 @@ class PersonAuthentication(PersonAuthenticationType):
         
         session = identity.getSessionId()
         sessionAttributes = session.getSessionAttributes()
-        externalContext = facesResources.getFacesContext().getExternalContext()
         uiLocales = sessionAttributes.get(AuthorizeRequestParam.UI_LOCALES)
 
         rpConfig = self.rputils.getRPConfig(session)
@@ -219,9 +218,10 @@ class PersonAuthentication(PersonAuthenticationType):
         print ("Preparing for step %s" % step)
 
         if step == 1:
-            httpRequest = externalContext.getRequest()
+            externalContext = facesResources.getExternalContext()
             # Bookmark detection
-            if httpRequest.getHeader("referer") is None and not rpConfig.get("allowBookmarks"):
+            cookies = externalContext.getRequestCookieMap()
+            if not cookies.containsKey("bmd") and not rpConfig.get("allowBookmarks"):
                 if StringHelper.isNotEmpty(clientUri):
                     facesService.redirectToExternalURL(clientUri)
                     return True
@@ -230,6 +230,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     return False
 
             # forceAuthn workaround
+            httpRequest = externalContext.getRequest()
             prompt2 = httpRequest.getParameter("prompt2")
             if prompt2 == "login":
                 identity.setWorkingParameter("forceAuthn", True)
@@ -334,7 +335,6 @@ class PersonAuthentication(PersonAuthenticationType):
             pydevd.settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
 
         # Inject dependencies
-        facesService = CdiUtil.bean(FacesService)
         identity = CdiUtil.bean(Identity)
         languageBean = CdiUtil.bean(LanguageBean)
         userService = CdiUtil.bean(UserService)
@@ -592,8 +592,7 @@ class PersonAuthentication(PersonAuthenticationType):
         # Check for ui_locales
         uiLocales = None
         if session is None: # No session yet
-            facesContext = facesResources.getFacesContext()
-            httpRequest = facesContext.getCurrentInstance().getExternalContext().getRequest()
+            httpRequest = facesResources.getExternalContext().getRequest()
             uiLocales = httpRequest.getParameter(AuthorizeRequestParam.UI_LOCALES)
         else:
             # Session exists.
@@ -667,7 +666,6 @@ class PersonAuthentication(PersonAuthenticationType):
         if requestParameters.containsKey("lang"):
             step = self.FORMS.get(ServerUtil.getFirstValue(requestParameters, "lang:step"))
             return self.gotoStep(step)
-
 
         # Determine the step from the form name (handles back button etc.)
         form = self.getFormName(requestParameters)
