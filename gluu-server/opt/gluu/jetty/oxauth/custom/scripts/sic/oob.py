@@ -5,6 +5,7 @@
 from org.gluu.service.cdi.util import CdiUtil
 from org.gluu.oxauth.security import Identity
 from org.gluu.oxauth.util import ServerUtil
+from org.gluu.jsf2.service import FacesResources
 from org.gluu.jsf2.message import FacesMessages
 from org.gluu.oxauth.i18n import LanguageBean
 from org.gluu.util import StringHelper
@@ -82,7 +83,6 @@ class OutOfBand:
     def AuthenticateOutOfBand(self, requestParameters):
         identity = CdiUtil.bean(Identity)
         facesMessages = CdiUtil.bean(FacesMessages)
-        languageBean = CdiUtil.bean(LanguageBean)
         authenticationService = CdiUtil.bean(AuthenticationService)
         authenticationProtectionService = CdiUtil.bean(AuthenticationProtectionService)
 
@@ -105,22 +105,21 @@ class OutOfBand:
                     self.SendOneTimeCode(None, contact, None)
             else:
                 self.SendOneTimeCode(userId)
-
-            facesMessages.add("oob:resend", FacesMessage.SEVERITY_INFO, languageBean.getMessage("sic.newCode"))
+            addMessage("oob:resend", FacesMessage.SEVERITY_INFO, "sic.newCode")
             return False
 
         expires = int(identity.getWorkingParameter("oobExpires"))
         if expires < Instant.now().getEpochSecond():
             print ("OOB Expired for %s" % identity.getWorkingParameter("userId"))
-            facesMessages.add("oob:code", FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.expiredCode"))
-            facesMessages.add("oob:resend", FacesMessage.SEVERITY_INFO, languageBean.getMessage("sic.newCode"))
+            addMessage("oob:code", FacesMessage.SEVERITY_ERROR, "sic.expiredCode")
+            addMessage("oob:resend", FacesMessage.SEVERITY_INFO, "sic.newCode")
             return False
 
         enteredCode = ServerUtil.getFirstValue(requestParameters, "oob:code")
         user = self.userService.getUser(userId, "uid", "gluuStatus", "oxCountInvalidLogin")
 
         if StringHelper.equals(user.getAttribute("gluuStatus"), GluuStatus.INACTIVE.getValue()):
-             facesMessages.add("oob:code", FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.LockedOut"))
+             addMessage("oob:code", FacesMessage.SEVERITY_ERROR, "sic.lockedOut")
              return False
 
         if enteredCode == identity.getWorkingParameter("oobCode"):
@@ -153,9 +152,9 @@ class OutOfBand:
                                                     {"cause": "Too many failed OOB attempts",
                                                      "user": userId}, None)
                 user.setAttribute("gluuStatus", GluuStatus.INACTIVE.getValue())
-                facesMessages.add("oob:code", FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.LockedOut"))    
+                addMessage("oob:code", FacesMessage.SEVERITY_ERROR, "sic.lockedOut")
             else:
-                facesMessages.add("oob:code", FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.invalidCode"))
+                addMessage("oob:code", FacesMessage.SEVERITY_ERROR, "sic.invalidCode")
             self.userService.updateUser(user)
 
             return False
@@ -163,20 +162,20 @@ class OutOfBand:
     def RegisterOutOfBand(self, requestParameters):
         identity = CdiUtil.bean(Identity)
         facesMessages = CdiUtil.bean(FacesMessages)
-        languageBean = CdiUtil.bean(LanguageBean)
 
         mobile = ServerUtil.getFirstValue(requestParameters, "register_oob:mobile")
         mail = ServerUtil.getFirstValue(requestParameters, "register_oob:email")
 
         if StringHelper.isEmpty(mobile) and StringHelper.isEmpty(mail):
-            facesMessages.add(FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.pleaseEnter"))
+            addMessage("register_oob:mobile", FacesMessage.SEVERITY_ERROR, "sic.pleaseEnter")
+            addMessage("register_oob:email", FacesMessage.SEVERITY_ERROR, "sic.pleaseEnter")
             return False
 
         if not self.SendOneTimeCode(None, mail, mobile):
             if StringHelper.isNotEmpty(mobile):
-                facesMessages.add("register_oob:mobile", FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.badPhone"))
+                addMessage("register_oob:mobile", FacesMessage.SEVERITY_ERROR, "sic.badPhone")
             else:
-                facesMessages.add("register_oob:email", FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.badEmail"))
+                addMessage("register_oob:email", FacesMessage.SEVERITY_ERROR, "sic.badEmail")
             return False
         else:
             facesMessages.clear()
@@ -186,3 +185,13 @@ class OutOfBand:
             if mail is not None:
                 identity.setWorkingParameter("oobContact", mail)
             return True
+
+def addMessage(uiControl, severity, msgId):
+    languageBean = CdiUtil.bean(LanguageBean)
+    facesResources = CdiUtil.bean(FacesResources)
+    facesContext = facesResources.getFacesContext()
+    externalContext = facesResources.getExternalContext()
+    msgText = languageBean.getMessage(msgId)
+    message = FacesMessage(severity, msgText, msgText)
+    facesContext.addMessage(uiControl, message)
+    externalContext.getFlash().setKeepMessages(True)

@@ -340,7 +340,6 @@ class PersonAuthentication(PersonAuthenticationType):
         languageBean = CdiUtil.bean(LanguageBean)
         userService = CdiUtil.bean(UserService)
         authenticationService = CdiUtil.bean(AuthenticationService)
-        facesMessages = CdiUtil.bean(FacesMessages)
 
         session = identity.getSessionId()
         sessionAttributes = session.getSessionAttributes()
@@ -440,7 +439,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     print ("%s: Invalid MFA method choice: %s." % (self.name, method))
                     return False
             else:
-                facesMessages.add("secure:select", FacesMessage.SEVERITY_ERROR, languageBean.getMessage("sic.pleaseChoose"))
+                addMessage("secure:select", FacesMessage.SEVERITY_ERROR, "sic.pleaseChoose")
                 return False
 
         elif requestParameters.containsKey("result:continue"):
@@ -852,3 +851,14 @@ class PersonAuthentication(PersonAuthenticationType):
             if start > -1:
                 return parameter[start + 1:]
         return None
+
+def addMessage(uiControl, severity, msgId):
+    languageBean = CdiUtil.bean(LanguageBean)
+    facesResources = CdiUtil.bean(FacesResources)
+    facesContext = facesResources.getFacesContext()
+    externalContext = facesResources.getExternalContext()
+    msgText = languageBean.getMessage(msgId)
+    message = FacesMessage(severity, msgText, msgText)
+    facesContext.addMessage(uiControl, message)
+    externalContext.getFlash().setKeepMessages(True)
+
