@@ -66,24 +66,28 @@
         </div>
         <div class="wb-frmvld">
           <form jsf:id="oob" jsf:action="#{authenticator.authenticate}" class="form">
-            <c:if test="${identity.getWorkingParameter('mfaMethod') == 'email'}">
-              <div class="text-center visible-xs hidden-sm hidden-m hidden-lg">
+            <c:if test="${facesContext.getMessageList('oob:resend').size() gt 0}">
+              <div class="alert alert-success">
+                <p>
+                  <h:message for="resend"/>
+                </p>
+              </div>
+            </c:if>
+            <div class="text-center visible-xs hidden-sm hidden-m hidden-lg">
+              <c:if test="${identity.getWorkingParameter('mfaMethod') == 'email'}">
                 <img src="\oxauth\ext\resources\assets\email-graphic-open.png" alt="an open envelope with a piece of paper that has six asterisks on it" class="mrgn-bttm-lg mfa-input-image-mobile"/>
-              </div>
-            </c:if>
-            <c:if test="${identity.getWorkingParameter('mfaMethod') == 'sms'}">
-              <div class="text-center visible-xs hidden-sm hidden-m hidden-lg">
+              </c:if>
+              <c:if test="${identity.getWorkingParameter('mfaMethod') == 'sms'}">
                 <img src="\oxauth\ext\resources\assets\text-message-graphic.png" alt="a mobile phone with a speech bubble that has six asterisks on it" class="mrgn-bttm-lg mfa-input-image-mobile"/>
-              </div>
-            </c:if>
+              </c:if>
+            </div>
             <div class="row form-group mrg-tp-md">
-              <label for="code" class="required mrgn-bttm-md">
+              <label for="code" class="mrgn-bttm-md ${facesContext.getMessageList('oob:code').size() gt 0 ? 'text-danger' : ''}">
                 Enter the 6-digit
                 <span class="field-name">code</span> we
                  #{identity.getWorkingParameter('mfaMethod') == 'email' ? 'emailed' : 'texted'} you
               </label>
-              <h:message for="code" errorClass="list-unstyled label label-danger"/>
-              <h:message for="resend" infoClass="list-unstyled label label-success"/>
+              <h:message for="code" errorClass="label label-danger wb-server-error"/>
               <input id="code" jsf:id="code" type="text" audocomplete="one-time-code" inputmode="numeric" data-rule-digits="true" data-rule-minlength="6" data-rule-maxlength="6" class="form-control mfa-input" />
             </div>
             <div class="row">

@@ -194,9 +194,20 @@
                 </div>
               </c:if>
 
+              <c:if test="${facesContext.getMessageList('secure:select').size() gt 0}">
+                <div class="col-md-12">
+                  <section class="hght-inhrt mrgn-lft-sm mrgn-tp-md">
+                    <div class="label label-danger wb-server-error">
+                      <p>
+                        <h:message for="select"/>
+                      </p>
+                    </div>
+                  </section>
+                </div>
+              </c:if>
           </div>
+          
           <div class="row mrgn-tp-lg">
-            <h:message for="select" errorClass="row alert wb-server-error alert-danger"/>
             <div class="col-xs-12 col-sm-4 col-md-2 col-md-offset-10">
               <button jsf:id="select" id="select" jsf:action="#{authenticator.authenticate}">Continue</button>
           </div>

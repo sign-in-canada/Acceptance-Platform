@@ -69,13 +69,13 @@
                     <img src="\oxauth\ext\resources\assets\email-graphic-closed.png" alt="closed envelope" class="mrgn-bttm-lg mfa-input-image-mobile"/>
                   </div>
                   <div class="form-group mrgn-tp-md">
-                    <h:message for="email" errorClass="list-unstyled label label-danger wb-server-error" layout="table" />
-                    <label for="email" class="required mrgn-bttm-md">
+                    <label for="email" class="mrgn-bttm-md ${facesContext.getMessageList('register_oob:email').size() gt 0 ? 'text-danger' : ''}">
                       Enter the
                       <span class="field-name">email address</span> 
                       you want to use for authentication
                     </label>
                     <input jsf:id="email" id="email" type="email" autocomplete="email" class="form-control mfa-input" />
+                    <h:messages for="email" styleClass="list-unstyled" errorClass="label label-danger wb-server-error" layout="list" />
                   </div>
                 </c:if>
                 <c:if test="${identity.getWorkingParameter('mfaMethod') == 'sms'}">
@@ -83,13 +83,13 @@
                     <img src="\oxauth\ext\resources\assets\keypad-graphic.png" alt="keypad with the numbers 1 through 9" class="mrgn-bttm-lg mfa-input-image-mobile"/>
                   </div>
                   <div class="form-group mrgn-tp-md">
-                    <h:message for="mobile" errorClass="list-unstyled label label-danger wb-server-error" layout="table" />
-                    <label for="mobile" class="required mrgn-bttm-md">
+                    <label for="mobile" class="mrgn-bttm-md ${facesContext.getMessageList('register_oob:mobile').size() gt 0 ? 'text-danger' : ''}">
                       Enter the
                       <span class="field-name">mobile phone number</span>
                       you want to use for authentication
                     </label>
                     <input jsf:id="mobile" id="mobile" type="tel" class="form-control mfa-input" autocomplete="tel"/>
+                    <h:messages for="mobile" styleClass="list-unstyled" errorClass="label label-danger wb-server-error" layout="list" />
                   </div>
                 </c:if>
                 <div class="col-xs-12 col-sm-4 col-md-4 mrgn-tp-md" style="padding: 0px;">
