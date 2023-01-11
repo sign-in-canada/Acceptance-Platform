@@ -96,8 +96,7 @@ class PersonAuthentication(PersonAuthenticationType):
         }
 
     # MAP of form IDs to steps
-    FORMS = {"lang": STEP_SPLASH,
-             "chooser": STEP_CHOOSER,
+    FORMS = {"chooser": STEP_CHOOSER,
              "register": STEP_REGISTER,
              "oob": STEP_OOB,
              "assertionResponse": STEP_FIDO,
