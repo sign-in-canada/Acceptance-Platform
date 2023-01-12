@@ -13,7 +13,7 @@
     <f:viewAction action="#{language.setLocaleCode('fr')}" />
   </f:metadata>
 
-  <ui:param name="title" value="Make your account more secure" />
+  <ui:param name="title" value="Rendez votre compte plus sécuritaire" />
   <ui:param name="step" value="secure" />
   <ui:param name="locale" value="fr" />
 
@@ -42,22 +42,26 @@
 
   <ui:define name="content">
     <div class="container">
-      <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Make your account more secure</h1>
+      <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Rendez votre compte plus sécuritaire</h1>
       <p>
         #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}
-        requires a second factor
+        vous demande de créer un deuxième facteur
         <c:if test="${not empty identity.getWorkingParameter('mfaMethod')}">that is stronger than the one you previously set up, </c:if>
-        to make your account more secure.
+        .
       </p>
       <details>
-        <summary tabindex="0" role="button" aria-expanded="false" class="learn-more">Learn more about two-factor authentication</summary>
+        <summary tabindex="0" role="button" aria-expanded="false" class="learn-more">Pour en savoir plus sur l’authentification à deux facteurs</summary>
         <section>
-          <p>Two-factor authentication confirms it’s really you signing into your account.</p>
-          <p>Think of it like a locked door that can only be opened with both a key and a secret code. Someone pretending to be you on the internet should never be able to get both the key and the code.</p>
+          <p>L’authentification à deux facteurs confirme que c’est vraiment vous
+          qui tentez d’accéder à votre compte.</p>
+          <p>Imaginez que c’est une porte verrouillée et qu’il faut une clef et
+          un code secret pour l’ouvrir. Quelqu’un qui essaye de se faire passer
+          pour vous dans Internet n’arrivera probablement jamais à obtenir et
+          votre clef et votre code.</p>
         </section>
       </details>
 
-      <h2>Choose an option:</h2>
+      <h2>Choisissez une option :</h2>
       <form jsf:id="secure" jsf:action="#{authenticator.authenticate}" class="form">
         <div class="row wb-eqht">
               <c:if test="${identity.getWorkingParameter('fido-accepted')}">
@@ -74,7 +78,7 @@
                               <strong>Passkey</strong>
                             </p>
                             <p>
-                              <span class="security-badge-mobile most-secure visible-xs visible-sm hidden-md hidden-lg"><img src="\oxauth\ext\resources\assets\lock-icon.png" alt="closed padlock" class="lock-icon"/>Most secure</span>
+                              <span class="security-badge-mobile most-secure visible-xs visible-sm hidden-md hidden-lg"><img src="\oxauth\ext\resources\assets\lock-icon.png" alt="closed padlock" class="lock-icon"/>La plus sécuritaire</span>
                             </p>
                             <p class="radio-box-description">
                               Register a passkey on your device
@@ -82,7 +86,7 @@
                           </div>
                           <div class="col-md-3 col-md-offset-1">
                             <p> 
-                              <span class="security-badge-desktop most-secure hidden-sm visible-md visible-lg" style="margin-top:30%;"><img src="\oxauth\ext\resources\assets\lock-icon.png" alt="icon of a closed lock" class="lock-icon"/>Most secure</span>
+                              <span class="security-badge-desktop most-secure hidden-sm visible-md visible-lg" style="margin-top:30%;"><img src="\oxauth\ext\resources\assets\lock-icon.png" alt="icon of a closed lock" class="lock-icon"/>La plus sécuritaire</span>
                             </p>
                           </div>
                         </div>
@@ -105,18 +109,22 @@
                         <div class="row">
                           <div class="col-xs-11 col-md-7">
                             <p>
-                              <strong>Authenticator app</strong>
+                              <strong>Applications d’authentification</strong>
                             </p>
                             <p>
-                              <span class="security-badge-mobile most-secure visible-xs visible-sm hidden-md hidden-lg"><img src="\oxauth\ext\resources\assets\lock-icon.png" alt="closed padlock" class="lock-icon"/>Most secure</span>
+                              <span class="security-badge-mobile most-secure visible-xs visible-sm hidden-md hidden-lg"><img src="\oxauth\ext\resources\assets\lock-icon.png" alt="closed padlock" class="lock-icon"/>La plus sécuritaire</span>
                             </p>
                             <p class="radio-box-description">
-                              Download or use a secure third-party authentication app of your choice. You only need to download it on one device. It can be used with other services that offer it.
+                              Téléchargez ou utilisez l’application
+                              d’authentification de tiers sécuritaire de votre
+                              choix. Elle doit être téléchargée sur un seul
+                              appareil. Elle peut également être utilisée avec
+                              d’autres services qui l’offrent.
                             </p>
                           </div>
                           <div class="col-md-3 col-md-offset-1">
                             <p> 
-                              <span class="security-badge-desktop most-secure hidden-sm visible-md visible-lg" style="margin-top:30%;"><img src="\oxauth\ext\resources\assets\lock-icon.png" alt="icon of a closed lock" class="lock-icon"/>Most secure</span>
+                              <span class="security-badge-desktop most-secure hidden-sm visible-md visible-lg" style="margin-top:30%;"><img src="\oxauth\ext\resources\assets\lock-icon.png" alt="icon of a closed lock" class="lock-icon"/>La plus sécuritaire</span>
                             </p>
                           </div>
                         </div>
@@ -139,18 +147,18 @@
                           <div class="row" style="width:99%;">
                             <div class="col-xs-11 col-md-7">
                               <p>
-                                <strong>Text message</strong>
+                                <strong>Message texte</strong>
                               </p>
                               <p>
-                                <span class="security-badge-mobile less-secure visible-xs visible-sm hidden-md hidden-lg">Less secure</span>
+                                <span class="security-badge-mobile less-secure visible-xs visible-sm hidden-md hidden-lg">Moins sécuritaire</span>
                               </p>
                               <p class="radio-box-description">
-                                Receive a secure code by (SMS) text
+                                Recevez un code sécurisé par messagerie texte
                               </p>
                             </div>
                             <div class="col-md-3 col-md-offset-1">
                               <p> 
-                                <span class="security-badge-desktop less-secure hidden-sm visible-md visible-lg" style="margin-top:15%;">Less secure</span>
+                                <span class="security-badge-desktop less-secure hidden-sm visible-md visible-lg" style="margin-top:15%;">Moins sécuritaire</span>
                               </p>
                             </div>
                           </div>
@@ -172,18 +180,18 @@
                         <div class="row" style="width:98.5%;">
                           <div class="col-xs-11 col-md-7">
                             <p>
-                              <strong>Email</strong>
+                              <strong>Courriel</strong>
                             </p>
                             <p>
-                              <span class="security-badge-mobile least-secure visible-xs visible-sm hidden-md hidden-lg">Least secure</span>
+                              <span class="security-badge-mobile least-secure visible-xs visible-sm hidden-md hidden-lg">La moins sécuritaire</span>
                             </p>
                             <p class="radio-box-description">
-                              Receive a secure code by email
+                              Recevez un code sécurisé par courriel
                             </p>
                           </div>
                           <div class="col-md-3 col-md-offset-1">
                             <p> 
-                              <span class="security-badge-desktop least-secure hidden-sm visible-md visible-lg" style="margin-top:10%;">Least secure</span>
+                              <span class="security-badge-desktop least-secure hidden-sm visible-md visible-lg" style="margin-top:10%;">La moins sécuritaire</span>
                             </p>
                           </div>
                         </div>
@@ -209,7 +217,7 @@
           
           <div class="row mrgn-tp-lg">
             <div class="col-xs-12 col-sm-4 col-md-2 col-md-offset-10">
-              <button jsf:id="select" id="select" jsf:action="#{authenticator.authenticate}">Continue</button>
+              <button jsf:id="select" id="select" jsf:action="#{authenticator.authenticate}">Continuer</button>
           </div>
         </div>
 

@@ -12,7 +12,7 @@
     <f:viewAction action="#{language.setLocaleCode('fr')}" />
   </f:metadata>
 
-  <ui:param name="title" value="Enter your #{identity.getWorkingParameter('mfaMethod') == 'email' ? 'email' : 'number'}" />
+  <ui:param name="title" value="Entrez votre #{identity.getWorkingParameter('mfaMethod') == 'email' ? 'courriel' : 'numéro'}" />
   <ui:param name="step" value="register_oob" />
   <ui:param name="locale" value="fr" />
 
@@ -59,7 +59,7 @@
       </div>
 
       <div class="col-sm-6 col-md-4" style="padding-left:0px;">
-        <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline mrgn-tp-md">Enter your #{identity.getWorkingParameter('mfaMethod') == 'email' ? 'email' : 'number'}</h1>
+        <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline mrgn-tp-md">Entrez votre #{identity.getWorkingParameter('mfaMethod') == 'email' ? 'courriel' : 'numéro'}</h1>
         <div id="signup" class="show mrgn-bttm-0 brdr-rds-0" style="border-width:0px;">
           <div class="panel-body" style="padding:0px;">
             <div class="wb-frmvld">
@@ -70,9 +70,9 @@
                   </div>
                   <div class="form-group mrgn-tp-md">
                     <label for="email" class="mrgn-bttm-md ${facesContext.getMessageList('register_oob:email').size() gt 0 ? 'text-danger' : ''}">
-                      Enter the
+                      Entrez le
                       <span class="field-name">email address</span> 
-                      you want to use for authentication
+                      que vous voulez utiliser pour l’authentication
                     </label>
                     <input jsf:id="email" id="email" type="email" autocomplete="email" class="form-control mfa-input" />
                     <h:messages for="email" styleClass="list-unstyled" errorClass="label label-danger wb-server-error" layout="list" />
@@ -84,9 +84,9 @@
                   </div>
                   <div class="form-group mrgn-tp-md">
                     <label for="mobile" class="mrgn-bttm-md ${facesContext.getMessageList('register_oob:mobile').size() gt 0 ? 'text-danger' : ''}">
-                      Enter the
-                      <span class="field-name">mobile phone number</span>
-                      you want to use for authentication
+                      Entrez le
+                      <span class="field-name">numéro du cellulaire</span>
+                      que vous voulez utiliser pour l’authentication
                     </label>
                     <input jsf:id="mobile" id="mobile" type="tel" class="form-control mfa-input" autocomplete="tel"/>
                     <h:messages for="mobile" styleClass="list-unstyled" errorClass="label label-danger wb-server-error" layout="list" />
