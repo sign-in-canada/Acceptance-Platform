@@ -679,8 +679,12 @@ class PersonAuthentication(PersonAuthenticationType):
             elif requestParameters.containsKey("user") or requestParameters.containsKey("failure"):
                 step = self.STEP_1FA
         else:
+            # Handle language toggles
+            if requestParameters.containsKey("lang"):
+                step = self.FORMS.get(ServerUtil.getFirstValue(requestParameters, "lang:step"))
+                return self.gotoStep(step)
             # Determine the step from the form name (handles back button etc.)
-            if form in self.FORMS:
+            elif form in self.FORMS:
                 step = self.FORMS.get(form)
 
         print ("Step %s, Form %s" % (step, form))
@@ -826,11 +830,6 @@ class PersonAuthentication(PersonAuthenticationType):
                     return self.gotoStep(self.STEP_ABORT)
                 else:
                     return self.gotoStep(self.STEP_CHOOSER)
-
-        # Handle language toggles
-        if requestParameters.containsKey("lang"):
-            step = self.FORMS.get(ServerUtil.getFirstValue(requestParameters, "lang:step"))
-            return self.gotoStep(step)
 
         # if we get this far we're done
         identity.setWorkingParameter("stepCount", originalStep)
