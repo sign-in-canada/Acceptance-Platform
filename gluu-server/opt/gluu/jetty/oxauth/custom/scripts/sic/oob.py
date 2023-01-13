@@ -72,7 +72,6 @@ class OutOfBand:
                 raise OOBError("OutOfBand. No mobile or mail on the account")
 
         code = str(100000 + self.random.nextInt(100000))
-        print ("oob code: %s" % code)
 
         notifySucessful = self.notify.sendOobSMS(mobile, code) if mobile is not None else self.notify.sendOobEmail(mail, code)
         if notifySucessful:
@@ -99,7 +98,6 @@ class OutOfBand:
         if requestParameters.containsKey("oob:resend"):
             if contact is not None: # Registration
                 oobChannel = identity.getWorkingParameter("oobChannel")
-                print ("OOB type: %s" % oobChannel)
                 if oobChannel == "sms":
                     self.SendOneTimeCode(None, None, contact)
                 elif oobChannel == "email":
@@ -111,7 +109,6 @@ class OutOfBand:
 
         expires = int(identity.getWorkingParameter("oobExpires"))
         if expires < Instant.now().getEpochSecond():
-            print ("OOB Expired for %s" % identity.getWorkingParameter("userId"))
             addMessage("oob:code", FacesMessage.SEVERITY_ERROR, "sic.expiredCode")
             addMessage("oob:resend", FacesMessage.SEVERITY_INFO, "sic.newCode")
             return False
@@ -124,7 +121,6 @@ class OutOfBand:
              return False
 
         if enteredCode == identity.getWorkingParameter("oobCode"):
-            print ("OOB Success for %s" % identity.getWorkingParameter("userId"))
             facesMessages.clear()
             updateNeeded = False
 
@@ -151,7 +147,6 @@ class OutOfBand:
 
             return authenticationService.authenticate(userId)
         else:
-            print ("OOB Wrong for %s" % userId)
             if (authenticationProtectionService.isEnabled()):
                 authenticationProtectionService.storeAttempt(userId, False)
             attempts = StringHelper.toInteger(user.getAttribute("oxCountInvalidLogin"), 0)

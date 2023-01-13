@@ -613,7 +613,6 @@ class PersonAuthentication(PersonAuthenticationType):
         if uiLocales is not None:
             language = uiLocales[:2].lower()
         else:
-            print (uiLocales)
             return "/lang.xhtml"
 
         if step == 1:
