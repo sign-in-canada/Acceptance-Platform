@@ -46,7 +46,7 @@
       <p>
         #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}
         vous demande de créer un deuxième facteur
-        <c:if test="${not empty identity.getWorkingParameter('mfaMethod')}">that is stronger than the one you previously set up, </c:if>
+        <c:if test="${not empty identity.getWorkingParameter('mfaMethod')}">plus fort que celui que vous avez précédemment configuré</c:if>
         .
       </p>
       <details>

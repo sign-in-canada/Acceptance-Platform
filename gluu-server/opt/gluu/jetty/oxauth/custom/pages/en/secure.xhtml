@@ -45,9 +45,9 @@
       <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Make your account more secure</h1>
       <p>
         #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}
-        requires a second factor
-        <c:if test="${not empty identity.getWorkingParameter('mfaMethod')}">that is stronger than the one you previously set up, </c:if>
-        to make your account more secure.
+        requires you to create a second factor
+        <c:if test="${not empty identity.getWorkingParameter('mfaMethod')}">that is stronger than the one you previously set up </c:if>
+        .
       </p>
       <details>
         <summary tabindex="0" role="button" aria-expanded="false" class="learn-more">Learn more about two-factor authentication</summary>
