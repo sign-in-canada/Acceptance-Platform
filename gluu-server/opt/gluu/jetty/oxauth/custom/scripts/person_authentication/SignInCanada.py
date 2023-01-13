@@ -315,8 +315,11 @@ class PersonAuthentication(PersonAuthenticationType):
             passportRequest = self.passport.createRequest(provider, passportOptions)
             facesService.redirectToExternalURL(passportRequest)
 
-        elif step == self.STEP_OOB and identity.getWorkingParameter("oobCode") is None:
-            self.oob.SendOneTimeCode(identity.getWorkingParameter("userId"))
+        elif step == self.STEP_OOB:
+            if identity.getWorkingParameter("oobCode") is None:
+                self.oob.SendOneTimeCode(identity.getWorkingParameter("userId"))
+            if identity.getWorkingParameter("oobChannel") is None:
+                identity.setWorkingParameter("oobChannel", identity.getWorkingParameter("mfaMethod"))
 
         elif step == self.STEP_FIDO:
             userId = identity.getWorkingParameter("userId")
@@ -737,6 +740,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     elif self.mfaMethods[0] == "totp":
                         return self.gotoStep(self.STEP_TOTP_REGISTER)
                     elif self.mfaMethods[0] in {"sms", "email"}:
+                        identity.setWorkingParameter("oobChannel", self.mfaMethods[0])
                         return self.gotoStep(self.STEP_OOB_REGISTER)
                 else:
                     if mfaMethodRegistered == "fido":
