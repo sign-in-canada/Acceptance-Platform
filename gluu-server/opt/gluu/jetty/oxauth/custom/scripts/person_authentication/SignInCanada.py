@@ -190,6 +190,7 @@ class PersonAuthentication(PersonAuthenticationType):
                              "userId",      # Used to keep track of the user across multiple requests
                              "mfaMethod",   # MFA method used to authenticate
                              "mfaId",       # subject identifier for the external TOTP service
+                             "oobChannel",  # Chosen channel for OOB (sms or email)
                              "oobCode",     # One-time-code for out-of-band
                              "oobContact",  # Mobile number or email address being registered for OOB
                              "oobExpires")  # Timestamp when OOB expires
@@ -433,7 +434,8 @@ class PersonAuthentication(PersonAuthenticationType):
             if requestParameters.containsKey("secure:method"):
                 method = ServerUtil.getFirstValue(requestParameters, "secure:method")
                 if method in self.mfaMethods:
-                    identity.setWorkingParameter("mfaMethod", method)
+                    if method in {"sms", "email"}:
+                        identity.setWorkingParameter("oobChannel", method)
                 else:
                     print ("%s: Invalid MFA method choice: %s." % (self.name, method))
                     return False
@@ -737,7 +739,6 @@ class PersonAuthentication(PersonAuthenticationType):
                     elif self.mfaMethods[0] in {"sms", "email"}:
                         return self.gotoStep(self.STEP_OOB_REGISTER)
                 else:
-                    identity.setWorkingParameter("mfaMethod", mfaMethodRegistered)
                     if mfaMethodRegistered == "fido":
                         return self.gotoStep(self.STEP_FIDO)
                     elif mfaMethodRegistered == "totp":
