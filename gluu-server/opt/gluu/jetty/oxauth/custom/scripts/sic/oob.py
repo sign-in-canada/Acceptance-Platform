@@ -11,6 +11,7 @@ from org.gluu.oxauth.i18n import LanguageBean
 from org.gluu.util import StringHelper
 from org.gluu.oxauth.service import UserService, AuthenticationService, AuthenticationProtectionService
 from org.gluu.model import GluuStatus
+from org.gluu.oxauth.model.authorize import AuthorizeRequestParam
 
 from javax.faces.application import FacesMessage
 
@@ -97,11 +98,11 @@ class OutOfBand:
 
         if requestParameters.containsKey("oob:resend"):
             if contact is not None: # Registration
-                mfaMethod = identity.getWorkingParameter("mfaMethod")
-                print ("Method: %s" %mfaMethod)
-                if mfaMethod == "sms":
+                oobChannel = identity.getWorkingParameter("oobChannel")
+                print ("OOB type: %s" % oobChannel)
+                if oobChannel == "sms":
                     self.SendOneTimeCode(None, None, contact)
-                elif mfaMethod == "email":
+                elif oobChannel == "email":
                     self.SendOneTimeCode(None, contact, None)
             else:
                 self.SendOneTimeCode(userId)
@@ -116,25 +117,36 @@ class OutOfBand:
             return False
 
         enteredCode = ServerUtil.getFirstValue(requestParameters, "oob:code")
-        user = self.userService.getUser(userId, "uid", "gluuStatus", "oxCountInvalidLogin")
+        user = self.userService.getUser(userId, "uid", "gluuStatus", "oxCountInvalidLogin", "locale")
 
         if StringHelper.equals(user.getAttribute("gluuStatus"), GluuStatus.INACTIVE.getValue()):
              addMessage("oob:code", FacesMessage.SEVERITY_ERROR, "sic.lockedOut")
              return False
 
         if enteredCode == identity.getWorkingParameter("oobCode"):
-            facesMessages.clear()
             print ("OOB Success for %s" % identity.getWorkingParameter("userId"))
+            facesMessages.clear()
+            updateNeeded = False
+
             if contact is not None: # Registration
-                mfaMethod = identity.getWorkingParameter("mfaMethod")
-                if mfaMethod == "sms":
+                oobChannel = identity.getWorkingParameter("oobChannel")
+                if oobChannel == "sms":
                     self.userService.addUserAttribute(user, "mobile", contact)
-                elif mfaMethod == "email":
+                elif oobChannel == "email":
                     self.userService.addUserAttribute(user, "mail", contact)
-                self.userService.updateUser(user)
+                updateNeeded = True
 
             if user.getAttribute("oxCountInvalidLogin") is not None:
                 user.setAttribute("oxCountInvalidLogin", "0")
+                updateNeeded = True
+
+            sessionAttributes = identity.getSessionId().getSessionAttributes()
+            locale = sessionAttributes.get(AuthorizeRequestParam.UI_LOCALES)
+            if locale != user.getAttribute("locale", True, False):
+                user.setAttribute("locale", locale, False)
+                updateNeeded = True
+
+            if updateNeeded:
                 self.userService.updateUser(user)
 
             return authenticationService.authenticate(userId)
@@ -142,8 +154,6 @@ class OutOfBand:
             print ("OOB Wrong for %s" % userId)
             if (authenticationProtectionService.isEnabled()):
                 authenticationProtectionService.storeAttempt(userId, False)
-
-            user = self.userService.getUser(userId, "uid", "gluuStatus", "oxCountInvalidLogin")
             attempts = StringHelper.toInteger(user.getAttribute("oxCountInvalidLogin"), 0)
             attempts += 1
             user.setAttribute("oxCountInvalidLogin", StringHelper.toString(attempts))
