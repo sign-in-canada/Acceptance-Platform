@@ -37,6 +37,20 @@
       button:hover{
         background-color: var(--gcds-color-blue-700);
       }
+
+      button:focus{
+        background-color: var(--gcds-brand-focus);
+        box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
+      }
+
+      button:active{
+        background-color: var(--gcds-color-grayscale-1000);
+      }
+
+      button:hover.button:focus{
+        background-color: var(--gcds-button-primary-default-background);
+        box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
+      }
     </style>
   </ui:define>
 
@@ -46,7 +60,7 @@
       <p>
         #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}
         vous demande de créer un deuxième facteur
-        <c:if test="${not empty identity.getWorkingParameter('mfaMethod')}">plus fort que celui que vous avez précédemment configuré</c:if>
+        <c:if test="${not empty identity.getWorkingParameter('mfaMethod')}">that is stronger than the one you previously set up, </c:if>
         .
       </p>
       <details>
@@ -112,7 +126,7 @@
                               <strong>Applications d’authentification</strong>
                             </p>
                             <p>
-                              <span class="security-badge-mobile most-secure visible-xs visible-sm hidden-md hidden-lg"><img src="\oxauth\ext\resources\assets\lock-icon.png" alt="closed padlock" class="lock-icon"/>La plus sécuritaire</span>
+                              <span class="security-badge-mobile most-secure visible-xs visible-sm hidden-md hidden-lg" style="min-width:215px"><img src="\oxauth\ext\resources\assets\lock-icon.png" alt="closed padlock" class="lock-icon"/>Plus sécuritaire</span>
                             </p>
                             <p class="radio-box-description">
                               Téléchargez ou utilisez l’application
@@ -124,7 +138,7 @@
                           </div>
                           <div class="col-md-3 col-md-offset-1">
                             <p> 
-                              <span class="security-badge-desktop most-secure hidden-sm visible-md visible-lg" style="margin-top:30%;"><img src="\oxauth\ext\resources\assets\lock-icon.png" alt="icon of a closed lock" class="lock-icon"/>La plus sécuritaire</span>
+                              <span class="security-badge-desktop most-secure hidden-sm visible-md visible-lg" style="margin-top:30%; min-width: 215px;"><img src="\oxauth\ext\resources\assets\lock-icon.png" alt="icon of a closed lock" class="lock-icon"/>Plus sécuritaire</span>
                             </p>
                           </div>
                         </div>
@@ -149,18 +163,18 @@
                               <p>
                                 <strong>Message texte</strong>
                               </p>
-                              <p>
+                              <!-- <p>
                                 <span class="security-badge-mobile less-secure visible-xs visible-sm hidden-md hidden-lg">Moins sécuritaire</span>
-                              </p>
+                              </p> -->
                               <p class="radio-box-description">
-                                Recevez un code sécurisé par messagerie texte
+                                Recevez un code sécurisé par messagerie texte. Des frais de messagerie mobile standard peuvent s'appliquer. 
                               </p>
                             </div>
-                            <div class="col-md-3 col-md-offset-1">
+                            <!-- <div class="col-md-3 col-md-offset-1">
                               <p> 
                                 <span class="security-badge-desktop less-secure hidden-sm visible-md visible-lg" style="margin-top:15%;">Moins sécuritaire</span>
                               </p>
-                            </div>
+                            </div> -->
                           </div>
                         </label>
                       </li>
@@ -182,18 +196,18 @@
                             <p>
                               <strong>Courriel</strong>
                             </p>
-                            <p>
+                            <!-- <p>
                               <span class="security-badge-mobile least-secure visible-xs visible-sm hidden-md hidden-lg">La moins sécuritaire</span>
-                            </p>
+                            </p> -->
                             <p class="radio-box-description">
                               Recevez un code sécurisé par courriel
                             </p>
                           </div>
-                          <div class="col-md-3 col-md-offset-1">
+                          <!-- <div class="col-md-3 col-md-offset-1">
                             <p> 
                               <span class="security-badge-desktop least-secure hidden-sm visible-md visible-lg" style="margin-top:10%;">La moins sécuritaire</span>
                             </p>
-                          </div>
+                          </div> -->
                         </div>
                       </label>
                     </li>

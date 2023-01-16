@@ -9,12 +9,12 @@
 
   <f:metadata>
     <f:viewAction action="#{authenticator.prepareAuthenticationForStep}" />
-    <f:viewAction action="#{language.setLocaleCode('en')}" />
+    <f:viewAction action="#{language.setLocaleCode('fr')}" />
   </f:metadata>
 
-  <ui:param name="title" value="Check your #{identity.getWorkingParameter('oobChannel') == 'email' ? 'email' : 'messages'}" />
+  <ui:param name="title" value="Entrez le code à 6 chiffres" />
   <ui:param name="step" value="oob" />
-  <ui:param name="locale" value="en" />
+  <ui:param name="locale" value="fr" />
 
   <ui:define name="name">
     <ui:include src="/WEB-INF/incl/content/default/name-#{view.locale.language}.xhtml" />
@@ -36,6 +36,20 @@
         background-color: var(--gcds-color-blue-700);
       }
 
+      button:focus{
+        background-color: var(--gcds-brand-focus);
+        box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
+      }
+
+      button:active{
+        background-color: var(--gcds-color-grayscale-1000);
+      }
+
+      button:hover.button:focus{
+        background-color: var(--gcds-button-primary-default-background);
+        box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
+      }
+
       label{
         font-weight: 500;
       }
@@ -46,23 +60,23 @@
 
     <div class="container mrgn-tp-lg">
 
-      <div class="col-sm-6 col-md-4">
-        <c:if test="${identity.getWorkingParameter('oobChannel') == 'email'}">
-          <div class="text-center hidden-xs visible-sm visible-m visible-lg mfa-input-image">
-            <img src="\oxauth\ext\resources\assets\desktop-email-open-graphic.png" alt="an open envelope with a piece of paper that has six asterisks on it" class="mrgn-bttm-lg mrgn-tp-lg mfa-input-image-desktop"/>
+      <div class="col-sm-6 col-md-5 col-lg-4">
+        <c:if test="${identity.getWorkingParameter('mfaMethod') == 'email'}">
+          <div class="text-center hidden-xs visible-sm visible-md visible-lg mfa-input-image">
+            <img src="\oxauth\ext\resources\assets\desktop-check-email.png" alt="Une enveloppe ouverte avec un morceau de papier qui dépasse et sur lequel figure un badge rouge de notification n° 1. En dessous, il y a une bulle avec 6 astérisques" class="mrgn-bttm-lg mrgn-tp-lg mfa-input-image-desktop"/>
           </div>
         </c:if>
-        <c:if test="${identity.getWorkingParameter('oobChannel') == 'sms'}">
-          <div class="text-center hidden-xs visible-sm visible-m visible-lg">
-            <img src="\oxauth\ext\resources\assets\desktop-text-message-graphic.png" alt="a mobile phone with a speech bubble that has six asterisks on it" class="mrgn-bttm-lg mrgn-tp-lg mfa-input-image-desktop"/>
+        <c:if test="${identity.getWorkingParameter('mfaMethod') == 'sms'}">
+          <div class="text-center hidden-xs visible-sm visible-md visible-lg">
+            <img src="\oxauth\ext\resources\assets\desktop-text-message-graphic.png" alt="Un téléphone portable avec une bulle comportant six astérisques." class="mrgn-bttm-lg mrgn-tp-lg mfa-input-image-desktop"/>
           </div>
         </c:if>
     </div>
 
       <div class="row">
-      <div class="col-sm-6 col-md-5 padding-left:0px;">
+      <div class="col-sm-6 col-md-5 col-lg-5 padding-left:0px;">
         <div class="row">
-        <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Check your #{identity.getWorkingParameter('oobChannel') == 'email' ? 'email' : 'messages'}</h1>
+        <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Entrez le code à 6 chiffres</h1>
         </div>
         <div class="wb-frmvld">
           <form jsf:id="oob" jsf:action="#{authenticator.authenticate}" class="form">
@@ -73,31 +87,40 @@
                 </p>
               </div>
             </c:if>
-            <div class="text-center visible-xs hidden-sm hidden-m hidden-lg">
-              <c:if test="${identity.getWorkingParameter('oobChannel') == 'email'}">
-                <img src="\oxauth\ext\resources\assets\email-graphic-open.png" alt="an open envelope with a piece of paper that has six asterisks on it" class="mrgn-bttm-lg mfa-input-image-mobile"/>
+            <div class="text-center visible-xs hidden-sm hidden-md hidden-lg">
+              <c:if test="${identity.getWorkingParameter('mfaMethod') == 'email'}">
+                <img src="\oxauth\ext\resources\assets\check-email.png" alt="Une enveloppe ouverte avec un morceau de papier qui dépasse et sur lequel figure un badge rouge de notification n° 1. En dessous, il y a une bulle avec 6 astérisques" class="mrgn-bttm-lg mfa-input-image-mobile"/>
               </c:if>
-              <c:if test="${identity.getWorkingParameter('oobChannel') == 'sms'}">
-                <img src="\oxauth\ext\resources\assets\text-message-graphic.png" alt="a mobile phone with a speech bubble that has six asterisks on it" class="mrgn-bttm-lg mfa-input-image-mobile"/>
+              <c:if test="${identity.getWorkingParameter('mfaMethod') == 'sms'}">
+                <img src="\oxauth\ext\resources\assets\text-message-graphic.png" alt="Un téléphone portable avec une bulle comportant six astérisques." class="mrgn-bttm-lg mfa-input-image-mobile"/>
               </c:if>
             </div>
             <div class="row form-group mrg-tp-md">
-              <label for="code" class="mrgn-bttm-md ${facesContext.getMessageList('oob:code').size() gt 0 ? 'text-danger' : ''}">
-                Enter the 6-digit
-                <span class="field-name">code</span> we
-                 #{identity.getWorkingParameter('oobChannel') == 'email' ? 'emailed' : 'texted'} you
-              </label>
-              <h:message for="code" errorClass="label label-danger wb-server-error"/>
-              <input id="code" jsf:id="code" type="text" audocomplete="one-time-code" inputmode="numeric" data-rule-digits="true" data-rule-minlength="6" data-rule-maxlength="6" class="form-control mfa-input" />
+              <div class="row">
+                  <div class="col-sm-10 col-md-10 col-lg-8">
+                  <label for="code" class="mrgn-bttm-md ${facesContext.getMessageList('oob:code').size() gt 0 ? 'text-danger' : ''}">
+                    Entrez le
+                    <span class="field-name">code</span>
+                    à 6 chiffres que nous
+                    #{identity.getWorkingParameter('mfaMethod') == 'email' ? 'vous avons envoyé par courriel' : 'avons envoyé par message texte sur votre cellulaire'}
+                  </label>
+                  <h:message for="code" errorClass="label label-danger wb-server-error"/>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-sm-10 col-md-10 col-lg-8">
+                  <input id="code" jsf:id="code" type="text" audocomplete="one-time-code" inputmode="numeric" data-rule-digits="true" data-rule-minlength="6" data-rule-maxlength="6" class="form-control mfa-input" />
+                </div> 
+              </div>
             </div>
             <div class="row">
               <div class="col-xs-12 col-sm-6 col-md-4 mrgn-tp-md" style="padding:0px;">
-                <button jsf:id="signin" id="signin" jsf:action="#{authenticator.authenticate}">Continue to site</button>
+                <button jsf:id="signin" id="signin" jsf:action="#{authenticator.authenticate}">Continuer</button>
               </div>
             </div>
             <div class="row">
               <p class="mrgn-tp-lg text-center text-sm-left text-md-left text-lg-left">
-              <a jsf:id="resend" jsf:action="#{authenticator.authenticate}">Resend code</a>
+              <a jsf:id="resend" jsf:action="#{authenticator.authenticate}">Envoyer de nouveau le code</a>
             </p>
             </div>
           </form>
