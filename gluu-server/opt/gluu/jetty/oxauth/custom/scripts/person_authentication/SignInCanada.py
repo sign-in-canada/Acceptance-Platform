@@ -257,7 +257,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
         # Prepare for page customization.
         for param in ["layout", "chooser", "content"]:
-            identity.setWorkingParameter(param, rpConfig[param])
+            identity.setWorkingParameter(param, rpConfig.get(param))
 
         if identity.getWorkingParameter("userId") is not None and len(self.mfaMethods) > 1:
             mfaRegistered = identity.getWorkingParameter("mfaMethod")
