@@ -61,12 +61,12 @@
     <div class="container mrgn-tp-lg">
 
       <div class="col-sm-6 col-md-5 col-lg-4">
-        <c:if test="${identity.getWorkingParameter('mfaMethod') == 'email'}">
+        <c:if test="${identity.getWorkingParameter('oobChannel') == 'email'}">
           <div class="text-center hidden-xs visible-sm visible-md visible-lg mfa-input-image">
             <img src="\oxauth\ext\resources\assets\desktop-check-email.png" alt="An open envelope with a piece of paper sticking out that has a red #1 notification badge on top. Underneath is a bubble with 6 asterisks." class="mrgn-bttm-lg mrgn-tp-lg mfa-input-image-desktop"/>
           </div>
         </c:if>
-        <c:if test="${identity.getWorkingParameter('mfaMethod') == 'sms'}">
+        <c:if test="${identity.getWorkingParameter('oobChannel') == 'sms'}">
           <div class="text-center hidden-xs visible-sm visible-md visible-lg">
             <img src="\oxauth\ext\resources\assets\desktop-text-message-graphic.png" alt="a mobile phone with a speech bubble that has six asterisks on it" class="mrgn-bttm-lg mrgn-tp-lg mfa-input-image-desktop"/>
           </div>
@@ -88,10 +88,10 @@
               </div>
             </c:if>
             <div class="text-center visible-xs hidden-sm hidden-md hidden-lg">
-              <c:if test="${identity.getWorkingParameter('mfaMethod') == 'email'}">
+              <c:if test="${identity.getWorkingParameter('oobChannel') == 'email'}">
                 <img src="\oxauth\ext\resources\assets\check-email.png" alt="An open envelope with a piece of paper sticking out that has a red #1 notification badge on top. Underneath is a bubble with 6 asterisks." class="mrgn-bttm-lg mfa-input-image-mobile"/>
               </c:if>
-              <c:if test="${identity.getWorkingParameter('mfaMethod') == 'sms'}">
+              <c:if test="${identity.getWorkingParameter('oobChannel') == 'sms'}">
                 <img src="\oxauth\ext\resources\assets\text-message-graphic.png" alt="A mobile phone with a speech bubble that has six asterisks on it" class="mrgn-bttm-lg mfa-input-image-mobile"/>
               </c:if>
             </div>
@@ -101,7 +101,7 @@
               <label for="code" class="mrgn-bttm-md ${facesContext.getMessageList('oob:code').size() gt 0 ? 'text-danger' : ''}">
                 Enter the 6-digit
                 <span class="field-name">code</span> we
-                 #{identity.getWorkingParameter('mfaMethod') == 'email' ? 'emailed' : 'texted'} you
+                 #{identity.getWorkingParameter('oobChannel') == 'email' ? 'emailed' : 'texted'} you
               </label>
               <h:message for="code" errorClass="label label-danger wb-server-error"/>
               </div>

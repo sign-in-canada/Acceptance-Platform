@@ -61,12 +61,12 @@
     <div class="container mrgn-tp-lg">
 
       <div class="col-sm-6 col-md-5 col-lg-4">
-        <c:if test="${identity.getWorkingParameter('mfaMethod') == 'email'}">
+        <c:if test="${identity.getWorkingParameter('oobChannel') == 'email'}">
           <div class="text-center hidden-xs visible-sm visible-md visible-lg mfa-input-image">
             <img src="\oxauth\ext\resources\assets\desktop-check-email.png" alt="Une enveloppe ouverte avec un morceau de papier qui dépasse et sur lequel figure un badge rouge de notification n° 1. En dessous, il y a une bulle avec 6 astérisques" class="mrgn-bttm-lg mrgn-tp-lg mfa-input-image-desktop"/>
           </div>
         </c:if>
-        <c:if test="${identity.getWorkingParameter('mfaMethod') == 'sms'}">
+        <c:if test="${identity.getWorkingParameter('oobChannel') == 'sms'}">
           <div class="text-center hidden-xs visible-sm visible-md visible-lg">
             <img src="\oxauth\ext\resources\assets\desktop-text-message-graphic.png" alt="Un téléphone portable avec une bulle comportant six astérisques." class="mrgn-bttm-lg mrgn-tp-lg mfa-input-image-desktop"/>
           </div>
@@ -88,10 +88,10 @@
               </div>
             </c:if>
             <div class="text-center visible-xs hidden-sm hidden-md hidden-lg">
-              <c:if test="${identity.getWorkingParameter('mfaMethod') == 'email'}">
+              <c:if test="${identity.getWorkingParameter('oobChannel') == 'email'}">
                 <img src="\oxauth\ext\resources\assets\check-email.png" alt="Une enveloppe ouverte avec un morceau de papier qui dépasse et sur lequel figure un badge rouge de notification n° 1. En dessous, il y a une bulle avec 6 astérisques" class="mrgn-bttm-lg mfa-input-image-mobile"/>
               </c:if>
-              <c:if test="${identity.getWorkingParameter('mfaMethod') == 'sms'}">
+              <c:if test="${identity.getWorkingParameter('oobChannel') == 'sms'}">
                 <img src="\oxauth\ext\resources\assets\text-message-graphic.png" alt="Un téléphone portable avec une bulle comportant six astérisques." class="mrgn-bttm-lg mfa-input-image-mobile"/>
               </c:if>
             </div>
@@ -102,7 +102,7 @@
                     Entrez le
                     <span class="field-name">code</span>
                     à 6 chiffres que nous
-                    #{identity.getWorkingParameter('mfaMethod') == 'email' ? 'vous avons envoyé par courriel' : 'avons envoyé par message texte sur votre cellulaire'}
+                    #{identity.getWorkingParameter('oobChannel') == 'email' ? 'vous avons envoyé par courriel' : 'avons envoyé par message texte sur votre cellulaire'}
                   </label>
                   <h:message for="code" errorClass="label label-danger wb-server-error"/>
                 </div>
