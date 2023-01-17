@@ -243,17 +243,34 @@ class PersonAuthentication(PersonAuthenticationType):
                 else:
                     step = self.STEP_1FA
 
-        if step == self.STEP_ABORT or identity.getWorkingParameter("abort"): # Back button workaround
-            # Obtain the client URI of the current client from the client configuration
-            if len(self.providers) == 1: # Pass through, so send them back to the client
-                if StringHelper.isNotEmpty(clientUri):
-                    facesService.redirectToExternalURL(clientUri)
-                    return True
+        if identity.getWorkingParameter("abort"): # Back button workaround
+            if step == self.STEP_TOTP_REGISTER:
+                print ("TOTP Registration aborted")
+                # Remove unregistered mfaId
+                user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "oxExternalUid")
+                self.account.removeExternalUid(user, "mfa", identity.getWorkingParameter("mfaId"))
+                userService.updateUser(user)
+                if len(self.mfaMethods) > 1:
+                    step = self.STEP_UPGRADE
+                elif len(self.providers) == 1: # Pass through, so send them back to the client
+                    step = self.STEP_ABORT
                 else:
-                    print("%s: prepareForStep. clientUri is missing for client %s" % (self.name, self.rputils.getClient(session).getClientName()))
-                    return False
-            else: # reset the chooser
-                identity.setWorkingParameter("provider", None)
+                    step = self.STEP_CHOOSER
+            elif step == self.STEP_1FA:
+                if len(self.providers) == 1: # Pass through, so send them back to the client
+                    step = self.STEP_ABORT
+                else:
+                    # reset the chooser
+                    identity.setWorkingParameter("provider", None)
+                    step = self.STEP_CHOOSER
+
+        if step == self.STEP_ABORT:
+            if StringHelper.isNotEmpty(clientUri):
+                facesService.redirectToExternalURL(clientUri)
+                return True
+            else:
+                print("%s: prepareForStep. clientUri is missing for client %s" % (self.name, self.rputils.getClient(session).getClientName()))
+                return False
 
         # Prepare for page customization.
         for param in ["layout", "chooser", "content"]:
@@ -622,7 +639,6 @@ class PersonAuthentication(PersonAuthenticationType):
                 step = self.STEP_1FA
 
         if step in {self.STEP_1FA, self.STEP_COLLECT, self.STEP_TOTP_REGISTER, self.STEP_TOTP, self.STEP_ABORT}: # Passport
-            # identity.getWorkingParameters().remove("abort")
             return "/auth/passport/passportlogin.xhtml"
 
         page = self.PAGES.get(step)
