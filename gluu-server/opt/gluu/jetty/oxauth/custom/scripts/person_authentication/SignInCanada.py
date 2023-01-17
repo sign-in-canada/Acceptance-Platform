@@ -131,7 +131,7 @@ class PersonAuthentication(PersonAuthenticationType):
         if mfaMethodsParam is not None:
             self.mfaMethods = list([item.strip() for item in mfaMethodsParam.getValue2().split(",")])
         else:
-            self.mfaMethods = None
+            self.mfaMethods = []
 
         self.rputils = rputils.RPUtils()
         self.rputils.init(configurationAttributes, self.name)
@@ -147,7 +147,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
         self.account = account.Account()
 
-        if self.mfaMethods is not None and ("sms" in self.mfaMethods or "email" in self.mfaMethods):
+        if self.mfaMethods and ("sms" in self.mfaMethods or "email" in self.mfaMethods):
             self.oob = oob.OutOfBand()
             self.oob.init(configurationAttributes, self.name)
 
@@ -729,7 +729,7 @@ class PersonAuthentication(PersonAuthenticationType):
                         return self.gotoStep(self.STEP_COLLECT)
 
         if step in {self.STEP_1FA, self.STEP_COLLECT}:
-            if self.mfaMethods is not None:
+            if self.mfaMethods:
                 mfaMethodRegistered = identity.getWorkingParameter("mfaMethod")
                 if mfaMethodRegistered is None or mfaMethodRegistered not in self.mfaMethods:
                     if len(self.mfaMethods) > 1:
