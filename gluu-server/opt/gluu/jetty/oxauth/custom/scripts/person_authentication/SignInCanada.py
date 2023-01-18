@@ -738,7 +738,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     return self.gotoStep(self.STEP_CHOOSER)
             elif requestParameters.containsKey("chooser"): # User double-clicked
                 return self.gotoStep(self.STEP_1FA)
-            else:
+            elif identity.getWorkingParameter("userId") is not None:
                 if providerInfo["GCCF"] and "collect" in rpConfig:
                     user = userService.getUser(identity.getWorkingParameter("userId"), "persistentId")
                     if self.account.getSamlSubject(user, rpConfig["collect"]) is None: # SAML PAI collection
