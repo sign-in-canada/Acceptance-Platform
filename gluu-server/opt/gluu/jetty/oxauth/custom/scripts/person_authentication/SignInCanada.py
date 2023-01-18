@@ -646,7 +646,8 @@ class PersonAuthentication(PersonAuthenticationType):
             return page[language]
         else:
             print("%s. getPageForStep. Unexpected step # %s" % (self.name, step))
-            return "/error.xhtml"
+
+        return "/error.xhtml"
 
     def getCountAuthenticationSteps(self, configurationAttributes):
         
