@@ -588,7 +588,7 @@ class PersonAuthentication(PersonAuthenticationType):
             if self.getNextStep(configurationAttributes, requestParameters, step) < 0:
                 return authenticationService.authenticate(identity.getWorkingParameter("userId"))
 
-        elif step == self.STEP_TOTP:
+        elif step in {self.STEP_TOTP_REGISTER, self.STEP_TOTP}:
             if externalProfile.get("externalUid").split(":", 1)[1] != identity.getWorkingParameter("mfaId"):
                 # Got the wrong MFA PAI. Authentication failed!
                 return False
@@ -605,7 +605,7 @@ class PersonAuthentication(PersonAuthenticationType):
             if self.getNextStep(configurationAttributes, requestParameters, step) < 0:
                 return authenticationService.authenticate(identity.getWorkingParameter("userId"))
 
-        return True
+        return False
 
     def getPageForStep(self, configurationAttributes, step):
 
