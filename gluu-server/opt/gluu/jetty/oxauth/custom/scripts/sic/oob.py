@@ -61,22 +61,33 @@ class OutOfBand:
         self.random = SecureRandom.getInstanceStrong()
         print ("OutOfBand. Secure random seeded for  " + self.scriptName)
 
-    def SendOneTimeCode(self, userId=None, mail=None, mobile=None):
+    def SendOneTimeCode(self, userId=None, channel=None, contact=None):
         identity = CdiUtil.bean(Identity)
 
-        if mobile is None and mail is None:
+        if contact is not None: # Registrastion
+            if channel == "sms":
+                mobile = contact
+            elif channel == "email":
+                mail = contact
+            else:
+                raise OOBError("OutOfBand. Invalid channel: %s" % channel)
+        else: # Authentication
             user = self.userService.getUser(userId, "mobile", "mail")
             mobile = user.getAttribute("mobile")
             mail = user.getAttribute("mail")
-            if mobile is None and mail is None:
+            if mobile is not None:
+                channel = "sms"
+            elif mail is not None:
+                channel = "email"
+            else:
                 raise OOBError("OutOfBand. No mobile or mail on the account")
 
         code = str(100000 + self.random.nextInt(100000))
 
-        notifySucessful = self.notify.sendOobSMS(mobile, code) if mobile is not None else self.notify.sendOobEmail(mail, code)
+        notifySucessful = self.notify.sendOobSMS(mobile, code) if channel == "sms" else self.notify.sendOobEmail(mail, code)
         if notifySucessful:
             identity.setWorkingParameter("oobCode", code)
-            identity.setWorkingParameter("oobExpires", str(Instant.now().getEpochSecond() + self.codeLifetime))
+            identity.setWorkingParameter("oobExpiry", str(Instant.now().getEpochSecond() + self.codeLifetime))
 
         return notifySucessful
 
@@ -95,23 +106,17 @@ class OutOfBand:
         if (authenticationProtectionService.isEnabled()):
             authenticationProtectionService.doDelayIfNeeded(userId)
 
-        if requestParameters.containsKey("oob:resend"):
+        codeExpiry = int(identity.getWorkingParameter("oobExpiry"))
+        codeExpired = codeExpiry < Instant.now().getEpochSecond()
+
+        if codeExpired:
+            addMessage("oob:code", FacesMessage.SEVERITY_ERROR, "sic.expiredCode")
+            addMessage("oob:resend", FacesMessage.SEVERITY_INFO, "sic.newCode")
+
+        if codeExpired or requestParameters.containsKey("oob:resend"):
             if (authenticationProtectionService.isEnabled()):
                 authenticationProtectionService.storeAttempt(userId, False)
-            if contact is not None: # Registration
-                oobChannel = identity.getWorkingParameter("oobChannel")
-                if oobChannel == "sms":
-                    self.SendOneTimeCode(None, None, contact)
-                elif oobChannel == "email":
-                    self.SendOneTimeCode(None, contact, None)
-            else:
-                self.SendOneTimeCode(userId)
-            addMessage("oob:resend", FacesMessage.SEVERITY_INFO, "sic.newCode")
-            return False
-
-        expires = int(identity.getWorkingParameter("oobExpires"))
-        if expires < Instant.now().getEpochSecond():
-            addMessage("oob:code", FacesMessage.SEVERITY_ERROR, "sic.expiredCode")
+            identity.setWorkingParameter("oobCode", None) # Start over
             addMessage("oob:resend", FacesMessage.SEVERITY_INFO, "sic.newCode")
             return False
 
@@ -127,10 +132,10 @@ class OutOfBand:
             updateNeeded = False
 
             if contact is not None: # Registration
-                oobChannel = identity.getWorkingParameter("oobChannel")
-                if oobChannel == "sms":
+                channel = identity.getWorkingParameter("oobChannel")
+                if channel == "sms":
                     self.userService.addUserAttribute(user, "mobile", contact)
-                elif oobChannel == "email":
+                elif channel == "email":
                     self.userService.addUserAttribute(user, "mail", contact)
                 updateNeeded = True
 
@@ -177,20 +182,22 @@ class OutOfBand:
             addMessage("register_oob:mobile", FacesMessage.SEVERITY_ERROR, "sic.pleaseEnter")
             addMessage("register_oob:email", FacesMessage.SEVERITY_ERROR, "sic.pleaseEnter")
             return False
+        elif StringHelper.isNotEmpty(mobile):
+            channel = "sms"
+            contact = mobile
+        else:
+            channel = "email"
+            contact = mail
 
-        if not self.SendOneTimeCode(None, mail, mobile):
-            if StringHelper.isNotEmpty(mobile):
+        if not self.SendOneTimeCode(None, channel, contact):
+            if channel == "sms":
                 addMessage("register_oob:mobile", FacesMessage.SEVERITY_ERROR, "sic.badPhone")
             else:
                 addMessage("register_oob:email", FacesMessage.SEVERITY_ERROR, "sic.badEmail")
             return False
         else:
             facesMessages.clear()
-            user = self.userService.getUser(identity.getWorkingParameter("userId"), "uid")
-            if mobile is not None:
-                identity.setWorkingParameter("oobContact", mobile)
-            if mail is not None:
-                identity.setWorkingParameter("oobContact", mail)
+            identity.setWorkingParameter("oobContact", contact)
             return True
 
 def addMessage(uiControl, severity, msgId):

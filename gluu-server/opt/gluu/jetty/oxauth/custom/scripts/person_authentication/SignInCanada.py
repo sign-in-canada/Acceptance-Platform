@@ -193,7 +193,7 @@ class PersonAuthentication(PersonAuthenticationType):
                              "oobChannel",  # Chosen channel for OOB (sms or email)
                              "oobCode",     # One-time-code for out-of-band
                              "oobContact",  # Mobile number or email address being registered for OOB
-                             "oobExpires")  # Timestamp when OOB expires
+                             "oobExpiry")  # Timestamp when OOB expires
 
     def prepareForStep(self, configurationAttributes, requestParameters, step):
 
@@ -333,10 +333,12 @@ class PersonAuthentication(PersonAuthenticationType):
             facesService.redirectToExternalURL(passportRequest)
 
         elif step == self.STEP_OOB:
-            if identity.getWorkingParameter("oobCode") is None:
-                self.oob.SendOneTimeCode(identity.getWorkingParameter("userId"))
             if identity.getWorkingParameter("oobChannel") is None:
                 identity.setWorkingParameter("oobChannel", identity.getWorkingParameter("mfaMethod"))
+            if identity.getWorkingParameter("oobCode") is None:
+                self.oob.SendOneTimeCode(identity.getWorkingParameter("userId"),
+                                         identity.getWorkingParameter("oobChannel"),
+                                         identity.getWorkingParameter("oobContact"))
 
         elif step == self.STEP_FIDO:
             userId = identity.getWorkingParameter("userId")
@@ -781,7 +783,7 @@ class PersonAuthentication(PersonAuthenticationType):
                         return self.gotoStep(self.STEP_ABORT)
                     else:
                         return self.gotoStep(self.STEP_CHOOSER)
-            elif requestParameters.containsKey("oob:resend") or int(identity.getWorkingParameter("oobExpires")) < Instant.now().getEpochSecond():
+            elif requestParameters.containsKey("oob:resend") or int(identity.getWorkingParameter("oobExpiry")) < Instant.now().getEpochSecond():
                 return self.gotoStep(self.STEP_OOB)
 
         if step == self.STEP_OOB_REGISTER:
