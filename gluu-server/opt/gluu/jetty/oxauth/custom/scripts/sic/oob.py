@@ -174,7 +174,9 @@ class OutOfBand:
     def RegisterOutOfBand(self, requestParameters):
         identity = CdiUtil.bean(Identity)
         facesMessages = CdiUtil.bean(FacesMessages)
+        authenticationProtectionService = CdiUtil.bean(AuthenticationProtectionService)
 
+        userId = identity.getWorkingParameter("userId")
         mobile = ServerUtil.getFirstValue(requestParameters, "register_oob:mobile")
         mail = ServerUtil.getFirstValue(requestParameters, "register_oob:email")
 
@@ -188,6 +190,13 @@ class OutOfBand:
         else:
             channel = "email"
             contact = mail
+
+        if identity.getWorkingParameter("oobCode") is not None:
+            # This means the user previously tried to register but then backed up
+            # and changed the email address or mobile number. Possible DoS
+            if authenticationProtectionService.isEnabled():
+                authenticationProtectionService.storeAttempt(userId, False)
+                authenticationProtectionService.doDelayIfNeeded(userId)
 
         if not self.SendOneTimeCode(None, channel, contact):
             if channel == "sms":
