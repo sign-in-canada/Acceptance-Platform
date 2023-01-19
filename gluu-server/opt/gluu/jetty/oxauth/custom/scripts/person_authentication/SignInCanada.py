@@ -771,41 +771,14 @@ class PersonAuthentication(PersonAuthenticationType):
                         return self.gotoStep(self.STEP_OOB)
 
         if step == self.STEP_OOB:
-            if requestParameters.containsKey("oob:cancel"):
-                identity.setWorkingParameter("oobCode", None)
-                if identity.getWorkingParameter("oobContact") is not None: # Registration Cancel
-                    identity.setWorkingParameter("oobContact", None)
-                    return self.gotoStep(self.STEP_OOB_REGISTER)
-                else: # Authetication Cancel
-                    identity.setWorkingParameter("userId", None)
-                    identity.setWorkingParameter("oobContact", None)
-                    if len(self.providers) == 1:
-                        return self.gotoStep(self.STEP_ABORT)
-                    else:
-                        return self.gotoStep(self.STEP_CHOOSER)
-            elif requestParameters.containsKey("oob:resend") or int(identity.getWorkingParameter("oobExpiry")) < Instant.now().getEpochSecond():
+            if requestParameters.containsKey("oob:resend") or int(identity.getWorkingParameter("oobExpiry")) < Instant.now().getEpochSecond():
                 return self.gotoStep(self.STEP_OOB)
 
         if step == self.STEP_OOB_REGISTER:
-            if requestParameters.containsKey("register_oob:cancel"):
-                return self.gotoStep(self.STEP_UPGRADE)
             if identity.getWorkingParameter("oobCode"):
                 return self.gotoStep(self.STEP_OOB)
-            elif self.getFormButton(requestParameters) == "cancel":
-                if len(self.providers) == 1:
-                    return self.gotoStep(self.STEP_ABORT)
-                else:
-                    return self.gotoStep(self.STEP_CHOOSER)
 
         if step == self.STEP_UPGRADE:
-            if requestParameters.containsKey("secure:cancel"):
-                identity.setWorkingParameter("userId", None)
-                identity.setWorkingParameter("oobCode", None)
-                if len(self.providers) == 1:
-                    return self.gotoStep(self.STEP_ABORT)
-                else:
-                    return self.gotoStep(self.STEP_CHOOSER)
-
             target = ServerUtil.getFirstValue(requestParameters, "secure:method")
             if target == "fido":
                 return self.gotoStep(self.STEP_FIDO_REGISTER)
