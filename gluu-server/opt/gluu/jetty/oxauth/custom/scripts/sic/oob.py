@@ -49,7 +49,7 @@ class OutOfBand:
         self.lockoutThreshold = 100
         if configurationAttributes.containsKey("lockout_threshold"):
             self.lockoutThreshold = StringHelper.toInteger(configurationAttributes.get("lockout_threshold").getValue2())
-        print ("OutOfBand. Lockout threshold fir %s is %s failed attempts." % (self.scriptName, self.lockoutThreshold))
+        print ("OutOfBand. Lockout threshold for %s is %s failed attempts." % (self.scriptName, self.lockoutThreshold))
 
         self.telemetryClient = TelemetryClient()
 
@@ -96,6 +96,8 @@ class OutOfBand:
             authenticationProtectionService.doDelayIfNeeded(userId)
 
         if requestParameters.containsKey("oob:resend"):
+            if (authenticationProtectionService.isEnabled()):
+                authenticationProtectionService.storeAttempt(userId, False)
             if contact is not None: # Registration
                 oobChannel = identity.getWorkingParameter("oobChannel")
                 if oobChannel == "sms":
