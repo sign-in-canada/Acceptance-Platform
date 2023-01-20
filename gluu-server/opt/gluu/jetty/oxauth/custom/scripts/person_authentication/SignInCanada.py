@@ -750,7 +750,7 @@ class PersonAuthentication(PersonAuthenticationType):
         if step in {self.STEP_1FA, self.STEP_COLLECT}:
             if self.mfaMethods:
                 mfaMethodRegistered = identity.getWorkingParameter("mfaMethod")
-                if mfaMethodRegistered is None or mfaMethodRegistered not in self.mfaMethods:
+                if mfaMethodRegistered is None or mfaMethodRegistered not in {"fido"}.union(self.mfaMethods):
                     if len(self.mfaMethods) > 1:
                         return self.gotoStep(self.STEP_UPGRADE)
                     elif self.mfaMethods[0] == "fido":
