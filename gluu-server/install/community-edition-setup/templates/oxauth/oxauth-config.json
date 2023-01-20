@@ -327,6 +327,7 @@
     "enabledOAuthAuditLogging": "true",
     "errorHandlingMethod":"internal",
     "useLocalCache":true,
+    "sectorIdentifierCacheLifetimeInMinutes": 30,
     "backchannelTokenDeliveryModesSupported": [],
     "backchannelAuthenticationRequestSigningAlgValuesSupported": [],
     "backchannelClientId": "",

@@ -6,20 +6,60 @@
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:jsf="http://xmlns.jcp.org/jsf"
                 xmlns:p="http://xmlns.jcp.org/jsf/passthrough">
-    <h2 class="mini-h2s" style="margin-top:0em;">Use the sign-in option you registered with:</h2>
-    <form jsf:id="chooser" jsf:action="#{authenticator.authenticate}" class="form">
-        <h:messages styleClass="list-unstyled label label-danger wb-server-error" />
-        <button jsf:id="gckey" jsf:action="#{authenticator.authenticate}" class="btn btn-primary btn-call-to-action btn-1" style="color: #333 !important;" value="gckey" type="submit">
-            <i class="fab fa-canadian-maple-leaf" style="color: #333"></i>
-            &#32; Sign in with your GCKey
-        </button>
-        <button jsf:id="cbs" jsf:action="#{authenticator.authenticate}" class="btn btn-primary btn-call-to-action btn-2" style="color: #333 !important;" value="cbs" type="submit">
-            <i class="fas fa-university" style="color: #17599c;"></i>
-            &#32; Use your online banking (Sign-in Partner)
-        </button>
-        <button jsf:id="madi" jsf:action="#{authenticator.authenticate}" class="btn btn-primary btn-call-to-action btn-3" style="color: #333 !important;" value="madi" type="submit">
-            <i class="fa fa-id-card" style="color: #5c35ae;"></i>
-            &#32; Sign in with My Alberta Digital ID
-        </button>
+    <h3 class="mrgn-tp-sm">Sign in to your account</h3>
+    <div class="row mrgn-tp-md">
+        <div class="col-sm-10 col-sm-offset-1">
+            <form jsf:id="chooser" jsf:action="#{authenticator.authenticate}" class="form">
+                <ul class="list-unstyled lst-spcd-2">
+                    <li>
+                        <a jsf:id="gckey" jsf:action="#{authenticator.authenticate}" class="btn btn-default btn-lg btn-block p-sm-3">
+                            <span class="h4">
+                                <span class="fab fa-canadian-maple-leaf fa-lg mrgn-rght-sm fa-pull-left"></span>
+                                With your GCKey user ID and password
+                                <span class="wb-inv"> sign-in</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a jsf:id="cbs" jsf:action="#{authenticator.authenticate}" class="btn btn-default btn-lg btn-block p-sm-3">
+                            <span class="h4">
+                                <span class="fas fa-university fa-lg mrgn-rght-sm fa-pull-left"></span>
+                                Through your <em>Interac™</em> sign-in partner
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a jsf:id="pt" jsf:action="#{authenticator.authenticate}" class="btn btn-default btn-lg btn-block p-sm-3">
+                            <span class="h4">
+                                <span class="fas fa-id-card fa-lg mrgn-rght-sm fa-pull-left"></span>
+                                Through your province
+                                <span class="wb-inv"> sign-in</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a  id="passkey" class="btn btn-default btn-lg btn-block p-sm-3" role="button" href="#">
+                            <span class="h4">
+                                <span class="mrgn-top-sm fa-pull-left">
+                                    <ui:include src="/WEB-INF/icons/passkey.svg" />
+                                </span>
+                                <span class="align-center">
+                                Using your passkey
+                                </span>
+                            </span>
+                                <span class="wb-inv"> sign-in</span>
+                        </a>
+                    </li>
+                    <li>
+                        <div class="checkbox">
+                            <label for="remember"><input id="remember" type="checkbox" value=""></input>Remember my choice on this device</label>
+                        </div>
+                    </li>
+                </ul>
+            </form>
+        </div>
+    </div>
+    <form method="post" action="#{request.contextPath}/postlogin.htm" id="fido2" onsubmit="return false">
+        <input type="hidden" name="assertionResponse" id="assertionResponse" />
     </form>
 </ui:composition>

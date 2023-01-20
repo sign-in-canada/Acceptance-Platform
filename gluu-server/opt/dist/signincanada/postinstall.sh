@@ -85,6 +85,15 @@ pushd /tmp/warpatch
 sed -i "s/DEBUG/INFO/g" WEB-INF/classes/log4j2.xml
 /opt/jre/bin/jar -u -f /opt/gluu/jetty/identity/webapps/identity.war WEB-INF/classes/log4j2.xml
 popd
+rm -rf /tmp/warpatch
+
+echo "Patching FIDO2 API server"
+mkdir -p /tmp/warpatch
+pushd /tmp/warpatch
+/opt/jre/bin/jar -x -f /opt/dist/signincanada/fido2-patch.war
+/opt/jre/bin/jar -u -f /opt/gluu/jetty/fido2/webapps/fido2.war WEB-INF/classes/*
+popd
+rm -rf /tmp/warpatch
 
 echo "Updating packages..."
 yum update -y

@@ -110,14 +110,22 @@
    * @param request: object - A PublicKeyCredentialRequestOptions object,
    *   except where binary values are base64url encoded strings instead of byte
    *   arrays
+   * @param conditionnal: binary - Whether to request conditional mediation
    *
    * @return the Promise returned by `navigator.credentials.get`
    */
-  function getAssertion(request) {
-    console.log('Get assertion', request);
-    return navigator.credentials.get({
-      publicKey: decodePublicKeyCredentialRequestOptions(request),
-    });
+  function getAssertion(request, conditional = false, signal) {
+    console.log('Get', (conditional ? 'conditional' : 'normal'), 'assertion' , request);
+    decodedPublicKey = decodePublicKeyCredentialRequestOptions(request)
+    let getRequest = {publicKey: decodedPublicKey}
+    if (conditional) {
+      getRequest.mediation = 'conditional';
+    }
+    if (signal) {
+    getRequest.signal = signal;
+    }
+    console.log('getRequest:', getRequest)
+    return navigator.credentials.get(getRequest);
   }
 
 

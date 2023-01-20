@@ -6,16 +6,23 @@ from org.gluu.service.cdi.util import CdiUtil
 from org.gluu.oxauth.model.common import User
 from org.gluu.oxauth.model.configuration import AppConfiguration
 from org.oxauth.persistence.model import PairwiseIdentifier
-from org.gluu.service.cdi.util import CdiUtil
+from org.gluu.jsf2.message import FacesMessages
+from org.gluu.oxauth.util import ServerUtil
 from org.gluu.oxauth.service import UserService, PairwiseIdentifierService
+from org.gluu.oxauth.i18n import LanguageBean
 from org.gluu.persist import PersistenceEntryManager
 from org.gluu.persist.model.base import CustomEntry
 from org.gluu.search.filter import Filter
+from org.gluu.util import StringHelper
+from org.gluu.model import GluuStatus
 
 from java.net import URI
 from javax.faces.context import FacesContext
+from javax.faces.application import FacesMessage
 
-import uuid
+from com.microsoft.applicationinsights import TelemetryClient
+
+import uuid, re
 
 class AccountError(Exception):
     """Base class for exceptions in this module."""
@@ -27,10 +34,12 @@ class Account:
         self.userService = CdiUtil.bean(UserService)
         self.pairwiseIdentifierService = CdiUtil.bean(PairwiseIdentifierService)
         self.entryManager = CdiUtil.bean(PersistenceEntryManager)
+        self.languageBean = CdiUtil.bean(LanguageBean)
+        self.facesMessages = CdiUtil.bean(FacesMessages) 
+        self.telemetryClient = TelemetryClient()
 
-    # Creation
+    # Creation via external CSP
     def create(self, externalProfile):
-
         externalUid = externalProfile.get("externalUid")
         if externalUid is not None:
             user = User()
@@ -40,7 +49,42 @@ class Account:
         else:
             raise AccountError("Account. Create. External Account is missing externalUid")
 
-    # Lookup
+    # Creation via registration form
+    def register (self, requestParameters):
+        uid = ServerUtil.getFirstValue(requestParameters, "registration:username")
+        print ('uid: ', uid)
+        self.facesMessages.setKeepMessages()
+        if re.search('\s', uid):
+            self.facesMessages.add(FacesMessage.SEVERITY_ERROR, self.languageBean.getMessage("sic.uidnospace"))
+            return None
+
+        # Check for available username
+        if self.userService.getUser(uid):
+            self.facesMessages.add(FacesMessage.SEVERITY_ERROR, self.languageBean.getMessage("sic.uidtaken"))
+            return None
+
+        user = User()
+        user.setUserId(uid)
+        user = self.userService.addUser(user, False)
+
+        # Check for duplicate
+        users = self.userService.getUsersByAttribute("uid", uid, False, 2)
+        if users.size() > 1:
+            message = "Duplicate userid detected"
+            self.telemetryClient.trackEvent("SecurityEvent", {"cause": message}, None)
+            print ("SECURITY: %s" % message)
+            self.entryManager.removeRecursively(user.getDn(), User)
+            return None
+
+        return user
+
+    def delete (self, username):
+        user = self.userService.getUser(username, "gluuStatus")
+        if user.getAttribute("gluuStatus") == GluuStatus.REGISTER.getValue(): # Never delete active accounts
+            print (user.getUserId(), user.getDn())
+            self.entryManager.removeRecursively(user.getDn(), User)
+
+    # Lookup via external CSP PAI
     def find(self, externalProfile):
         externalUid = externalProfile.get("externalUid")
         if externalUid is not None:
@@ -71,7 +115,24 @@ class Account:
         self.userService.addUserAttribute(user, "oxExternalUid", newExternalId, True)
         return sub
 
-    def replaceExternalUid(self, user, externalProfile): # For future use (switch credential)
+    def removeExternalUid(self, user, provider, sub):
+        externalUidAttribute = self.userService.getCustomAttribute(user, "oxExternalUid")
+        if externalUidAttribute is None:
+            return None
+        
+        externalUids = externalUidAttribute.getValues()
+
+        uidToDelete = "passport-" + provider + ":" + sub
+        newExternalUids = []
+        for externalUid in externalUids:
+            if externalUid != uidToDelete:
+                newExternalUids.append(externalUid)
+
+        externalUidAttribute.setValues(newExternalUids)
+        externalUidAttribute.setMultiValued(True)
+        return user
+
+    def replaceExternalUid(self, user, provider, sub): # For future use (switch credential)
          return NotImplemented
 
     # SAML RP Subject Management
@@ -135,6 +196,19 @@ class Account:
             raise AccountError("account. addOpenIdSubject unable to find client sector identifier Uri")
 
         return URI.create(sectorIdentifierUri).getHost()
+
+# MFA Management
+    def getMfaMethod(self, user):
+        if self.userService.countFido2RegisteredDevices(user.getUserId()) > 0:
+            return "fido"
+        elif self.getExternalUid(user, "mfa") is not None:
+            return "totp"
+        elif user.getAttribute("mobile") is not None:
+            return "sms"
+        elif user.getAttribute("mail") is not None:
+            return "email"
+        else:
+            return None
 
 # FIDO2 authenticator management
 

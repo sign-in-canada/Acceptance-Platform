@@ -1,14 +1,14 @@
 /*!
  * Web Experience Toolkit (WET) / Boîte à outils de l'expérience Web (BOEW)
  * wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
- * v4.0.51.1 - 2022-06-29
+ * v4.0.56.4 - 2022-12-13
  *
  *//**
  * @title WET-BOEW JQuery Helper Methods
  * @overview Helper methods for WET
  * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
  * @author WET Community
- * Credits: http://kaibun.net/blog/2013/04/19/a-fully-fledged-coffeescript-boilerplate-for-jquery-plugins/
+ * Credits: https://web.archive.org/web/20130826230640/http://kaibun.net/blog/2013/04/19/a-fully-fledged-coffeescript-boilerplate-for-jquery-plugins/
  */
 ( function( $, wb ) {
 
@@ -1232,7 +1232,7 @@ wb.date = {
 	fromDateISO: function( dateISO ) {
 		var date = null;
 
-		if ( dateISO && dateISO.match( /\d{4}-\d{2}-\d{2}/ ) ) {
+		if ( dateISO && /\d{4}-\d{2}-\d{2}/.test( dateISO ) ) {
 			date = new Date( dateISO.substr( 0, 4 ), dateISO.substr( 5, 2 ) - 1, dateISO.substr( 8, 2 ), 0, 0, 0, 0 );
 		}
 		return date;
@@ -1253,6 +1253,24 @@ wb.guid = function() {
 
 wb.escapeAttribute = function( str ) {
 	return str.replace( /'/g, "&#39;" ).replace( /"/g, "&#34;" );
+};
+
+/*
+ * Returns an escaped HTML string
+ */
+wb.escapeHTML = function( str ) {
+	return wb.escapeAttribute( str
+		.replace( /&/g, "&#38;" )
+		.replace( /</g, "&#60;" )
+		.replace( />/g, "&#62;" ) );
+};
+
+/*
+ * Returns a UTF-8 output from Base64
+ * Reference: https://developer.mozilla.org/fr/docs/Glossary/Base64 (To be reviewed later because escape function is deprecated)
+ */
+wb.decodeUTF8Base64 = function( str ) {
+	return decodeURIComponent( escape( atob( str ) ) );
 };
 
 /*
@@ -1524,12 +1542,12 @@ var componentName = "wb-addcal",
 					en: {
 						"addcal-addto": "Add to",
 						"addcal-calendar": "calendar",
-						"addcal-ical": "iCal format (iPhone, Outlook...)"
+						"addcal-other": "Other (Outlook, Apple, etc.)"
 					},
 					fr: {
 						"addcal-addto": "Ajouter au",
 						"addcal-calendar": "calendrier",
-						"addcal-ical": "Format iCal (iPhone, Outlook....)"
+						"addcal-other": "Autre (Outlook, Apple, etc.)"
 					}
 				};
 
@@ -1538,7 +1556,7 @@ var componentName = "wb-addcal",
 			i18nDict = {
 				addto: i18nDict[ "addcal-addto" ],
 				calendar: i18nDict[ "addcal-calendar" ],
-				ical: i18nDict[ "addcal-ical" ]
+				ical: i18nDict[ "addcal-other" ]
 			};
 
 			// Set date stamp with the date modified
@@ -1549,6 +1567,8 @@ var componentName = "wb-addcal",
 				prop_cache = properties[ i ];
 				switch ( prop_cache.getAttribute( "property" ) ) {
 				case "name":
+
+					// If the property=name is inside an element with typeof=Place defined
 					if ( $( prop_cache ).parentsUntil( ( "." + componentName ), "[typeof=Place]" ).length ) {
 						event_details.placeName = prop_cache.textContent;
 					} else {
@@ -1559,13 +1579,15 @@ var componentName = "wb-addcal",
 					event_details.description = prop_cache.textContent.replace( /(\r\n|\n|\r)/gm, " " );
 					break;
 				case "startDate":
-					event_details.sDate = dtToISOString( $( "time[property='startDate']" ) );
+					event_details.sDate = dtToISOString( $( "time[property='startDate']", $elm ) );
 					break;
 				case "endDate":
-					event_details.eDate = dtToISOString( $( "time[property='endDate']" ) );
+					event_details.eDate = dtToISOString( $( "time[property='endDate']", $elm ) );
 					break;
 				case "location":
-					if ( !prop_cache.getAttribute( "typeof" ) ) {
+
+					// If the location doesn't have typeof defined OR has typeof=VirtualLocation without URL inside.
+					if ( !prop_cache.getAttribute( "typeof" ) || ( prop_cache.getAttribute( "typeof" ) === "VirtualLocation" && !$( prop_cache ).find( "[property=url]" ).length ) ) {
 						event_details.placeName = prop_cache.textContent;
 					}
 					break;
@@ -1580,6 +1602,13 @@ var componentName = "wb-addcal",
 					break;
 				case "postalCode":
 					event_details.placePostalCode = prop_cache.textContent;
+					break;
+				case "url":
+
+					// If the property=url is inside a property=location
+					if ( $( prop_cache ).parentsUntil( ( "." + componentName ), "[property=location]" ).length ) {
+						event_details.placeName = prop_cache.textContent;
+					}
 					break;
 				}
 			}
@@ -1609,8 +1638,8 @@ var componentName = "wb-addcal",
 
 			// Create and add details summary to the wb-addcal event and initiate the unordered list
 			$elm.append( "<details class='max-content " + componentName + "-buttons'><summary>" + i18nDict.addto + " " + i18nDict.calendar +
-			"</summary><ul class='list-unstyled mrgn-bttm-0 mrgn-tp-sm'><li><a class='btn btn-link btn-lg mrgn-top-lg' href='" + googleLink.replace( /'/g, "%27" ) + "'>Google<span class='sr-only'>" + i18nDict.calendar + "</span></a></li><li><button class='btn btn-link btn-lg download-ics'>" + i18nDict.ical +
-			"<span class='sr-only'>Calendar</span></button></li></ul></details>" );
+			"</summary><ul class='list-unstyled mrgn-bttm-0'><li><a class='btn btn-link' href='" + googleLink.replace( /'/g, "%27" ) + "' target='_blank' rel='noreferrer noopener'>Google<span class='wb-inv'>" + i18nDict.calendar + "</span></a></li><li><button class='btn btn-link download-ics'>" + i18nDict.ical +
+			"<span class='wb-inv'>Calendar</span></button></li></ul></details>" );
 		}
 
 		wb.ready( $( elm ), componentName );
@@ -1892,12 +1921,14 @@ wb.add( selector );
  */
 var componentName = "wb-calevt",
 	selector = "." + componentName,
+	componentEventName = componentName + "-cal",
+	selectorEvent = "." + componentEventName,
 	initEvent = "wb-init" + selector,
 	evDetails = "ev-details",
 	setFocusEvent = "focus",
 	dataAttr = componentName,
 	$document = wb.doc,
-	i18n, i18nText,
+	hiddenClass = "hidden",
 
 	/**
 	 * @method init
@@ -1913,14 +1944,6 @@ var componentName = "wb-calevt",
 
 		if ( elm ) {
 			$elm = $( elm );
-
-			// Only initialize the i18nText once
-			if ( !i18nText ) {
-				i18n = wb.i18n;
-				i18nText = {
-					calendar: i18n( "cal" )
-				};
-			}
 
 			// Load ajax content
 			$.when.apply( $, $.map( $elm.find( "[data-calevt]" ), getAjax ) )
@@ -1965,7 +1988,7 @@ var componentName = "wb-calevt",
 
 		events = getEvents( $elm );
 		containerId = $elm.data( "calevtSrc" );
-		$container = $( "#" + containerId ).addClass( componentName + "-cal" );
+		$container = $( "#" + containerId ).addClass( componentEventName );
 
 		year = settings.year;
 		month = settings.month;
@@ -2000,8 +2023,6 @@ var componentName = "wb-calevt",
 			events: events.list,
 			$events: $elm
 		} );
-
-		$container.attr( "aria-label", i18nText.calendar );
 	},
 
 	daysBetween = function( dateLow, dateHigh ) {
@@ -2045,15 +2066,16 @@ var componentName = "wb-calevt",
 					}
 				]
 			},
-			objEventsList = obj.find( "ol > li, ul > li" ),
-			iLen = objEventsList.length,
+			objEventsList = obj.find( "ul, ol" ).first(),
+			objEventsListItems = objEventsList.find( "> li:not(.wb-fltr-out)" ),
+			iLen = objEventsListItems.length,
 			dateTimeRegExp = /datetime\s+\{date:\s*(\d+-\d+-\d+)\}/,
 			i, $event, event, $objTitle, title, link, href, target,
 			linkId, date, tCollection, tCollectionTemp,	strDate1,
 			strDate2, z, zLen, className, dateClass;
 
 		for ( i = 0; i !== iLen; i += 1 ) {
-			$event = objEventsList.eq( i );
+			$event = objEventsListItems.eq( i );
 			event = $event[ 0 ];
 			$objTitle = $event.find( "*:header:first" );
 			className = $objTitle.attr( "class" );
@@ -2222,10 +2244,10 @@ var componentName = "wb-calevt",
 
 	filterEvents = function( year, month ) {
 		this.find( "li.cal-disp-onshow" )
-			.addClass( "wb-inv" )
+			.addClass( hiddenClass )
 			.has( ":header[class*=filter-" + year + "-" +
 				wb.string.pad( parseInt( month, 10 ) + 1, 2 ) + "]" )
-			.removeClass( "wb-inv" );
+			.removeClass( hiddenClass );
 	},
 
 	showEvents = function() {
@@ -2249,9 +2271,27 @@ var componentName = "wb-calevt",
 	};
 
 // Bind the init event of the plugin
-$document.on( "timerpoke.wb " + initEvent, selector, init );
+$document.on( "timerpoke.wb " + initEvent + " wb-redraw" + selector, selector, function( event ) {
 
-$document.on( "wb-navigate.wb-clndr", ".wb-calevt-cal", function( event ) {
+	var eventType = event.type,
+		$elm = $( "#" + event.target.id ),
+		calendarId = event.currentTarget.dataset.calevtSrc;
+
+	switch ( eventType ) {
+	case "timerpoke":
+	case "wb-init":
+		init( event );
+		break;
+
+	case "wb-redraw":
+		$( "#" + calendarId + " .wb-clndr" ).remove();
+		processEvents( $elm );
+		$elm.trigger( "wb-updated" + selector );
+		break;
+	}
+} );
+
+$document.on( "wb-navigate.wb-clndr", selectorEvent, function( event ) {
 	var lib = event.target.lib,
 		$calEvent;
 
@@ -2267,7 +2307,7 @@ $document.on( "wb-navigate.wb-clndr", ".wb-calevt-cal", function( event ) {
 	}
 } );
 
-$document.on( "focusin focusout keydown", ".wb-calevt-cal .cal-days td > a", function( event ) {
+$document.on( "focusin focusout keydown", selectorEvent + " .cal-evt", function( event ) {
 	var eventType = event.type,
 		$link;
 
@@ -2287,7 +2327,7 @@ $document.on( "focusin focusout keydown", ".wb-calevt-cal .cal-days td > a", fun
 	}
 } );
 
-$document.on( "keydown", ".wb-calevt-cal .cal-days td > ul li", function( event ) {
+$document.on( "keydown", selectorEvent + " td > ul li", function( event ) {
 	var $item = $( event.currentTarget ),
 		$toFocus, $itemParent;
 
@@ -2311,6 +2351,10 @@ $document.on( "keydown", ".wb-calevt-cal .cal-days td > ul li", function( event 
 		$itemParent.trigger( setFocusEvent );
 		break;
 	}
+} );
+
+$document.on( "focusout", selectorEvent + " td > ul", function( event ) {
+	hideEvents.call( event.target );
 } );
 
 // Add the timer poke to initialize the plugin
@@ -2348,25 +2392,27 @@ var i18nText,
 			goToMonth: i18n( "cal-goToMnth" ),
 			dayNames: i18n( "days" ),
 			currDay: i18n( "currDay" ),
-			format: i18n( "cal-format" )
+			format: i18n( "cal-format" ),
+			calendar: i18n( "cal" )
 		};
 
 		textWeekDayNames = i18nText.dayNames;
 		textMonthNames = i18nText.monthNames;
 
-		$calBase = $( "<div class='wb-clndr' role='application'>" +
+		$calBase = $( "<div class='wb-clndr' role='application' aria-label='" + i18nText.calendar + "'>" +
 			"<div class='cal-nav'>" +
+				"<span class='wb-inv current-month' aria-live='polite'></span>" + // Added for screen-readers
 				"<button type='button' class='btn pull-left cal-month-prev'>" +
-					"<span class='glyphicon glyphicon-arrow-left'></span>" +
+					"<span class='glyphicon glyphicon-arrow-left' aria-hidden='true'></span>" +
 					"<span class='wb-inv'>" + i18nText.prevMonth + "<span></span></span>" +
 				"</button>" +
 				"<button type='button' class='btn pull-right cal-month-next'>" +
-					"<span class='glyphicon glyphicon-arrow-right'></span>" +
+					"<span class='glyphicon glyphicon-arrow-right' aria-hidden='true'></span>" +
 					"<span class='wb-inv'>" + i18nText.nextMonth + "<span></span></span>" +
 				"</button>" +
 				"<div class='form-group'>" +
-					"<select title='" + i18nText.goToYear + "' class='cal-year'></select>\n" +
-					"<select title='" + i18nText.goToMonth + "' class='cal-month'>" +
+					"<label><span class='wb-inv'>" + i18nText.goToYear + "</span><select class='cal-year'></select></label>\n" +
+					"<label><span class='wb-inv'>" + i18nText.goToMonth + "</span><select class='cal-month'>" +
 						( function() {
 							var months = "",
 								m;
@@ -2377,18 +2423,18 @@ var i18nText,
 
 							return months;
 						} )() +
-					"</select>" +
+					"</select></label>" +
 				"</div>" +
 			"</div>" +
 			"<table>" +
-				"<thead role='presentation'>" +
+				"<thead>" +
 					"<tr>" +
 						( function() {
 							var days = "",
 								d;
 
 							for ( d = 0; d < 7; d += 1 ) {
-								days += "<th role='columnheader'><abbr title='" + textWeekDayNames[ d ] + "'>" + textWeekDayNames[ d ].substr( 0, 1 ) + "</abbr></th>";
+								days += "<th><abbr title='" + textWeekDayNames[ d ] + "'>" + textWeekDayNames[ d ].substr( 0, 1 ) + "</abbr></th>";
 							}
 
 							return days;
@@ -2454,7 +2500,8 @@ var i18nText,
 			.trigger( {
 				type: navigateEvent,
 				year: this.year,
-				month: this.month
+				month: this.month,
+				initEvent: true
 			} );
 	},
 
@@ -2612,6 +2659,11 @@ $document.on( navigateEvent, selector, function( event ) {
 	}
 
 	createDays( event.currentTarget, event.year, event.month );
+
+	// Added declaration of current month in aria-live="polite" for screen-readers
+	if ( !event.initEvent ) {
+		$calendar.find( ".current-month" ).text( i18nText.monthNames[ month ] + " " + year );
+	}
 } );
 
 $document.on( "change", selector, function( event ) {
@@ -2637,7 +2689,7 @@ $document.on( "change", selector, function( event ) {
 	} );
 } );
 
-$document.on( "click vclick touchstart", ".cal-month-prev, .cal-month-next", function( event ) {
+$document.on( "click", ".cal-month-prev, .cal-month-next", function( event ) {
 	var $calendar = $( event.currentTarget ).closest( selector ),
 		calendar = $calendar.get( 0 ),
 		className = event.currentTarget.className,
@@ -4159,12 +4211,12 @@ var componentName = "wb-ctrycnt",
 
 			// From https://github.com/aFarkas/webshim/blob/master/src/shims/geolocation.js#L89-L127
 			$.ajax( {
-				url: "https://freegeoip.app/json/",
+				url: "https://api.country.is/",
 				dataType: "json",
 				cache: true,
 				success: function( data ) {
 					if ( data ) {
-						countryCode = data.country_code;
+						countryCode = data.country;
 						try {
 							localStorage.setItem( "countryCode", countryCode );
 						} catch ( error ) {
@@ -4583,7 +4635,7 @@ var componentName = "wb-inview",
 		// Link the overlay close button to the dismiss action if the inview content is dismissable
 		if ( $elm.hasClass( "wb-dismissable" ) ) {
 			if ( $dataInView.hasClass( "wb-overlay" ) ) {
-				$dataInView.children( ".overlay-close" ).on( "click vclick", function( event ) {
+				$dataInView.children( ".overlay-close" ).on( "click", function( event ) {
 					var which = event.which;
 
 					// Ignore middle/right mouse buttons
@@ -4996,7 +5048,7 @@ var componentName = "wb-dismissable",
 $document.on( "timerpoke.wb " + initEvent, selector, init );
 
 // Handler for clicking on the dismiss button
-$document.on( "click vclick", "." + dismissClass, function( event ) {
+$document.on( "click", "." + dismissClass, function( event ) {
 	var elm = event.currentTarget,
 		which = event.which;
 
@@ -6309,9 +6361,15 @@ var componentName = "wb-filter",
 
 			totalEntries = $elm.find( ( settings.section || "" ) + " " + settings.selector ).length;
 
-			filterUI = "<div class=\"input-group\"><label for=\"" + inptId + "\" class=\"input-group-addon\"><span class=\"glyphicon glyphicon-filter\" aria-hidden=\"true\"></span> " + i18nText.filter_label + "</label><input id=\"" + inptId + "\" class=\"form-control " + inputClass + "\" data-" + dtNameFltrArea + "=\"" + elm.id + "\" type=\"search\"></div>" + "<p aria-live=\"polite\" id=\"" + elm.id + "-info\">" + infoFormater( totalEntries, totalEntries ) + "</p>";
+			filterUI = $( "<div class=\"input-group\">" +
+				"<label for=\"" + inptId + "\" class=\"input-group-addon\"><span class=\"glyphicon glyphicon-filter\" aria-hidden=\"true\"></span> " + i18nText.filter_label + "</label>" +
+				"<input id=\"" + inptId + "\" class=\"form-control " + inputClass + "\" data-" + dtNameFltrArea + "=\"" + elm.id + "\" aria-controls=\"" + elm.id + "\" type=\"search\">" +
+				"</div>" +
+				"<p aria-live=\"polite\" id=\"" + elm.id + "-info\">" + infoFormater( totalEntries, totalEntries ) + "</p>" );
 
-			if ( prependUI ) {
+			if ( settings.source ) {
+				$( settings.source ).prepend( filterUI );
+			} else if ( prependUI ) {
 				$elm.prepend( filterUI );
 			} else {
 				$elm.before( filterUI );
@@ -6407,7 +6465,7 @@ var componentName = "wb-filter",
 			$item = $items.eq( i );
 			text = unAccent( $item.text() );
 
-			if ( !text.match( searchFilterRegularExp ) ) {
+			if ( !searchFilterRegularExp.test( text ) ) {
 				if ( hndParentSelector ) {
 					$item = $item.parentsUntil( hndParentSelector );
 				}
@@ -6672,6 +6730,19 @@ var componentName = "wb-frmvld",
 						summaryHeading = settings.hdLvl,
 						i, len, validator;
 
+					if ( wb.lang === "fr" ) {
+
+						// alphanumeric regex is changed to allow french characters;
+						$.validator.addMethod( "alphanumeric", function( value, element ) {
+							return this.optional( element ) || /^[a-zàâçéèêëîïôûùüÿæœ0-9_]+$/i.test( value );
+						}, "Letters, numbers, and underscores only please." );
+
+						// error french text is adjusted to remove the word "spaces"
+						$.extend( $.validator.messages, {
+							alphanumeric: "Veuillez fournir seulement des lettres, nombres et soulignages."
+						} );
+					}
+
 					// Append the aria-live region (for provide message updates to screen readers)
 					$elm.append( "<div class='arialive wb-inv' aria-live='polite' aria-relevant='all'></div>" );
 
@@ -6918,7 +6989,7 @@ var componentName = "wb-frmvld",
 					} );
 
 					// Clear the form and remove error messages on reset
-					$document.on( "click vclick touchstart", selector + " input[type=reset]", function( event ) {
+					$document.on( "click", selector + " input[type=reset]", function( event ) {
 						var which = event.which,
 							ariaLive;
 
@@ -7566,7 +7637,7 @@ var componentName = "wb-lbx",
 $document.on( "timerpoke.wb " + initEvent, selector, init );
 
 // Handler for clicking on a same page link within the overlay to outside the overlay
-$document.on( "click vclick", ".mfp-wrap a[href^='#']", function( event ) {
+$document.on( "click", ".mfp-wrap a[href^='#']", function( event ) {
 	var which = event.which,
 		eventTarget = event.currentTarget,
 		$lightbox, linkTarget;
@@ -8205,13 +8276,12 @@ $document.on( "mouseenter", selector + " .sm", function() {
 } );
 
 // Touchscreen "touches" on menubar items should close the submenu if it is open
-$document.on( "touchstart click", selector + " .item[aria-haspopup=true]", function( event ) {
-	var isTouchstart = event.type === "touchstart",
-		which = event.which,
+$document.on( "click", selector + " .item[aria-haspopup=true]", function( event ) {
+	var which = event.which,
 		$this, $parent;
 
 	// Ignore middle and right mouse buttons
-	if ( isTouchstart || ( !which || which === 1 ) ) {
+	if ( !which || which === 1 ) {
 		event.preventDefault();
 		$this = $( this );
 		$parent = $this.parent();
@@ -8219,10 +8289,6 @@ $document.on( "touchstart click", selector + " .item[aria-haspopup=true]", funct
 		// Open the submenu if it is closed
 		if ( !$parent.hasClass( "sm-open" ) ) {
 			$this.trigger( "focusin" );
-
-		// Close the open submenu for a touch event
-		} else if ( isTouchstart ) {
-			menuClose( $parent, true );
 		}
 	}
 } );
@@ -8260,12 +8326,12 @@ $document.on( "click", selector + " [role=menu] [aria-haspopup=true]", function(
 } );
 
 // Clicks and touches outside of menus should close any open menus
-$document.on( "click touchstart", function( event ) {
+$document.on( "click", function( event ) {
 	var $openMenus,
 		which = event.which;
 
 	// Ignore middle and right mouse buttons
-	if ( event.type === "touchstart" || ( !which || which === 1 ) ) {
+	if ( event.type === "" || ( !which || which === 1 ) ) {
 		$openMenus = $( selector + " .sm-open" );
 		if ( $openMenus.length !== 0 &&
 			$( event.target ).closest( selector ).length === 0 ) {
@@ -9175,7 +9241,8 @@ $document.on( initializedEvent, selector, function( event ) {
 			}, i18nText ),
 			media = $media.get( 0 ),
 			youTube = window.youTube,
-			url;
+			url,
+			i18n = wb.i18n;
 
 		if ( $media.attr( "id" ) === undef ) {
 			$media.attr( "id", mId );
@@ -9205,19 +9272,51 @@ $document.on( initializedEvent, selector, function( event ) {
 
 			// finally lets load safely
 			return Modernizr.load( {
-				load: "https://www.youtube.com/iframe_api"
+				load: "https://www.youtube.com/iframe_api",
+
+				//possible solution for multimedia and doaction conflict in corporate network
+				complete: function() {
+
+					// Ensure that Youtube API is loading the iframe and if it fails, ensure that it will show a message, like accessing the web via our GC network.
+					setTimeout( function() {
+						var resources, arrIframesYt, $notifText;
+
+						resources = window.performance.getEntriesByType( "resource" );
+
+						/* get all the iframe initiators that have the same YT url id */
+						arrIframesYt  = resources.filter( function( obj ) {
+
+							return obj.initiatorType === "iframe" && obj.name.includes( data.youTubeId );
+
+						} );
+
+
+						/* if none found, most probably wb is loaded in restricted network so wb.ready() is triggered for not preventing other wb components to load*/
+						if ( arrIframesYt.length < 1 ) {
+							if ( !wb.isReady ) {
+
+								// show the video notification error
+								$notifText = $( "<div aria-live='polite' class='pstn-lft-xs bg-dark text-white'><p class='mrgn-tp-md mrgn-rght-md mrgn-bttm-md mrgn-lft-md'>" + i18n( "msgYoutubeNotLoad" ) + "</p></div>" );
+								$this.prepend( $notifText );
+								data.notifyText = $notifText;
+								wb.ready( $this, componentName );
+							}
+						}
+					}, 1000 );
+
+				}
 			} );
 
 		} else if ( media.error === null && media.currentSrc !== "" && media.currentSrc !== undef ) {
 			$this.trigger( renderUIEvent, [ type, data ] );
+
+			// Identify that initialization has completed
+			wb.ready( $this, componentName );
 		} else {
 
 			// Do nothing since IE8 support is no longer required
 			return;
 		}
-
-		// Identify that initialization has completed
-		wb.ready( $this, componentName );
 	}
 } );
 
@@ -9244,8 +9343,14 @@ $document.on( youtubeEvent, selector, function( event, data ) {
 			},
 			events: {
 				onReady: function( event ) {
+					if ( data.notifyText ) {
+						data.notifyText.hide();
+					}
 					onResize();
 					youTubeEvents( event );
+					if ( !wb.isReady ) {
+						wb.ready( $this, componentName );
+					}
 				},
 				onStateChange: youTubeEvents,
 				onApiChange: function() {
@@ -9253,6 +9358,9 @@ $document.on( youtubeEvent, selector, function( event, data ) {
 					//If captions were enabled before the module was ready, re-enable them
 					var t = $this.get( 0 );
 					t.player( "setCaptionsVisible", t.player( "getCaptionsVisible" ) );
+				},
+				onError: function() {
+					console.warn( "There is an issue loading the Youtube player" );
 				}
 			}
 		} );
@@ -9356,19 +9464,19 @@ $document.on( "click", selector, function( event ) {
 	// Optimized multiple class tests to include child glyphicon because Safari was reporting the click event
 	// from the child span not the parent button, forcing us to have to check for both elements
 	// JSPerf for multiple class matching https://jsperf.com/hasclass-vs-is-stackoverflow/7
-	if ( className.match( /playpause|-play|-pause|display/ ) || $target.is( "object" ) || $target.is( "video" ) ) {
+	if (  /playpause|-play|-pause|display/.test( className ) || $target.is( "object" ) || $target.is( "video" ) ) {
 		this.player( "getPaused" ) || this.player( "getEnded" ) ? this.player( "play" ) : this.player( "pause" );
-	} else if ( className.match( /(^|\s)cc\b|-subtitles/ ) && !$target.attr( "disabled" ) && !$target.parent().attr( "disabled" ) ) {
+	} else if ( /(^|\s)cc\b|-subtitles/.test( className ) && !$target.attr( "disabled" ) && !$target.parent().attr( "disabled" ) ) {
 		this.player( "setCaptionsVisible", !this.player( "getCaptionsVisible" ) );
-	} else if ( className.match( /\bmute\b|-volume-(up|off)/ ) ) {
+	} else if ( /\bmute\b|-volume-(up|off)/.test( className ) ) {
 		this.player( "setMuted", !this.player( "getMuted" ) );
 	} else if ( $target.is( "progress" ) || $target.hasClass( "progress" ) || $target.hasClass( "progress-bar" ) ) {
 		this.player( "setCurrentTime", this.player( "getDuration" ) * ( ( event.pageX - $target.offset().left ) / $target.width() ) );
-	} else if ( className.match( /\brewind\b|-backward/ ) ) {
+	} else if ( /\brewind\b|-backward/.test( className ) ) {
 		this.player( "setCurrentTime", this.player( "getCurrentTime" ) - this.player( "getDuration" ) * 0.05 );
-	} else if ( className.match( /\bfastforward\b|-forward/ ) ) {
+	} else if ( /\bfastforward\b|-forward/.test( className ) ) {
 		this.player( "setCurrentTime", this.player( "getCurrentTime" ) + this.player( "getDuration" ) * 0.05 );
-	} else if ( className.match( /cuepoint/ ) ) {
+	} else if ( className.includes( "cuepoint" ) ) {
 		$( this ).trigger( { type: "cuepoint", cuepoint: $target.data( "cuepoint" ) } );
 	}
 } );
@@ -10008,7 +10116,7 @@ $document.on( "timerpoke.wb " + initEvent + " keydown open" + selector +
 } );
 
 // Handler for clicking on the close button of the overlay
-$document.on( "click vclick", "." + closeClass, function( event ) {
+$document.on( "click", "." + closeClass, function( event ) {
 	var which = event.which;
 
 	// Ignore if not initialized and middle/right mouse buttons
@@ -10022,7 +10130,7 @@ $document.on( "click vclick", "." + closeClass, function( event ) {
 } );
 
 // Handler for clicking on a source link for the overlay
-$document.on( "click vclick keydown", "." + linkClass, function( event ) {
+$document.on( "click keydown", "." + linkClass, function( event ) {
 	var which = event.which,
 		sourceLink = event.currentTarget,
 		overlayId = sourceLink.hash.substring( 1 );
@@ -10044,7 +10152,7 @@ $document.on( "click vclick keydown", "." + linkClass, function( event ) {
 } );
 
 // Handler for clicking on a same page link within the overlay to outside the overlay
-$document.on( "click vclick", selector + " a[href^='#']", function( event ) {
+$document.on( "click", selector + " a[href^='#']", function( event ) {
 	var which = event.which,
 		eventTarget = event.target,
 		href, overlay, linkTarget;
@@ -10073,7 +10181,7 @@ $document.on( "click vclick", selector + " a[href^='#']", function( event ) {
 } );
 
 // Outside activity detection
-$document.on( "click vclick touchstart focusin", "body", function( event ) {
+$document.on( "click focusin", "body", function( event ) {
 	var eventTarget = event.target,
 		which = event.which,
 		overlayId, overlay;
@@ -11270,6 +11378,7 @@ var componentName = "wb-steps",
 
 		// set default attributes
 		control.className = ( type === "prev" ? "btn btn-md btn-default" : "btn btn-md btn-primary" ) + " " + style;
+		control.setAttribute( "type", "button" );
 		control.innerHTML = text;
 
 		return control;
@@ -11577,9 +11686,10 @@ $document.on( "init.dt", function( event ) {
 		$elm.find( "th" ).each( function() {
 			var $th = $( this ),
 				label = ( $th.attr( "aria-sort" ) === "ascending" ) ? i18nText.aria.sortDescending : i18nText.aria.sortAscending;
-
-			$th.html( "<button type='button' aria-controls='" + $th.attr( "aria-controls" ) +  "' title='" + $th.text().replace( /'/g, "&#39;" ) + label + "'>" + $th.html() + "<span class='sorting-cnt'><span class='sorting-icons' aria-hidden='true'></span></span></button>" );
-			$th.removeAttr( "aria-label tabindex aria-controls" );
+			if ( $th.attr( "data-orderable" ) !== "false" ) {
+				$th.html( "<button type='button' aria-controls='" + $th.attr( "aria-controls" ) +  "' title='" + $th.text().replace( /'/g, "&#39;" ) + label + "'>" + $th.html() + "<span class='sorting-cnt'><span class='sorting-icons' aria-hidden='true'></span></span></button>" );
+				$th.removeAttr( "aria-label tabindex aria-controls" );
+			}
 		} );
 		$elm.attr( "aria-label", i18nText.tblFilterInstruction );
 	}
@@ -11606,7 +11716,7 @@ $document.on( "submit", ".wb-tables-filter", function( event ) {
 		};
 
 	// Lets reset the search
-	$datatable.search( "" ).columns().search( "" ).draw();
+	$datatable.search( "" ).columns().search( "" );
 
 	// Lets loop throug all options
 	var $prevCol = -1, $cachedVal = "";
@@ -11637,17 +11747,17 @@ $document.on( "submit", ".wb-tables-filter", function( event ) {
 		if ( $elm.is( "select" ) ) {
 			$value = $elm.find( "option:selected" ).val();
 		} else if ( $elm.is( "input[type='number']" ) ) {
-			var $minNum, $maxNum;
+			var $minNum, $maxNum = null;
 
 			// Retain minimum number (always the first number input)
 			if ( $cachedVal === "" ) {
 				$cachedVal = parseFloat( $val );
 				$cachedVal = ( $cachedVal ) ? $cachedVal : "-0";
+			} else {
+				$maxNum = parseFloat( $val );
+				$maxNum = ( $maxNum ) ? $maxNum : "-0";
 			}
 			$minNum = $cachedVal;
-
-			// Maximum number is always the current selected number
-			$maxNum = parseFloat( $val );
 
 			//Number filtering logic needs to be reviewed in order to remove the "-0" value (issue #9235)
 			// Generates a list of numbers (within the min and max number)
@@ -11657,15 +11767,21 @@ $document.on( "submit", ".wb-tables-filter", function( event ) {
 
 					if ( !isNaN( $num ) ) {
 						if ( $aoType === "and" ) {
-							if ( $cachedVal !== $maxNum && $cachedVal !== "-0" && $num >= $minNum && $num <= $maxNum ) {
+							if ( $cachedVal !== $maxNum && $cachedVal !== "-0" && $maxNum !== "0" && $num >= $minNum && $num <= $maxNum ) {
 								return true;
 							}
 						} else {
-							if ( $cachedVal === $maxNum && $num >= $minNum ) {
+							if ( $maxNum === null ) { // only one input number
+								return $minNum === "-0" || $minNum === $num;
+							} else if ( $maxNum === $cachedVal && $cachedVal === "-0" ) { // both are empty
 								return true;
-							} else if ( $cachedVal === "-0" && $num <= $maxNum ) {
+							} else if ( $maxNum !== "-0" && $minNum === $maxNum && $num === $maxNum ) { // min and max are the same
 								return true;
-							} else if ( $cachedVal !== "-0" && $num >= $minNum && $num <= $maxNum ) {
+							} else if ( $maxNum === "-0" && $num >= $minNum ) { // max number is missing
+								return true;
+							} else if ( $cachedVal === "-0" && $num <= $maxNum ) { // min number is missing
+								return true;
+							} else if ( $cachedVal !== "-0" && $num >= $minNum && $num <= $maxNum ) { // min and max are present
 								return true;
 							}
 						}
@@ -11758,10 +11874,10 @@ $document.on( "submit", ".wb-tables-filter", function( event ) {
 				$regex = "(" + $value + ")";
 			}
 
-			$datatable.column( $column ).search( $regex, true ).draw();
+			$datatable.column( $column ).search( $regex, true );
 		}
 	} );
-
+	$datatable.draw();
 	return false;
 } );
 
@@ -11774,10 +11890,8 @@ $document.on( "click", ".wb-tables-filter [type='reset']", function( event ) {
 	$datatable.search( "" ).columns().search( "" ).draw();
 
 	$form.find( "select" ).prop( "selectedIndex", 0 );
-	$form.find( "input:checkbox" ).prop( "checked", false );
-	$form.find( "input:radio" ).prop( "checked", false );
-	$form.find( "input[type=date]" ).val( "" );
-
+	$form.find( "input:checkbox, input:radio" ).prop( "checked", false );
+	$form.find( ":input" ).not( ":button, :submit, :reset, :hidden, :checkbox, :radio" ).val( "" );
 	return false;
 } );
 
@@ -12960,7 +13074,7 @@ var componentName = "wb-toggle",
 					// Check if the element is toggled on based on the
 					// open attribute or "on" CSS class
 					isOpen = elm.nodeName.toLowerCase() === "details" ?
-						!!elm.getAttribute( "open" ) :
+						!!elm.hasAttribute( "open" ) :
 						( " " + tab.className + " " ).indexOf( " " + data.stateOn + " " );
 					if ( isOpen ) {
 						hasOpen = true;
@@ -13468,7 +13582,7 @@ var componentName = "wb-data-json",
 		"[data-" + shortName + "]"
 	],
 	allowJsonTypes = [ "after", "append", "before", "prepend", "val" ],
-	allowAttrNames = /(href|src|data-*|pattern|min|max|step|low|high)/,
+	allowAttrNames = /(href|src|data-*|aria-*|role|pattern|min|max|step|low|high|lang|hreflang|action)/,
 	allowPropNames = /(checked|selected|disabled|required|readonly|multiple|hidden)/,
 	selectorsLength = selectors.length,
 	selector = selectors.join( "," ),
@@ -13766,10 +13880,10 @@ var componentName = "wb-data-json",
 					}
 
 					// Set the value to the node
-					if ( $.isArray( cached_value ) ) {
-						applyTemplate( cached_node, j_cache, cached_value );
-					} else if ( j_cache.isHTML ) {
+					if ( j_cache.isHTML ) {
 						cached_node.innerHTML = cached_value;
+					} else if ( $.isArray( cached_value ) || cached_value && !( cached_value instanceof String ) && typeof cached_value === "object" ) {
+						applyTemplate( cached_node, j_cache, cached_value );
 					} else {
 						cached_node.textContent = cached_value;
 					}
@@ -14066,7 +14180,7 @@ wb.add( selector );
 
 var $document = wb.doc,
 	$window = wb.win,
-	clickEvents = "click vclick",
+	clickEvents = "click",
 	setFocusEvent = "setfocus.wb",
 	linkSelector = "a[href]",
 	$linkTarget,
@@ -14260,6 +14374,38 @@ var componentName = "wb-jsonmanager",
 					jsonpatch.apply( tree, [
 						{ op: "replace", path: this.path, value: prefix + val.toLocaleString( loc ) + suffix  }
 					] );
+				}
+			},
+			{
+				name: "wb-decodeUTF8Base64",
+				fn: function( obj, key, tree ) {
+					var val = obj[ key ];
+
+					if ( !this.set ) {
+						jsonpatch.apply( tree, [
+							{ op: "replace", path: this.path, value: wb.decodeUTF8Base64( val ) }
+						] );
+					} else {
+						jsonpatch.apply( tree, [
+							{ op: "add", path: this.set, value: wb.decodeUTF8Base64( val ) }
+						] );
+					}
+				}
+			},
+			{
+				name: "wb-escapeHTML",
+				fn: function( obj, key, tree ) {
+					var val = obj[ key ];
+
+					if ( !this.set ) {
+						jsonpatch.apply( tree, [
+							{ op: "replace", path: this.path, value: wb.escapeHTML( val ) }
+						] );
+					} else {
+						jsonpatch.apply( tree, [
+							{ op: "add", path: this.set, value: wb.escapeHTML( val ) }
+						] );
+					}
 				}
 			},
 			{

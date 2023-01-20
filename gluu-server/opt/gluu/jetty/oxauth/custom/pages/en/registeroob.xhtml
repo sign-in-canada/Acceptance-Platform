@@ -1,0 +1,120 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html>
+<ui:composition xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+                template="/WEB-INF/incl/layouts/GCWeb.xhtml">
+
+  <f:metadata>
+    <f:viewAction action="#{authenticator.prepareAuthenticationForStep}" />
+    <f:viewAction action="#{language.setLocaleCode('en')}" />
+  </f:metadata>
+
+  <ui:param name="title" value="Enter your #{identity.getWorkingParameter('oobChannel') == 'email' ? 'email' : 'number'}" />
+  <ui:param name="step" value="register_oob" />
+  <ui:param name="locale" value="en" />
+
+  <ui:define name="name">
+    <ui:include src="/WEB-INF/incl/content/default/name-#{view.locale.language}.xhtml" />
+  </ui:define>
+
+  <ui:define name="styles">
+    <style>
+      button{
+        background-color: var(--gcds-button-primary-default-background);
+        color: var(--gcds-button-primary-default-text); 
+        min-height: 52px;
+        min-width: 100%;
+        white-space: normal;
+        border-radius: 4.16px;
+        border-width:0px;
+      }
+
+      button:hover{
+        background-color: var(--gcds-color-blue-700);
+      }
+
+      button:focus{
+        background-color: var(--gcds-brand-focus);
+        box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
+      }
+
+      button:hover.button:focus{
+        background-color: var(--gcds-button-primary-default-background);
+        box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
+      }
+
+      button:active{
+        background-color: var(--gcds-color-grayscale-1000);
+      }
+
+      label{
+        font-weight: 500;
+      }
+    </style>
+  </ui:define>
+
+  <ui:define name="content">
+
+      <div class="container mrgn-tp-lg">
+        <div class="col-sm-6 col-md-5 col-lg-4">
+          <c:if test="${identity.getWorkingParameter('oobChannel') == 'email'}">
+            <div class="text-center hidden-xs visible-sm visible-md visible-lg mfa-input-image">
+              <img src="\oxauth\ext\resources\assets\desktop-email-address.png" alt="An @ symbol with two lines under it that represent an email address" class="mrgn-bttm-lg mrgn-tp-md mfa-input-image-desktop"/>
+            </div>
+          </c:if>
+          <c:if test="${identity.getWorkingParameter('oobChannel') == 'sms'}">
+            <div class="text-center hidden-xs visible-sm visible-md visible-lg">
+              <img src="\oxauth\ext\resources\assets\desktop-keypad-graphic.png" alt="A keypad with the numbers 1 through 9" class="mrgn-bttm-lg mrgn-tp-md mfa-input-image-desktop"/>
+            </div>
+          </c:if>
+      </div>
+
+      <div class="col-sm-6 col-md-5 col-lg-4" style="padding-left:0px;">
+        <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline mrgn-tp-md">Enter your #{identity.getWorkingParameter('oobChannel') == 'email' ? 'email' : 'number'}</h1>
+        <div id="signup" class="show mrgn-bttm-0 brdr-rds-0" style="border-width:0px;">
+          <div class="panel-body" style="padding:0px;">
+            <div class="wb-frmvld">
+              <form jsf:id="register_oob" jsf:action="#{authenticator.authenticate}" class="form">
+                <c:if test="${identity.getWorkingParameter('oobChannel') == 'email'}">
+                  <div class="text-center visible-xs hidden-sm hidden-m hidden-lg">
+                    <img src="\oxauth\ext\resources\assets\email-address.png" alt="An @ symbol with two lines under it that represent an email address" class="mrgn-bttm-lg mfa-input-image-mobile"/>
+                  </div>
+                  <div class="form-group mrgn-tp-md">
+                    <label for="email" class="mrgn-bttm-md ${facesContext.getMessageList('register_oob:email').size() gt 0 ? 'text-danger' : ''}">
+                      Enter the
+                      <span class="field-name">email address</span> 
+                      you want to receive security codes at
+                    </label>
+                    <input jsf:id="email" id="email" type="email" autocomplete="email" class="form-control mfa-input" />
+                    <h:messages for="email" styleClass="list-unstyled" errorClass="label label-danger wb-server-error" layout="list" />
+                  </div>
+                </c:if>
+                <c:if test="${identity.getWorkingParameter('oobChannel') == 'sms'}">
+                  <div class="text-center visible-xs hidden-sm hidden-md hidden-lg">
+                    <img src="\oxauth\ext\resources\assets\keypad-graphic.png" alt="A keypad with the numbers 1 through 9" class="mrgn-bttm-lg mfa-input-image-mobile"/>
+                  </div>
+                  <div class="form-group mrgn-tp-md">
+                    <label for="mobile" class="mrgn-bttm-md ${facesContext.getMessageList('register_oob:mobile').size() gt 0 ? 'text-danger' : ''}">
+                      Enter the
+                      <span class="field-name">mobile phone number</span>
+                      you want to receive security codes at
+                    </label>
+                    <input jsf:id="mobile" id="mobile" type="tel" class="form-control mfa-input" autocomplete="tel"/>
+                    <h:messages for="mobile" styleClass="list-unstyled" errorClass="label label-danger wb-server-error" layout="list" />
+                  </div>
+                </c:if>
+                <div class="col-xs-12 col-sm-4 col-md-4 mrgn-tp-md" style="padding: 0px;">
+                  <button jsf:id="register" jsf:action="#{authenticator.authenticate}">Continue</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+  </div>
+  </ui:define>
+</ui:composition>

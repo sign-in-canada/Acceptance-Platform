@@ -1,10 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:ui="http://xmlns.jcp.org/jsf/facelets" xmlns:f="http://xmlns.jcp.org/jsf/core">
+<html lang="#{view.locale.language}"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:jsf="http://xmlns.jcp.org/jsf"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
 
-  <f:view locale="#{view.locale.language}">
-
-    <ui:debug />
+  <f:view locale="#{locale}">
 
     <head lang="#{view.locale.language}" dir="ltr">
       <ui:include src="/WEB-INF/incl/components/head-#{view.locale.language}.xhtml" />
@@ -16,35 +18,31 @@
       <ui:include src="/WEB-INF/incl/components/header-#{view.locale.language}.xhtml" />
 
       <main property="mainContentOfPage" class="container" typeof="WebPageElement">
-
-        <div class="col-lg-12 account-banner">
-          <div class="col-md-4" style="margin-right: 2em;">
-            <h1 property="name" id="wb-cont" dir="ltr">
+        <section class="container">
+            <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Sign in to
               <ui:insert name="name" />
             </h1>
-          </div>
-          <div class="col-md-7" style="padding-top: 1.5em;">
             <ui:insert name="description" />
+      </section>
+
+        <section class="container">
+          <div class="well well-sm brdr-rds-0">
+            <div class="panel panel-default mrgn-bttm-0 brdr-rds-0">
+              <div class="panel-body">
+                <h2 class="wb-inv"><ui:insert name="name" /> access</h2>
+                <div class="cnjnctn-type-or cnjnctn-md mrgn-tp-0">
+                  <div class="cnjnctn-col">
+                    <ui:insert name="chooser" />
+                    <ui:insert name="help" />
+                  </div>
+                  <div class="cnjnctn-col cnjnctn-col-60">
+                    <ui:insert name="register" />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-
-        </div>
-
-        <div class="clearfix"></div>
-
-        <div class="col-lg-6 row mrgn-bttm-lg mrgn-tp-md" style="float:right !important; position: relative; z-index: 10;">
-          <div class="outline" style="margin-top:1em; padding:1em;">
-            <ui:insert name="chooser" />
-
-            <ui:insert name="help" />
-
-            <ui:insert name="register" />
-
-          </div>
-        </div>
-
-        <div class="col-lg-6 mrgn-tp-sm">
-          <ui:insert name="services" />
-        </div>
+        </section>
 
         <div class="pagedetails">
 
@@ -65,9 +63,9 @@
     </body>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.js"></script>
-    <script src="https://www.canada.ca/etc/designs/canada/wet-boew/js/wet-boew.min.js"></script>
-    <script src="https://www.canada.ca/etc/designs/canada/wet-boew/js/theme.min.js" type="text/x-javascript"></script>
+    <script src="/oxauth/ext/resources/wet-boew/js/wet-boew.min.js"></script>
+    <script src="/oxauth/ext/resources/GCWeb/js/theme.min.js" type="text/x-javascript" integrity="sha256-IHzMFPGBTJCKpC+mG8g/OR5zDei9TNqrlO/yD/+Kw9k= sha512-jwinup4nXZ6lzcPwURPOWtLstLa6o36/ZSIrNaO0/qpEQUDQe2UMGYq3L6a7POSa+B8WSGaH+bPgyvZ2w92Lqg=="></script>
     <script src="/oxauth/ext/resources/js/utils.js" type="text/x-javascript"></script>
-
+    <ui:insert name="scripts" />
   </f:view>
 </html>

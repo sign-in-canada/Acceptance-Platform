@@ -1,0 +1,153 @@
+@import "/oxauth/ext/resources/CDS/global.css";
+
+:root{
+    --font-family-header: "Lato", sans-serif;
+    --font-family-body: "Noto Sans", sans-serif;
+}
+
+.learn-more{
+    border-style: none; 
+    text-decoration: underline;
+    padding-left: 0px;
+}
+
+details[open]{
+    border-style: none;
+    margin-left: 0px;
+}
+
+details[open]>summary{
+    border-style: none;
+}
+
+details[open]>section{
+    border-left: 6px solid var(--gcds-color-grayscale-300);
+    padding-left:30px;
+    padding-top: 10px;
+    margin-left: -20px;
+    margin-top: 10px;
+}
+
+.radio-boxes{
+    border: 2px solid var(--gcds-color-grayscale-225);
+    border-radius: 10px;
+    color: var(--gcds-color-grayscale-1000);
+    padding-top:20px;
+    padding-left: 25px;
+} 
+
+.radio-box-description{
+    color: var(--gcds-color-grayscale-950);
+}
+
+.security-badge-desktop {
+    border-radius: 10px;
+    font-weight: 600;
+    font-family: var(--font-family-body);
+    max-width: 183px;
+    min-width: 183px;
+}
+
+.security-badge-mobile {
+    border-radius: 10px;
+    font-weight: 600;
+    font-family: var(--font-family-body);
+    max-width: 183px;
+}
+
+.lock-icon{
+    max-height: 40px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-top: 5px;
+}
+
+.most-secure{
+    background-color: #1F6E1F;
+    color: #fff;
+    padding-left: 15px;
+}
+
+.less-secure{
+    background-color: var(--gcds-color-yellow-100);
+    border: 4px solid var(--gcds-color-yellow-200);
+    padding-left: 30px;
+    color: #793916;
+}
+
+.least-secure{
+    padding: 2px 20px 2px 20px;
+    background-color: #F3E9E8;
+    border: 4px solid #BC3331;
+    color: #870D0D;
+}
+
+.continue-alert{
+    background-color: #F3E9E8;
+    border-left: 2px solid #BC3331;
+    min-height: 47px;
+    padding-left: 0px;
+    vertical-align: middle;
+}
+
+/* MFA input styling below */
+
+.mfa-input{
+    border: 2px solid black;
+    padding-left: 0px;
+    width: 100%;
+}
+
+.mfa-input-image-desktop{
+    padding-right: 30px;
+    max-height: 300px;
+}
+
+.mfa-input-image-mobile{
+    max-height: 170px;
+}
+
+/* base styling below */
+
+h1{
+    font-size: 40.5px;
+    font-family: var(--font-family-header);
+    font-weight:bold;
+}
+
+h2{
+    font-size: 36px; 
+    font-family: var(--font-family-header);
+    font-weight: bold;
+}
+
+h3{
+    font-size: 32px; 
+    font-family: var(--font-family-header);
+}
+
+h4{
+    font-size: 27px; 
+    font-family: var(--font-family-header);
+}
+
+h5{
+    font-size: 24px; 
+    font-family: var(--font-family-header);
+}
+
+h6{
+    font-size: 22px; 
+    font-family: var(--font-family-header);
+}
+
+.caption{
+    font-size: 17.5px;
+    font-family: var(--font-family-header);
+
+}
+
+body{
+    font-size: 20px;
+    font-family: var(--font-family-body);
+}
