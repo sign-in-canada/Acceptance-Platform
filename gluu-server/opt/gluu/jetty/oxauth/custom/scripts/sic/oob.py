@@ -17,6 +17,7 @@ from javax.faces.application import FacesMessage
 
 from java.security import SecureRandom
 from java.time import Instant
+from java.util import Date
 
 from com.microsoft.applicationinsights import TelemetryClient
 
@@ -97,11 +98,12 @@ class OutOfBand:
         authenticationService = CdiUtil.bean(AuthenticationService)
         authenticationProtectionService = CdiUtil.bean(AuthenticationProtectionService)
 
-        if requestParameters.containsKey("oob:cancel"):
-            return False
-
+        session = identity.getSessionId()
         userId = identity.getWorkingParameter("userId")
         contact = identity.getWorkingParameter("oobContact")
+
+        telemetry = {"sessionId" : session.getId()}
+        duration = float((Date().getTime() - session.getLastUsedAt().getTime()) / 1000)
 
         if (authenticationProtectionService.isEnabled()):
             authenticationProtectionService.doDelayIfNeeded(userId)
@@ -114,6 +116,10 @@ class OutOfBand:
             addMessage("oob:resend", FacesMessage.SEVERITY_INFO, "sic.newCode")
 
         if codeExpired or requestParameters.containsKey("oob:resend"):
+            telemetry["result"] = "failed"
+            telemetry["reason"] = "code expired" if codeExpired else "new code requested"
+            self.telemetryClient.trackEvent("OOB Authentication", telemetry, {"duration": duration})
+
             if (authenticationProtectionService.isEnabled()):
                 authenticationProtectionService.storeAttempt(userId, False)
             identity.setWorkingParameter("oobCode", None) # Start over
@@ -130,14 +136,19 @@ class OutOfBand:
         if enteredCode == identity.getWorkingParameter("oobCode"):
             facesMessages.clear()
             updateNeeded = False
+            telemetry["result"] = "sucess"
 
             if contact is not None: # Registration
+                telemetry["step"] = "code verification"
+                self.telemetryClient.trackEvent("OOB Registration", telemetry, {"duration": duration})
                 channel = identity.getWorkingParameter("oobChannel")
                 if channel == "sms":
                     self.userService.addUserAttribute(user, "mobile", contact)
                 elif channel == "email":
                     self.userService.addUserAttribute(user, "mail", contact)
                 updateNeeded = True
+            else:
+                self.telemetryClient.trackEvent("OOB Authentication", telemetry, {"duration": duration})
 
             if user.getAttribute("oxCountInvalidLogin") is not None:
                 user.setAttribute("oxCountInvalidLogin", "0")
@@ -154,6 +165,14 @@ class OutOfBand:
 
             return authenticationService.authenticate(userId)
         else:
+            telemetry["result"] = "failed"
+            telemetry["reason"] = "invalid code"
+            if contact is not None:
+                telemetry["step"] = "code verification"
+                self.telemetryClient.trackEvent("OOB Registration", telemetry, {"duration": duration})
+            else:
+                self.telemetryClient.trackEvent("OOB Authentication", telemetry, {"duration": duration})
+
             if (authenticationProtectionService.isEnabled()):
                 authenticationProtectionService.storeAttempt(userId, False)
             attempts = StringHelper.toInteger(user.getAttribute("oxCountInvalidLogin"), 0)
@@ -161,7 +180,7 @@ class OutOfBand:
             user.setAttribute("oxCountInvalidLogin", StringHelper.toString(attempts))
             if attempts >= self.lockoutThreshold:
                 self.telemetryClient.trackEvent("Account Locked",
-                                                    {"cause": "Too many failed OOB attempts",
+                                                    {"reason": "Too many failed OOB attempts",
                                                      "user": userId}, None)
                 user.setAttribute("gluuStatus", GluuStatus.INACTIVE.getValue())
                 addMessage("oob:code", FacesMessage.SEVERITY_ERROR, "sic.lockedOut")
@@ -176,13 +195,21 @@ class OutOfBand:
         facesMessages = CdiUtil.bean(FacesMessages)
         authenticationProtectionService = CdiUtil.bean(AuthenticationProtectionService)
 
+        session = identity.getSessionId()
         userId = identity.getWorkingParameter("userId")
         mobile = ServerUtil.getFirstValue(requestParameters, "register_oob:mobile")
         mail = ServerUtil.getFirstValue(requestParameters, "register_oob:email")
 
+        telemetry = {"sessionId" : session.getId(),
+                     "step": "contact entry"}
+        duration = float((Date().getTime() - session.getLastUsedAt().getTime()) / 1000)
+
         if StringHelper.isEmpty(mobile) and StringHelper.isEmpty(mail):
             addMessage("register_oob:mobile", FacesMessage.SEVERITY_ERROR, "sic.pleaseEnter")
             addMessage("register_oob:email", FacesMessage.SEVERITY_ERROR, "sic.pleaseEnter")
+            telemetry["result"] = "failed"
+            telemetry["reason"] = "Nothing entered"
+            self.telemetryClient.trackEvent("OOB Registration", telemetry, {"duration": duration})
             return False
         elif StringHelper.isNotEmpty(mobile):
             channel = "sms"
@@ -190,6 +217,7 @@ class OutOfBand:
         else:
             channel = "email"
             contact = mail
+        telemetry["channel"] = channel
 
         if identity.getWorkingParameter("oobCode") is not None:
             # This means the user previously tried to register but then backed up
@@ -199,13 +227,19 @@ class OutOfBand:
                 authenticationProtectionService.doDelayIfNeeded(userId)
 
         if not self.SendOneTimeCode(None, channel, contact):
+            telemetry["result"] = "failed"
             if channel == "sms":
                 addMessage("register_oob:mobile", FacesMessage.SEVERITY_ERROR, "sic.badPhone")
+                telemetry["reason"] = "Invalid mobile number"
             else:
                 addMessage("register_oob:email", FacesMessage.SEVERITY_ERROR, "sic.badEmail")
+                telemetry["reason"] = "Invalid email address"
+            self.telemetryClient.trackEvent("OOB Registration", telemetry, {"duration": duration})
             return False
         else:
             facesMessages.clear()
+            telemetry["result"] = "success"
+            self.telemetryClient.trackEvent("OOB Registration", telemetry, {"duration": duration})
             identity.setWorkingParameter("oobContact", contact)
             return True
 
