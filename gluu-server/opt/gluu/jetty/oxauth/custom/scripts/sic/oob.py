@@ -136,7 +136,7 @@ class OutOfBand:
         if enteredCode == identity.getWorkingParameter("oobCode"):
             facesMessages.clear()
             updateNeeded = False
-            telemetry["result"] = "sucess"
+            telemetry["result"] = "success"
 
             if contact is not None: # Registration
                 telemetry["step"] = "code verification"
