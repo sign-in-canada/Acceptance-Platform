@@ -32,7 +32,7 @@
                         }
                     ],
                     "percentage": 0
-                }
+                },
                 {
                    "telemetryType" : "exception",
                     "attributes": [
