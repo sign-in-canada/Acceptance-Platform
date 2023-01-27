@@ -118,7 +118,7 @@ class OutOfBand:
         if codeExpired or requestParameters.containsKey("oob:resend"):
             telemetry["result"] = "failed"
             telemetry["reason"] = "code expired" if codeExpired else "new code requested"
-            self.telemetryClient.trackEvent("OOB Authentication", telemetry, {"duration": duration})
+            self.telemetryClient.trackEvent("OOB Authentication", telemetry, {"durationInSeconds": duration})
 
             if (authenticationProtectionService.isEnabled()):
                 authenticationProtectionService.storeAttempt(userId, False)
@@ -140,7 +140,7 @@ class OutOfBand:
 
             if contact is not None: # Registration
                 telemetry["step"] = "code verification"
-                self.telemetryClient.trackEvent("OOB Registration", telemetry, {"duration": duration})
+                self.telemetryClient.trackEvent("OOB Registration", telemetry, {"durationInSeconds": duration})
                 channel = identity.getWorkingParameter("oobChannel")
                 if channel == "sms":
                     self.userService.addUserAttribute(user, "mobile", contact)
@@ -148,7 +148,7 @@ class OutOfBand:
                     self.userService.addUserAttribute(user, "mail", contact)
                 updateNeeded = True
             else:
-                self.telemetryClient.trackEvent("OOB Authentication", telemetry, {"duration": duration})
+                self.telemetryClient.trackEvent("OOB Authentication", telemetry, {"durationInSeconds": duration})
 
             if user.getAttribute("oxCountInvalidLogin") is not None:
                 user.setAttribute("oxCountInvalidLogin", "0")
@@ -169,9 +169,9 @@ class OutOfBand:
             telemetry["reason"] = "invalid code"
             if contact is not None:
                 telemetry["step"] = "code verification"
-                self.telemetryClient.trackEvent("OOB Registration", telemetry, {"duration": duration})
+                self.telemetryClient.trackEvent("OOB Registration", telemetry, {"durationInSeconds": duration})
             else:
-                self.telemetryClient.trackEvent("OOB Authentication", telemetry, {"duration": duration})
+                self.telemetryClient.trackEvent("OOB Authentication", telemetry, {"durationInSeconds": duration})
 
             if (authenticationProtectionService.isEnabled()):
                 authenticationProtectionService.storeAttempt(userId, False)
@@ -209,7 +209,7 @@ class OutOfBand:
             addMessage("register_oob:email", FacesMessage.SEVERITY_ERROR, "sic.pleaseEnter")
             telemetry["result"] = "failed"
             telemetry["reason"] = "Nothing entered"
-            self.telemetryClient.trackEvent("OOB Registration", telemetry, {"duration": duration})
+            self.telemetryClient.trackEvent("OOB Registration", telemetry, {"durationInSeconds": duration})
             return False
         elif StringHelper.isNotEmpty(mobile):
             channel = "sms"
@@ -234,12 +234,12 @@ class OutOfBand:
             else:
                 addMessage("register_oob:email", FacesMessage.SEVERITY_ERROR, "sic.badEmail")
                 telemetry["reason"] = "Invalid email address"
-            self.telemetryClient.trackEvent("OOB Registration", telemetry, {"duration": duration})
+            self.telemetryClient.trackEvent("OOB Registration", telemetry, {"durationInSeconds": duration})
             return False
         else:
             facesMessages.clear()
             telemetry["result"] = "success"
-            self.telemetryClient.trackEvent("OOB Registration", telemetry, {"duration": duration})
+            self.telemetryClient.trackEvent("OOB Registration", telemetry, {"durationInSeconds": duration})
             identity.setWorkingParameter("oobContact", contact)
             return True
 

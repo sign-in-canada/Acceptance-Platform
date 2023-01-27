@@ -398,7 +398,7 @@ class PersonAuthentication(PersonAuthenticationType):
             telemetry["result"] = "cancelled"
             duration = float((Date().getTime() - session.getLastUsedAt().getTime()) / 1000)
             if step <= self.STEP_1FA: # User Cancelled during login
-                self.telemetryClient.trackEvent("1FA Result", telemetry, {"duration": duration})
+                self.telemetryClient.trackEvent("1FA Result", telemetry, {"durationInSeconds": duration})
                 identity.setWorkingParameter("provider", None)
             elif (step == self.STEP_COLLECT
                   and ServerUtil.getFirstValue(requestParameters, "failure") == "InvalidNameIDPolicy"): # PAI Collection failed. If it's a SAML SP, Create a new SIC PAI
@@ -410,14 +410,14 @@ class PersonAuthentication(PersonAuthenticationType):
                 if self.getNextStep(configurationAttributes, requestParameters, step) < 0:
                     return authenticationService.authenticate(identity.getWorkingParameter("userId"))
             elif step == self.STEP_TOTP_REGISTER:
-                self.telemetryClient.trackEvent("TOTP Registration Result", telemetry, {"duration": duration}) 
+                self.telemetryClient.trackEvent("TOTP Registration Result", telemetry, {"durationInSeconds": duration}) 
                 user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "oxExternalUid")
                 self.account.removeExternalUid(user, "mfa", identity.getWorkingParameter("mfaId"))
                 userService.updateUser(user)
                 identity.setWorkingParameter("mfaId", None)
                 return False
             elif step == self.STEP_TOTP: # 2FA Failed. Redirect back to the RP
-                self.telemetryClient.trackEvent("TOTP Authentication Result", telemetry, {"duration": duration}) 
+                self.telemetryClient.trackEvent("TOTP Authentication Result", telemetry, {"durationInSeconds": duration}) 
                 return False
             else:
                 print ("%s: Invalid passport failure in step %s." % (self.name, step))
@@ -442,7 +442,7 @@ class PersonAuthentication(PersonAuthenticationType):
             # Chooser page
             choice = self.getFormButton(requestParameters)
             telemetry["choice"] = choice
-            self.telemetryClient.trackEvent("1FA choice made", telemetry, {"duration": duration}) 
+            self.telemetryClient.trackEvent("1FA choice made", telemetry, {"durationInSeconds": duration}) 
 
             provider = "gckey" if choice == "gckeyregister" else choice # Hack
             if provider in self.providers:
@@ -483,7 +483,7 @@ class PersonAuthentication(PersonAuthenticationType):
             if requestParameters.containsKey("secure:method"):
                 method = ServerUtil.getFirstValue(requestParameters, "secure:method")
                 telemetry["choice"] = method
-                self.telemetryClient.trackEvent("2FA choice made", telemetry, {"duration": duration}) 
+                self.telemetryClient.trackEvent("2FA choice made", telemetry, {"durationInSeconds": duration}) 
                 if method in self.mfaMethods:
                     if method in {"sms", "email"}:
                         identity.setWorkingParameter("oobChannel", method)
@@ -544,7 +544,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 telemetry["provider"] = "gckeyRegister"
             else:
                 telemetry["provider"] = provider
-            self.telemetryClient.trackEvent("1FA Result", telemetry, {"duration": duration})
+            self.telemetryClient.trackEvent("1FA Result", telemetry, {"durationInSeconds": duration})
 
             provider = externalProfile["provider"]
             if step == self.STEP_1FA and provider not in self.providers:
@@ -599,7 +599,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
         elif step == self.STEP_COLLECT:
             telemetry["provider"] = provider
-            self.telemetryClient.trackEvent("Collection Result", telemetry, {"duration": duration})
+            self.telemetryClient.trackEvent("Collection Result", telemetry, {"durationInSeconds": duration})
 
             user = userService.getUser(identity.getWorkingParameter("userId"), "inum", "uid", "persistentId")
             # Validate the session first
@@ -635,7 +635,7 @@ class PersonAuthentication(PersonAuthenticationType):
         elif step in {self.STEP_TOTP_REGISTER, self.STEP_TOTP}:
             telemetry["provider"] = provider
             event = "TOTP %s Result" % "Authentication" if step == self.STEP_TOTP else "Registration"
-            self.telemetryClient.trackEvent(event, telemetry, {"duration": duration})
+            self.telemetryClient.trackEvent(event, telemetry, {"durationInSeconds": duration})
 
             if externalProfile.get("externalUid").split(":", 1)[1] != identity.getWorkingParameter("mfaId"):
                 # Got the wrong MFA PAI. Authentication failed!
