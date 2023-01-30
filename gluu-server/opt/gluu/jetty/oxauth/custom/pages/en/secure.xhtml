@@ -71,15 +71,14 @@
         </section>
       </details>
 
-      <h2>Choose an option:</h2>
       <form jsf:id="secure" jsf:action="#{authenticator.authenticate}" class="form">
-        <div class="row wb-eqht">
+        <fieldset class="mfa-fieldset">
+          <legend class="mfa-legend-header">Choose a second factor:</legend>
+          <div class="row wb-eqht">
               <c:if test="${identity.getWorkingParameter('fido-accepted')}">
               <div class="col-md-12">
                 <section class="hght-inhrt mrgn-lft-sm mrgn-tp-md radio-boxes">
-                  <fieldset class="gc-chckbxrdio">
-                    <ul class="list-unstyled lst-spcd-2">
-                    <li class="radio mrgn-lft-md">
+                  <div class="gc-chckbxrdio radio mrgn-lft-md">
                       <input type="radio" p:name="secure:method" jsf:id="fido" jsf:value="fido" id="fido" class="radio mrgn-lft-md"/>
                       <label for="fido">
                         <div class="row">
@@ -101,9 +100,7 @@
                           </div>
                         </div>
                       </label>
-                    </li>
-                  </ul>
-                  </fieldset>
+                </div>
                 </section>
               </div>
             </c:if>
@@ -111,9 +108,7 @@
               <c:if test="${identity.getWorkingParameter('totp-accepted')}">
                 <div class="col-md-12">
                 <section class="hght-inhrt mrgn-lft-sm mrgn-tp-md radio-boxes">
-                  <fieldset class="gc-chckbxrdio">
-                    <ul class="list-unstyled lst-spcd-2">
-                    <li class="radio mrgn-lft-md">
+                  <div class="gc-chckbxrdio radio mrgn-lft-md">
                       <input type="radio" p:name="secure:method" jsf:id="totp" jsf:value="totp" id="totp" class="radio mrgn-lft-md"/>
                       <label for="totp">
                         <div class="row">
@@ -135,9 +130,7 @@
                           </div>
                         </div>
                       </label>
-                    </li>
-                  </ul>
-                  </fieldset>
+                </div>
                 </section>
               </div>
               </c:if>
@@ -145,9 +138,7 @@
               <c:if test="${identity.getWorkingParameter('sms-accepted')}">
                 <div class="col-md-12">
                 <section class="hght-inhrt mrgn-lft-sm mrgn-tp-md radio-boxes">
-                  <fieldset class="gc-chckbxrdio">
-                    <ul class="list-unstyled lst-spcd-2">
-                      <li class="radio mrgn-lft-md">
+                  <div class="gc-chckbxrdio radio mrgn-lft-md">
                         <input type="radio" p:name="secure:method" jsf:id="sms" jsf:value="sms" id="sms" />
                         <label for="sms" style="width:99%;">
                           <div class="row" style="width:99%;">
@@ -169,9 +160,7 @@
                             </div> -->
                           </div>
                         </label>
-                      </li>
-                    </ul>
-                  </fieldset>
+                  </div>
                 </section>
               </div>
               </c:if>
@@ -179,8 +168,7 @@
               <c:if test="${identity.getWorkingParameter('email-accepted')}">
                 <div class="col-md-12">
                 <section class="hght-inhrt mrgn-lft-sm mrgn-tp-md radio-boxes">
-                  <fieldset class="gc-chckbxrdio">
-                    <li class="radio mrgn-lft-md">
+                  <div class="gc-chckbxrdio radio mrgn-lft-md">
                       <input type="radio" p:name="secure:method" jsf:id="email" jsf:value="email" id="email" />
                       <label for="email" style="width:98.5%;">
                         <div class="row" style="width:98.5%;">
@@ -202,8 +190,7 @@
                           </div> -->
                         </div>
                       </label>
-                    </li>
-                  </fieldset>
+                  </div>
                 </section>
                 </div>
               </c:if>
@@ -220,7 +207,7 @@
                 </div>
               </c:if>
           </div>
-          
+        </fieldset>
           <div class="row mrgn-tp-lg">
             <div class="col-xs-12 col-sm-4 col-md-2 col-md-offset-10">
               <button jsf:id="select" id="select" jsf:action="#{authenticator.authenticate}">Continue</button>
