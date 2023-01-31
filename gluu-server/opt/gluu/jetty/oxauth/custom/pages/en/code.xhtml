@@ -12,7 +12,7 @@
     <f:viewAction action="#{language.setLocaleCode('en')}" />
   </f:metadata>
 
-  <ui:param name="title" value="Enter the 6-digit code - Sign in Canada" />
+  <ui:param name="title" value="Enter the 6-digit code - #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}" />
   <ui:param name="step" value="oob" />
   <ui:param name="locale" value="en" />
 
