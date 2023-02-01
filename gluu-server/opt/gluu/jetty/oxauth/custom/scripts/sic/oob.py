@@ -102,7 +102,7 @@ class OutOfBand:
         userId = identity.getWorkingParameter("userId")
         contact = identity.getWorkingParameter("oobContact")
 
-        telemetry = {"sessionId" : session.getId()}
+        telemetry = {"sid" : session.getOutsideSid()}
         duration = float((Date().getTime() - session.getLastUsedAt().getTime()) / 1000)
 
         if (authenticationProtectionService.isEnabled()):
@@ -200,7 +200,7 @@ class OutOfBand:
         mobile = ServerUtil.getFirstValue(requestParameters, "register_oob:mobile")
         mail = ServerUtil.getFirstValue(requestParameters, "register_oob:email")
 
-        telemetry = {"sessionId" : session.getId(),
+        telemetry = {"sid" : session.getOutsideSid(),
                      "step": "contact entry"}
         duration = float((Date().getTime() - session.getLastUsedAt().getTime()) / 1000)
 

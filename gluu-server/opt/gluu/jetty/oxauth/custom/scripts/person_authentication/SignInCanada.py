@@ -240,7 +240,7 @@ class PersonAuthentication(PersonAuthenticationType):
             if uiLocales is not None:
                 if len(self.providers) > 1:
                     step = self.STEP_CHOOSER
-                    self.telemetryClient.trackEvent("1FA Choice Offered", {"sessionId" : session.getId()}, None)
+                    self.telemetryClient.trackEvent("1FA Choice Offered", {"sid" : session.getOutsideSid()}, None)
                 else:
                     step = self.STEP_1FA
 
@@ -253,12 +253,12 @@ class PersonAuthentication(PersonAuthenticationType):
                 userService.updateUser(user)
                 if len(self.mfaMethods) > 1:
                     step = self.STEP_UPGRADE
-                    self.telemetryClient.trackEvent("2FA Choice Offered", {"sessionId" : session.getId()}, None)
+                    self.telemetryClient.trackEvent("2FA Choice Offered", {"sid" : session.getOutsideSid()}, None)
                 elif len(self.providers) == 1: # Pass through, so send them back to the client
                     step = self.STEP_ABORT
                 else:
                     step = self.STEP_CHOOSER
-                    self.telemetryClient.trackEvent("1FA Choice Offered", {"sessionId" : session.getId()}, None)
+                    self.telemetryClient.trackEvent("1FA Choice Offered", {"sid" : session.getOutsideSid()}, None)
             elif step == self.STEP_1FA:
                 if len(self.providers) == 1: # Pass through, so send them back to the client
                     step = self.STEP_ABORT
@@ -291,7 +291,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
             if step in {self.STEP_1FA, self.STEP_COLLECT}:
                 provider = identity.getWorkingParameter("provider")
-                telemetry = {"sessionId" : session.getId(), "provider": provider}
+                telemetry = {"sid" : session.getOutsideSid(), "provider": provider}
                 if provider == "gckeyregister": # Hack
                     provider = "gckey"
                 if provider is None and len(self.providers) == 1: # Only one provider. Direct Pass-through
@@ -323,7 +323,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     print("%s: prepareForStep. mfaProvider is missing!" % self.name)
                     return False
 
-                telemetry = {"sessionId" : session.getId(), "provider": provider}
+                telemetry = {"sid" : session.getOutsideSid(), "provider": provider}
                 user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "oxExternalUid")
                 mfaId = self.account.getExternalUid(user, "mfa")
                 if mfaId is None:
@@ -347,7 +347,7 @@ class PersonAuthentication(PersonAuthenticationType):
             facesService.redirectToExternalURL(passportRequest)
 
         elif step == self.STEP_UPGRADE:
-            self.telemetryClient.trackEvent("2FA Choice Offered", {"sessionId" : session.getId()}, None)
+            self.telemetryClient.trackEvent("2FA Choice Offered", {"sid" : session.getOutsideSid()}, None)
 
         elif step == self.STEP_OOB:
             if identity.getWorkingParameter("oobChannel") is None:
@@ -386,7 +386,7 @@ class PersonAuthentication(PersonAuthenticationType):
         # Clear the abort flag
         identity.setWorkingParameter("abort", False)
 
-        telemetry = {"sessionId" : session.getId()}
+        telemetry = {"sid" : session.getOutsideSid()}
         duration = float((Date().getTime() - session.getLastUsedAt().getTime()) / 1000)
 
         if requestParameters.containsKey("user"):
@@ -518,7 +518,7 @@ class PersonAuthentication(PersonAuthenticationType):
         sessionAttributes = session.getSessionAttributes()
         rpConfig = self.rputils.getRPConfig(session)
 
-        telemetry = {"sessionId" : session.getId(),
+        telemetry = {"sid" : session.getOutsideSid(),
                      "result" : "success"}
         duration = float((Date().getTime() - session.getLastUsedAt().getTime()) / 1000)
 
