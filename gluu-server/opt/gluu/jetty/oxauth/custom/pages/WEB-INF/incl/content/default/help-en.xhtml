@@ -1,28 +1,33 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html>
 <ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
-    <details class="mrgn-bttm-lg max-content">
-        <summary>Don't remember which option you registered with?</summary>
-        <p>
-            You need to sign in the same way every time you use
-            <ui:insert name="name" />
-            .
-        </p>
-        <ul>
-            <li>
-                When you first registered for
-                <ui:insert name="name" />
-                , you selected a particular sign-in method.
-            </li>
-            <li>You might have created a new GCKey user id and password just for this account, and written it down or saved it in a Password manager.</li>
-            <li>Or when you registered, you may have decided to use your existing financial institution username and password rather than create a new set for <ui:insert name="name" />.</li>
-            <li></li>
-        </ul>
-        <p>
-            If you haven't already registered for
-            <ui:insert name="name" />
-            ,
-            <a href="./register.html"> register now.</a>
-        </p>
-    </details>
+    <div class=" container-fluid">
+        <div style="background-image:url(/oxauth/ext/resources/assets/help-banner.png); background-repeat:no-repeat; width:auto; height:132px; margin-left:8px; ">
+        </div>
+        <div class="panel-body">
+            <p>
+                There are two ways you can sign in to access Government of Canada
+                online services. You can choose to sign in with a GCKey or with
+                a Sign-In Partner. Both of these options allow you to access
+                multiple Government of Canada services.
+            </p>
+            <dl>
+                <dt>Use a GCKey</dt>
+                <dd>
+                    This is a simple way for anyone to access online services.
+                    You create a GCKey username and password.
+                </dd>
+            <dt>OR</dt>
+                <dt>Use a Sign-In Partner</dt>
+                <dd>
+                    Sign in through your Canadian bank.  To use this method, you
+                    must have an online bank account with one of the Sign-In
+                    Partners. 
+                </dd>
+            </dl>
+            <div class="alert alert-info">
+                <p><strong>Note:</strong> If your bank is not listed as a Sign-In Partner, you must use a GCKey.</p>
+             </div>
+        </div>
+    </div>
 </ui:composition>
