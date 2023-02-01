@@ -1,27 +1,37 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html>
 <ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
-    <details class="mrgn-bttm-lg max-content">
-        <summary>Vous ne vous souvenez pas avec quelle option vous avez enregistré?</summary>
-        <p>
-            Vous devez vous connecter de la même manière à chaque fois que vous utilisez
-            <ui:insert name="name" />
-            .
-        </p>
-        <ul>
-            <li>
-                Lorsque vous vous êtes inscrit pour la première fois
-                <ui:insert name="name" />
-                , vous avez sélectionné une méthode de connexion particulière.
-            </li>
-            <li>Vous avez peut-être créé un nouvel ID utilisateur et un mot de passe GCKEY uniquement pour ce compte, et l'avez écrit ou enregistré dans un gestionnaire de mots de passe.</li>
-            <li>Ou lorsque vous vous êtes inscrit, vous avez peut-être décidé d'utiliser votre nom d'utilisateur et votre mot de passe de l'institution financière existants plutôt que de créer un nouvel ensemble pour <ui:insert name="name" />.</li>
-        </ul>
-        <p>
-            If you haven't already registered for
-            <ui:insert name="name" />
-            ,
-            <a href="./register.html"> register now.</a>
-        </p>
-    </details>
+    <div class=" container-fluid">
+        <div style="background-image:url(/oxauth/ext/resources/assets/help-banner.png); background-repeat:no-repeat; width:auto; height:132px; margin-left:8px; ">
+        </div>
+        <div class="panel-body">
+            <p>
+                Vous pouvez ouvrir une séance de deux façons pour accéder aux
+                services en ligne du gouvernement du Canada. Vous pouvez choisir
+                de vous connecter à l’aide d’une cléGC ou d’un partenaire de
+                connexion. Ces deux options vous permettent d’accéder à
+                plusieurs services du gouvernement du Canada.
+            </p>
+            <dl>
+                <dt>Utilisation d’une cléGC</dt>
+                <dd>
+                    C’est un moyen simple pour quiconque d’accéder à des
+                    services en ligne. Il s’agit pour vous de créer un nom
+                    d’utilisateur et un mot de passe cléGC.
+
+                </dd>
+            <dt>OU</dt>
+                <dt>Utilisation d’un partenaire de connexion</dt>
+                <dd>
+                    Ouvrez une séance par l’entremise d’une banque canadienne.
+                    Pour utiliser cette méthode, vous devez détenir un compte
+                    bancaire en ligne auprès de l’un des partenaires de
+                    connexion. 
+                </dd>
+            </dl>
+            <div class="alert alert-info">
+                <p><strong>Remarque :</strong> Si votre banque ne figure pas sur la liste des partenaires de connexion, vous devez utiliser une cléGC. </p>
+             </div>
+        </div>
+    </div>
 </ui:composition>

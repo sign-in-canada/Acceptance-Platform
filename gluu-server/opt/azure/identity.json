@@ -2,6 +2,9 @@
   "role": {
     "name": "oxTrust"
   },
+  "sampling": {
+    "percentage": 100
+    },
   "instrumentation": {
     "logging": {
       "level": "INFO"
@@ -20,6 +23,7 @@
       "sampling": {
           "overrides": [
               {
+                  "telemetryType" : "request",
                   "attributes": [
                       {
                           "key": "code.namespace",
