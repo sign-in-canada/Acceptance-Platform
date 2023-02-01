@@ -35,7 +35,7 @@ from org.gluu.jsf2.message import FacesMessages
 from org.gluu.oxauth.model.authorize import AuthorizeRequestParam
 from org.gluu.util import StringHelper
 
-from java.util import Arrays
+from java.util import Arrays, Date
 from java.time import Instant
 from javax.faces.application import FacesMessage
 
@@ -240,6 +240,7 @@ class PersonAuthentication(PersonAuthenticationType):
             if uiLocales is not None:
                 if len(self.providers) > 1:
                     step = self.STEP_CHOOSER
+                    self.telemetryClient.trackEvent("1FA Choice Offered", {"sid" : session.getOutsideSid()}, None)
                 else:
                     step = self.STEP_1FA
 
@@ -252,10 +253,12 @@ class PersonAuthentication(PersonAuthenticationType):
                 userService.updateUser(user)
                 if len(self.mfaMethods) > 1:
                     step = self.STEP_UPGRADE
+                    self.telemetryClient.trackEvent("2FA Choice Offered", {"sid" : session.getOutsideSid()}, None)
                 elif len(self.providers) == 1: # Pass through, so send them back to the client
                     step = self.STEP_ABORT
                 else:
                     step = self.STEP_CHOOSER
+                    self.telemetryClient.trackEvent("1FA Choice Offered", {"sid" : session.getOutsideSid()}, None)
             elif step == self.STEP_1FA:
                 if len(self.providers) == 1: # Pass through, so send them back to the client
                     step = self.STEP_ABORT
@@ -284,11 +287,13 @@ class PersonAuthentication(PersonAuthenticationType):
                     break
 
         if step in {self.STEP_1FA, self.STEP_COLLECT, self.STEP_TOTP_REGISTER, self.STEP_TOTP}: # Passport
-            
             passportOptions = {"ui_locales": uiLocales, "exp" : int(time.time()) + 60}
 
             if step in {self.STEP_1FA, self.STEP_COLLECT}:
                 provider = identity.getWorkingParameter("provider")
+                telemetry = {"sid" : session.getOutsideSid(), "provider": provider}
+                if provider == "gckeyregister": # Hack
+                    provider = "gckey"
                 if provider is None and len(self.providers) == 1: # Only one provider. Direct Pass-through
                     provider = next(iter(self.providers))
                     identity.setWorkingParameter("provider", provider)
@@ -299,6 +304,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 providerInfo = self.passport.getProvider(provider)
                 if (identity.getWorkingParameter("forceAuthn") or (providerInfo["GCCF"] and maxAge < 1200)): # 1200 is 20 minutes, the SSO timeout on GCKey and CBS
                     passportOptions["forceAuthn"] = "true"
+                self.telemetryClient.trackEvent("1FA Request", telemetry, None)
 
             elif step == self.STEP_COLLECT:
                 collect = rpConfig.get("collect")
@@ -308,12 +314,16 @@ class PersonAuthentication(PersonAuthenticationType):
                 else: # This should never happen
                     print ("%s. prepareForStep: collection entityID is missing" % self.name)
                     return False
+                telemetry["spNameQualifier"] = collect
+                self.telemetryClient.trackEvent("Collection Request", telemetry, None)
 
             elif step in {self.STEP_TOTP, self.STEP_TOTP_REGISTER}:
                 provider = rpConfig.get("mfaProvider")
                 if provider is None:
                     print("%s: prepareForStep. mfaProvider is missing!" % self.name)
                     return False
+
+                telemetry = {"sid" : session.getOutsideSid(), "provider": provider}
                 user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "oxExternalUid")
                 mfaId = self.account.getExternalUid(user, "mfa")
                 if mfaId is None:
@@ -326,11 +336,18 @@ class PersonAuthentication(PersonAuthenticationType):
                 passportOptions["response_type"] = "code"
                 passportOptions["scope"] = "openid profile"
 
+                event = "TOTP %s Request" % ("Registration" if step == self.STEP_TOTP_REGISTER else "Authentication")
+                print (event, telemetry)
+                self.telemetryClient.trackEvent(event, telemetry, None)
+
             # Set the abort flag to handle back button
             identity.setWorkingParameter("abort", True)
             # Send the request to passport
             passportRequest = self.passport.createRequest(provider, passportOptions)
             facesService.redirectToExternalURL(passportRequest)
+
+        elif step == self.STEP_UPGRADE:
+            self.telemetryClient.trackEvent("2FA Choice Offered", {"sid" : session.getOutsideSid()}, None)
 
         elif step == self.STEP_OOB:
             if identity.getWorkingParameter("oobChannel") is None:
@@ -365,10 +382,12 @@ class PersonAuthentication(PersonAuthenticationType):
 
         session = identity.getSessionId()
         sessionAttributes = session.getSessionAttributes()
-        rpConfig = self.rputils.getRPConfig(session)
 
         # Clear the abort flag
         identity.setWorkingParameter("abort", False)
+
+        telemetry = {"sid" : session.getOutsideSid()}
+        duration = float((Date().getTime() - session.getLastUsedAt().getTime()) / 1000)
 
         if requestParameters.containsKey("user"):
             # Successful response from passport
@@ -376,7 +395,10 @@ class PersonAuthentication(PersonAuthenticationType):
 
         elif requestParameters.containsKey("failure"):
             # This means that passport returned an error
+            telemetry["result"] = "cancelled"
+            duration = float((Date().getTime() - session.getLastUsedAt().getTime()) / 1000)
             if step <= self.STEP_1FA: # User Cancelled during login
+                self.telemetryClient.trackEvent("1FA Result", telemetry, {"durationInSeconds": duration})
                 identity.setWorkingParameter("provider", None)
             elif (step == self.STEP_COLLECT
                   and ServerUtil.getFirstValue(requestParameters, "failure") == "InvalidNameIDPolicy"): # PAI Collection failed. If it's a SAML SP, Create a new SIC PAI
@@ -387,13 +409,15 @@ class PersonAuthentication(PersonAuthenticationType):
                     userService.updateUser(user)
                 if self.getNextStep(configurationAttributes, requestParameters, step) < 0:
                     return authenticationService.authenticate(identity.getWorkingParameter("userId"))
-            elif step == self.STEP_TOTP_REGISTER: 
+            elif step == self.STEP_TOTP_REGISTER:
+                self.telemetryClient.trackEvent("TOTP Registration Result", telemetry, {"durationInSeconds": duration}) 
                 user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "oxExternalUid")
                 self.account.removeExternalUid(user, "mfa", identity.getWorkingParameter("mfaId"))
                 userService.updateUser(user)
                 identity.setWorkingParameter("mfaId", None)
                 return False
             elif step == self.STEP_TOTP: # 2FA Failed. Redirect back to the RP
+                self.telemetryClient.trackEvent("TOTP Authentication Result", telemetry, {"durationInSeconds": duration}) 
                 return False
             else:
                 print ("%s: Invalid passport failure in step %s." % (self.name, step))
@@ -417,8 +441,11 @@ class PersonAuthentication(PersonAuthenticationType):
         elif requestParameters.containsKey("chooser"):
             # Chooser page
             choice = self.getFormButton(requestParameters)
-            if choice == "gckeyregister": choice = "gckey" #Hack!
-            if choice in self.providers:
+            telemetry["choice"] = choice
+            self.telemetryClient.trackEvent("1FA choice made", telemetry, {"durationInSeconds": duration}) 
+
+            provider = "gckey" if choice == "gckeyregister" else choice # Hack
+            if provider in self.providers:
                 identity.setWorkingParameter("provider", choice)
             else:
                 print ("%s: Invalid provider choice: %s." % (self.name, choice))
@@ -455,6 +482,8 @@ class PersonAuthentication(PersonAuthenticationType):
         elif requestParameters.containsKey("secure"):
             if requestParameters.containsKey("secure:method"):
                 method = ServerUtil.getFirstValue(requestParameters, "secure:method")
+                telemetry["choice"] = method
+                self.telemetryClient.trackEvent("2FA choice made", telemetry, {"durationInSeconds": duration}) 
                 if method in self.mfaMethods:
                     if method in {"sms", "email"}:
                         identity.setWorkingParameter("oobChannel", method)
@@ -489,6 +518,10 @@ class PersonAuthentication(PersonAuthenticationType):
         sessionAttributes = session.getSessionAttributes()
         rpConfig = self.rputils.getRPConfig(session)
 
+        telemetry = {"sid" : session.getOutsideSid(),
+                     "result" : "success"}
+        duration = float((Date().getTime() - session.getLastUsedAt().getTime()) / 1000)
+
         externalProfile = self.passport.handleResponse(requestParameters)
         if externalProfile is None:
             return False
@@ -504,8 +537,14 @@ class PersonAuthentication(PersonAuthenticationType):
 
         if step == self.STEP_1FA:
             if provider not in self.providers:
-                # Unauthorized provider!
+                print ("Unauthorized provider: %s" % provider)
                 return False
+
+            if provider == "gckey" and identity.getWorkingParameter("provider") == "gckeyregister":
+                telemetry["provider"] = "gckeyRegister"
+            else:
+                telemetry["provider"] = provider
+            self.telemetryClient.trackEvent("1FA Result", telemetry, {"durationInSeconds": duration})
 
             provider = externalProfile["provider"]
             if step == self.STEP_1FA and provider not in self.providers:
@@ -559,6 +598,9 @@ class PersonAuthentication(PersonAuthenticationType):
                 return authenticationService.authenticate(identity.getWorkingParameter("userId"))
 
         elif step == self.STEP_COLLECT:
+            telemetry["provider"] = provider
+            self.telemetryClient.trackEvent("Collection Result", telemetry, {"durationInSeconds": duration})
+
             user = userService.getUser(identity.getWorkingParameter("userId"), "inum", "uid", "persistentId")
             # Validate the session first
             if externalProfile["sessionIndex"][0] != sessionAttributes.get("sessionIndex"):
@@ -591,6 +633,10 @@ class PersonAuthentication(PersonAuthenticationType):
                 return authenticationService.authenticate(identity.getWorkingParameter("userId"))
 
         elif step in {self.STEP_TOTP_REGISTER, self.STEP_TOTP}:
+            telemetry["provider"] = provider
+            event = "TOTP %s Result" % "Authentication" if step == self.STEP_TOTP else "Registration"
+            self.telemetryClient.trackEvent(event, telemetry, {"durationInSeconds": duration})
+
             if externalProfile.get("externalUid").split(":", 1)[1] != identity.getWorkingParameter("mfaId"):
                 # Got the wrong MFA PAI. Authentication failed!
                 return False
@@ -686,6 +732,8 @@ class PersonAuthentication(PersonAuthenticationType):
         session = identity.getSessionId()
         rpConfig = self.rputils.getRPConfig(session)
         provider = identity.getWorkingParameter("provider")
+        if provider == "gckeyregister": # Hack
+            provider = "gckey"
         if provider is not None:
             providerInfo = self.passport.getProvider(provider)
 

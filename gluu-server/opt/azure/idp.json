@@ -2,6 +2,9 @@
   "role": {
     "name": "Shibboleth"
   },
+  "sampling": {
+    "percentage": 100
+    },
   "instrumentation": {
     "logging": {
       "level": "INFO"

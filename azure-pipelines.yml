@@ -41,7 +41,7 @@ stages:
 
     - script: |
         echo 'Downloading AppInsights Agent'
-        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.2.11/applicationinsights-agent-3.2.11.jar \
+        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.4.8/applicationinsights-agent-3.4.8.jar \
           -P gluu-server/opt/azure
         ls -al 
       displayName: 'Downloading AppInsights'
@@ -103,12 +103,12 @@ stages:
       displayName: 'Downloading node-services tarball'
 
     - script: |
-        wget https://artifacts.elastic.co/downloads/logstash/logstash-8.3.2-x86_64.rpm \
+        wget https://artifacts.elastic.co/downloads/logstash/logstash-8.6.1-x86_64.rpm \
           -P gluu-server/opt/dist/app
           mkdir -P gluu-server/etc/pki/rpm-gpg
           wget https://sicpub.blob.core.windows.net/software/GPG-KEY-elasticsearch \
             -P gluu-server/etc/pki/rpm-gpg
-          docker run -i -u $(id -u) -v $(Build.SourcesDirectory)/gluu-server/opt/dist/app:/srv/logstash docker.elastic.co/logstash/logstash:8.3.2 /bin/sh < pipeline-utils/logstash/offline-plugins.sh
+          docker run -i -u $(id -u) -v $(Build.SourcesDirectory)/gluu-server/opt/dist/app:/srv/logstash docker.elastic.co/logstash/logstash:8.6.1 /bin/sh < pipeline-utils/logstash/offline-plugins.sh
       displayName: 'Downlaoding Logstash and packaging plugins'
       continueOnError: false
 
