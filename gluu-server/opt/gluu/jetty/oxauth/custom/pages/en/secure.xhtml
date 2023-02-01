@@ -13,7 +13,7 @@
     <f:viewAction action="#{language.setLocaleCode('en')}" />
   </f:metadata>
 
-  <ui:param name="title" value="Make your account more secure" />
+  <ui:param name="title" value="Make your account more secure - #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}" />
   <ui:param name="step" value="secure" />
   <ui:param name="locale" value="en" />
 
@@ -64,22 +64,21 @@
         to make your account more secure.
       </p>
       <details>
-        <summary tabindex="0" role="button" aria-expanded="false" class="learn-more">Learn more about two-factor authentication</summary>
+        <summary class="learn-more">Learn more about two-factor authentication</summary>
         <section>
           <p>Two-factor authentication confirms it’s really you signing into your account.</p>
           <p>Think of it like a locked door that can only be opened with both a key and a secret code. Someone pretending to be you on the internet should never be able to get both the key and the code.</p>
         </section>
       </details>
 
-      <h2>Choose an option:</h2>
       <form jsf:id="secure" jsf:action="#{authenticator.authenticate}" class="form">
-        <div class="row wb-eqht">
+        <fieldset class="mfa-fieldset">
+          <legend class="mfa-legend-header">Choose a second factor:</legend>
+          <div class="row wb-eqht">
               <c:if test="${identity.getWorkingParameter('fido-accepted')}">
               <div class="col-md-12">
                 <section class="hght-inhrt mrgn-lft-sm mrgn-tp-md radio-boxes">
-                  <fieldset class="gc-chckbxrdio">
-                    <ul class="list-unstyled lst-spcd-2">
-                    <li class="radio mrgn-lft-md">
+                  <div class="gc-chckbxrdio radio mrgn-lft-md">
                       <input type="radio" p:name="secure:method" jsf:id="fido" jsf:value="fido" id="fido" class="radio mrgn-lft-md"/>
                       <label for="fido">
                         <div class="row">
@@ -101,9 +100,7 @@
                           </div>
                         </div>
                       </label>
-                    </li>
-                  </ul>
-                  </fieldset>
+                </div>
                 </section>
               </div>
             </c:if>
@@ -111,9 +108,7 @@
               <c:if test="${identity.getWorkingParameter('totp-accepted')}">
                 <div class="col-md-12">
                 <section class="hght-inhrt mrgn-lft-sm mrgn-tp-md radio-boxes">
-                  <fieldset class="gc-chckbxrdio">
-                    <ul class="list-unstyled lst-spcd-2">
-                    <li class="radio mrgn-lft-md">
+                  <div class="gc-chckbxrdio radio mrgn-lft-md">
                       <input type="radio" p:name="secure:method" jsf:id="totp" jsf:value="totp" id="totp" class="radio mrgn-lft-md"/>
                       <label for="totp">
                         <div class="row">
@@ -130,14 +125,12 @@
                           </div>
                           <div class="col-md-3 col-md-offset-1">
                             <p> 
-                              <span class="security-badge-desktop most-secure hidden-sm visible-md visible-lg" style="margin-top:30%;"><img src="\oxauth\ext\resources\assets\lock-icon.png" alt="icon of a closed lock" class="lock-icon"/>More secure</span>
+                              <span class="security-badge-desktop most-secure hidden-sm visible-md visible-lg" style="margin-top:30%;"><img src="\oxauth\ext\resources\assets\lock-icon.png" alt="closed padlock" class="lock-icon"/>More secure</span>
                             </p>
                           </div>
                         </div>
                       </label>
-                    </li>
-                  </ul>
-                  </fieldset>
+                </div>
                 </section>
               </div>
               </c:if>
@@ -145,9 +138,7 @@
               <c:if test="${identity.getWorkingParameter('sms-accepted')}">
                 <div class="col-md-12">
                 <section class="hght-inhrt mrgn-lft-sm mrgn-tp-md radio-boxes">
-                  <fieldset class="gc-chckbxrdio">
-                    <ul class="list-unstyled lst-spcd-2">
-                      <li class="radio mrgn-lft-md">
+                  <div class="gc-chckbxrdio radio mrgn-lft-md">
                         <input type="radio" p:name="secure:method" jsf:id="sms" jsf:value="sms" id="sms" />
                         <label for="sms" style="width:99%;">
                           <div class="row" style="width:99%;">
@@ -169,9 +160,7 @@
                             </div> -->
                           </div>
                         </label>
-                      </li>
-                    </ul>
-                  </fieldset>
+                  </div>
                 </section>
               </div>
               </c:if>
@@ -179,8 +168,7 @@
               <c:if test="${identity.getWorkingParameter('email-accepted')}">
                 <div class="col-md-12">
                 <section class="hght-inhrt mrgn-lft-sm mrgn-tp-md radio-boxes">
-                  <fieldset class="gc-chckbxrdio">
-                    <li class="radio mrgn-lft-md">
+                  <div class="gc-chckbxrdio radio mrgn-lft-md">
                       <input type="radio" p:name="secure:method" jsf:id="email" jsf:value="email" id="email" />
                       <label for="email" style="width:98.5%;">
                         <div class="row" style="width:98.5%;">
@@ -202,8 +190,7 @@
                           </div> -->
                         </div>
                       </label>
-                    </li>
-                  </fieldset>
+                  </div>
                 </section>
                 </div>
               </c:if>
@@ -220,7 +207,7 @@
                 </div>
               </c:if>
           </div>
-          
+        </fieldset>
           <div class="row mrgn-tp-lg">
             <div class="col-xs-12 col-sm-4 col-md-2 col-md-offset-10">
               <button jsf:id="select" id="select" jsf:action="#{authenticator.authenticate}">Continue</button>
