@@ -38,6 +38,9 @@ class UpdateToken(UpdateTokenType):
                            "payload": signedJWT.getClaims().toJsonString(),
                            "signature": signedJWT.getEncodedSignature()}
 
+        if jsonWebResponse.getClaims().hasClaim("sid"):
+            eventProperties["sid"] = jsonWebResponse.getClaims().getClaimAsString("sid")
+
         self.telemetryClient.trackEvent("ID Token", eventProperties, None)
 
         return False

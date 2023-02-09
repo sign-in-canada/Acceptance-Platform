@@ -2,7 +2,7 @@
 /*!
  * @title Web Experience Toolkit (WET) / Boîte à outils de l'expérience Web (BOEW)
  * @license wet-boew.github.io/wet-boew/License-en.html / wet-boew.github.io/wet-boew/Licence-fr.html
- * v11.1.2 - 2022-06-29
+ * v12.5.0 - 2022-12-13
  *
  */
 /*!
@@ -5996,6 +5996,9 @@ caption {
 	font-weight: bold;
 	text-align: center; }
 
+.table-responsive > .table, th, td {
+	white-space: normal; }
+
 /*
 	WET-BOEW
 	@title: Bootstrap overrides for WET-BOEW - Core CSS - forms
@@ -6337,7 +6340,7 @@ fieldset {
   WET-BOEW
   @title: Bootstrap 4 suplemental style for WET-BOEW
  */
-/* Padding */
+/* Spacing */
 .p-0 {
 	padding: 0 !important; }
 
@@ -6357,6 +6360,9 @@ fieldset {
 .py-4 {
 	padding-bottom: 30px !important; }
 
+.mt-auto {
+	margin-top: auto !important; }
+
 /* Stretched link */
 .stretched-link:after {
 	background-color: rgba(0, 0, 0, 0);
@@ -6369,9 +6375,38 @@ fieldset {
 	top: 0;
 	z-index: 1; }
 
-/* Position relative */
+/* Sizing */
+.h-100 {
+	height: 100% !important; }
+
+/* Positioning */
 .position-relative {
 	position: relative !important; }
+
+/* Flexbox */
+.d-flex {
+	display: -webkit-box !important;
+	display: -ms-flexbox !important;
+	display: flex !important; }
+
+.flex-column {
+	-webkit-box-orient: vertical !important;
+	-webkit-box-direction: normal !important;
+	    -ms-flex-direction: column !important;
+	        flex-direction: column !important; }
+
+.align-items-center {
+	-webkit-box-align: center !important;
+	    -ms-flex-align: center !important;
+	        align-items: center !important; }
+
+.align-self-center {
+	-ms-flex-item-align: center !important;
+	    align-self: center !important; }
+
+.align-self-end {
+	-ms-flex-item-align: end !important;
+	    align-self: flex-end !important; }
 
 /* Vertical alignment */
 .align-top {
@@ -9569,7 +9604,7 @@ label.required:before,
 legend.required:before,
 .checkbox.required:before {
 	content: "* ";
-	margin-left: -0.67em;
+	margin-left: -0.87em;
 	vertical-align: top; }
 
 .form-group.has-error .checkbox {
@@ -9581,7 +9616,7 @@ legend.required:before,
 [dir=rtl] label.required:before,
 [dir=rtl] legend.required:before {
 	margin-left: auto;
-	margin-right: -0.67em; }
+	margin-right: -0.87em; }
 
 .btn {
 	display: inline-block;
@@ -16433,7 +16468,7 @@ ol-geolocate button {
   WET-BOEW
   @title: Bootstrap 4 suplemental style for WET-BOEW
  */
-/* Padding */
+/* Spacing */
 .p-0 {
 	padding: 0 !important; }
 
@@ -16453,6 +16488,9 @@ ol-geolocate button {
 .py-4 {
 	padding-bottom: 30px !important; }
 
+.mt-auto {
+	margin-top: auto !important; }
+
 /* Stretched link */
 .stretched-link:after {
 	background-color: rgba(0, 0, 0, 0);
@@ -16465,9 +16503,38 @@ ol-geolocate button {
 	top: 0;
 	z-index: 1; }
 
-/* Position relative */
+/* Sizing */
+.h-100 {
+	height: 100% !important; }
+
+/* Positioning */
 .position-relative {
 	position: relative !important; }
+
+/* Flexbox */
+.d-flex {
+	display: -webkit-box !important;
+	display: -ms-flexbox !important;
+	display: flex !important; }
+
+.flex-column {
+	-webkit-box-orient: vertical !important;
+	-webkit-box-direction: normal !important;
+	    -ms-flex-direction: column !important;
+	        flex-direction: column !important; }
+
+.align-items-center {
+	-webkit-box-align: center !important;
+	    -ms-flex-align: center !important;
+	        align-items: center !important; }
+
+.align-self-center {
+	-ms-flex-item-align: center !important;
+	    align-self: center !important; }
+
+.align-self-end {
+	-ms-flex-item-align: end !important;
+	    align-self: flex-end !important; }
 
 /* Vertical alignment */
 .align-top {
@@ -16735,6 +16802,23 @@ Miscellaneous Utiliy CSS
   WET-BOEW
   @title: Bootstrap 4 suplemental style for WET-BOEW - Small view and over (screen only)
  */
+	/* Alignment */
+	.text-sm-left {
+		text-align: left; }
+	.text-sm-right {
+		text-align: right; }
+	/* Flexbox */
+	.d-sm-flex {
+		display: -webkit-box;
+		display: -ms-flexbox;
+		display: flex; }
+	.flex-sm-wrap {
+		-ms-flex-wrap: wrap;
+		    flex-wrap: wrap; }
+	.align-items-sm-center {
+		-webkit-box-align: center;
+		    -ms-flex-align: center;
+		        align-items: center; }
 	/* Margin */
 	.mb-sm-5 {
 		margin-bottom: 50px; }
@@ -16744,6 +16828,8 @@ Miscellaneous Utiliy CSS
 	.px-sm-3 {
 		padding-left: 15px;
 		padding-right: 15px; }
+	.pr-sm-3 {
+		padding-right: 15px !important; }
 	/*
   WET-BOEW
   @title: Proximity CSS - Small view and over

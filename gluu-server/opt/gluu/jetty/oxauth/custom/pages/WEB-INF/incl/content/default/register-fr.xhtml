@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:jsf="http://xmlns.jcp.org/jsf">
+    <h3 class="mrgn-tp-sm">Créer un compte</h3>
+    <p>
+        Si vous n'avez pas de
+        <ui:insert name="name" />
+        compte, vous pouvez vous inscrire à un.
+    </p>
+    <div class="row mrgn-tp-md">
+        <div class="col-sm-10 col-sm-offset-1">
+            <form jsf:id="navigate" jsf:action="#{authenticator.authenticate}" class="form">
+                <a jsf:id="register" jsf:action="#{authenticator.authenticate}" class="btn btn-default btn-lg btn-block p-sm-3">
+                    <span class="h4">
+                        <span class="fas fa-user-edit fa-lg mrgn-rght-sm fa-pull-left"></span>
+                        S'inscrire à un compte
+                    </span>
+                </a>
+            </form>
+        </div>
+    </div>
+</ui:composition>

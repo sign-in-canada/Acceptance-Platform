@@ -18,7 +18,7 @@ systemctl enable keyvault
 echo 'Installing and configuring logstash...'
 rpm --import /etc/pki/rpm-gpg/GPG-KEY-elasticsearch
 yum install -y /opt/dist/app/logstash-*-x86_64.rpm
-/usr/share/logstash/bin/logstash-plugin install file:///opt/dist/app/logstash-offline-plugins-8.3.2.zip
+/usr/share/logstash/bin/logstash-plugin install file:///opt/dist/app/logstash-offline-plugins-8.6.1.zip
 sed -i "s/^# api\.enabled: true/api\.enabled: false/" /etc/logstash/logstash.yml
 mkdir /etc/systemd/system/logstash.service.d
 echo "[Unit]" > /etc/systemd/system/logstash.service.d/override.conf
@@ -85,6 +85,15 @@ pushd /tmp/warpatch
 sed -i "s/DEBUG/INFO/g" WEB-INF/classes/log4j2.xml
 /opt/jre/bin/jar -u -f /opt/gluu/jetty/identity/webapps/identity.war WEB-INF/classes/log4j2.xml
 popd
+rm -rf /tmp/warpatch
+
+echo "Patching FIDO2 API server"
+mkdir -p /tmp/warpatch
+pushd /tmp/warpatch
+/opt/jre/bin/jar -x -f /opt/dist/signincanada/fido2-patch.war
+/opt/jre/bin/jar -u -f /opt/gluu/jetty/fido2/webapps/fido2.war WEB-INF/classes/*
+popd
+rm -rf /tmp/warpatch
 
 echo "Updating packages..."
 yum update -y
