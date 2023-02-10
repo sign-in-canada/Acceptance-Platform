@@ -293,7 +293,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     break
 
         if step == self.STEP_CHOOSER:
-            chooserRequest = "%s?ui_locales=%s&id=%s" % (self.chooserUri, uiLocales, rpConfig.get("content"))
+            chooserRequest = "%s/%s/select?id=%s" % (self.chooserUri, uiLocales.split('-')[0], rpConfig.get("content"))
             facesService.redirectToExternalURL(chooserRequest)
 
         elif step in {self.STEP_1FA, self.STEP_COLLECT, self.STEP_TOTP_REGISTER, self.STEP_TOTP}: # Passport
