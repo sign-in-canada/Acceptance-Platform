@@ -84,7 +84,6 @@ class PersonAuthentication(PersonAuthenticationType):
 
     # Map of steps to pages
     PAGES = {
-            STEP_CHOOSER: {"en": "/en/select.xhtml", "fr": "/fr/choisir.xhtml"},
             STEP_REGISTER: {"en": "/en/register.xhtml", "fr": "/fr/registrer.xhtml"},
             STEP_OOB: {"en": "/en/code.xhtml", "fr": "/fr/code.xhtml"},
             STEP_FIDO: {"en": "/en/wa.xhtml", "fr": "/fr/wa.xhtml"},
@@ -118,6 +117,13 @@ class PersonAuthentication(PersonAuthenticationType):
         self.name = customScript.getName()
         
         print ("%s: Initializing" % self.name)
+
+        chooserUriParam = configurationAttributes.get("chooser_uri")
+        if chooserUriParam is None:
+            print ("%s: Chooser URI is missing from config!"  % self.name)
+            return False
+        else:
+            self.chooserUri = chooserUriParam.getValue2()
 
         # Get the list of providers and parse into a set for quick membership tests
         providersParam = configurationAttributes.get("providers")
@@ -286,7 +292,11 @@ class PersonAuthentication(PersonAuthenticationType):
                 if mfaRegistered == mfaType: # Don't allow downgrading methods
                     break
 
-        if step in {self.STEP_1FA, self.STEP_COLLECT, self.STEP_TOTP_REGISTER, self.STEP_TOTP}: # Passport
+        if step == self.STEP_CHOOSER:
+            chooserRequest = "%s?ui_locales=%s&id=%s" % (self.chooserUri, uiLocales, rpConfig.get("content"))
+            facesService.redirectToExternalURL(chooserRequest)
+
+        elif step in {self.STEP_1FA, self.STEP_COLLECT, self.STEP_TOTP_REGISTER, self.STEP_TOTP}: # Passport
             passportOptions = {"ui_locales": uiLocales, "exp" : int(time.time()) + 60}
 
             if step in {self.STEP_1FA, self.STEP_COLLECT}:
@@ -450,6 +460,12 @@ class PersonAuthentication(PersonAuthenticationType):
             else:
                 print ("%s: Invalid provider choice: %s." % (self.name, choice))
                 return False
+
+            # Update the preferred language if it has changed
+            locale = ServerUtil.getFirstValue(requestParameters, "locale")
+            if locale:
+                languageBean.setLocaleCode(locale)
+                sessionAttributes.put(AuthorizeRequestParam.UI_LOCALES, locale)
 
         elif requestParameters.containsKey("registration"):
             user = self.account.register(requestParameters)
@@ -686,7 +702,7 @@ class PersonAuthentication(PersonAuthenticationType):
             else: # Direct pass-through
                 step = self.STEP_1FA
 
-        if step in {self.STEP_1FA, self.STEP_COLLECT, self.STEP_TOTP_REGISTER, self.STEP_TOTP, self.STEP_ABORT}: # Passport
+        if step in {self.STEP_CHOOSER, self.STEP_1FA, self.STEP_COLLECT, self.STEP_TOTP_REGISTER, self.STEP_TOTP, self.STEP_ABORT}: # External
             return "/auth/passport/passportlogin.xhtml"
 
         page = self.PAGES.get(step)
