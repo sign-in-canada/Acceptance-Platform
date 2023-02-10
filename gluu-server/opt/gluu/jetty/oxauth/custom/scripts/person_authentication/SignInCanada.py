@@ -118,13 +118,6 @@ class PersonAuthentication(PersonAuthenticationType):
         
         print ("%s: Initializing" % self.name)
 
-        chooserUriParam = configurationAttributes.get("chooser_uri")
-        if chooserUriParam is None:
-            print ("%s: Chooser URI is missing from config!"  % self.name)
-            return False
-        else:
-            self.chooserUri = chooserUriParam.getValue2()
-
         # Get the list of providers and parse into a set for quick membership tests
         providersParam = configurationAttributes.get("providers")
         if providersParam is None:
@@ -132,6 +125,14 @@ class PersonAuthentication(PersonAuthenticationType):
             return False
         else:
             self.providers = set([item.strip() for item in providersParam.getValue2().split(",")])
+
+        if len(self.providers) > 1:
+            chooserUriParam = configurationAttributes.get("chooser_uri")
+            if chooserUriParam is None:
+                print ("%s: Chooser URI is missing from config!"  % self.name)
+                return False
+            else:
+                self.chooserUri = chooserUriParam.getValue2()
 
         mfaMethodsParam = configurationAttributes.get("mfa_methods")
         if mfaMethodsParam is not None:
