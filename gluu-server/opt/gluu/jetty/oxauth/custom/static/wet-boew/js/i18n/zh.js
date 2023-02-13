@@ -94,6 +94,8 @@ wb.i18nDict = {
 	},
 	pos: "目前位置：",
 	dur: "所有時間：",
+	msgYoutubeNotLoad: "Video encountered loading issues",
+	msgYoutubeVdLoad: "Loading youtube video",
 
 	/* Share widget */
 	"shr-txt": "分享",
@@ -184,6 +186,7 @@ wb.i18nDict = {
 	info1000: ",",
 	lenMenu: "顯示_MENU_項",
 	filter: "過濾選項...",
+	tbFilterInst: "This table provides a sorting feature via the buttons across the column header row with only one instance visible at a time.",
 
 	/* Geomap */
 	"geo-mapctrl": "@geo-mapctrl@",
@@ -227,6 +230,7 @@ wb.i18nDict = {
 	"wb-enable": "Switch to standard version",
 	"disable-notice-h": "Notice: Basic HTML",
 	"disable-notice": "You are viewing Basic HTML view. Some features may be disabled.",
+	"skip-prefix": "Skip to:",
 
 	/* Dismissable content */
 	"dismiss": "Dismiss",
@@ -272,6 +276,7 @@ $.extend( $.validator.messages, {
 	minlength: $.validator.format( "最少要输入 {0} 个字符" ),
 	rangelength: $.validator.format( "请输入长度在 {0} 到 {1} 之间的字符串" ),
 	range: $.validator.format( "请输入范围在 {0} 到 {1} 之间的数值" ),
+	step: $.validator.format( "请输入 {0} 的整数倍值" ),
 	max: $.validator.format( "请输入不大于 {0} 的数值" ),
 	min: $.validator.format( "请输入不小于 {0} 的数值" )
 } );

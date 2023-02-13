@@ -94,6 +94,8 @@ wb.i18nDict = {
 	},
 	pos: "Pozicioni aktual:",
 	dur: "Koha totale:",
+	msgYoutubeNotLoad: "Video encountered loading issues",
+	msgYoutubeVdLoad: "Loading youtube video",
 
 	/* Share widget */
 	"shr-txt": "Share",
@@ -184,6 +186,7 @@ wb.i18nDict = {
 	info1000: "&#160;",
 	lenMenu: "Trego _MENU_ hyra",
 	filter: "Artikuj filtër",
+	tbFilterInst: "This table provides a sorting feature via the buttons across the column header row with only one instance visible at a time.",
 
 	/* Geomap */
 	"geo-mapctrl": "@geo-mapctrl@",
@@ -227,6 +230,7 @@ wb.i18nDict = {
 	"wb-enable": "Switch to standard version",
 	"disable-notice-h": "Notice: Basic HTML",
 	"disable-notice": "You are viewing Basic HTML view. Some features may be disabled.",
+	"skip-prefix": "Skip to:",
 
 	/* Dismissable content */
 	"dismiss": "Dismiss",

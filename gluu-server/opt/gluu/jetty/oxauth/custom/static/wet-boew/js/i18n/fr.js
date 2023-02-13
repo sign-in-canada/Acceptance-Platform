@@ -94,6 +94,8 @@ wb.i18nDict = {
 	},
 	pos: "Position actuelle :",
 	dur: "Temps total :",
+	msgYoutubeNotLoad: "La vidéo a éprouvé des problèmes de chargement",
+	msgYoutubeVdLoad: "Chargement de la vidéo youtube",
 
 	/* Share widget */
 	"shr-txt": "Partagez",
@@ -184,6 +186,7 @@ wb.i18nDict = {
 	info1000: "&#160;",
 	lenMenu: "Afficher _MENU_ entrées",
 	filter: "Filtrer les articles",
+	tbFilterInst: "Ce tableau offre une fonctionnalité de triage via les boutons situés dans la ligne d'entêtes de colonnes avec seulement une instance visible à la fois.",
 
 	/* Geomap */
 	"geo-mapctrl": "@geo-mapctrl@",
@@ -227,6 +230,7 @@ wb.i18nDict = {
 	"wb-enable": "Passer à la version standard",
 	"disable-notice-h": "Avis : Version HTML simplifiée",
 	"disable-notice": "Vous naviguez présentement sur la version HTML simplifiée de cette page. Certaines fonctionnalités peuvent être désactivées.",
+	"skip-prefix": "Passer à :",
 
 	/* Dismissable content */
 	"dismiss": "Écarter",
@@ -297,11 +301,12 @@ $.extend( $.validator.messages, {
 	creditcardtypes: "Veuillez fournir un numéro de carte de crédit valide.",
 	ipv4: "Veuillez fournir une adresse IP v4 valide.",
 	ipv6: "Veuillez fournir une adresse IP v6 valide.",
-	require_from_group: "Veuillez fournir au moins {0} de ces champs.",
+	require_from_group: $.validator.format( "Veuillez fournir au moins {0} de ces champs." ),
 	nifES: "Veuillez fournir un numéro NIF valide.",
 	nieES: "Veuillez fournir un numéro NIE valide.",
 	cifES: "Veuillez fournir un numéro CIF valide.",
-	postalCodeCA: "Veuillez fournir un code postal valide."
+	postalCodeCA: "Veuillez fournir un code postal valide.",
+	pattern: "Format non valide."
 } );
 return $;
 }));

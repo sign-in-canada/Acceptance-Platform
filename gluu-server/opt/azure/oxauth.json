@@ -2,6 +2,9 @@
     "role": {
         "name": "oxAuth"
     },
+    "sampling": {
+        "percentage": 100
+        },
     "instrumentation": {
         "logging": {
             "level": "INFO"
@@ -20,10 +23,22 @@
         "sampling": {
             "overrides": [
                 {
+                   "telemetryType" : "request",
                     "attributes": [
                         {
                             "key": "code.namespace",
                             "value": "org.gluu.service.timer.TimerJob",
+                            "matchType": "strict"
+                        }
+                    ],
+                    "percentage": 0
+                },
+                {
+                   "telemetryType" : "exception",
+                    "attributes": [
+                        {
+                            "key": "code.namespace",
+                            "value": "org.gluu.persist.exception.EntryPersistenceException",
                             "matchType": "strict"
                         }
                     ],

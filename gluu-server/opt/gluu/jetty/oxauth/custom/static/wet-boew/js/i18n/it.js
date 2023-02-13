@@ -94,6 +94,8 @@ wb.i18nDict = {
 	},
 	pos: "Posizione attuale:",
 	dur: "Tempo totale:",
+	msgYoutubeNotLoad: "Video encountered loading issues",
+	msgYoutubeVdLoad: "Loading youtube video",
 
 	/* Share widget */
 	"shr-txt": "Condividi",
@@ -184,6 +186,7 @@ wb.i18nDict = {
 	info1000: "&#160;",
 	lenMenu: "Mostra _MENU_ voci",
 	filter: "Filtra gli articoli",
+	tbFilterInst: "This table provides a sorting feature via the buttons across the column header row with only one instance visible at a time.",
 
 	/* Geomap */
 	"geo-mapctrl": "@geo-mapctrl@",
@@ -227,6 +230,7 @@ wb.i18nDict = {
 	"wb-enable": "Switch to standard version",
 	"disable-notice-h": "Notice: Basic HTML",
 	"disable-notice": "You are viewing Basic HTML view. Some features may be disabled.",
+	"skip-prefix": "Skip to:",
 
 	/* Dismissable content */
 	"dismiss": "Dismiss",
@@ -257,29 +261,52 @@ wb.doc.one( "formLanguages.wb", function() {
  * Locale: IT (Italian; Italiano)
  */
 $.extend( $.validator.messages, {
-	required: "Campo obbligatorio",
-	remote: "Controlla questo campo",
-	email: "Inserisci un indirizzo email valido",
-	url: "Inserisci un indirizzo web valido",
-	date: "Inserisci una data valida",
-	dateISO: "Inserisci una data valida (ISO)",
-	number: "Inserisci un numero valido",
-	digits: "Inserisci solo numeri",
-	creditcard: "Inserisci un numero di carta di credito valido",
-	equalTo: "Il valore non corrisponde",
-	extension: "Inserisci un valore con un&apos;estensione valida",
-	maxlength: $.validator.format( "Non inserire pi&ugrave; di {0} caratteri" ),
-	minlength: $.validator.format( "Inserisci almeno {0} caratteri" ),
-	rangelength: $.validator.format( "Inserisci un valore compreso tra {0} e {1} caratteri" ),
-	range: $.validator.format( "Inserisci un valore compreso tra {0} e {1}" ),
-	max: $.validator.format( "Inserisci un valore minore o uguale a {0}" ),
-	min: $.validator.format( "Inserisci un valore maggiore o uguale a {0}" ),
-	nifES: "Inserisci un NIF valido",
-	nieES: "Inserisci un NIE valido",
-	cifES: "Inserisci un CIF valido",
-	currency: "Inserisci una valuta valida"
+	required: "Campo obbligatorio.",
+	remote: "Controlla questo campo.",
+	email: "Inserisci un indirizzo email valido.",
+	url: "Inserisci un indirizzo web valido.",
+	date: "Inserisci una data valida.",
+	dateISO: "Inserisci una data valida (ISO).",
+	number: "Inserisci un numero valido.",
+	digits: "Inserisci solo numeri.",
+	creditcard: "Inserisci un numero di carta di credito valido.",
+	equalTo: "Il valore non corrisponde.",
+	extension: "Inserisci un valore con un&apos;estensione valida.",
+	maxlength: $.validator.format( "Non inserire pi&ugrave; di {0} caratteri." ),
+	minlength: $.validator.format( "Inserisci almeno {0} caratteri." ),
+	rangelength: $.validator.format( "Inserisci un valore compreso tra {0} e {1} caratteri." ),
+	range: $.validator.format( "Inserisci un valore compreso tra {0} e {1}." ),
+	max: $.validator.format( "Inserisci un valore minore o uguale a {0}." ),
+	min: $.validator.format( "Inserisci un valore maggiore o uguale a {0}." ),
+	nifES: "Inserisci un NIF valido.",
+	nieES: "Inserisci un NIE valido.",
+	cifES: "Inserisci un CIF valido.",
+	currency: "Inserisci una valuta valida."
 } );
 return $;
 }));
+(function( factory ) {
+	if ( typeof define === "function" && define.amd ) {
+		define( ["jquery", "../jquery.validate"], factory );
+	} else if (typeof module === "object" && module.exports) {
+		module.exports = factory( require( "jquery" ) );
+	} else {
+		factory( jQuery );
+	}
+}(function( $ ) {
 
+/*
+ * Localized default methods for the jQuery validation plugin.
+ * Locale: IT
+ */
+$.extend( $.validator.methods, {
+	date: function( value, element ) {
+		return this.optional( element ) || /^\d\d?\-\d\d?\-\d\d\d?\d?$/.test( value );
+	},
+	number: function( value, element ) {
+		return this.optional( element ) || /^-?(?:\d+|\d{1,3}(?:\.\d{3})+)(?:,\d+)?$/.test( value );
+	}
+} );
+return $;
+}));
 });

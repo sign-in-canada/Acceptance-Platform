@@ -94,6 +94,8 @@ wb.i18nDict = {
 	},
 	pos: "Geçerli pozisyon:",
 	dur: "Toplam zaman:",
+	msgYoutubeNotLoad: "Video encountered loading issues",
+	msgYoutubeVdLoad: "Loading youtube video",
 
 	/* Share widget */
 	"shr-txt": "Paylaş",
@@ -184,6 +186,7 @@ wb.i18nDict = {
 	info1000: ",",
 	lenMenu: "_MENU_ girdileri göster",
 	filter: "Maddeleri filtrele",
+	tbFilterInst: "This table provides a sorting feature via the buttons across the column header row with only one instance visible at a time.",
 
 	/* Geomap */
 	"geo-mapctrl": "@geo-mapctrl@",
@@ -227,6 +230,7 @@ wb.i18nDict = {
 	"wb-enable": "Switch to standard version",
 	"disable-notice-h": "Notice: Basic HTML",
 	"disable-notice": "You are viewing Basic HTML view. Some features may be disabled.",
+	"skip-prefix": "Skip to:",
 
 	/* Dismissable content */
 	"dismiss": "Dismiss",
@@ -262,19 +266,20 @@ $.extend( $.validator.messages, {
 	email: "Lütfen geçerli bir e-posta adresi giriniz.",
 	url: "Lütfen geçerli bir web adresi (URL) giriniz.",
 	date: "Lütfen geçerli bir tarih giriniz.",
-	dateISO: "Lütfen geçerli bir tarih giriniz(ISO formatında)",
+	dateISO: "Lütfen geçerli bir tarih giriniz(ISO formatında).",
 	number: "Lütfen geçerli bir sayı giriniz.",
 	digits: "Lütfen sadece sayısal karakterler giriniz.",
 	creditcard: "Lütfen geçerli bir kredi kartı giriniz.",
 	equalTo: "Lütfen aynı değeri tekrar giriniz.",
 	extension: "Lütfen geçerli uzantıya sahip bir değer giriniz.",
+	phone: "Lütfen geçerli bir telefon numarası giriniz.",
 	maxlength: $.validator.format( "Lütfen en fazla {0} karakter uzunluğunda bir değer giriniz." ),
 	minlength: $.validator.format( "Lütfen en az {0} karakter uzunluğunda bir değer giriniz." ),
 	rangelength: $.validator.format( "Lütfen en az {0} ve en fazla {1} uzunluğunda bir değer giriniz." ),
 	range: $.validator.format( "Lütfen {0} ile {1} arasında bir değer giriniz." ),
 	max: $.validator.format( "Lütfen {0} değerine eşit ya da daha küçük bir değer giriniz." ),
 	min: $.validator.format( "Lütfen {0} değerine eşit ya da daha büyük bir değer giriniz." ),
-	require_from_group: "Lütfen bu alanların en az {0} tanesini doldurunuz."
+	require_from_group: $.validator.format( "Lütfen bu alanların en az {0} tanesini doldurunuz." )
 } );
 return $;
 }));

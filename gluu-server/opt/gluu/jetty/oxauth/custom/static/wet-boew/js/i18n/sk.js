@@ -94,6 +94,8 @@ wb.i18nDict = {
 	},
 	pos: "Aktuálna pozícia:",
 	dur: "Celkový čas:",
+	msgYoutubeNotLoad: "Video encountered loading issues",
+	msgYoutubeVdLoad: "Loading youtube video",
 
 	/* Share widget */
 	"shr-txt": "Zdieľať",
@@ -184,6 +186,7 @@ wb.i18nDict = {
 	info1000: "&#160;",
 	lenMenu: "Zobraziť _MENU_ položiek",
 	filter: "Filtrovanie položiek",
+	tbFilterInst: "This table provides a sorting feature via the buttons across the column header row with only one instance visible at a time.",
 
 	/* Geomap */
 	"geo-mapctrl": "@geo-mapctrl@",
@@ -227,6 +230,7 @@ wb.i18nDict = {
 	"wb-enable": "Switch to standard version",
 	"disable-notice-h": "Notice: Basic HTML",
 	"disable-notice": "You are viewing Basic HTML view. Some features may be disabled.",
+	"skip-prefix": "Skip to:",
 
 	/* Dismissable content */
 	"dismiss": "Dismiss",
@@ -270,7 +274,8 @@ $.extend( $.validator.messages, {
 	range: $.validator.format( "Musí byť medzi {0} a {1}." ),
 	max: $.validator.format( "Nemôže byť viac ako {0}." ),
 	min: $.validator.format( "Nemôže byť menej ako {0}." ),
-	creditcard: "Číslo platobnej karty musí byť platné."
+	creditcard: "Číslo platobnej karty musí byť platné.",
+	step: $.validator.format( "Musí byť násobkom čísla {0}." )
 } );
 return $;
 }));
