@@ -146,6 +146,7 @@ class OutOfBand:
                     self.userService.addUserAttribute(user, "mobile", contact)
                 elif channel == "email":
                     self.userService.addUserAttribute(user, "mail", contact)
+                identity.setWorkingParameter("mfaMethod", channel)
                 updateNeeded = True
             else:
                 self.telemetryClient.trackEvent("OOB Authentication", telemetry, {"durationInSeconds": duration})

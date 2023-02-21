@@ -137,6 +137,8 @@ class PersonAuthentication(PersonAuthenticationType):
         if configurationAttributes.containsKey("totp_timeout"):
             self.totpTimeout = StringHelper.toInteger(configurationAttributes.get("totp_timeout").getValue2())
             print ("%s. TOTP timeout is %s seconds." % (self.name, self.totpTimeout))
+        else:
+            self.totpTimeout = None
 
         self.rputils = rputils.RPUtils()
         self.rputils.init(configurationAttributes, self.name)
@@ -152,7 +154,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
         self.account = account.Account()
 
-        if self.mfaMethods and ("sms" in self.mfaMethods or "email" in self.mfaMethods):
+        if self.mfaMethods:
             self.oob = oob.OutOfBand()
             self.oob.init(configurationAttributes, self.name)
 
@@ -279,7 +281,7 @@ class PersonAuthentication(PersonAuthenticationType):
         for param in ["layout", "chooser", "content"]:
             identity.setWorkingParameter(param, rpConfig.get(param))
 
-        if identity.getWorkingParameter("userId") is not None and len(self.mfaMethods) > 1:
+        if identity.getWorkingParameter("userId") is not None and len(self.mfaMethods) > 0:
             mfaRegistered = identity.getWorkingParameter("mfaMethod")
             for mfaType in self.mfaMethods:
                 identity.setWorkingParameter(mfaType + "-accepted", mfaType in self.mfaMethods)
@@ -648,6 +650,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     return False
                 else:
                     self.account.addExternalUid(user, "mfa", mfaId)
+                    identity.setWorkingParameter("mfaMethod", "totp")
                     userChanged = True
 
             telemetry["result"] = "success"
@@ -812,29 +815,23 @@ class PersonAuthentication(PersonAuthenticationType):
         if step in {self.STEP_1FA, self.STEP_COLLECT}:
             if self.mfaMethods:
                 mfaMethodRegistered = identity.getWorkingParameter("mfaMethod")
-                if mfaMethodRegistered is None or mfaMethodRegistered not in {"fido"}.union(self.mfaMethods):
-                    if len(self.mfaMethods) > 1:
+                if mfaMethodRegistered is None:
+                    if len(self.mfaMethods) == 1:
+                        return self.gotoStep(self.STEP_TOTP_REGISTER) # Old behaviour
+                    else:
                         return self.gotoStep(self.STEP_UPGRADE)
-                    elif self.mfaMethods[0] == "fido":
-                        return self.gotoStep(self.STEP_FIDO_REGISTER)
-                    elif self.mfaMethods[0] == "totp":
-                        return self.gotoStep(self.STEP_TOTP_REGISTER)
-                    elif self.mfaMethods[0] in {"sms", "email"}:
-                        identity.setWorkingParameter("oobChannel", self.mfaMethods[0])
-                        return self.gotoStep(self.STEP_OOB_REGISTER)
-                else:
-                    if mfaMethodRegistered == "fido":
-                        return self.gotoStep(self.STEP_FIDO)
-                    elif mfaMethodRegistered == "totp":
-                        return self.gotoStep(self.STEP_TOTP)
-                    elif mfaMethodRegistered == "sms":
-                        return self.gotoStep(self.STEP_OOB)
-                    elif mfaMethodRegistered =="email":
-                        return self.gotoStep(self.STEP_OOB)
+                elif mfaMethodRegistered == "fido":
+                    return self.gotoStep(self.STEP_FIDO)
+                elif mfaMethodRegistered == "totp":
+                    return self.gotoStep(self.STEP_TOTP)
+                elif mfaMethodRegistered in {"sms", "email"}:
+                    return self.gotoStep(self.STEP_OOB)
 
         if step == self.STEP_OOB:
             if requestParameters.containsKey("oob:resend") or int(identity.getWorkingParameter("oobExpiry")) < Instant.now().getEpochSecond():
                 return self.gotoStep(self.STEP_OOB)
+            elif identity.getWorkingParameter("mfaMethod") not in self.mfaMethods:
+                return self.gotoStep(self.STEP_UPGRADE)
 
         if step == self.STEP_OOB_REGISTER:
             if identity.getWorkingParameter("oobCode"):
@@ -866,16 +863,20 @@ class PersonAuthentication(PersonAuthenticationType):
                     return self.gotoStep(self.STEP_ABORT)
                 else:
                     return self.gotoStep(self.STEP_CHOOSER)
+            elif identity.getWorkingParameter("mfaMethod") not in self.mfaMethods:
+                return self.gotoStep(self.STEP_UPGRADE)
 
         if step == self.STEP_TOTP_REGISTER:
             if requestParameters.containsKey("failure"): # User cancelled
-                if len(self.mfaMethods) == 1:
+                if len(self.mfaMethods) == 1 and identity.getWorkingParameter("mfaMethod") is None:
                     if len(self.providers) == 1:
                         return self.gotoStep(self.STEP_ABORT)
                     else:
                         return self.gotoStep(self.STEP_CHOOSER)
                 else:
                     return self.gotoStep(self.STEP_UPGRADE)
+            elif identity.getWorkingParameter("mfaMethod") not in self.mfaMethods:
+                return self.gotoStep(self.STEP_UPGRADE)
 
         if step == self.STEP_FIDO_REGISTER:
             if requestParameters.containsKey("attestationResponse"):
