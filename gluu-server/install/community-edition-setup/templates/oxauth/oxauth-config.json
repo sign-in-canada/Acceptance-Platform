@@ -262,7 +262,7 @@
         }
     ],
     "sessionIdUnusedLifetime":86400,
-    "sessionIdUnauthenticatedUnusedLifetime":1200,
+    "sessionIdUnauthenticatedUnusedLifetime":3600,
     "sessionIdEnabled":true,
     "changeSessionIdOnAuthentication":true,
     "returnClientSecretOnRead": true,

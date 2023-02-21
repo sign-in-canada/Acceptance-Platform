@@ -57,6 +57,7 @@ oxConfigurationProperty: {"value1":"key_store_file","value2":"%(passport_rp_clie
 oxConfigurationProperty: {"value1":"key_store_password","value2":"%(passport_rp_client_jks_pass)s","hide":true,"description":""}
 oxConfigurationProperty: {"value1":"providers","value2":"gckey, cbs","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"mfa_methods","value2":"totp","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"totp_timeout","value2":"2700","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"rp_defaults","value2":"{\"layout\":\"ATIP\",\"chooser\":\"gccf\",\"content\":\"default\",\"mfaProvider\":\"mfa\"}","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"fido2_server_uri","value2":"https://%(hostname)s","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"fido2_domain","value2":"%(hostname)s","hide":false,"description":""}
@@ -80,6 +81,7 @@ oxConfigurationProperty: {"value1":"key_store_file","value2":"%(passport_rp_clie
 oxConfigurationProperty: {"value1":"key_store_password","value2":"%(passport_rp_client_jks_pass)s","hide":true,"description":""}
 oxConfigurationProperty: {"value1":"providers","value2":"gckey","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"mfa_methods","value2":"totp","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"totp_timeout","value2":"2700","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"rp_defaults","value2":"{\"layout\":\"ATIP\",\"chooser\":\"gccf\",\"content\":\"default\",\"mfaProvider\":\"mfa\"}","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"fido2_server_uri","value2":"https://%(hostname)s","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"fido2_domain","value2":"%(hostname)s","hide":false,"description":""}
@@ -103,6 +105,7 @@ oxConfigurationProperty: {"value1":"key_store_file","value2":"%(passport_rp_clie
 oxConfigurationProperty: {"value1":"key_store_password","value2":"%(passport_rp_client_jks_pass)s","hide":true,"description":""}
 oxConfigurationProperty: {"value1":"providers","value2":"gckey, cbs","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"mfa_methods","value2":"totp, sms, email","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"totp_timeout","value2":"2700","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"rp_defaults","value2":"{\"layout\":\"ATIP\",\"chooser\":\"gccf\",\"content\":\"default\",\"mfaProvider\":\"mfa\"}","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"fido2_server_uri","value2":"https://%(hostname)s","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"fido2_domain","value2":"%(hostname)s","hide":false,"description":""}
@@ -130,6 +133,7 @@ oxConfigurationProperty: {"value1":"key_store_file","value2":"%(passport_rp_clie
 oxConfigurationProperty: {"value1":"key_store_password","value2":"%(passport_rp_client_jks_pass)s","hide":true,"description":""}
 oxConfigurationProperty: {"value1":"providers","value2":"gckey","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"mfa_methods","value2":"totp, sms, email","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"totp_timeout","value2":"2700","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"rp_defaults","value2":"{\"layout\":\"ATIP\",\"chooser\":\"gccf\",\"content\":\"default\",\"mfaProvider\":\"mfa\"}","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"fido2_server_uri","value2":"https://%(hostname)s","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"fido2_domain","value2":"%(hostname)s","hide":false,"description":""}
@@ -157,6 +161,7 @@ oxConfigurationProperty: {"value1":"key_store_file","value2":"%(passport_rp_clie
 oxConfigurationProperty: {"value1":"key_store_password","value2":"%(passport_rp_client_jks_pass)s","hide":true,"description":""}
 oxConfigurationProperty: {"value1":"providers","value2":"gckey, cbs","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"mfa_methods","value2":"totp, sms","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"totp_timeout","value2":"2700","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"rp_defaults","value2":"{\"layout\":\"ATIP\",\"chooser\":\"gccf\",\"content\":\"default\",\"mfaProvider\":\"mfa\"}","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"fido2_server_uri","value2":"https://%(hostname)s","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"fido2_domain","value2":"%(hostname)s","hide":false,"description":""}
@@ -184,6 +189,7 @@ oxConfigurationProperty: {"value1":"key_store_file","value2":"%(passport_rp_clie
 oxConfigurationProperty: {"value1":"key_store_password","value2":"%(passport_rp_client_jks_pass)s","hide":true,"description":""}
 oxConfigurationProperty: {"value1":"providers","value2":"gckey","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"mfa_methods","value2":"totp, sms","hide":false,"description":""}
+oxConfigurationProperty: {"value1":"totp_timeout","value2":"2700","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"rp_defaults","value2":"{\"layout\":\"ATIP\",\"chooser\":\"gccf\",\"content\":\"default\",\"mfaProvider\":\"mfa\"}","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"fido2_server_uri","value2":"https://%(hostname)s","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"fido2_domain","value2":"%(hostname)s","hide":false,"description":""}

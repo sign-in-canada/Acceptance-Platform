@@ -1,6 +1,6 @@
 # Sign In Canada master authentication script
 #
-# This script has potentially 5 steps:
+# This script has potentially 15 steps:
 #    Step 1: Prompt for language (splash page) (if ui_locales not provided)
 #    Step 2: Sign In chooser (if more than one choice)
 #            (May include discoverable FIDO2 authentication)
@@ -45,6 +45,7 @@ import java
 import sys
 import json
 import time
+import uuid
 
 class SICError(Exception):
     """Base class for exceptions in this module."""
@@ -132,6 +133,10 @@ class PersonAuthentication(PersonAuthenticationType):
             self.mfaMethods = list([item.strip() for item in mfaMethodsParam.getValue2().split(",")])
         else:
             self.mfaMethods = []
+
+        if configurationAttributes.containsKey("totp_timeout"):
+            self.totpTimeout = StringHelper.toInteger(configurationAttributes.get("totp_timeout").getValue2())
+            print ("%s. TOTP timeout is %s seconds." % (self.name, self.totpTimeout))
 
         self.rputils = rputils.RPUtils()
         self.rputils.init(configurationAttributes, self.name)
@@ -246,11 +251,6 @@ class PersonAuthentication(PersonAuthenticationType):
 
         if identity.getWorkingParameter("abort"): # Back button workaround
             if step == self.STEP_TOTP_REGISTER:
-                print ("TOTP Registration aborted")
-                # Remove unregistered mfaId
-                user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "oxExternalUid")
-                self.account.removeExternalUid(user, "mfa", identity.getWorkingParameter("mfaId"))
-                userService.updateUser(user)
                 if len(self.mfaMethods) > 1:
                     step = self.STEP_UPGRADE
                     self.telemetryClient.trackEvent("2FA Choice Offered", {"sid" : session.getOutsideSid()}, None)
@@ -324,12 +324,14 @@ class PersonAuthentication(PersonAuthenticationType):
                     return False
 
                 telemetry = {"sid" : session.getOutsideSid(), "provider": provider}
-                user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "oxExternalUid")
-                mfaId = self.account.getExternalUid(user, "mfa")
-                if mfaId is None:
-                    mfaId = self.account.addExternalUid(user, "mfa")
-                    userService.updateUser(user)
+
+                if step == self.STEP_TOTP_REGISTER:
+                    mfaId = uuid.uuid4().hex
+                else:
+                    user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "oxExternalUid")
+                    mfaId = self.account.getExternalUid(user, "mfa")
                 identity.setWorkingParameter("mfaId", mfaId)
+
                 passportOptions["login_hint"] = mfaId
                 # The following parameters are redundant, but currently required by the 2ndFaaS
                 passportOptions["redirect_uri"] = self.passport.getProvider(provider)["callbackUrl"]
@@ -337,7 +339,6 @@ class PersonAuthentication(PersonAuthenticationType):
                 passportOptions["scope"] = "openid profile"
 
                 event = "TOTP %s Request" % ("Registration" if step == self.STEP_TOTP_REGISTER else "Authentication")
-                print (event, telemetry)
                 self.telemetryClient.trackEvent(event, telemetry, None)
 
             # Set the abort flag to handle back button
@@ -411,10 +412,6 @@ class PersonAuthentication(PersonAuthenticationType):
                     return authenticationService.authenticate(identity.getWorkingParameter("userId"))
             elif step == self.STEP_TOTP_REGISTER:
                 self.telemetryClient.trackEvent("TOTP Registration Result", telemetry, {"durationInSeconds": duration}) 
-                user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "oxExternalUid")
-                self.account.removeExternalUid(user, "mfa", identity.getWorkingParameter("mfaId"))
-                userService.updateUser(user)
-                identity.setWorkingParameter("mfaId", None)
                 return False
             elif step == self.STEP_TOTP: # 2FA Failed. Redirect back to the RP
                 self.telemetryClient.trackEvent("TOTP Authentication Result", telemetry, {"durationInSeconds": duration}) 
@@ -527,15 +524,7 @@ class PersonAuthentication(PersonAuthenticationType):
             return False
         provider = externalProfile["provider"]
 
-        # Can't trust the step parameter
-        if identity.getWorkingParameter("userId") is None:
-            step = self.STEP_1FA
-        elif provider == identity.getWorkingParameter("provider"):
-            step = self.STEP_COLLECT
-        elif provider == rpConfig.get("mfaProvider"):
-            step = self.STEP_TOTP
-
-        if step == self.STEP_1FA:
+        if identity.getWorkingParameter("userId") is None: # 1FA
             if provider not in self.providers:
                 print ("Unauthorized provider: %s" % provider)
                 return False
@@ -547,7 +536,7 @@ class PersonAuthentication(PersonAuthenticationType):
             self.telemetryClient.trackEvent("1FA Result", telemetry, {"durationInSeconds": duration})
 
             provider = externalProfile["provider"]
-            if step == self.STEP_1FA and provider not in self.providers:
+            if provider not in self.providers:
                 # Unauthorized provider!
                 return False
             else:
@@ -594,10 +583,10 @@ class PersonAuthentication(PersonAuthenticationType):
             elif userChanged:
                 userService.updateUser(user)
 
-            if self.getNextStep(configurationAttributes, requestParameters, step) < 0:
+            if self.getNextStep(configurationAttributes, requestParameters, self.STEP_1FA) < 0:
                 return authenticationService.authenticate(identity.getWorkingParameter("userId"))
 
-        elif step == self.STEP_COLLECT:
+        elif provider == identity.getWorkingParameter("provider"): # Collection
             telemetry["provider"] = provider
             self.telemetryClient.trackEvent("Collection Result", telemetry, {"durationInSeconds": duration})
 
@@ -629,26 +618,51 @@ class PersonAuthentication(PersonAuthenticationType):
                 provider = identity.getWorkingParameter("provider")
                 self.account.addOpenIdSubject(user, client, provider + nameId)
 
-            if self.getNextStep(configurationAttributes, requestParameters, step) < 0:
+            if self.getNextStep(configurationAttributes, requestParameters, self.STEP_COLLECT) < 0:
                 return authenticationService.authenticate(identity.getWorkingParameter("userId"))
 
-        elif step in {self.STEP_TOTP_REGISTER, self.STEP_TOTP}:
-            telemetry["provider"] = provider
-            event = "TOTP %s Result" % "Authentication" if step == self.STEP_TOTP else "Registration"
-            self.telemetryClient.trackEvent(event, telemetry, {"durationInSeconds": duration})
-
-            if externalProfile.get("externalUid").split(":", 1)[1] != identity.getWorkingParameter("mfaId"):
-                # Got the wrong MFA PAI. Authentication failed!
+        elif provider == rpConfig.get("mfaProvider"): # TOTP
+            mfaId = identity.getWorkingParameter("mfaId")
+            if externalProfile.get("externalUid").split(":", 1)[1] != mfaId:
+                # Got the wrong MFA PAI.
+                self.telemetryClient.trackEvent("SecurityEvent",
+                                                {"cause": "mfaId mismatch"}, None)
                 return False
+
+            user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "oxExternalUid", "locale")
+            userChanged = False
+            if self.account.getExternalUid(user, "mfa") is not None:
+                step = self.STEP_TOTP
+            else:
+                step = self.STEP_TOTP_REGISTER
+
+            telemetry["provider"] = provider
+            event = "TOTP %s Result" % ("Authentication" if step == self.STEP_TOTP else "Registration")
+
+            if step == self.STEP_TOTP_REGISTER:
+                if self.totpTimeout and duration > self.totpTimeout:
+                    # TOTP timed out
+                    telemetry["result"] = "failed"
+                    telemetry["reason"] = "timed out"
+                    self.telemetryClient.trackEvent(event, telemetry, {"durationInSeconds": duration})
+                    return False
+                else:
+                    self.account.addExternalUid(user, "mfa", mfaId)
+                    userChanged = True
+
+            telemetry["result"] = "success"
+            self.telemetryClient.trackEvent(event, telemetry, {"durationInSeconds": duration})
 
             # Accept locale from the 2nd-factor CSP
             locale = externalProfile.get("locale")[0]
             if locale:
                 languageBean.setLocaleCode(locale)
-                user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "locale")
                 if locale != user.getAttribute("locale", True, False):
                     user.setAttribute("locale", locale, False)
-                    userService.updateUser(user)
+                    userChanged = True
+
+            if userChanged:
+                userService.updateUser(user)
 
             if self.getNextStep(configurationAttributes, requestParameters, step) < 0:
                 return authenticationService.authenticate(identity.getWorkingParameter("userId"))
