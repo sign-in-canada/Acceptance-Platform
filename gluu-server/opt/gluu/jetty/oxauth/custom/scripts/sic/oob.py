@@ -122,6 +122,8 @@ class OutOfBand:
 
             if (authenticationProtectionService.isEnabled()):
                 authenticationProtectionService.storeAttempt(userId, False)
+                authenticationProtectionService.doDelayIfNeeded(userId)
+
             identity.setWorkingParameter("oobCode", None) # Start over
             addMessage("oob:resend", FacesMessage.SEVERITY_INFO, "sic.newCode")
             return False
@@ -131,6 +133,9 @@ class OutOfBand:
 
         if StringHelper.equals(user.getAttribute("gluuStatus"), GluuStatus.INACTIVE.getValue()):
              addMessage("oob:code", FacesMessage.SEVERITY_ERROR, "sic.lockedOut")
+             if (authenticationProtectionService.isEnabled()):
+                authenticationProtectionService.storeAttempt(userId, False)
+                authenticationProtectionService.doDelayIfNeeded(userId)
              return False
 
         if enteredCode == identity.getWorkingParameter("oobCode"):
@@ -165,7 +170,7 @@ class OutOfBand:
                 self.userService.updateUser(user)
 
             return authenticationService.authenticate(userId)
-        else:
+        else: # Invalid code
             telemetry["result"] = "failed"
             telemetry["reason"] = "invalid code"
             if contact is not None:
@@ -174,8 +179,6 @@ class OutOfBand:
             else:
                 self.telemetryClient.trackEvent("OOB Authentication", telemetry, {"durationInSeconds": duration})
 
-            if (authenticationProtectionService.isEnabled()):
-                authenticationProtectionService.storeAttempt(userId, False)
             attempts = StringHelper.toInteger(user.getAttribute("oxCountInvalidLogin"), 0)
             attempts += 1
             user.setAttribute("oxCountInvalidLogin", StringHelper.toString(attempts))
@@ -188,6 +191,10 @@ class OutOfBand:
             else:
                 addMessage("oob:code", FacesMessage.SEVERITY_ERROR, "sic.invalidCode")
             self.userService.updateUser(user)
+
+            if (authenticationProtectionService.isEnabled()):
+                authenticationProtectionService.storeAttempt(userId, False)
+                authenticationProtectionService.doDelayIfNeeded(userId)
 
             return False
 
