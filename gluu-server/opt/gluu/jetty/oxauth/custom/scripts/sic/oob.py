@@ -9,8 +9,9 @@ from org.gluu.jsf2.service import FacesResources
 from org.gluu.jsf2.message import FacesMessages
 from org.gluu.oxauth.i18n import LanguageBean
 from org.gluu.util import StringHelper
-from org.gluu.oxauth.service import UserService, AuthenticationService, AuthenticationProtectionService
+from org.gluu.oxauth.service import UserService, AuthenticationService, AuthenticationProtectionService, SessionIdService
 from org.gluu.model import GluuStatus
+from org.gluu.oxauth.model.configuration import AppConfiguration
 from org.gluu.oxauth.model.authorize import AuthorizeRequestParam
 
 from javax.faces.application import FacesMessage
@@ -18,6 +19,7 @@ from javax.faces.application import FacesMessage
 from java.security import SecureRandom
 from java.time import Instant
 from java.util import Date
+from java.lang import Thread
 
 from com.microsoft.applicationinsights import TelemetryClient
 
@@ -105,9 +107,6 @@ class OutOfBand:
         telemetry = {"sid" : session.getOutsideSid()}
         duration = float((Date().getTime() - session.getLastUsedAt().getTime()) / 1000)
 
-        if (authenticationProtectionService.isEnabled()):
-            authenticationProtectionService.doDelayIfNeeded(userId)
-
         codeExpiry = int(identity.getWorkingParameter("oobExpiry"))
         codeExpired = codeExpiry < Instant.now().getEpochSecond()
 
@@ -119,11 +118,7 @@ class OutOfBand:
             telemetry["result"] = "failed"
             telemetry["reason"] = "code expired" if codeExpired else "new code requested"
             self.telemetryClient.trackEvent("OOB Authentication", telemetry, {"durationInSeconds": duration})
-
-            if (authenticationProtectionService.isEnabled()):
-                authenticationProtectionService.storeAttempt(userId, False)
-                authenticationProtectionService.doDelayIfNeeded(userId)
-
+            throttle(authenticationProtectionService, session, userId)
             identity.setWorkingParameter("oobCode", None) # Start over
             addMessage("oob:resend", FacesMessage.SEVERITY_INFO, "sic.newCode")
             return False
@@ -133,9 +128,7 @@ class OutOfBand:
 
         if StringHelper.equals(user.getAttribute("gluuStatus"), GluuStatus.INACTIVE.getValue()):
              addMessage("oob:code", FacesMessage.SEVERITY_ERROR, "sic.lockedOut")
-             if (authenticationProtectionService.isEnabled()):
-                authenticationProtectionService.storeAttempt(userId, False)
-                authenticationProtectionService.doDelayIfNeeded(userId)
+             throttle(authenticationProtectionService, session, userId)
              return False
 
         if enteredCode == identity.getWorkingParameter("oobCode"):
@@ -191,10 +184,7 @@ class OutOfBand:
             else:
                 addMessage("oob:code", FacesMessage.SEVERITY_ERROR, "sic.invalidCode")
             self.userService.updateUser(user)
-
-            if (authenticationProtectionService.isEnabled()):
-                authenticationProtectionService.storeAttempt(userId, False)
-                authenticationProtectionService.doDelayIfNeeded(userId)
+            throttle(authenticationProtectionService, session, userId)
 
             return False
 
@@ -230,9 +220,7 @@ class OutOfBand:
         if identity.getWorkingParameter("oobCode") is not None:
             # This means the user previously tried to register but then backed up
             # and changed the email address or mobile number. Possible DoS
-            if authenticationProtectionService.isEnabled():
-                authenticationProtectionService.storeAttempt(userId, False)
-                authenticationProtectionService.doDelayIfNeeded(userId)
+            throttle(authenticationProtectionService, session, userId)
 
         if not self.SendOneTimeCode(None, channel, contact):
             telemetry["result"] = "failed"
@@ -260,3 +248,20 @@ def addMessage(uiControl, severity, msgId):
     message = FacesMessage(severity, msgText, msgText)
     facesContext.addMessage(uiControl, message)
     externalContext.getFlash().setKeepMessages(True)
+
+def throttle(authenticationProtectionService, session, userId):
+    if authenticationProtectionService.isEnabled():
+        authenticationProtectionService.storeAttempt(userId, False)
+        attempts = authenticationProtectionService.getNonExpiredAttempts(userId)
+        attemptCount = 0
+        if attempts is not None:
+            attemptCount = attempts.getAuthenticationAttempts().size()
+            if attemptCount < 5:
+                return
+            elif attemptCount < 10:
+                # Progressive rate limiting
+                Thread.sleep((2**(attemptCount - 4) * 1000))
+            else: # boot-em
+                CdiUtil.bean(SessionIdService).remove(session)
+
+
