@@ -200,7 +200,8 @@ class PersonAuthentication(PersonAuthenticationType):
                              "oobChannel",  # Chosen channel for OOB (sms or email)
                              "oobCode",     # One-time-code for out-of-band
                              "oobContact",  # Mobile number or email address being registered for OOB
-                             "oobExpiry")  # Timestamp when OOB expires
+                             "oobExpiry",   # Timestamp when OOB expires
+                             "content")     # RP Content identifier
 
     def prepareForStep(self, configurationAttributes, requestParameters, step):
 
