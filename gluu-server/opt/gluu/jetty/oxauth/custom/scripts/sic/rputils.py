@@ -51,8 +51,8 @@ class RPUtils:
         # check the cache
         clientKey = "rp:oidc:%s" % client.getClientId()
         rpConfig = cacheService.get(clientKey)
-        if rpConfig:
-            return rpConfig
+        #if rpConfig:
+        #    return rpConfig
 
         descriptionAttr = clientService.getCustomAttribute(client, "description")
 
