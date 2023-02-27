@@ -814,7 +814,7 @@ class PersonAuthentication(PersonAuthenticationType):
                         return self.gotoStep(self.STEP_COLLECT)
 
         if step in {self.STEP_1FA, self.STEP_COLLECT}:
-            if self.mfaMethods:
+            if identity.getWorkingParameter("userId") is not None and self.mfaMethods:
                 mfaMethodRegistered = identity.getWorkingParameter("mfaMethod")
                 if mfaMethodRegistered is None:
                     if len(self.mfaMethods) == 1:
