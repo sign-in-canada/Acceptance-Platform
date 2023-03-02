@@ -12,11 +12,12 @@
 #    Step 8: External TOTP via passport (if configured)
 #    Step 9: Multi-factor step-up ("Secure your account")
 #    Step 10: Out-of band 2nd factor registration
-#    Step 11: TOTP registration
-#    Step 12: FIDO2 registration
-#    Step 13: Partial Account recovery
-#    Step 14: Generic Information / Help / Confirmation page
-#    Step 15: Abort authentication and redirtect back to the RP
+#    Step 11: Migration to a new primary credential
+#    Step 12: TOTP registration
+#    Step 13: FIDO2 registration
+#    Step 14: Partial Account recovery
+#    Step 15: Generic Information / Help / Confirmation page
+#    Step 16: Abort authentication and redirtect back to the RP
 #
 # The actual steps performed will depend on thw workflow. Note that if steps 1 or 2 are skipped
 # then the step # passed by Gluu will always be 1 for the first step performed, regardless
@@ -76,24 +77,31 @@ class PersonAuthentication(PersonAuthenticationType):
     STEP_FIDO = 7
     STEP_TOTP = 8
     STEP_UPGRADE = 9
-    STEP_OOB_REGISTER = 10
-    STEP_TOTP_REGISTER = 11
-    STEP_FIDO_REGISTER = 12
-    STEP_RECOVER = 13
-    STEP_RESULT = 14
-    STEP_ABORT = 15
+    STEP_MIGRATE = 10
+    STEP_OOB_REGISTER = 11
+    STEP_TOTP_REGISTER = 12
+    STEP_FIDO_REGISTER = 13
+    STEP_RECOVER = 14
+    STEP_RESULT = 15
+    STEP_ABORT = 16
 
     # Map of steps to pages
-    PAGES = {
-            STEP_REGISTER: {"en": "/en/register.xhtml", "fr": "/fr/registrer.xhtml"},
-            STEP_OOB: {"en": "/en/code.xhtml", "fr": "/fr/code.xhtml"},
-            STEP_FIDO: {"en": "/en/wa.xhtml", "fr": "/fr/wa.xhtml"},
-            STEP_UPGRADE: {"en": "/en/secure.xhtml", "fr": "/fr/securiser.xhtml"},
-            STEP_OOB_REGISTER: {"en": "/en/registeroob.xhtml", "fr": "/fr/registrerhb.xhtml"},
-            STEP_FIDO_REGISTER: {"en": "/en/registerwa.xhtml", "fr": "/fr/registreraw.xhtml"},
-            STEP_RECOVER: {"en": "/en/recover.xhtml", "fr": "/fr/recuperer.xhtml"},
-            STEP_RESULT: {"en": "/en/result.xhtml", "fr": "/fr/resultat.xhtml"}
-        }
+    INTERNAL_PAGES = {
+        STEP_REGISTER: {"en": "/en/register.xhtml", "fr": "/fr/registrer.xhtml"},
+        STEP_OOB: {"en": "/en/code.xhtml", "fr": "/fr/code.xhtml"},
+        STEP_FIDO: {"en": "/en/wa.xhtml", "fr": "/fr/wa.xhtml"},
+        STEP_UPGRADE: {"en": "/en/secure.xhtml", "fr": "/fr/securiser.xhtml"},
+        STEP_OOB_REGISTER: {"en": "/en/registeroob.xhtml", "fr": "/fr/registrerhb.xhtml"},
+        STEP_FIDO_REGISTER: {"en": "/en/registerwa.xhtml", "fr": "/fr/registreraw.xhtml"},
+        STEP_RECOVER: {"en": "/en/recover.xhtml", "fr": "/fr/recuperer.xhtml"},
+        STEP_RESULT: {"en": "/en/result.xhtml", "fr": "/fr/resultat.xhtml"}
+    }
+
+    EXTERNAL_PAGES = {
+        STEP_CHOOSER: "select",
+        STEP_MIGRATE: "upgrade",
+        STEP_RESULT: "upgraded"
+    }
 
     # MAP of form IDs to steps
     FORMS = {"chooser": STEP_CHOOSER,
@@ -111,12 +119,12 @@ class PersonAuthentication(PersonAuthenticationType):
         self.currentTimeMillis = currentTimeMillis
 
     def init(self, customScript, configurationAttributes):
-        
+
         if REMOTE_DEBUG:
             pydevd.settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
-        
+
         self.name = customScript.getName()
-        
+
         print ("%s: Initializing" % self.name)
 
         # Get the list of providers and parse into a set for quick membership tests
@@ -160,6 +168,7 @@ class PersonAuthentication(PersonAuthenticationType):
             self.fido.init(configurationAttributes, self.name)
 
         self.account = account.Account()
+        self.account.init(configurationAttributes, self.name, self.passport)
 
         if self.mfaMethods:
             self.oob = oob.OutOfBand()
@@ -208,7 +217,8 @@ class PersonAuthentication(PersonAuthenticationType):
                              "oobCode",     # One-time-code for out-of-band
                              "oobContact",  # Mobile number or email address being registered for OOB
                              "oobExpiry",   # Timestamp when OOB expires
-                             "content")     # RP Content identifier
+                             "content",     # RP Content identifier
+                             "resultId")    # Content identifier for the results step ("results of what task")
 
     def prepareForStep(self, configurationAttributes, requestParameters, step):
 
@@ -296,9 +306,9 @@ class PersonAuthentication(PersonAuthenticationType):
                 if mfaRegistered == mfaType: # Don't allow downgrading methods
                     break
 
-        if step == self.STEP_CHOOSER:
-            chooserRequest = "%s/select?lang=%s&id=%s" % (self.chooserUri, uiLocales.split('-')[0], rpConfig.get("content"))
-            facesService.redirectToExternalURL(chooserRequest)
+        if step in {self.STEP_CHOOSER, self.STEP_MIGRATE, self.STEP_RESULT}:
+            externalPage = "%s/%s?lang=%s&id=%s" % (self.chooserUri, self.EXTERNAL_PAGES[step], uiLocales.split('-')[0], rpConfig.get("content"))
+            facesService.redirectToExternalURL(externalPage)
 
         elif step in {self.STEP_1FA, self.STEP_COLLECT, self.STEP_TOTP_REGISTER, self.STEP_TOTP}: # Passport
             passportOptions = {"ui_locales": uiLocales, "exp" : int(time.time()) + 60}
@@ -383,9 +393,9 @@ class PersonAuthentication(PersonAuthenticationType):
             identity.setWorkingParameter("attestation_request", attestationRequest)
 
         return True
-        
+
     def authenticate(self, configurationAttributes, requestParameters, step):
-        
+
         if REMOTE_DEBUG:
             pydevd.settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
 
@@ -511,7 +521,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 addMessage("secure:select", FacesMessage.SEVERITY_ERROR, "sic.pleaseChoose")
                 return False
 
-        elif requestParameters.containsKey("result:continue"):
+        elif requestParameters.containsKey("navigate:continue"):
             print ("%s: Navigate to: %s." % (self.name, self.getFormButton(requestParameters)))
 
         else: # Invalid response
@@ -606,51 +616,18 @@ class PersonAuthentication(PersonAuthenticationType):
             if self.getNextStep(configurationAttributes, requestParameters, self.STEP_1FA) < 0:
                 return authenticationService.authenticate(identity.getWorkingParameter("userId"))
 
-        elif provider == identity.getWorkingParameter("provider"): # Collection
-            telemetry["provider"] = provider
-            self.telemetryClient.trackEvent("Collection Result", telemetry, {"durationInSeconds": duration})
+        user = userService.getUser(identity.getWorkingParameter("userId"), "inum", "uid", "persistentId","oxExternalUid", "locale")
+        userChanged = False
 
-            user = userService.getUser(identity.getWorkingParameter("userId"), "inum", "uid", "persistentId")
-            # Validate the session first
-            if externalProfile["sessionIndex"][0] != sessionAttributes.get("sessionIndex"):
-                print ("%s: IDP session missmatch during PAI collection for user %s."
-                        % (self.name, identity.getWorkingParameter("userId")))
-                return False
-
-            collect = rpConfig.get("collect")
-            if collect is None: # This should never happen
-                print ("%s. authenticateUser: collection entityID is missing" % (self.name))
-                return False
-
-            # Collect the SAML PAI
-            spNameQualifier, nameQualifier, nameId = tuple(externalProfile["persistentId"][0].split("|"))
-            if spNameQualifier == "undefined":
-                spNameQualifier = collect
-            if nameQualifier == "undefined":
-                nameQualifier = externalProfile["issuer"][0]
-            if not self.account.getSamlSubject(user, spNameQualifier): # unless one already exists
-                user = self.account.addSamlSubject(user, spNameQualifier, nameQualifier, nameId)
-            userService.updateUser(user)
-
-            # construct an OIDC pairwise subject using the SAML PAI
-            client = self.rputils.getClient(session)
-            if not self.account.getOpenIdSubject(user, client): # unless one already exists
-                provider = identity.getWorkingParameter("provider")
-                self.account.addOpenIdSubject(user, client, provider + nameId)
-
-            if self.getNextStep(configurationAttributes, requestParameters, self.STEP_COLLECT) < 0:
-                return authenticationService.authenticate(identity.getWorkingParameter("userId"))
-
-        elif provider == rpConfig.get("mfaProvider"): # TOTP
+        if provider == rpConfig.get("mfaProvider"): # TOTP
             mfaId = identity.getWorkingParameter("mfaId")
-            if externalProfile.get("externalUid").split(":", 1)[1] != mfaId:
-                # Got the wrong MFA PAI.
+            mfaProvider, mfaSub = self.passport.ParseExternalUid(externalProfile.get("externalUid"))
+            if (mfaProvider, mfaSub) != (provider, mfaId):
+                # Got the wrong MFA credential.
                 self.telemetryClient.trackEvent("SecurityEvent",
                                                 {"cause": "mfaId mismatch"}, None)
                 return False
 
-            user = userService.getUser(identity.getWorkingParameter("userId"), "uid", "oxExternalUid", "locale")
-            userChanged = False
             if self.account.getExternalUid(user, "mfa") is not None:
                 step = self.STEP_TOTP
             else:
@@ -688,6 +665,49 @@ class PersonAuthentication(PersonAuthenticationType):
             if self.getNextStep(configurationAttributes, requestParameters, step) < 0:
                 return authenticationService.authenticate(identity.getWorkingParameter("userId"))
 
+        extProvider, sub = self.passport.ParseExternalUid(externalProfile.get("externalUid"))
+        if self.account.hasExternalUid(user, provider, sub): # Collection
+            telemetry["provider"] = provider
+            self.telemetryClient.trackEvent("Collection Result", telemetry, {"durationInSeconds": duration})
+
+            user = userService.getUser(identity.getWorkingParameter("userId"), "inum", "uid", "persistentId")
+            # Validate the session first
+            if externalProfile["sessionIndex"][0] != sessionAttributes.get("sessionIndex"):
+                print ("%s: IDP session missmatch during PAI collection for user %s."
+                        % (self.name, identity.getWorkingParameter("userId")))
+                return False
+
+            collect = rpConfig.get("collect")
+            if collect is None: # This should never happen
+                print ("%s. authenticateUser: collection entityID is missing" % (self.name))
+                return False
+
+            # Collect the SAML PAI
+            spNameQualifier, nameQualifier, nameId = tuple(externalProfile["persistentId"][0].split("|"))
+            if spNameQualifier == "undefined":
+                spNameQualifier = collect
+            if nameQualifier == "undefined":
+                nameQualifier = externalProfile["issuer"][0]
+            if not self.account.getSamlSubject(user, spNameQualifier): # unless one already exists
+                user = self.account.addSamlSubject(user, spNameQualifier, nameQualifier, nameId)
+            userService.updateUser(user)
+
+            # construct an OIDC pairwise subject using the SAML PAI
+            client = self.rputils.getClient(session)
+            if not self.account.getOpenIdSubject(user, client): # unless one already exists
+                provider = identity.getWorkingParameter("provider")
+                self.account.addOpenIdSubject(user, client, provider + nameId)
+
+            if self.getNextStep(configurationAttributes, requestParameters, self.STEP_COLLECT) < 0:
+                return authenticationService.authenticate(identity.getWorkingParameter("userId"))
+
+        else: # New credenial to be bound
+            self.account.addExternalUid(user, provider, sub)
+            # TODO: Make it primary here
+            userService.updateUser(user)
+            identity.setWorkingParameter("resultId", "upgraded")
+            return authenticationService.authenticate(identity.getWorkingParameter("userId"))
+
         return False
 
     def getPageForStep(self, configurationAttributes, step):
@@ -721,10 +741,10 @@ class PersonAuthentication(PersonAuthenticationType):
             else: # Direct pass-through
                 step = self.STEP_1FA
 
-        if step in {self.STEP_CHOOSER, self.STEP_1FA, self.STEP_COLLECT, self.STEP_TOTP_REGISTER, self.STEP_TOTP, self.STEP_ABORT}: # External
+        if step in {self.STEP_CHOOSER, self.STEP_1FA, self.STEP_COLLECT, self.STEP_TOTP_REGISTER, self.STEP_TOTP, self.STEP_ABORT, self.STEP_MIGRATE, self.STEP_RESULT}: # External
             return "/auth/passport/passportlogin.xhtml"
 
-        page = self.PAGES.get(step)
+        page = self.INTERNAL_PAGES.get(step)
         if page is not None:
             return page[language]
         else:
@@ -764,6 +784,7 @@ class PersonAuthentication(PersonAuthenticationType):
         # Inject dependencies
         userService = CdiUtil.bean(UserService)
         identity = CdiUtil.bean(Identity)
+        authenticationService = CdiUtil.bean(AuthenticationService)
         session = identity.getSessionId()
         rpConfig = self.rputils.getRPConfig(session)
         provider = identity.getWorkingParameter("provider")
@@ -813,7 +834,7 @@ class PersonAuthentication(PersonAuthenticationType):
         if step == self.STEP_CHOOSER:
             if requestParameters.containsKey("assertionResponse") and not ServerUtil.getFirstValue(requestParameters, "assertionResponse"):
                 return self.gotoStep(self.STEP_CHOOSER) # Cancel or Fail
-            elif not requestParameters.containsKey("assertionResponse"):
+            elif provider is not None and not requestParameters.containsKey("assertionResponse"):
                 return self.gotoStep(self.STEP_1FA)
 
         if step == self.STEP_1FA:
@@ -831,25 +852,29 @@ class PersonAuthentication(PersonAuthenticationType):
                         return self.gotoStep(self.STEP_COLLECT)
 
         if step in {self.STEP_1FA, self.STEP_COLLECT}:
-            if identity.getWorkingParameter("userId") is not None and self.mfaMethods:
-                mfaMethodRegistered = identity.getWorkingParameter("mfaMethod")
-                if mfaMethodRegistered is None:
-                    if len(self.mfaMethods) == 1:
-                        return self.gotoStep(self.STEP_TOTP_REGISTER) # Old behaviour
+            if identity.getWorkingParameter("userId") is not None:
+                if provider != "gckey2":
+                    mfaMethodRegistered = identity.getWorkingParameter("mfaMethod")
+                    if mfaMethodRegistered == "fido":
+                        return self.gotoStep(self.STEP_FIDO)
+                    elif mfaMethodRegistered == "totp":
+                        return self.gotoStep(self.STEP_TOTP)
+                    elif mfaMethodRegistered in {"sms", "email"}:
+                        return self.gotoStep(self.STEP_OOB)
                     else:
-                        return self.gotoStep(self.STEP_UPGRADE)
-                elif mfaMethodRegistered == "fido":
-                    return self.gotoStep(self.STEP_FIDO)
-                elif mfaMethodRegistered == "totp":
-                    return self.gotoStep(self.STEP_TOTP)
-                elif mfaMethodRegistered in {"sms", "email"}:
-                    return self.gotoStep(self.STEP_OOB)
+                        # Force migration
+                        return self.gotoStep(self.STEP_MIGRATE)
+                elif identity.getWorkingParameter("resultId") is not None:
+                    return self.gotoStep(self.STEP_RESULT)
 
         if step == self.STEP_OOB:
             if requestParameters.containsKey("oob:resend") or int(identity.getWorkingParameter("oobExpiry")) < Instant.now().getEpochSecond():
                 return self.gotoStep(self.STEP_OOB)
             elif identity.getWorkingParameter("mfaMethod") not in self.mfaMethods:
                 return self.gotoStep(self.STEP_UPGRADE)
+            elif provider != "gckey2":
+                # Force migration
+                return self.gotoStep(self.STEP_MIGRATE)
 
         if step == self.STEP_OOB_REGISTER:
             if identity.getWorkingParameter("oobCode"):
@@ -883,6 +908,9 @@ class PersonAuthentication(PersonAuthenticationType):
                     return self.gotoStep(self.STEP_CHOOSER)
             elif identity.getWorkingParameter("mfaMethod") not in self.mfaMethods:
                 return self.gotoStep(self.STEP_UPGRADE)
+            elif provider != "gckey2":
+                # Force migration
+                return self.gotoStep(self.STEP_MIGRATE)
 
         if step == self.STEP_TOTP_REGISTER:
             if requestParameters.containsKey("failure"): # User cancelled
@@ -907,6 +935,9 @@ class PersonAuthentication(PersonAuthenticationType):
                     return self.gotoStep(self.STEP_ABORT)
                 else:
                     return self.gotoStep(self.STEP_CHOOSER)
+
+        if step == self.STEP_MIGRATE:
+            return self.gotoStep(self.STEP_RESULT)
 
         # if we get this far we're done
         identity.setWorkingParameter("stepCount", originalStep)
