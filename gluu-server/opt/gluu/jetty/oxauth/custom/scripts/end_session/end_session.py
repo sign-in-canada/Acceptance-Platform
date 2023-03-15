@@ -92,7 +92,7 @@ class EndSession(EndSessionType):
         persistentId = sessionAttributes.get("persistentId")
         spNameQualifier, nameQualifier, nameId = tuple(persistentId.split("|"))
 
-        params = {"provider": sessionAttributes.get("provider"),
+        params = {"provider": sessionAttributes.get("SAMLProvider"),
                   "nameIDFormat": "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
                   "nameID": nameId,
                   "sessionIndex": sessionAttributes.get("sessionIndex"),

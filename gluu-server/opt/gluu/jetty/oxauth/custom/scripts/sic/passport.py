@@ -146,10 +146,7 @@ class Passport:
             providerType = providerConfig["type"]
             
             sub = claims.getClaimAsString("sub")
-            if providerType == "saml": # This is silly. It should be consistent.
-                externalProfile["externalUid"] = "passport-saml:%s:%s" % (providerId, sub)
-            else:
-                externalProfile["externalUid"] = "passport-%s:%s" % (providerId, sub)
+            externalProfile["externalUid"] = "passport-%s:%s" % (providerId, sub)
 
         except:
             print ("Passport. handleResponse. Invalid JWT from passport")
@@ -299,3 +296,20 @@ class Passport:
             print ("SECURITY: %s" % message)
 
         return hasExpired
+
+# External UID functions
+
+    def ParseExternalUid(self, externalUid):
+
+        if externalUid is None:
+            return None
+        elif (externalUid.count(':') == 2):
+            extDescr, extProvider, extSub = tuple(externalUid.split(":", 2))
+        elif (externalUid.count(':') == 1):
+            extDescr, extSub = tuple(externalUid.split(":", 1))
+            extProvider = extDescr.split('-', 1)[1]
+
+        return extProvider, extSub
+
+    def BuildExternalUid(self, extProvider, extSub):
+           return "passport-%s:%s" % (extProvider, extSub)

@@ -35,8 +35,13 @@ class Account:
         self.pairwiseIdentifierService = CdiUtil.bean(PairwiseIdentifierService)
         self.entryManager = CdiUtil.bean(PersistenceEntryManager)
         self.languageBean = CdiUtil.bean(LanguageBean)
-        self.facesMessages = CdiUtil.bean(FacesMessages) 
+        self.facesMessages = CdiUtil.bean(FacesMessages)
         self.telemetryClient = TelemetryClient()
+
+    def init(self, configurationAttributes, scriptName, passport):
+
+        print ("Account. init called from " + scriptName)
+        self.passport = passport
 
     # Creation via external CSP
     def create(self, externalProfile):
@@ -105,13 +110,13 @@ class Account:
            extProvider, extSub = tuple(externalUid.split(":", 1))
            if extProvider == externalPrefix:
                return extSub
-        
+
         return None
 
     def addExternalUid(self, user, provider, sub=None):
         if sub is None:
             sub = uuid.uuid4().hex
-        newExternalId = "passport-%s:%s" %( provider, sub)
+        newExternalId = self.passport.BuildExternalUid(provider, sub)
         self.userService.addUserAttribute(user, "oxExternalUid", newExternalId, True)
         return sub
 
@@ -119,10 +124,10 @@ class Account:
         externalUidAttribute = self.userService.getCustomAttribute(user, "oxExternalUid")
         if externalUidAttribute is None:
             return None
-        
+
         externalUids = externalUidAttribute.getValues()
 
-        uidToDelete = "passport-" + provider + ":" + sub
+        uidToDelete = self.passport.BuildExternalUid(provider, sub)
         newExternalUids = []
         for externalUid in externalUids:
             if externalUid != uidToDelete:
@@ -134,6 +139,62 @@ class Account:
 
     def replaceExternalUid(self, user, provider, sub): # For future use (switch credential)
          return NotImplemented
+
+    def hasExternalUid(self, user, provider, sub):
+        externalUids = user.getAttributeValues("oxExternalUid")
+        if externalUids is None or sub is None:
+            return False
+
+        externalSuffix = provider + ":" + sub
+        for externalUid in externalUids:
+            if externalUid.endswith(externalSuffix):
+                return True
+
+        return False
+
+    def getPrimaryCredential(self, user):
+        externalUids = user.getAttributeValues("oxExternalUid")
+        if externalUids is None:
+            return None
+
+        for externalUid in externalUids:
+            extProvider, extSub = self.passport.ParseExternalUid(externalUid)
+            extFactor = self.passport.getProvider(extProvider)["options"]["factor"]
+            if extFactor in {"MFA", "1FA"}:
+                return extProvider, extSub
+        
+        return None
+
+    def makePrimary(self, user, provider, sub):
+        externalUids = user.getAttributeValues("oxExternalUid")
+        if externalUids is None or not self.hasExternalUid(user, provider, sub):
+            return None
+
+        primaryExternalUid = self.passport.BuildExternalUid(provider, sub)
+        for index, externalUid in enumerate(externalUids):
+            if externalUid == primaryExternalUid:
+                pIndex = index
+
+        if pIndex == 0:
+            return user
+        else:
+            externalUids.remove(pIndex)
+            externalUids.insert(0, primaryExternalUid)
+            user.setAttribute("oxExternalUid", externalUids, True)
+
+        return user
+
+    def getLegacyCredential(self, user):
+        externalUids = user.getAttributeValues("oxExternalUid")
+        if externalUids is None:
+            return None
+
+        for externalUid in externalUids:
+            extProvider, extSub = self.passport.ParseExternalUid(externalUid)
+            if self.passport.getProvider(extProvider)["GCCF"]:
+                return extProvider, extSub
+
+        return None
 
     # SAML RP Subject Management
     def addSamlSubject(self, user, spNameQualifier, nameQualifier = None, nameId = None):
@@ -161,7 +222,7 @@ class Account:
             samlSubject = persistentId.split("|")
             if samlSubject[0] == spNameQualifier:
                 return samlSubject[1], samlSubject[2]
-        
+
         return None
 
 # OpenID RP subject management
@@ -224,7 +285,7 @@ class Account:
 # Identity claim ingestion
 
     def mergeAttributes(self, user, externalProfile):
-                
+
         for attr in externalProfile:
             # "provider" and "externalUid" are disregarded if part of mapping
             if attr not in ["provider", "externalUid"]:
