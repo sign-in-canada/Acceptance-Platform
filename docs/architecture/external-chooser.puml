@@ -1,0 +1,40 @@
+@startuml sequence
+skinparam sequenceMessageAlign direction
+skinparam responseMessageBelowArrow true
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor red
+skinparam titleBackgroundColor Aqua-CadetBlue
+title Sign in via an external chooser page
+Participant "User Agent" as user
+Participant "Relying Party" as RP
+Participant "Gluu oxAuth" as oxAuth
+Participant "External Chooser" as chooser
+Participant "Gluu Passport" as passport
+Participant "SAML IDP (GCCF CSP)" as IDP
+user -> RP : Sign in
+RP -> oxAuth : authentication request
+user <-- oxAuth : redirect to chooser
+user -> chooser : language & content identifier
+user <-- chooser : chooser page
+user -> oxAuth : choice (GCKey or Interac) (& language)
+oxAuth -> passport : csrf token request
+oxAuth <-- passport : csrf token
+user <-- oxAuth : redirect to passport
+user -> passport : csrf token, SAML request parameters 
+user <-- passport : redirect to IDP with SAML Request
+user -> IDP : SAML request
+user <-- IDP : Sign in page
+user -> IDP : username & password
+user <-- IDP : form with SAML Response (Assertion)
+user -> passport : POST SAML Response
+user <-- passport : form with user profile token (JWT)
+user -> oxAuth : POST profile token
+user <-- oxAuth : rediredct with authorization code
+user -> RP : authorization code
+RP -> oxAuth : token request
+RP <-- oxAuth : ID and access tokens
+RP -> oxAuth : userinfo request (with access token)
+RP <-- oxAuth : claims (e.g. locale)
+user <-- RP : Welcome!
+@enduml
