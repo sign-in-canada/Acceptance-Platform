@@ -37,7 +37,7 @@
                    "telemetryType" : "exception",
                     "attributes": [
                         {
-                            "key": "code.namespace",
+                            "key": "exception.type",
                             "value": "org.gluu.persist.exception.EntryPersistenceException",
                             "matchType": "strict"
                         }
