@@ -234,7 +234,6 @@ oxConfigurationProperty: {"value1":"oob_api_url","value2":"https://api.notificat
 oxConfigurationProperty: {"value1":"oob_template_ids","value2":"{\"email-en\":\"f928d9f3-44fd-4e94-9d35-c1d86085f14f\",\"email-fr\":\"f6a3c788-a355-4d02-be16-8d12227fb50b\",\"sms-en\":\"9451caa5-326a-432e-b411-bf605535cee7\",\"sms-fr\":\"f948fccb-a5ef-4d4f-a753-f4f7d9f6a3d3\"}","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"oob_code_lifetime","value2":"600","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"lockout_threshold","value2":"100","hide":false,"description":""}
-
 oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/AAL2.py","description":""}
 oxRevision: 1
 oxScript::%(person_authentication_signincanada)s
