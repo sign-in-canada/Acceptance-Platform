@@ -235,7 +235,7 @@ oxConfigurationProperty: {"value1":"oob_template_ids","value2":"{\"email-en\":\"
 oxConfigurationProperty: {"value1":"oob_code_lifetime","value2":"600","hide":false,"description":""}
 oxConfigurationProperty: {"value1":"lockout_threshold","value2":"100","hide":false,"description":""}
 
-oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/AAL1.py","description":""}
+oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/person_authentication/AAL2.py","description":""}
 oxRevision: 1
 oxScript::%(person_authentication_signincanada)s
 oxScriptType: person_authentication
