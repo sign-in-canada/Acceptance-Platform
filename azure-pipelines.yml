@@ -21,16 +21,16 @@ stages:
 
     - task: Maven@3
       inputs:
-        mavenPomFile: '$(Build.SourcesDirectory)/pipeline-utils/azure-sdk/pom.xml'
+        mavenPomFile: '$(Build.SourcesDirectory)/pipeline-utils/cloud-sdk/pom.xml'
         goals: 'package'
-      displayName: 'Downloading Azure Java SDK libraries'
+      displayName: 'Downloading Azure and AWS Java SDK libraries'
       continueOnError: false
 
     - script: |
         ls -al $(Pipeline.Workspace)
         cd gluu-server/opt/gluu/jetty/oxauth/custom
         mkdir libs
-        cp -R $(Build.SourcesDirectory)/pipeline-utils/azure-sdk/target/dependency/*.jar libs
+        cp -R $(Build.SourcesDirectory)/pipeline-utils/cloud-sdk/target/dependency/*.jar libs
         tar -czv --owner=root --group=root -f custom.tgz *
         mv custom.tgz $(Pipeline.Workspace)/s/gluu-server/opt/dist/signincanada
         cd $(Pipeline.Workspace)
