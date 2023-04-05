@@ -48,27 +48,6 @@ stages:
       continueOnError: false
 
     - script: |
-        mkdir -p gluu-server/opt/dist/app
-        wget https://corretto.aws/downloads/latest/amazon-corretto-11-x64-linux-jdk.tar.gz \
-          -P gluu-server/opt/dist/app
-        wget  https://corretto.aws/downloads/latest/amazon-corretto-11-x64-linux-jdk.tar.gz.sig \
-          -P $(Agent.TempDirectory)
-        echo 'Checking file integritiy'
-        gpg2 --fetch-keys https://corretto.aws/downloads/resources/11.0.6.10.1/B04F24E3.pub
-        gpg2 --verify $(Agent.TempDirectory)/amazon-corretto-11-x64-linux-jdk.tar.gz.sig gluu-server/opt/dist/app/amazon-corretto-11-x64-linux-jdk.tar.gz
-      displayName: 'Downloading Latest Amazon Corretto'
-      continueOnError: false
-
-    - script: |
-        mkdir -p gluu-server/opt/dist/app
-        wget http://mirror.csclub.uwaterloo.ca/fedora/epel/7/x86_64/Packages/j/jq-1.6-2.el7.x86_64.rpm \
-          -P gluu-server/opt/dist/app
-        wget http://mirror.csclub.uwaterloo.ca/fedora/epel/7/x86_64/Packages/o/oniguruma-6.8.2-2.el7.x86_64.rpm \
-          -P gluu-server/opt/dist/app
-      displayName: 'Downloading jq'
-      continueOnError: false
-
-    - script: |
         wget https://sicpub.blob.core.windows.net/software/fido2-patch.war \
           -P gluu-server/opt/dist/signincanada
       displayName: 'Downloading SIC FIDO2 patch'
@@ -103,16 +82,6 @@ stages:
       displayName: 'Downloading node-services tarball'
 
     - script: |
-        wget https://artifacts.elastic.co/downloads/logstash/logstash-8.6.1-x86_64.rpm \
-          -P gluu-server/opt/dist/app
-          mkdir -P gluu-server/etc/pki/rpm-gpg
-          wget https://sicpub.blob.core.windows.net/software/GPG-KEY-elasticsearch \
-            -P gluu-server/etc/pki/rpm-gpg
-          docker run -i -u $(id -u) -v $(Build.SourcesDirectory)/gluu-server/opt/dist/app:/srv/logstash docker.elastic.co/logstash/logstash:8.6.1 /bin/sh < pipeline-utils/logstash/offline-plugins.sh
-      displayName: 'Downlaoding Logstash and packaging plugins'
-      continueOnError: false
-
-    - script: |
         pushd gluu-server/
         echo 'packaging tarball'
         mkdir -p install/community-edition-setup/static/extension
@@ -132,22 +101,6 @@ stages:
       displayName: 'Packaging tarball'
       continueOnError: true
 
-    - bash: |
-        curl -fL -XPUT -H "Authorization:Bearer $(System.AccessToken)" -H "Content-Type:application/json" \
-        -d '{
-          "id": "$296",
-          "type": "Vsts",
-          "name": "APlatform-version",
-          "variables": {
-            "ac-version": {
-              "isSecret": false,
-              "value": "SIC-AP-$(major_minor).$(build)"
-            }
-          }
-        }' \
-        $(System.TeamFoundationCollectionUri)/Sign%20in%20Canada/_apis/distributedtask/variablegroups/296?api-version=5.0-preview.1
-      displayName: Update APlatform-version variablegroup 
-      
     - task: PublishPipelineArtifact@1
       inputs:
         targetPath: $(Build.ArtifactStagingDirectory)
