@@ -617,7 +617,6 @@ class PersonAuthentication(PersonAuthenticationType):
             # construct an OIDC pairwise subject using the SAML PAI
             client = self.rputils.getClient(session)
             if not self.account.getOpenIdSubject(user, client): # unless one already exists
-                provider = identity.getWorkingParameter("provider")
                 self.account.addOpenIdSubject(user, client, provider + nameId)
 
             if self.getNextStep(configurationAttributes, requestParameters, self.STEP_COLLECT) < 0:
