@@ -526,6 +526,7 @@ class PersonAuthentication(PersonAuthenticationType):
         if externalProfile is None:
             return False
         provider = externalProfile["provider"]
+        providerInfo = self.passport.getProvider(provider)
 
         if identity.getWorkingParameter("userId") is None: # 1FA
             if provider not in self.providers:
@@ -542,8 +543,6 @@ class PersonAuthentication(PersonAuthenticationType):
             if provider not in self.providers:
                 # Unauthorized provider!
                 return False
-            else:
-                providerInfo = self.passport.getProvider(provider)
 
             if providerInfo["GCCF"]:
                 sessionAttributes.put("authnInstant", externalProfile["authnInstant"][0])
@@ -589,7 +588,7 @@ class PersonAuthentication(PersonAuthenticationType):
             if self.getNextStep(configurationAttributes, requestParameters, self.STEP_1FA) < 0:
                 return authenticationService.authenticate(identity.getWorkingParameter("userId"))
 
-        elif provider == identity.getWorkingParameter("provider"): # Collection
+        elif providerInfo["GCCF"]: # Collection
             telemetry["provider"] = provider
             self.telemetryClient.trackEvent("Collection Result", telemetry, {"durationInSeconds": duration})
 
