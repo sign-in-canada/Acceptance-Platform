@@ -21,16 +21,16 @@ stages:
 
     - task: Maven@3
       inputs:
-        mavenPomFile: '$(Build.SourcesDirectory)/pipeline-utils/azure-sdk/pom.xml'
+        mavenPomFile: '$(Build.SourcesDirectory)/pipeline-utils/cloud-sdk/pom.xml'
         goals: 'package'
-      displayName: 'Downloading Azure Java SDK libraries'
+      displayName: 'Downloading Azure and AWS Java SDK libraries'
       continueOnError: false
 
     - script: |
         ls -al $(Pipeline.Workspace)
         cd gluu-server/opt/gluu/jetty/oxauth/custom
         mkdir libs
-        cp -R $(Build.SourcesDirectory)/pipeline-utils/azure-sdk/target/dependency/*.jar libs
+        cp -R $(Build.SourcesDirectory)/pipeline-utils/cloud-sdk/target/dependency/*.jar libs
         tar -czv --owner=root --group=root -f custom.tgz *
         mv custom.tgz $(Pipeline.Workspace)/s/gluu-server/opt/dist/signincanada
         cd $(Pipeline.Workspace)
@@ -45,27 +45,6 @@ stages:
           -P gluu-server/opt/azure
         ls -al 
       displayName: 'Downloading AppInsights'
-      continueOnError: false
-
-    - script: |
-        mkdir -p gluu-server/opt/dist/app
-        wget https://corretto.aws/downloads/latest/amazon-corretto-11-x64-linux-jdk.tar.gz \
-          -P gluu-server/opt/dist/app
-        wget  https://corretto.aws/downloads/latest/amazon-corretto-11-x64-linux-jdk.tar.gz.sig \
-          -P $(Agent.TempDirectory)
-        echo 'Checking file integritiy'
-        gpg2 --fetch-keys https://corretto.aws/downloads/resources/11.0.6.10.1/B04F24E3.pub
-        gpg2 --verify $(Agent.TempDirectory)/amazon-corretto-11-x64-linux-jdk.tar.gz.sig gluu-server/opt/dist/app/amazon-corretto-11-x64-linux-jdk.tar.gz
-      displayName: 'Downloading Latest Amazon Corretto'
-      continueOnError: false
-
-    - script: |
-        mkdir -p gluu-server/opt/dist/app
-        wget http://mirror.csclub.uwaterloo.ca/fedora/epel/7/x86_64/Packages/j/jq-1.6-2.el7.x86_64.rpm \
-          -P gluu-server/opt/dist/app
-        wget http://mirror.csclub.uwaterloo.ca/fedora/epel/7/x86_64/Packages/o/oniguruma-6.8.2-2.el7.x86_64.rpm \
-          -P gluu-server/opt/dist/app
-      displayName: 'Downloading jq'
       continueOnError: false
 
     - script: |
@@ -103,16 +82,6 @@ stages:
       displayName: 'Downloading node-services tarball'
 
     - script: |
-        wget https://artifacts.elastic.co/downloads/logstash/logstash-8.6.1-x86_64.rpm \
-          -P gluu-server/opt/dist/app
-          mkdir -P gluu-server/etc/pki/rpm-gpg
-          wget https://sicpub.blob.core.windows.net/software/GPG-KEY-elasticsearch \
-            -P gluu-server/etc/pki/rpm-gpg
-          docker run -i -u $(id -u) -v $(Build.SourcesDirectory)/gluu-server/opt/dist/app:/srv/logstash docker.elastic.co/logstash/logstash:8.6.1 /bin/sh < pipeline-utils/logstash/offline-plugins.sh
-      displayName: 'Downlaoding Logstash and packaging plugins'
-      continueOnError: false
-
-    - script: |
         pushd gluu-server/
         echo 'packaging tarball'
         mkdir -p install/community-edition-setup/static/extension
@@ -132,22 +101,6 @@ stages:
       displayName: 'Packaging tarball'
       continueOnError: true
 
-    - bash: |
-        curl -fL -XPUT -H "Authorization:Bearer $(System.AccessToken)" -H "Content-Type:application/json" \
-        -d '{
-          "id": "$296",
-          "type": "Vsts",
-          "name": "APlatform-version",
-          "variables": {
-            "ac-version": {
-              "isSecret": false,
-              "value": "SIC-AP-$(major_minor).$(build)"
-            }
-          }
-        }' \
-        $(System.TeamFoundationCollectionUri)/Sign%20in%20Canada/_apis/distributedtask/variablegroups/296?api-version=5.0-preview.1
-      displayName: Update APlatform-version variablegroup 
-      
     - task: PublishPipelineArtifact@1
       inputs:
         targetPath: $(Build.ArtifactStagingDirectory)
@@ -174,63 +127,3 @@ stages:
         destination: azureBlob
         storage: sicpub
         containerName: staging
-
-- stage: QA
-  displayName: "Quality Assurance Testing"
-  condition: and(succeeded('Build'), or(eq(variables['Build.Reason'], 'PullRequest'), and(eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))))
-  jobs:
-  - deployment: Deploy
-    displayName: Deploy to the QA Environment
-    environment: QA
-    pool: server
-    timeoutInMinutes: 4320
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: ManualValidation@0
-            timeoutInMinutes: 4320 # task times out in 3 days
-            inputs:
-              notifyUsers: 'SignIn-AuthentiCanada@tbs-sct.gc.ca'
-              instructions: 'Please install SIC-AP-$(major_minor).$(build) to QA'
-              onTimeout: 'reject'
-
-- stage: CATE
-  displayName: "Client Acceptance Testing"
-  condition: and(succeeded('QA'), or(eq(variables['Build.Reason'], 'PullRequest'), and(eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))))
-  jobs:
-  - deployment: Deploy
-    displayName: Deploy to CATE
-    environment: CATE
-    pool: server
-    timeoutInMinutes: 4320
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: ManualValidation@0
-            timeoutInMinutes: 4320 # task times out in 3 days
-            inputs:
-              notifyUsers: 'SignIn-AuthentiCanada@tbs-sct.gc.ca'
-              instructions: 'Please install SIC-AP-$(major_minor).$(build) to CATE'
-              onTimeout: 'reject'
-
-- stage: PROD
-  displayName: "Production"
-  condition: and(succeeded('CATE'), or(eq(variables['Build.Reason'], 'PullRequest'), and(eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))))
-  jobs:
-  - deployment: Deploy
-    displayName: Deploy to the production environment
-    environment: PROD
-    pool: server
-    timeoutInMinutes: 4320
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: ManualValidation@0
-            timeoutInMinutes: 4320 # task times out in 3 days
-            inputs:
-              notifyUsers: 'SignIn-AuthentiCanada@tbs-sct.gc.ca'
-              instructions: 'Please install SIC-AP-$(major_minor).$(build) to PROD'
-              onTimeout: 'reject'
