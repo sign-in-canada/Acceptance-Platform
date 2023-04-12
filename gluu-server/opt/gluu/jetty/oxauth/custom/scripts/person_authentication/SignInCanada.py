@@ -545,6 +545,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 return False
 
             if providerInfo["GCCF"]:
+                sessionAttributes.put("SAMLProvider", provider)
                 sessionAttributes.put("authnInstant", externalProfile["authnInstant"][0])
                 sessionAttributes.put("persistentId", externalProfile["persistentId"][0])
                 sessionAttributes.put("sessionIndex", externalProfile["sessionIndex"][0])
