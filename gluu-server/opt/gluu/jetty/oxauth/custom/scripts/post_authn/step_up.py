@@ -14,9 +14,8 @@ class PostAuthn(PostAuthnType):
     def init(self, customScript, configurationAttributes):
         self.name = customScript.getName()
         print ("%s: Initializing" % self.name)
-        externalAuthenticationService = CdiUtil.bean(ExternalAuthenticationService)
-        self.acrLevels = externalAuthenticationService.acrToLevelMapping()
         return True
+    
 
     def destroy(self, configurationAttributes):
         print ("%s: Destroyed" % self.name)
@@ -31,10 +30,12 @@ class PostAuthn(PostAuthnType):
         sessionAttributes = context.getSession().getSessionAttributes()
         defaultAcrValues = client.getDefaultAcrValues()
         sessionAcr = sessionAttributes.get("acr")
+        externalAuthenticationService = CdiUtil.bean(ExternalAuthenticationService)
+        acrLevels = externalAuthenticationService.acrToLevelMapping()
 
         if defaultAcrValues and sessionAcr not in defaultAcrValues:
             for allowedAcr in defaultAcrValues:
-                if self.acrLevels[sessionAcr] >= self.acrLevels[allowedAcr]:
+                if acrLevels[sessionAcr] >= acrLevels[allowedAcr]:
                     return False
 
             return True
