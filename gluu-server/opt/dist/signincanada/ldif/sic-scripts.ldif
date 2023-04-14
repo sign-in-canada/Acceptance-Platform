@@ -302,6 +302,21 @@ oxScript::%(post_authn_saml_nameid)s
 oxScriptType: post_authn
 programmingLanguage: python
 
+dn: inum=A3DC-DH04,ou=scripts,o=gluu
+objectClass: top
+objectClass: oxCustomScript
+description: Force re-authentication if a new RP in the session requires step-up
+displayName: step_up
+oxEnabled: true
+inum: A3DC-DH04
+oxLevel: 40
+oxModuleProperty: {"value1":"location_type","value2":"file","description":""}
+oxModuleProperty: {"value1":"location_path","value2":"/opt/gluu/jetty/oxauth/custom/scripts/post_authn/step_up.py","description":""}
+oxRevision: 1
+oxScript::%(post_authn_step_up)s
+oxScriptType: post_authn
+programmingLanguage: python
+
 # Disable passport-saml script
 dn: inum=D40C-1CA4,ou=scripts,o=gluu
 changetype: modify
