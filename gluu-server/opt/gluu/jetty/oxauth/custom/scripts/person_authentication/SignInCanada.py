@@ -526,6 +526,7 @@ class PersonAuthentication(PersonAuthenticationType):
         if externalProfile is None:
             return False
         provider = externalProfile["provider"]
+        providerInfo = self.passport.getProvider(provider)
 
         if identity.getWorkingParameter("userId") is None: # 1FA
             if provider not in self.providers:
@@ -542,10 +543,9 @@ class PersonAuthentication(PersonAuthenticationType):
             if provider not in self.providers:
                 # Unauthorized provider!
                 return False
-            else:
-                providerInfo = self.passport.getProvider(provider)
 
             if providerInfo["GCCF"]:
+                sessionAttributes.put("SAMLProvider", provider)
                 sessionAttributes.put("authnInstant", externalProfile["authnInstant"][0])
                 sessionAttributes.put("persistentId", externalProfile["persistentId"][0])
                 sessionAttributes.put("sessionIndex", externalProfile["sessionIndex"][0])
@@ -589,7 +589,7 @@ class PersonAuthentication(PersonAuthenticationType):
             if self.getNextStep(configurationAttributes, requestParameters, self.STEP_1FA) < 0:
                 return authenticationService.authenticate(identity.getWorkingParameter("userId"))
 
-        elif provider == identity.getWorkingParameter("provider"): # Collection
+        elif providerInfo["GCCF"]: # Collection
             telemetry["provider"] = provider
             self.telemetryClient.trackEvent("Collection Result", telemetry, {"durationInSeconds": duration})
 
@@ -618,7 +618,6 @@ class PersonAuthentication(PersonAuthenticationType):
             # construct an OIDC pairwise subject using the SAML PAI
             client = self.rputils.getClient(session)
             if not self.account.getOpenIdSubject(user, client): # unless one already exists
-                provider = identity.getWorkingParameter("provider")
                 self.account.addOpenIdSubject(user, client, provider + nameId)
 
             if self.getNextStep(configurationAttributes, requestParameters, self.STEP_COLLECT) < 0:
@@ -831,7 +830,7 @@ class PersonAuthentication(PersonAuthenticationType):
         if step == self.STEP_OOB:
             if requestParameters.containsKey("oob:resend") or int(identity.getWorkingParameter("oobExpiry")) < Instant.now().getEpochSecond():
                 return self.gotoStep(self.STEP_OOB)
-            elif identity.getWorkingParameter("mfaMethod") not in self.mfaMethods:
+            elif identity.getWorkingParameter("oobContact") is None and identity.getWorkingParameter("mfaMethod") not in self.mfaMethods:
                 return self.gotoStep(self.STEP_UPGRADE)
 
         if step == self.STEP_OOB_REGISTER:
