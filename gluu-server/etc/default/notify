@@ -11,4 +11,5 @@ APP_ARGS=""
 NODE_USER=node
 TMPDIR=/opt/node/temp
 
-NOTIFY_KEY=$(< /run/keyvault/secrets/NotifyKey)
+environment_name=$(curl -s http://169.254.169.254/latest/meta-data/tags/instance/Environment)
+NOTIFY_KEY=$(aws ssm get-parameter --name "/SIC/${environment_name}/NOTIFY_KEY" | jq -r '.Parameter.Value')
