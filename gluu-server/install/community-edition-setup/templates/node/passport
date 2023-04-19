@@ -18,4 +18,4 @@ TMPDIR=%(node_home)s/temp
 
 NODE_EXTRA_CA_CERTS=/etc/certs/httpd.crt
 environment_name=$(curl -s http://169.254.169.254/latest/meta-data/tags/instance/Environment)
-APPLICATIONINSIGHTS_CONNECTION_STRING=$(aws ssm get-parameter --name "/SIC/${environment_name}/APPLICATIONINSIGHTS_CONNECTION_STRING" | jq -r '.Parameter.Value')
+APPLICATIONINSIGHTS_CONNECTION_STRING=$(aws ssm get-parameter --name "/SIC/${environment_name}/APPLICATIONINSIGHTS_CONNECTION_STRING" --with-decryption | jq -r '.Parameter.Value')
