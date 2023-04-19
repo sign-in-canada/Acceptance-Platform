@@ -16,5 +16,5 @@ fi
 
 TMPDIR=%(node_home)s/temp
 
-NODE_EXTRA_CA_CERTS=/etc/certs/tbs-ca.crt
+NODE_EXTRA_CA_CERTS=/etc/certs/httpd.crt
 APPINSIGHTS_INSTRUMENTATIONKEY=$(< /run/keyvault/secrets/InstrumentationKey)
