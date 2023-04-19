@@ -69,12 +69,6 @@ fi
 echo "Configuring httpd chain certificate..."
 sed -i "17i\ \ \ \ \ \ \ \ SSLCertificateChainFile /etc/certs/httpd.chain" /etc/httpd/conf.d/https_gluu.conf
 
-echo "Configuring and trusting TBS CA certificate"
-install -m 640 -o root -g gluu /opt/dist/certs/tbs-ca.pem /etc/certs/tbs-ca.crt
-cat /opt/dist/certs/tbs-chain.pem >> /etc/certs/tbs-ca.crt
-/opt/jre/bin/keytool -import -trustcacerts -alias tbsrootca -file /opt/dist/certs/tbs-ca.pem -cacerts -noprompt -storepass changeit
-/opt/jre/bin/keytool -import -trustcacerts -alias tbschain -file /opt/dist/certs/tbs-chain.pem -cacerts -noprompt -storepass changeit
-
 echo "Configuring Couchbase scan consistency"
 sed -i 's/not_bounded/request_plus/g' /etc/gluu/conf/gluu-couchbase.properties
 
