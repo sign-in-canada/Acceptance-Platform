@@ -14,6 +14,8 @@ echo 'Enabling the couchbase health check service...'
 systemctl enable cbcheck
 
 umask 27
+newgrp gluu
+
 echo 'Retreiving Gluu Config file...'
 aws s3 cp "s3://sic-${environment_lower}-env-config-store/setup.properties.last.enc" /install/community-edition-setup/setup.properties.last.enc
 echo 'Restoring oxAuth keystore...'
