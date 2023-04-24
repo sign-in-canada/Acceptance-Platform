@@ -55,6 +55,7 @@ cat <<-EOF
 	admin_email=signin-authenticanada@tbs-sct.gc.ca
 	oxtrust_admin_password=${GLUU_PASSWORD}
 	installPassport=True
+	installFido2=True
 	$([ -n "${salt}" ] && echo "encode_salt=${salt}")
 	$([ -n "${shib_password}" ] && echo "installSaml=True")
 	$([ -n "${shib_password}" ] && echo "couchbaseShibUserPassword=${shib_password}")
@@ -66,6 +67,17 @@ openssl enc -aes-256-cbc -pass env:GLUU_PASSWORD -out /opt/gluu-server/install/c
 # 1) initializes and loads the database
 # 2) generates new cyryptographic keys
 # 3) produces a fully-populated setup.properties.last.enc that can be used to spin up future cluster instances
+
+echo "Patching Gluu setup..."
+# Extend oxAuth key lifetime to 2 years
+sed -i 's/key_expiration=2,/key_expiration=730,/' /opt/gluu-server/install/community-edition-setup/setup_app/installers/oxauth.py
+# Don't display the password
+sed -i 's/enc with password {1}/enc with password/' /opt/gluu-server/install/community-edition-setup/setup_app/utils/properties_utils.py
+# Fix oxTrust certificate trust store
+sed -i 's|/usr/java/latest/jre/lib/security/cacerts|%(default_trust_store_fn)s|' /opt/gluu-server/install/community-edition-setup/templates/oxtrust/oxtrust-config.json
+sed -i 's|\"caCertsPassphrase\":\"\"|\"caCertsPassphrase\":\"%(defaultTrustStorePW)s\"|' /opt/gluu-server/install/community-edition-setup/templates/oxtrust/oxtrust-config.json
+# Don't start anything
+sed -i '/^\s*start_services()$/d' /opt/gluu-server/install/community-edition-setup/setup.py
 
 echo "Initializing Gluu..."
 ssh  -t -o IdentityFile=/etc/gluu/keys/gluu-console -o Port=60022 -o LogLevel=QUIET \
@@ -93,11 +105,12 @@ if [ -z "${salt}" ] ; then
 	aws ssm put-parameter --name "/SIC/${environment_name}/GLUU_SALT" --value "${salt}" --type "SecureString" --overwrite
 fi
 
-echo "Backing up Gluu configuration to S3..."
+echo "Backing up Gluu configuration..."
 aws s3 cp setup.properties.last.enc "s3://sic-${environment_lower}-env-config-store/setup.properties.last.enc"
 
-echo "Backing up Gluu keystores to S3..."
+echo "Backing up Gluu keystores..."
 aws s3 cp /opt/gluu-server/etc/certs/oxauth-keys.pkcs12 "s3://sic-${environment_lower}-env-config-store/oxauth-keys.pkcs12"
 aws s3 cp /opt/gluu-server/etc/certs/passport-rs.jks "s3://sic-${environment_lower}-env-config-store/passport-rs.jks"
 aws s3 cp /opt/gluu-server/etc/certs/passport-rp.jks "s3://sic-${environment_lower}-env-config-store/passport-rp.jks"
+aws ssm put-parameter --name "/SIC/${environment_name}/PASSPORT_RP_PEM" --value "$(< /opt/gluu-server/etc/certs/passport-rp.pem)" --type "SecureString" --overwrite
 # TODO: Figure out Shibboleth key store(s)

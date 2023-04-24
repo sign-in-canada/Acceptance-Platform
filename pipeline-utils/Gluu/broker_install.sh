@@ -30,13 +30,6 @@ while [ ! -f /opt/gluu-server/install/community-edition-setup/setup.py ] ; do
                   -o PubkeyAuthentication=yes root@localhost '/opt/gluu/bin/install.py'
 done
 
-echo "Patching Gluu setup..."
-sed -i 's/key_expiration=2,/key_expiration=730,/' /opt/gluu-server/install/community-edition-setup/setup_app/installers/oxauth.py
-sed -i 's/enc with password {1}/enc with password/' /opt/gluu-server/install/community-edition-setup/setup_app/utils/properties_utils.py
-sed -i 's|/usr/java/latest/jre/lib/security/cacerts|%(default_trust_store_fn)s|' /opt/gluu-server/install/community-edition-setup/templates/oxtrust/oxtrust-config.json
-sed -i 's|\"caCertsPassphrase\":\"\"|\"caCertsPassphrase\":\"%(defaultTrustStorePW)s\"|' /opt/gluu-server/install/community-edition-setup/templates/oxtrust/oxtrust-config.json
-sed -i '/^\s*start_services()$/d' /opt/gluu-server/install/community-edition-setup/setup.py
-
 # Download the product tarball
 echo Downloading ${package}...
 wget -nv ${package_url} -O ${package}
