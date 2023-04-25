@@ -14,6 +14,9 @@ import sys
 import java
 import json
 
+sys.path.append("/opt/gluu/jetty/oxauth/custom/scripts/person_authentication")
+
+from sic import aws
 class NotifyError(Exception):
     """Base class for exceptions in this module."""
     pass
@@ -28,8 +31,7 @@ class Notify:
         self.scriptName = scriptName
         print ("Notify. init called from " + self.scriptName)
 
-        with open('/run/keyvault/secrets/NotifyKey', 'r') as f:
-            self.notifyKey = f.read()
+        self.notifyKey = aws.getSsmParameter("NOTIFY_KEY", True)
 
         if configurationAttributes.containsKey("oob_api_url"):
             self.apiUrl = configurationAttributes.get("oob_api_url").getValue2()
