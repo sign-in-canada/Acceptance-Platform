@@ -89,7 +89,6 @@ stages:
         chmod 755 $(find . -type d -print)
         chmod 644 $(find . -type f -print)
         chmod 700 opt/dist/signincanada/postinstall.sh
-        chmod 700 opt/dist/scripts/azure/keyvault.sh
         chmod 755 opt/dist/scripts/notify
         chmod 700 opt/dist/scripts/crlcheck.sh
         chmod 700 opt/dist/scripts/cbcheck.sh
