@@ -31,7 +31,7 @@ class Notify:
         self.scriptName = scriptName
         print ("Notify. init called from " + self.scriptName)
 
-        self.notifyKey = aws.getParameter("NOTIFY_KEY", True)
+        self.notifyKey = aws.getSsmParameter("NOTIFY_KEY", True)
 
         if configurationAttributes.containsKey("oob_api_url"):
             self.apiUrl = configurationAttributes.get("oob_api_url").getValue2()
