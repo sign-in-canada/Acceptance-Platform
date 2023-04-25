@@ -1,52 +1,43 @@
 #!/bin/sh
 
-umask 22
-echo 'Stopping services...'
-systemctl stop httpd oxauth identity fido2 idp passport
+environment_name=$(curl -s curl http://169.254.169.254/latest/meta-data/tags/instance/Environment)
 
-echo 'Clearing jetty temp files'
-rm -rf /opt/jetty-9.4/temp/*
+# Obtain the Gluu admin password and salt from parameter store
+export GLUU_PASSWORD=$(aws ssm get-parameter --name "/SIC/${environment_name}/GLUU_PASSWORD" --with-decryption | jq -r '.Parameter.Value')
 
-echo 'Enabling the keyvault service...'
-if grep Red /etc/redhat-release ; then
-   yum remove -y epel-release
-fi
-yum clean all
-yum install -y /opt/dist/app/oniguruma-6.8.2-1.el7.x86_64.rpm /opt/dist/app/jq-1.6-2.el7.x86_64.rpm
-systemctl enable keyvault
-
-echo 'Installing and configuring logstash...'
-rpm --import /etc/pki/rpm-gpg/GPG-KEY-elasticsearch
-yum install -y /opt/dist/app/logstash-*-x86_64.rpm
-/usr/share/logstash/bin/logstash-plugin install file:///opt/dist/app/logstash-offline-plugins-8.6.1.zip
-sed -i "s/^# api\.enabled: true/api\.enabled: false/" /etc/logstash/logstash.yml
-mkdir /etc/systemd/system/logstash.service.d
-echo "[Unit]" > /etc/systemd/system/logstash.service.d/override.conf
-echo "After=keyvault.service" >> /etc/systemd/system/logstash.service.d/override.conf
-echo >> /etc/systemd/system/logstash.service.d/override.conf
-echo "[Service]" >> /etc/systemd/system/logstash.service.d/override.conf
-echo "EnvironmentFile=/run/keyvault/secrets/LogWorkspaceKey" >> /etc/systemd/system/logstash.service.d/override.conf
-install -m 644 /opt/dist/signincanada/logstash/* /etc/logstash/conf.d
-echo '*.*          @127.0.0.1:1514' > /etc/rsyslog.d/logstash.conf
+echo 'Enabling logstash...'
 systemctl enable logstash
 
 echo 'Enabling the couchbase health check service...'
 systemctl enable cbcheck
 
-echo "Enabling the passport key extraction service"
-systemctl enable passportkeys
+umask 27
 
+echo "Extracting oxAuth keys for use by passport"
+oxauth_openid_jks_pass=$(openssl enc -d -aes-256-cbc -pass env:GLUU_PASSWORD -in /install/community-edition-setup/setup.properties.last.enc |
+                              grep '^oxauth_openid_jks_pass=' |
+                              awk -F'=' '{print $2}')
+keys=$(/opt/jre/bin/keytool -list -keystore /etc/certs/oxauth-keys.pkcs12 -storetype pkcs12 -storepass ${oxauth_openid_jks_pass} | grep 'PrivateKeyEntry' | cut -d, -f1)
+export GLUU_SALT=$(cut -d' ' -f3 < /etc/gluu/conf/salt)
+for keyId in ${keys} ; do
+    echo "Extracting $keyId"
+    # Extract the individual key
+    /opt/jre/bin/keytool -importkeystore -srckeystore /etc/certs/oxauth-keys.pkcs12 -srcstoretype pkcs12 \
+                         -destkeystore /etc/certs/${keyId}.p12 -alias ${keyId} \
+                         -srcstorepass $oxauth_openid_jks_pass -deststorepass $oxauth_openid_jks_pass
+    # Convert the private key to AES-encrypted PKCS8
+    openssl pkcs12 -in /etc/certs/${keyId}.p12 -nocerts -passin pass:${oxauth_openid_jks_pass} -nodes -nocerts |
+        openssl pkcs8  -topk8 -v2 aes256 -out /etc/certs/${keyId}.pem -passout env:GLUU_SALT
+    chgrp gluu /etc/certs/${keyId}.pem
+    rm /etc/certs/${keyId}.p12
+done
+
+umask 22
 echo 'Installing the Custom UI and dependencies...'
 tar xzf /opt/dist/signincanada/custom.tgz -C /opt/gluu/jetty/oxauth/custom
 chown -R jetty:jetty /opt/gluu/jetty/oxauth/custom
 chmod 755 $(find /opt/gluu/jetty/oxauth/custom -type d -print)
 chmod 644 $(find /opt/gluu/jetty/oxauth/custom -type f -print)
-
-if [ -d /opt/gluu/jetty/idp ] ; then
-   echo 'Installing the Application Insights SDK into Shibboleth...'
-   install -m 755 -o jetty -g jetty -d /opt/gluu/jetty/idp/custom/libs
-   install -m 644 -o jetty -g jetty /opt/gluu/jetty/oxauth/custom/libs/applicationinsights-core-*.jar /opt/gluu/jetty/idp/custom/libs
-fi
 
 echo 'Installing the Notify service...'
 mkdir -p /opt/gluu/node/gc/notify/logs
@@ -64,16 +55,13 @@ if [ -d /opt/shibboleth-idp/conf ] ; then
    install  -m 444 -o jetty -g jetty /opt/dist/signincanada/shibboleth-idp/conf/*.xml /opt/shibboleth-idp/conf
    install  -m 644 -o jetty -g jetty /opt/dist/signincanada/shibboleth-idp/conf/*.js /opt/shibboleth-idp/conf
    install  -m 644 -o jetty -g jetty /opt/dist/signincanada/shibboleth-idp/conf/authn/*.xml /opt/shibboleth-idp/conf/authn
+
 fi
-
-echo "Configuring httpd chain certificate..."
-sed -i "17i\ \ \ \ \ \ \ \ SSLCertificateChainFile /etc/certs/httpd.chain" /etc/httpd/conf.d/https_gluu.conf
-
-echo "Configuring and trusting TBS CA certificate"
-install -m 640 -o root -g gluu /opt/dist/certs/tbs-ca.pem /etc/certs/tbs-ca.crt
-cat /opt/dist/certs/tbs-chain.pem >> /etc/certs/tbs-ca.crt
-/opt/jre/bin/keytool -import -trustcacerts -alias tbsrootca -file /opt/dist/certs/tbs-ca.pem -cacerts -noprompt -storepass changeit
-/opt/jre/bin/keytool -import -trustcacerts -alias tbschain -file /opt/dist/certs/tbs-chain.pem -cacerts -noprompt -storepass changeit
+if [ -d /opt/gluu/jetty/idp ] ; then
+   echo 'Installing the Application Insights SDK into Shibboleth...'
+   install -m 755 -o jetty -g jetty -d /opt/gluu/jetty/idp/custom/libs
+   install -m 644 -o jetty -g jetty /opt/gluu/jetty/oxauth/custom/libs/applicationinsights-core-*.jar /opt/gluu/jetty/idp/custom/libs
+fi
 
 echo "Configuring Couchbase scan consistency"
 sed -i 's/not_bounded/request_plus/g' /etc/gluu/conf/gluu-couchbase.properties

@@ -832,7 +832,7 @@ class PersonAuthentication(PersonAuthenticationType):
         if step == self.STEP_OOB:
             if requestParameters.containsKey("oob:resend") or int(identity.getWorkingParameter("oobExpiry")) < Instant.now().getEpochSecond():
                 return self.gotoStep(self.STEP_OOB)
-            elif identity.getWorkingParameter("oobContact") is not None and identity.getWorkingParameter("mfaMethod") not in self.mfaMethods:
+            elif identity.getWorkingParameter("oobContact") is None and identity.getWorkingParameter("mfaMethod") not in self.mfaMethods:
                 return self.gotoStep(self.STEP_UPGRADE)
 
         if step == self.STEP_OOB_REGISTER:

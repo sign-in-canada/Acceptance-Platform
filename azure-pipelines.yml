@@ -59,7 +59,7 @@ stages:
         project: '7302639f-e704-47c3-9557-99b4e04a75bc'
         definition: '285'
         runVersion: 'latestFromBranch'
-        runBranch: "refs/heads/sic/develop"
+        runBranch: "refs/heads/sic/feature/aws"
         artifactName: 'gluu-passport'
         targetPath: '$(Pipeline.Workspace)/s/gluu-server/opt/dist/gluu'
       displayName: 'Download gluu-passport tarballs'
@@ -89,11 +89,9 @@ stages:
         chmod 755 $(find . -type d -print)
         chmod 644 $(find . -type f -print)
         chmod 700 opt/dist/signincanada/postinstall.sh
-        chmod 700 opt/dist/scripts/azure/keyvault.sh
         chmod 755 opt/dist/scripts/notify
         chmod 700 opt/dist/scripts/crlcheck.sh
         chmod 700 opt/dist/scripts/cbcheck.sh
-        chmod 700 opt/dist/scripts/passportkeys.sh
         chmod 700 install/community-edition-setup/setup.py
         tar -czv --owner=root --group=root -f $(Build.ArtifactStagingDirectory)/SIC-AP-$(major_minor).$(build).tgz --exclude='opt/gluu' *
         openssl sha256 $(Build.ArtifactStagingDirectory)/SIC-AP-$(major_minor).$(build).tgz > $(Build.ArtifactStagingDirectory)/SIC-AP-$(major_minor).$(build).tgz.sha
