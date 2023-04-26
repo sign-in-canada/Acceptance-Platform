@@ -57,6 +57,9 @@ aws ssm get-parameter --name "/SIC/${environment_name}/PASSPORT_SP_ENC_KEY" --wi
 
 metadata_url=$(aws ssm get-parameter --name "/SIC/${environment_name}/SAML_METADATA_URL" | jq -r '.Parameter.Value')
 if [ -n "${metadata_url}" ] ; then
+   echo "Configuring SAML metadata URL..."
+   sed -i "s|\[URL\]|${metadata_url}|g" \
+      /opt/gluu-server/opt/dist/signincanada/shibboleth-idp/conf/metadata-providers.xml
    # Shibboleth IDP certificates
    aws ssm get-parameter --name "/SIC/${environment_name}/IDP_SIGNING_CRT" | jq -r '.Parameter.Value' > /opt/gluu-server/etc/certs/idp-signing.crt
    aws ssm get-parameter --name "/SIC/${environment_name}/IDP_SIGNING_KEY" --with-decryption | jq -r '.Parameter.Value' > /opt/gluu-server/etc/certs/idp-signing.key
@@ -65,6 +68,11 @@ if [ -n "${metadata_url}" ] ; then
 fi
 
 chgrp --reference /opt/gluu-server/etc/certs /opt/gluu-server/etc/certs/*
+
+echo "Configuring logstash..."
+chmod 600 /opt/gluu-server/etc/default/logstash
+echo "LOG_WORKSPACE=$(aws ssm get-parameter --name /SIC/${environment_name}/LOG_WORKSPACE_ID --with-decryption | jq -r '.Parameter.Value')" >> /opt/gluu-server/etc/default/logstash
+echo "LOG_WORKSPACE_KEY=$(aws ssm get-parameter --name /SIC/${environment_name}/LOG_WORKSPACE_KEY --with-decryption | jq -r '.Parameter.Value')" >> /opt/gluu-server/etc/default/logstash
 
 ssh  -t -o IdentityFile=/etc/gluu/keys/gluu-console -o Port=60022 -o LogLevel=QUIET \
                 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \

@@ -5,7 +5,9 @@ environment_name=$(curl -s curl http://169.254.169.254/latest/meta-data/tags/ins
 # Obtain the Gluu admin password and salt from parameter store
 export GLUU_PASSWORD=$(aws ssm get-parameter --name "/SIC/${environment_name}/GLUU_PASSWORD" --with-decryption | jq -r '.Parameter.Value')
 
-echo 'Enabling logstash...'
+echo 'Configuring and enabling logstash...'
+install -m 644 /opt/dist/signincanada/logstash/* /etc/logstash/conf.d
+echo '*.*          @127.0.0.1:1514' > /etc/rsyslog.d/logstash.conf
 systemctl enable logstash
 
 echo 'Enabling the couchbase health check service...'

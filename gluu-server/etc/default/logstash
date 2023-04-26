@@ -1,2 +1,0 @@
-environment_name=$(curl -s http://169.254.169.254/latest/meta-data/tags/instance/Environment)
-LOG_WORKSPACE_KEY=$(aws ssm get-parameter --name "/SIC/${environment_name}/LOG_WORKSPACE_KEY" --with-decryption | jq -r '.Parameter.Value')

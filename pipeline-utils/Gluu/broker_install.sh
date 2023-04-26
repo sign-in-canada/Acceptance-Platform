@@ -65,15 +65,6 @@ ssh  -T -o IdentityFile=/etc/gluu/keys/gluu-console -o Port=60022 -o LogLevel=QU
    yum install -y jq https://artifacts.elastic.co/downloads/logstash/logstash-8.7.0-x86_64.rpm
    /usr/share/logstash/bin/logstash-plugin install logstash-filter-json_encode microsoft-logstash-output-azure-loganalytics
    sed -i "s/^# api\.enabled: true/api\.enabled: false/" /etc/logstash/logstash.yml
-   mkdir /etc/systemd/system/logstash.service.d
-   echo "[Unit]" > /etc/systemd/system/logstash.service.d/override.conf
-   echo "After=keyvault.service" >> /etc/systemd/system/logstash.service.d/override.conf
-   echo >> /etc/systemd/system/logstash.service.d/override.conf
-   echo "[Service]" >> /etc/systemd/system/logstash.service.d/override.conf
-   echo "EnvironmentFile=/etc/defaults/logstash" >> /etc/systemd/system/logstash.service.d/override.conf
-
-   echo '*.*          @127.0.0.1:1514' > /etc/rsyslog.d/logstash.conf
-
    echo "Updating Corretto"
    rm -f /opt/dist/app/amazon-corretto-*.tar.gz
    wget -q https://corretto.aws/downloads/latest/amazon-corretto-11-x64-linux-jdk.tar.gz -P /opt/dist/app
