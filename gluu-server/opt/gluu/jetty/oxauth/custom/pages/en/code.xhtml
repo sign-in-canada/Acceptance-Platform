@@ -51,7 +51,8 @@
       }
 
       label{
-        font-weight: 500;
+        font-weight: 600;
+        font-size: 20px;
       }
     </style>
   </ui:define>
@@ -59,6 +60,11 @@
   <ui:define name="content">
 
     <div class="container mrgn-tp-lg">
+      <div class="row">
+        <div class="col-sm-6 col-md-5 col-lg-12 mrgn-bttm-lg" style="padding-left:0px;">
+          <a href="https://dev2-auth.id.alpha.canada.ca/oxauth/en/registeroob.htm" class="link-text"><i class="fa-solid fa-chevron-left fa-sm" style="color: #26374a; padding-right:5px;"></i>Edit phone number</a>
+        </div>
+      </div>
 
       <div class="col-sm-6 col-md-5 col-lg-4">
         <c:if test="${identity.getWorkingParameter('oobChannel') == 'email'}">
@@ -74,11 +80,18 @@
     </div>
 
       <div class="row">
+        
       <div class="col-sm-6 col-md-5 col-lg-5 padding-left:0px;">
         <div class="row">
-        <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Enter the 6-digit code</h1>
+        <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Verify your phone number</h1>
         </div>
-        <div class="wb-frmvld">
+        <div class="row mrgn-tp-md mrgn-bttm-md">
+          <p>We just sent a text message with a 6-digit verification code to: <strong>***-***-3455</strong>.</p>
+        </div>
+        <div class="row mrgn-bttm-md">
+          <a href="">Try another method</a>
+        </div>
+        <div class="wb-frmvld mrgn-tp-lg">
           <form jsf:id="oob" jsf:action="#{authenticator.authenticate}" class="form">
             <c:if test="${facesContext.getMessageList('oob:resend').size() gt 0}">
               <div class="alert alert-success">
@@ -99,10 +112,11 @@
               <div class="row">
                 <div class="col-xs-12 col-sm-10 col-md-10 col-lg-8">
               <label for="code" class="mrgn-bttm-md ${facesContext.getMessageList('oob:code').size() gt 0 ? 'text-danger' : ''}">
-                Enter the 6-digit
+                <!-- Enter the 6-digit
                 <span class="field-name">code</span> we
-                 #{identity.getWorkingParameter('oobChannel') == 'email' ? 'emailed' : 'texted'} you
-              </label>
+                 #{identity.getWorkingParameter('oobChannel') == 'email' ? 'emailed' : 'texted'} you -->
+                  6-digit code
+                </label>
               <h:message for="code" errorClass="label label-danger wb-server-error"/>
               </div>
             </div>
@@ -119,8 +133,8 @@
             </div>
             <div class="row">
               <p class="mrgn-tp-lg text-center text-sm-left text-md-left text-lg-left">
-              <a jsf:id="resend" jsf:action="#{authenticator.authenticate}">Resend code</a>
-            </p>
+              <a jsf:id="resend" jsf:action="#{authenticator.authenticate}" style="font-size:20px;">Resend code</a>
+              </p>
             </div>
           </form>
         </div>

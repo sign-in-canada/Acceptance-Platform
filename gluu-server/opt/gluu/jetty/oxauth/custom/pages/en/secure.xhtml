@@ -56,7 +56,7 @@
 
   <ui:define name="content">
     <div class="container">
-      <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Make your account more secure</h1>
+      <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">2-step verification</h1>
       <p>
         #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}
         requires a second factor
@@ -64,20 +64,22 @@
         to make your account more secure.
       </p>
       <details>
-        <summary class="learn-more">Learn more about two-factor authentication</summary>
+        <summary class="learn-more">Learn more about two-step verification</summary>
         <section>
-          <p>Two-factor authentication confirms it’s really you signing into your account.</p>
+          <p>Two-step verification confirms it’s really you signing into your account.</p>
           <p>Think of it like a locked door that can only be opened with both a key and a secret code. Someone pretending to be you on the internet should never be able to get both the key and the code.</p>
         </section>
       </details>
 
       <form jsf:id="secure" jsf:action="#{authenticator.authenticate}" class="form">
         <fieldset class="mfa-fieldset">
+          <div class="row">
           <legend class="mfa-legend-header">Choose a second factor:</legend>
+        </div>
           <div class="row wb-eqht">
               <c:if test="${identity.getWorkingParameter('fido-accepted')}">
               <div class="col-md-12">
-                <section class="hght-inhrt mrgn-lft-sm mrgn-tp-md radio-boxes">
+                <section class="hght-inhrt mrgn-tp-md radio-boxes">
                   <div class="gc-chckbxrdio radio mrgn-lft-md">
                       <input type="radio" p:name="secure:method" jsf:id="fido" jsf:value="fido" id="fido" class="radio mrgn-lft-md"/>
                       <label for="fido">
@@ -107,7 +109,7 @@
 
               <c:if test="${identity.getWorkingParameter('totp-accepted')}">
                 <div class="col-md-12">
-                <section class="hght-inhrt mrgn-lft-sm mrgn-tp-md radio-boxes">
+                <section class="hght-inhrt mrgn-tp-md radio-boxes">
                   <div class="gc-chckbxrdio radio mrgn-lft-md">
                       <input type="radio" p:name="secure:method" jsf:id="totp" jsf:value="totp" id="totp" class="radio mrgn-lft-md"/>
                       <label for="totp">
@@ -137,7 +139,7 @@
 
               <c:if test="${identity.getWorkingParameter('sms-accepted')}">
                 <div class="col-md-12">
-                <section class="hght-inhrt mrgn-lft-sm mrgn-tp-md radio-boxes">
+                <section class="hght-inhrt mrgn-tp-md radio-boxes">
                   <div class="gc-chckbxrdio radio mrgn-lft-md">
                         <input type="radio" p:name="secure:method" jsf:id="sms" jsf:value="sms" id="sms" />
                         <label for="sms" style="width:99%;">
@@ -167,7 +169,7 @@
 
               <c:if test="${identity.getWorkingParameter('email-accepted')}">
                 <div class="col-md-12">
-                <section class="hght-inhrt mrgn-lft-sm mrgn-tp-md radio-boxes">
+                <section class="hght-inhrt mrgn-tp-md radio-boxes">
                   <div class="gc-chckbxrdio radio mrgn-lft-md">
                       <input type="radio" p:name="secure:method" jsf:id="email" jsf:value="email" id="email" />
                       <label for="email" style="width:98.5%;">

@@ -33,6 +33,7 @@ details[open]>section{
     font-family: var(--font-family-header);
     font-weight: bold;
     margin-bottom: 0px;
+    padding-left:15px;
 }
 
 .mfa-fieldset{
@@ -110,6 +111,10 @@ details[open]>section{
     width: 100%;
 }
 
+.field-name{
+    font-size: 20px;
+}
+
 .mfa-input-image-desktop{
     padding-right: 30px;
     max-height: 300px;
@@ -117,6 +122,11 @@ details[open]>section{
 
 .mfa-input-image-mobile{
     max-height: 170px;
+}
+
+.link-text{
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
 }
 
 /* base styling below */
