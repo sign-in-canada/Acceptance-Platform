@@ -1,0 +1,155 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html>
+<ui:composition xmlns:ui="http://xmlns.jcp.org/jsf/facelets" xmlns:f="http://xmlns.jcp.org/jsf/core"
+  xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:h="http://xmlns.jcp.org/jsf/html"
+  template="/WEB-INF/incl/layouts/GCWeb.xhtml">
+
+  <f:metadata>
+    <f:viewAction action="#{authenticator.prepareAuthenticationForStep}" />
+    <f:viewAction action="#{language.setLocaleCode('en')}" />
+  </f:metadata>
+
+  <ui:param name="title" value="Choose another method" />
+  <ui:param name="step" value="othermethod" />
+  <ui:param name="locale" value="en" />
+
+  <ui:define name="name">
+    <ui:include src="/WEB-INF/incl/content/default/name-#{language.localeCode}.xhtml" />
+  </ui:define>
+
+  <ui:define name="styles">
+    <style>
+      button{
+        background-color: var(--gcds-button-primary-default-background);
+        color: var(--gcds-button-primary-default-text); 
+        min-height: 52px;
+        min-width: 100%;
+        white-space: normal;
+        border-radius: 4.16px;
+        border-width:0px;
+      }
+
+      button:hover{
+        background-color: var(--gcds-color-blue-700);
+      }
+
+      button:focus{
+        background-color: var(--gcds-brand-focus);
+        box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
+      }
+
+      button:hover.button:focus{
+        background-color: var(--gcds-button-primary-default-background);
+        box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
+      }
+
+      button:active{
+        background-color: var(--gcds-color-grayscale-1000);
+      }
+
+      label{
+        font-weight: 600;
+        font-size: 20px;
+      }
+    </style>
+  </ui:define>
+
+  <ui:define name="content">
+
+  <div class="container mrgn-tp-lg">
+    <div class="row">
+
+  <div class="col-sm-6 col-md-5 col-lg-4" style="padding-left:0px;">
+    <h1 property="name" id="wb-cont" class="gc-thickline mrgn-tp-md">Choose another method</h1>
+    <p class="mrgn-bttm-md mrgn-tp-md">To help keep your account safe, we want to make sure it’s really you trying to sign in. <br>You can manage your methods once you sign in.</p>
+    <form jsf:id="secure" jsf:action="#{authenticator.authenticate}" class="form">
+        <fieldset class="mfa-fieldset">
+          <div class="row">
+          <legend class="different-method-header">Choose how you want to sign in:</legend>
+        </div>
+          <div class="row wb-eqht">
+              <c:if test="${identity.getWorkingParameter('totp-accepted')}">
+                <div class="col-md-12">
+                <section class="hght-inhrt mrgn-tp-md radio-boxes">
+                  <div class="gc-chckbxrdio radio mrgn-lft-md">
+                      <input type="radio" p:name="secure:method" jsf:id="totp" jsf:value="totp" id="totp" class="radio mrgn-lft-md"/>
+                      <label for="totp">
+                        <div class="row">
+                          <div class="col-xs-11 col-md-7">
+                            <p>
+                              <strong>***-***-3455</strong>
+                            </p>
+                            <p class="radio-box-description">
+                            6-digit SMS code
+                            </p>
+                          </div>
+                          <div class="col-md-3 col-md-offset-1">
+                            <p>
+                                <span class="default-badge-mobile default-badge">Default</span>
+                              </p>
+                          </div>
+                        </div>
+                      </label>
+                </div>
+                </section>
+              </div>
+              </c:if>
+
+              <c:if test="${identity.getWorkingParameter('sms-accepted')}">
+                <div class="col-md-12">
+                <section class="hght-inhrt mrgn-tp-md radio-boxes">
+                  <div class="gc-chckbxrdio radio mrgn-lft-md">
+                        <input type="radio" p:name="secure:method" jsf:id="sms" jsf:value="sms" id="sms" />
+                        <label for="sms" style="width:99%;">
+                          <div class="row" style="width:99%;">
+                            <div class="col-xs-11 col-md-7">
+                              <p>
+                                <strong>Backup code</strong>
+                              </p>
+                              <p class="radio-box-description">
+                                Preset 8-character code
+                              </p>
+                            </div>
+                            <div class="col-md-3 col-md-offset-1">
+                                <p>
+                                    <span class="default-badge-mobile default-badge">Default</span>
+                                </p>
+                              </div>
+                          </div>
+                        </label>
+                  </div>
+                </section>
+              </div>
+              </c:if>
+
+              <c:if test="${facesContext.getMessageList('secure:select').size() gt 0}">
+                <div class="col-md-12">
+                  <section class="hght-inhrt mrgn-lft-sm mrgn-tp-md">
+                    <div class="label label-danger wb-server-error">
+                      <p>
+                        <h:message for="select"/>
+                      </p>
+                    </div>
+                  </section>
+                </div>
+              </c:if>
+          </div>
+        </fieldset>
+        <form jsf:id="othermethod" class="form-horizontal">
+          <nav class="mrgn-bttm-lg" role="navigation">
+            <h2 class="wb-inv">Navigation</h2>
+                <button jsf:id="continue" class="btn btn-primary" type="submit"
+                  jsf:action="#{authenticator.authenticate}">Continue</button>
+          </nav>
+        </form>
+          <!-- <div class="row mrgn-tp-lg">
+            <div class="col-xs-12 col-sm-4 col-md-2 col-md-offset-10">
+              <button jsf:id="select" id="select" jsf:action="#{authenticator.authenticate}">Continue</button>
+          </div>
+        </div> -->
+  </div>
+</div>
+</div>
+  </ui:define>
+
+</ui:composition>

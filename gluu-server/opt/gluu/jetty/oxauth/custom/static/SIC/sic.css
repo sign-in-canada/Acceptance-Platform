@@ -170,6 +170,10 @@ h6{
 }
 
 body{
-    font-size: 20px;
+    font-size: var(--gcds-base-font-size);
     font-family: var(--font-family-body);
+}
+
+.success-message{
+    background-color: var(--gcds-alert-success-background);
 }
