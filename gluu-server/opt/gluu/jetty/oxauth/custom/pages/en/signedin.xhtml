@@ -1,10 +1,14 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE html>
-<ui:composition xmlns:ui="http://xmlns.jcp.org/jsf/facelets" xmlns:f="http://xmlns.jcp.org/jsf/core"
-  xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:h="http://xmlns.jcp.org/jsf/html"
+<ui:composition xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
   template="/WEB-INF/incl/layouts/GCWeb.xhtml">
 
   <f:metadata>
+    <c:set var="step" value="signedin" scope="request"/>
     <f:viewAction action="#{authenticator.prepareAuthenticationForStep}" />
     <f:viewAction action="#{language.setLocaleCode('en')}" />
   </f:metadata>
@@ -73,38 +77,56 @@
         color: var(--gcds-button-primary-default-text); 
       }
 
-      .manage-button:hover.manage-button:focus{
-        background-color: var(--gcds-brand-default-text);
-        box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
-      }
-
       .manage-button:active.manage-button:focus{
         background-color: var(--gcds-brand-default-text);
+        box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
       }
 
     </style>
   </ui:define>
 
   <ui:define name="content">
-      <h1 property="name" id="wb-cont" class="gc-thickline">You have successfully signed in</h1>
-    <p>
-    You can proceed to #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}.
-    </p>
-    <form jsf:id="result" class="form-horizontal">
-      <nav class="mrgn-bttm-lg" role="navigation">
-        <h2 class="wb-inv">Navigation</h2>
+    <div class="container" style="max-width:630px;">
+
+      <ui:fragment rendered="${flash.containsKey('oobVerified')}">
+        <div class="row" style="margin-left:0px;">
+          <section class="alert alert-success success-message">
+            <h5 style="padding-bottom:20px; padding-top: 20px;" class="alert-content">Your additional #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'phone number' : 'email address'} has been verified</h5>
+          </section>
+        </div>
+      </ui:fragment>
+
+      <h1 property="name" id="wb-cont" class="gc-thickline row">You have successfully signed in</h1>
+      <p class="row mrgn-bttm-lg mrgn-tp-lg">
+      You can proceed to #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}.
+      </p>
+      <c:if test="${flash.containsKey('backupNeeded')}">
         <div class="row">
-          <div class="col-xs-12 col-sm-2 col-md-1 col-lg-1 mrgn-rght-md mrgn-tp-md">
-            <button jsf:id="continue" class="btn btn-primary continue-button" type="submit"
-            jsf:action="#{authenticator.authenticate}">Continue</button>
-          </div>
-          <div class="col-xs-12 col-sm-4 col-md-4 col-lg-3 mrgn-tp-md">
-            <button jsf:id="managemfa" class="manage-button" type="submit"
-            jsf:outcome="/en/manage.xhtml">Manage 2-step verification</button>
-          </div>
-          </div>
-      </nav>
-    </form>
+            <section class="alert alert-warning warning-message col-xs-12 col-sm-12 col-md-12 col-lg-12">
+              <h5 class="alert-content" style="padding-top:20px;">We recommend adding a backup phone number</h5>
+              <p class="alert-content">If you lose access to your phone you will be <strong>permanently locked out</strong> of your sign in method for this service.</p>
+              <p class="alert-content" style="margin-top:10px; padding-bottom:20px;">Add additional phone numbers in <strong>Manage 2-step verification</strong>.</p>
+            </section>
+        </div>
+      </c:if>
+      <div class="row">
+        <form jsf:id="result" class="form-horizontal">
+          <nav class="mrgn-bttm-lg" role="navigation">
+            <h2 class="wb-inv">Navigation</h2>
+            <div class="row">
+              <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 mrgn-rght-xs mrgn-tp-md">
+                <button jsf:id="continue" class="btn btn-primary continue-button" type="submit"
+                jsf:action="#{authenticator.authenticate}">Continue</button>
+              </div>
+              <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6 mrgn-tp-md">
+                <button jsf:id="managemfa" class="manage-button" type="submit"
+                jsf:outcome="/en/manage">Manage 2-step verification</button>
+              </div>
+            </div>
+          </nav>
+        </form>
+      </div>
+  </div>
   </ui:define>
 
 </ui:composition>

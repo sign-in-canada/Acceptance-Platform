@@ -3,6 +3,7 @@
 :root{
     --font-family-header: "Lato", sans-serif;
     --font-family-body: "Noto Sans", sans-serif;
+    --font-family-line-height: 150%;
 }
 
 .learn-more{
@@ -129,6 +130,33 @@ details[open]>section{
     text-underline-offset: 0.2em;
 }
 
+/* manage account styling below */
+
+.breakline{
+    border-bottom: 2px solid #c4c3c5;
+    padding-bottom: 30px; 
+    padding-left: 0px;
+}
+
+.default-label{
+    background-color: #F5F5F7;
+    /* border-style: 1px solid #DFDFE1; */
+    border-style: solid;
+    border-width: 1px;
+    border-color: #DFDFE1;
+    border-radius:4px;
+    padding:1px 9px;
+}
+
+.registered-mfa{
+    margin-right:18px;
+}
+
+/* Try another method styling below */
+
+
+
+
 /* base styling below */
 
 h1{
@@ -174,6 +202,37 @@ body{
     font-family: var(--font-family-body);
 }
 
+.body{
+    font-size: 20px;;
+    font-family: var(--font-family-body);
+}
+
 .success-message{
     background-color: var(--gcds-alert-success-background);
 }
+
+.warning-message{
+    background-color: var(--gcds-alert-warning-background);
+    padding-right: 20px; 
+}
+
+.alert-content{
+    padding-left: 10px;
+}
+
+.page-width{
+    max-width: 630px;
+}
+
+#content-calculation{
+    min-height: calc(100vh - 40px);
+}
+
+.footer-calculation{
+    height: 20px;
+}
+
+.header-calculation{
+    height: 20px;
+}
+
