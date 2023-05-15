@@ -30,7 +30,6 @@
         white-space: normal;
         border-radius: 4.16px;
         border-width:0px;
-        min-width:100%;
       }
 
       .continue-button:hover{
@@ -64,7 +63,6 @@
         vertical-align: middle;
         padding-left:8px;
         padding-right: 8px;
-        min-width:100%
       }
 
       .manage-button:hover{
@@ -87,15 +85,7 @@
 
   <ui:define name="content">
     <div class="container" style="max-width:630px;">
-
-      <ui:fragment rendered="${flash.containsKey('oobVerified')}">
-        <div class="row" style="margin-left:0px;">
-          <section class="alert alert-success success-message">
-            <h5 style="padding-bottom:20px; padding-top: 20px;" class="alert-content">Your additional #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'phone number' : 'email address'} has been verified</h5>
-          </section>
-        </div>
-      </ui:fragment>
-
+      <ui:include src="/WEB-INF/incl/components/alerts-en.xhtml" />
       <h1 property="name" id="wb-cont" class="gc-thickline row">You have successfully signed in</h1>
       <p class="row mrgn-bttm-lg mrgn-tp-lg">
       You can proceed to #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}.
@@ -103,9 +93,9 @@
       <c:if test="${flash.containsKey('backupNeeded')}">
         <div class="row">
             <section class="alert alert-warning warning-message col-xs-12 col-sm-12 col-md-12 col-lg-12">
-              <h5 class="alert-content" style="padding-top:20px;">We recommend adding a backup phone number</h5>
-              <p class="alert-content">If you lose access to your phone you will be <strong>permanently locked out</strong> of your sign in method for this service.</p>
-              <p class="alert-content" style="margin-top:10px; padding-bottom:20px;">Add additional phone numbers in <strong>Manage 2-step verification</strong>.</p>
+              <h5 class="alert-content" style="padding-top:20px; padding-right:20px;">We recommend adding a backup phone number</h5>
+              <p class="alert-content" style="padding-right:20px;">If you lose access to your phone number you will be <strong>permanently locked out</strong> of your sign in method for this service.</p>
+              <p class="alert-content" style="margin-top:10px; padding-bottom:20px; padding-right:20px;">Add additional phone numbers in <strong>Manage two step verification</strong>.</p>
             </section>
         </div>
       </c:if>
@@ -114,14 +104,12 @@
           <nav class="mrgn-bttm-lg" role="navigation">
             <h2 class="wb-inv">Navigation</h2>
             <div class="row">
-              <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 mrgn-rght-xs mrgn-tp-md">
-                <button jsf:id="continue" class="btn btn-primary continue-button" type="submit"
-                jsf:action="#{authenticator.authenticate}">Continue</button>
-              </div>
-              <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6 mrgn-tp-md">
-                <button jsf:id="managemfa" class="manage-button" type="submit"
-                jsf:outcome="/en/manage">Manage 2-step verification</button>
-              </div>
+              <div class="col-xs-12 col-sm-10">
+                  <button jsf:id="continue" class="continue-button body col-xs-12 col-sm-3 mrgn-rght-md mrgn-tp-md" type="submit"
+                  jsf:action="#{authenticator.authenticate}">Continue</button>
+                  <button jsf:id="managemfa" class="manage-button body col-xs-12 col-sm-7 mrgn-tp-md" type="submit"
+                  jsf:outcome="/en/manage">Manage two step verification</button>
+            </div>
             </div>
           </nav>
         </form>

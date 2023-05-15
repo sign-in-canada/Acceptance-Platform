@@ -32,6 +32,7 @@ details[open]>section{
 .mfa-legend-header{
     font-size: 36px; 
     font-family: var(--font-family-header);
+    line-height: 122.1%;
     font-weight: bold;
     margin-bottom: 0px;
     padding-left:15px;
@@ -152,8 +153,7 @@ details[open]>section{
     margin-right:18px;
 }
 
-/* Try another method styling below */
-
+/* changeoob.xhtml styling below (replace/delete phone number) */
 
 
 
@@ -203,8 +203,9 @@ body{
 }
 
 .body{
-    font-size: 20px;;
+    font-size: 20px;
     font-family: var(--font-family-body);
+    line-height: 1.65em;
 }
 
 .success-message{
@@ -214,6 +215,11 @@ body{
 .warning-message{
     background-color: var(--gcds-alert-warning-background);
     padding-right: 20px; 
+}
+
+.error-styling{
+    line-height:150%; 
+    font-weight:400;
 }
 
 .alert-content{
@@ -235,4 +241,3 @@ body{
 .header-calculation{
     height: 20px;
 }
-

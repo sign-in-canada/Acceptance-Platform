@@ -8,8 +8,10 @@
                 template="/WEB-INF/incl/layouts/GCWeb.xhtml">
 
   <f:metadata>
+    <c:set var="step" value="register_oob" scope="request"/>
     <f:viewAction action="#{authenticator.prepareAuthenticationForStep}" onPostback="true" />
     <f:viewAction action="#{language.setLocaleCode('en')}" />
+    <f:importConstants type="javax.faces.application.FacesMessage" />
   </f:metadata>
 
   <c:if test="${identity.getWorkingParameter('firstContact')}">
@@ -74,13 +76,13 @@
 
       <div class="container mrgn-tp-lg" style="max-width:630px">
 
-        <div class="row">
+        <!-- <div class="row">
           <div class="col-sm-6 col-md-6 col-lg-12 mrgn-bttm-lg" style="padding-left:0px;">
             <c:if test="${identity.getWorkingParameter('firstContact')}">
               <a href="https://dev2-auth.id.alpha.canada.ca/oxauth/en/secure.htm" class="link-text"><i class="fa-solid fa-chevron-left fa-sm" style="color: #26374a; padding-right:5px;"></i>Select a different method</a>
             </c:if>
           </div>
-         </div>
+         </div> -->
         <div class="row">
           <!-- <div class="col-sm-6 col-md-5 col-lg-4">
             <c:if test="${identity.getWorkingParameter('oobChannel') == 'sms'}">
@@ -95,100 +97,108 @@
             </c:if>
           </div> -->
 
-      <div class="col-xs-12 col-sm-10 col-md-10 col-lg-10" style="padding-left:0px;">
-        <ui:fragment rendered="${flash.containsKey('oobVerified')}">
-          <div class="row" style="margin-left:0px;">
-            <section class="alert alert-success success-message">
-              <h5 style="padding-bottom:20px; padding-top: 20px;" class="alert-content">Your #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'phone number' : 'email address'} has been verified</h5>
-            </section>
-          </div>
-        </ui:fragment>
-        <c:if test="${identity.getWorkingParameter('firstContact')}">
-          <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Enter your #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'phone number' : 'email'}</h1>
-        </c:if>
-        <c:if test="${!identity.getWorkingParameter('firstContact')}">
-          <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline mrgn-tp-md">Add a backup #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'phone number' : 'email address'}</h1>
-        </c:if>
-          <p>
-            <c:if test="${identity.getWorkingParameter('oobChannel') == 'sms'}">
-              <details>
-                <summary class="learn-more">How will we use this information?</summary>
-                <section>
-                  <p>Your number will be used to:</p>
-                  <ul>
-                    <li>Send you codes to help verify it’s you signing in each time</li>
-                    <li>Notify you of any changes made to your account</li>
-                  </ul>
-                  <p>Your phone number will be stored securely.
-                    <br/>
-                    For more information, see the full <a href="">privacy notice statement.</a>
-                  </p>
-                </section>
-              </details>
-              <c:if test="${identity.getWorkingParameter('firstContact')}">
-                Enter the mobile phone number you want to receive security codes at.
-              </c:if>
-              <c:if test="${!identity.getWorkingParameter('firstContact')}">
-                To make sure you don’t get locked out of your account, you can add a second mobile phone number as a backup.
-              </c:if>
-            </c:if>
-            <c:if test="${identity.getWorkingParameter('oobChannel') == 'email'}">
-              <c:if test="${identity.getWorkingParameter('firstContact')}">
-                Enter the email address you want to receive security codes at.
-              </c:if>
-              <c:if test="${!identity.getWorkingParameter('firstContact')}">
-                To make sure you don’t get locked out of your account, you can add a second email address as a backup.
-              </c:if>
-            </c:if>
-            </p>
-        <div id="signup" class="show mrgn-bttm-0 brdr-rds-0" style="border-width:0px;">
-          <div class="panel-body" style="padding:0px;">
-            <div class="wb-frmvld mrgn-tp-md">
-              <form jsf:id="register_oob" jsf:action="#{authenticator.authenticate}" class="form">
-                <c:if test="${identity.getWorkingParameter('oobChannel') == 'sms'}">
-                  <!-- <div class="text-center visible-xs hidden-sm hidden-md hidden-lg">
-                    <img src="\oxauth\ext\resources\assets\keypad-graphic.png" alt="A keypad with the numbers 1 through 9" class="mrgn-bttm-lg mfa-input-image-mobile"/>
-                  </div> -->
-                  <div class="row">
-                    <div class="form-group col-sm-10 mrgn-tp-md">
-                      <label for="mobile" class="mrgn-bttm-md ${facesContext.getMessageList('register_oob:mobile').size() gt 0 ? 'text-danger' : ''}">
-                        <span class="field-name">Phone number</span>
-                      </label>
-                      <input jsf:id="mobile" id="mobile" type="tel" class="form-control mfa-input" autocomplete="tel"/>
-                        <h:messages for="mobile" styleClass="list-unstyled" errorClass="label label-danger wb-server-error" layout="list"/>
-                    </div>
-                </div>
+      <div class="col-xs-12 col-sm-10" style="padding-left:0px; padding-right:0px;">
+
+        <div class="row" style="margin-left:0px;">
+          <ui:include src="/WEB-INF/incl/components/alerts-en.xhtml" />
+        </div>
+
+        <div class="wb-frmvld mrgn-tp-md">
+                    <form jsf:id="register_oob" jsf:action="#{authenticator.authenticate}" class="form">
+          <c:if test="${identity.getWorkingParameter('firstContact')}">
+            <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Enter your #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'phone number' : 'email'}</h1>
+          </c:if>
+          <c:if test="${!identity.getWorkingParameter('firstContact')}">
+            <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline mrgn-tp-md">#{identity.getWorkingParameter('oobReplace') ? 'Enter a new' : 'Add a backup'} #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'phone number' : 'email address'}</h1>
+          </c:if>
+            <p>
+              <c:if test="${identity.getWorkingParameter('oobChannel') == 'sms'}">
+                <ui:fragment rendered="${identity.getWorkingParameter('firstContact')}">
+                  <details class="body">
+                    <summary class="learn-more">How will we use this information?</summary>
+                    <section>
+                      <p>Your number will be used to:</p>
+                      <ul>
+                        <li>Send you codes to help verify it’s you signing in each time</li>
+                        <li>Notify you of any changes made to your account</li>
+                      </ul>
+                      <p>Your phone number will be stored securely.
+                        <br/>
+                        For more information, see the full <a href="">privacy notice statement.</a>
+                      </p>
+                    </section>
+                  </details>
+                </ui:fragment>
+                <c:if test="${identity.getWorkingParameter('firstContact') or identity.getWorkingParameter('oobReplace')}">
+                  <p class="body">Enter the mobile phone number you want to receive security codes at.</p>
                 </c:if>
-                <c:if test="${identity.getWorkingParameter('oobChannel') == 'email'}">
-                  <div class="text-center visible-xs hidden-sm hidden-m hidden-lg">
-                    <img src="\oxauth\ext\resources\assets\email-address.png" alt="An @ symbol with two lines under it that represent an email address" class="mrgn-bttm-lg mfa-input-image-mobile"/>
-                  </div>
-                  <div class="row">
-                  <div class="form-group mrgn-tp-md col-lg-8">
-                    <label for="email" class="mrgn-bttm-md ${facesContext.getMessageList('register_oob:email').size() gt 0 ? 'text-danger' : ''}">
-                      <span class="field-name">Email address</span> 
-                    </label>
-                    <input jsf:id="email" id="email" type="email" autocomplete="email" class="form-control mfa-input" />
-                    <h:messages for="email" styleClass="list-unstyled" errorClass="label label-danger wb-server-error" layout="list" />
-                  </div>
-                </div>
+                <c:if test="${!identity.getWorkingParameter('firstContact')} and !identity.getWorkingParameter('oobReplace')">
+                  To make sure you don’t get locked out of your account, you can add a second mobile phone number as a backup.
                 </c:if>
-                <div class="row">
-                  <div class="col-xs-12 col-sm-4 col-md-4 mrgn-tp-md">
-                    <button jsf:id="register" jsf:action="#{authenticator.authenticate}">Continue</button>
+              </c:if>
+              <c:if test="${identity.getWorkingParameter('oobChannel') == 'email'}">
+                <c:if test="${identity.getWorkingParameter('firstContact') or identity.getWorkingParameter('oobReplace') }">
+                  Enter the email address you want to receive security codes at.
+                </c:if>
+                <c:if test="${!identity.getWorkingParameter('firstContact')}">
+                  To make sure you don’t get locked out of your account, you can add a second email address as a backup.
+                </c:if>
+              </c:if>
+              </p>
+          <div class="show mrgn-tp-md mrgn-bttm-0 brdr-rds-0" style="border-width:0px;">
+            <div class="panel-body" style="padding:0px;">
+                  <c:if test="${identity.getWorkingParameter('oobChannel') == 'sms'}">
+                    <!-- <div class="text-center visible-xs hidden-sm hidden-md hidden-lg">
+                      <img src="\oxauth\ext\resources\assets\keypad-graphic.png" alt="A keypad with the numbers 1 through 9" class="mrgn-bttm-lg mfa-input-image-mobile"/>
+                    </div> -->
+                    <div class="row">
+                      <div class="form-group col-sm-8 mrgn-tp-md">
+                        <label for="mobile" class="mrgn-bttm-md ${facesContext.getMessageList('register_oob:mobile').size() gt 0 ? 'text-danger' : ''}">
+                          <span class="field-name">Phone number</span>
+                          <h:message for="mobile" errorClass="wb-server-error label label-danger error-styling"/>
+                        </label>
+                        <input jsf:id="mobile" id="mobile" required="required" type="tel" class="form-control mfa-input" autocomplete="tel"/>
+                      </div>
                   </div>
-                </div>
-                <div class="row mrgn-tp-lg" style="margin-left:0px;">
-                  <c:if test="${!identity.getWorkingParameter('firstContact')}">
-                    <a jsf:outcome="/en/created">I don’t have access to a second #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'phone number' : 'email address'}</a>
                   </c:if>
-              </div>
-              </form>
+                  <c:if test="${identity.getWorkingParameter('oobChannel') == 'email'}">
+                    <div class="text-center visible-xs hidden-sm hidden-m hidden-lg">
+                      <img src="\oxauth\ext\resources\assets\email-address.png" alt="An @ symbol with two lines under it that represent an email address" class="mrgn-bttm-lg mfa-input-image-mobile"/>
+                    </div>
+                    <div class="row">
+                    <div class="form-group mrgn-tp-md col-lg-8">
+                      <label for="email" class="mrgn-bttm-md ${facesContext.getMessageList('register_oob:email').size() gt 0 ? 'text-danger' : ''}">
+                        <h:message for="email" styleClass="list-unstyled" errorClass="label label-danger wb-server-error error-styling" layout="list" />
+                        <span class="field-name">Email address</span> 
+                      </label>
+                      <input jsf:id="email" id="email" type="email" autocomplete="email" class="form-control mfa-input" />
+                    </div>
+                  </div>
+                  </c:if>
+                  <div class="row">
+                    <div class="col-xs-12 col-sm-3 mrgn-tp-md">
+                      <button jsf:id="register" jsf:action="#{authenticator.authenticate}" type="submit" class="body">Continue</button>
+                    </div>
+                  <div class="row">
+                    <div class="col-xs-12 col-sm-3 text-center text-sm-left text-md-left" style="margin-top: 25px;">
+                      <a href="https://dev2-auth.id.alpha.canada.ca/oxauth/en/manage.htm" style="font-size:20px; padding-left:0px;">Cancel</a>
+                    </div>
+                  </div>
+                  </div>
+                  <div class="row mrgn-tp-lg" style="margin-left:0px;">
+                    <c:if test="${!identity.getWorkingParameter('firstContact') and empty identity.getWorkingParameter('manageTask') }">
+                      <a jsf:outcome="/en/created">I don’t have access to a second #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'phone number' : 'email address'}</a>
+                    </c:if>
+                </div>
             </div>
           </div>
+          </form>
+
         </div>
+
       </div>
     </div>
   </div>
   </ui:define>
+
 </ui:composition>
