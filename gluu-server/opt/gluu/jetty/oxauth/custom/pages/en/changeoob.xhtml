@@ -5,151 +5,116 @@
                 xmlns:jsf="http://xmlns.jcp.org/jsf"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
-                template="/WEB-INF/incl/layouts/GCWeb.xhtml">
+  template="/WEB-INF/incl/layouts/GCWeb.xhtml">
 
   <f:metadata>
-    <c:set var="step" value="change_oob" scope="request"/>
-    <f:viewAction action="#{authenticator.prepareAuthenticationForStep}" onPostback="true" />
+    <c:set var="step" value="signedin" scope="request"/>
+    <f:viewAction action="#{authenticator.prepareAuthenticationForStep}" />
     <f:viewAction action="#{language.setLocaleCode('en')}" />
-    <f:importConstants type="javax.faces.application.FacesMessage" />
   </f:metadata>
 
-  <ui:param name="title" value="#{identity.getWorkingParameter('mobiles').size() == 1 ? 'Replace' : 'Delete'} #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'phone number' : 'email address'}" />
-  <ui:param name="step" value="change_oob" />
+  <ui:param name="title" value="" />
+  <ui:param name="step" value="signedin" />
   <ui:param name="locale" value="en" />
 
   <ui:define name="name">
-    <ui:include src="/WEB-INF/incl/content/default/name-#{view.locale.language}.xhtml" />
+    <ui:include src="/WEB-INF/incl/content/default/name-#{language.localeCode}.xhtml" />
   </ui:define>
 
   <ui:define name="styles">
     <style>
-      button{
+      .continue-button{
         background-color: var(--gcds-button-primary-default-background);
         color: var(--gcds-button-primary-default-text); 
-        white-space: normal;
         min-height: 48px;
+        white-space: normal;
         border-radius: 4.16px;
         border-width:0px;
-        min-width: 100%;
       }
 
-      button:hover{
+      .continue-button:hover{
         background-color: var(--gcds-color-blue-700);
       }
 
-      button:focus{
+      .continue-button:focus{
         background-color: var(--gcds-brand-focus);
         box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
       }
 
-      button:hover.button:focus{
-        background-color: var(--gcds-button-primary-default-background);
+      .continue-button:hover.continue-button:focus{
+        background-color: var(--gcds-brand-default-text);
         box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
       }
 
-      button:active{
+      .continue-button:active{
         background-color: var(--gcds-color-grayscale-1000);
       }
 
-      label{
-        font-weight: 600;
-        font-size: 20px;
+      .manage-button{
+        background-color: var(--gcds-color-grayscale-0);
+        color: var(--gcds-button-secondary-default-text); 
+        min-height: 48px;
+        white-space: normal;
+        border-radius: 4.16px;
+        border-width: 2px;
+        border-color: var(--gcds-color-blue-700);
+        text-align: center;
+        margin-bottom: 0px;
+        vertical-align: middle;
+        padding-left:8px;
+        padding-right: 8px;
       }
 
-      a{
-        font-size: 20px;
-        line-height: 1.3;
-        font-family: var(--font-family-body);
-        color: var(--gcds-button-primary-default-background);
+      .manage-button:hover{
+        background-color: var(--gcds-button-secondary-hover-background);
       }
 
-    .delete-button{
-      background-color: var(--gcds-color-red-700);
-    }
+      .manage-button:focus{
+        background-color: var(--gcds-brand-focus);
+        box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
+        color: var(--gcds-button-primary-default-text); 
+      }
+
+      .manage-button:active.manage-button:focus{
+        background-color: var(--gcds-brand-default-text);
+        box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
+      }
+
     </style>
   </ui:define>
 
   <ui:define name="content">
-
-      <div class="container mrgn-tp-xl" style="max-width:630px">
-
-      <!-- <div class="row">
-        <div class="col-sm-6 col-md-6 col-lg-12 mrgn-bttm-md" style="padding-left:0px;">
-          <a jsf:outcome="/en/edit" class="link-text"><i class="fa-solid fa-chevron-left fa-sm" style="color: #26374a; padding-right:5px;"></i>
-            <f:param name="i" value="#{param.i}" />
-            Back
-          </a>
+    <div class="container" style="max-width:630px;">
+      <ui:include src="/WEB-INF/incl/components/alerts-en.xhtml" />
+      <h1 property="name" id="wb-cont" class="gc-thickline row">You have successfully signed in</h1>
+      <p class="row mrgn-bttm-lg mrgn-tp-lg">
+      You can proceed to #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}.
+      </p>
+      <c:if test="${flash.containsKey('backupNeeded')}">
+        <div class="row">
+            <section class="alert alert-warning warning-message col-xs-12 col-sm-12 col-md-12 col-lg-12">
+              <h5 class="alert-content" style="padding-top:20px; padding-right:20px;">We recommend adding a backup phone number</h5>
+              <p class="alert-content" style="padding-right:20px;">If you lose access to your phone number you will be <strong>permanently locked out</strong> of your sign in method for this service.</p>
+              <p class="alert-content" style="margin-top:10px; padding-bottom:20px; padding-right:20px;">Add additional phone numbers in <strong>Manage two step verification</strong>.</p>
+            </section>
         </div>
-      </div> -->
-
-      <div class="row mrgn-tp-lg">
-        <ui:include src="/WEB-INF/incl/components/alerts-en.xhtml" />
-      </div>
-      
+      </c:if>
       <div class="row">
-
-      <div class="col-xs-12 col-sm-10 col-md-10 col-lg-10 wb-frmvld" style="padding-left:0px;">
-        <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline mrgn-tp-md">
-          #{identity.getWorkingParameter('mobiles').size() == 1 ? 'Replace' : 'Delete'} #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'phone number' : 'email address'}
-        </h1>
-        <p class="mrgn-tp-lg">
-        #{identity.getWorkingParameter('mobiles').size() == 1 ? 'First, enter' : 'Enter'} 
-        the
-        #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'phone number' : 'email address'}
-        you want to
-        #{identity.getWorkingParameter('mobiles').size() == 1 ? 'replace' : 'delete'} 
-        </p>
-        <p>
-          <strong><span class="registered-mfa">#{identity.getWorkingParameter('mobiles')[param.i].display}</span></strong>
-        </p>
-        <div class="show mrgn-tp-lg mrgn-bttm-0 brdr-rds-0" style="border-width:0px;">
-          <div class="panel-body" style="padding:0px;">
-              <form jsf:id="change_oob" jsf:action="#{authenticator.authenticate}" class="form">
-                  <div class="row">
-                    <div class="form-group col-sm-8 mrgn-tp-md">
-                      <label for="mobile" class="mrgn-bttm-md ${facesContext.getMessageList('register_oob:mobile').size() gt 0 ? 'text-danger' : ''}">
-                        <span class="field-name">Phone number</span>
-                        <h:messages for="mobile" styleClass="list-unstyled" errorClass="label label-danger wb-server-error error-styling" layout="list"/>
-                      </label>
-                      <input jsf:id="mobile" id="mobile" type="tel" class="form-control mfa-input" autocomplete="tel"/>
-                    </div>
-                  </div>
-                <!--ui:fragment rendered="${identity.getWorkingParameter('oobChannel') == 'email'}">
-                  <div class="text-center visible-xs hidden-sm hidden-m hidden-lg">
-                    <img src="\oxauth\ext\resources\assets\email-address.png" alt="An @ symbol with two lines under it that represent an email address" class="mrgn-bttm-lg mfa-input-image-mobile"/>
-                  </div>
-                  <div class="row">
-                    <div class="form-group mrgn-tp-md col-lg-8">
-                      <label for="email" class="mrgn-bttm-md ${facesContext.getMessageList('register_oob:email').size() gt 0 ? 'text-danger' : ''}">
-                        <span class="field-name">Email address</span> 
-                      </label>
-                      <input jsf:id="email" id="email" type="email" autocomplete="email" class="form-control mfa-input" />
-                      <h:messages for="email" styleClass="list-unstyled" errorClass="label label-danger wb-server-error" layout="list" />
-                    </div>
-                  </div>
-                </ui:fragment-->
-                  <nav class="mrgn-bttm-lg" role="navigation">
-                    <h2 class="wb-inv">Navigation</h2>
-                    <div class="col-xs-12 col-sm-3" style="padding:0px;">
-                        <button jsf:id="continue" jsf:action="#{authenticator.authenticate}" class="body mrgn-tp-md mrgn-rght-xl mrgn-bttm-sm">
-                          <f:param name="i" value="${param.i}" />
-                          Continue
-                        </button>
-                        <button jsf:id="delete" jsf:action="#{authenticator.authenticate}" class="body delete-button mrgn-tp-md mrgn-rght-lg mrgn-bttm-md">
-                          <f:param name="i" value="${param.i}" />
-                          Delete
-                        </button>
-                    </div>
-                    <div class="col-xs-12 col-sm-3 text-center text-sm-left text-md-left" style="margin-top: 25px;">
-                      <a href="https://dev2-auth.id.alpha.canada.ca/oxauth/en/manage.htm" style="font-size:20px; padding-left:0px;">Cancel</a>
-                    </div>
-                    </nav>
-              </form>
-          </div>
-        </div>
+        <form jsf:id="result" class="form-horizontal">
+          <nav class="mrgn-bttm-lg" role="navigation">
+            <h2 class="wb-inv">Navigation</h2>
+            <div class="row">
+              <div class="col-xs-12 col-sm-10">
+                  <button jsf:id="continue" class="continue-button body col-xs-12 col-sm-3 mrgn-rght-md mrgn-tp-md" type="submit"
+                  jsf:action="#{authenticator.authenticate}">Continue</button>
+                  <button jsf:id="managemfa" class="manage-button body col-xs-12 col-sm-7 mrgn-tp-md" type="submit"
+                  jsf:outcome="/en/manage">Manage two step verification</button>
+            </div>
+            </div>
+          </nav>
+        </form>
       </div>
-    </div>
   </div>
   </ui:define>
+
 </ui:composition>
