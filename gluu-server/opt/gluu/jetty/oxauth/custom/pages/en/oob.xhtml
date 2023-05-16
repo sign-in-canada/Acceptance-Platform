@@ -78,6 +78,9 @@
       <div class="row">
         
       <div class="col-xs-12 col-sm-10 padding-left:0px;">
+        <div class="row mrgn-tp-lg">
+          <ui:include src="/WEB-INF/incl/components/alerts-en.xhtml" />
+        </div>
         <div class="row">
         <ui:fragment rendered="${empty identity.getWorkingParameter('oobContact')}">
           <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Two step verification</h1>
@@ -109,14 +112,7 @@
         </div>
         <div class="wb-frmvld mrgn-tp-md">
           <form jsf:id="oob" jsf:action="#{authenticator.authenticate}" class="form">
-            <c:if test="${facesContext.getMessageList('oob:resend').size() gt 0}">
-              <div class="alert alert-success">
-                <p>
-                  <h:message for="resend"/>
-                </p>
-              </div>
-            </c:if>
-            <!-- <div class="text-center visible-xs hidden-sm hidden-md hidden-lg">
+             <!-- <div class="text-center visible-xs hidden-sm hidden-md hidden-lg">
               <c:if test="${identity.getWorkingParameter('oobChannel') == 'email'}">
                 <img src="\oxauth\ext\resources\assets\check-email.png" alt="An open envelope with a piece of paper sticking out that has a red #1 notification badge on top. Underneath is a bubble with 6 asterisks." class="mrgn-bttm-lg mfa-input-image-mobile"/>
               </c:if>

@@ -217,6 +217,10 @@ body{
     padding-right: 20px; 
 }
 
+.problem-summary{
+    border-style: 2px solid black;
+}
+
 .error-styling{
     line-height:150%; 
     font-weight:400;

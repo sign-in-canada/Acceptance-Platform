@@ -159,13 +159,12 @@
       </div>
 
       <div class="row">
-          <form jsf:id="othermethod" class="form-horizontal col-xs-12 col-sm-3 mrgn-tp-xl" style="padding-left:0px; padding-right:0px;">
+          <div class="form-horizontal col-xs-12 col-sm-3 mrgn-tp-xl" style="padding-left:0px; padding-right:0px;">
             <nav class="mrgn-bttm-lg" role="navigation">
               <h2 class="wb-inv">Navigation</h2>
-                  <button jsf:id="continue" class="manage-button body" type="submit"
-                    jsf:action="#{authenticator.authenticate}">Sign out</button>
+                  <a href="/oxauth/restv1/end_session?post_logout_redirect_uri=#{identity.getWorkingParameter('post_logout_redirect_uri')}" class="btn manage-button body" type="submit">Sign out</a>
             </nav>
-          </form>
+          </div>
       </div>
   </div>
   </ui:define>

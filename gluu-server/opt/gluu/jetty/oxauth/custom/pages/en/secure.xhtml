@@ -79,6 +79,19 @@
             <legend class="mfa-legend-header">Choose a second factor:</legend>
           </div>
             <div class="row wb-eqht">
+              
+              <c:if test="${facesContext.getMessageList('secure:select').size() gt 0}">
+                <div class="col-md-12">
+                  <section class="hght-inhrt mrgn-lft-sm mrgn-tp-md">
+                    <div class="label label-danger wb-server-error">
+                      <p>
+                        <h:message for="select" errorClass="error-styling"/>
+                      </p>
+                    </div>
+                  </section>
+                </div>
+              </c:if>
+
                 <c:if test="${identity.getWorkingParameter('fido-accepted')}">
                 <div class="col-md-12">
                   <section class="hght-inhrt mrgn-tp-md radio-boxes">
@@ -196,18 +209,6 @@
                         </label>
                     </div>
                   </section>
-                  </div>
-                </c:if>
-
-                <c:if test="${facesContext.getMessageList('secure:select').size() gt 0}">
-                  <div class="col-md-12">
-                    <section class="hght-inhrt mrgn-lft-sm mrgn-tp-md">
-                      <div class="label label-danger wb-server-error">
-                        <p>
-                          <h:message for="select" errorClass="error-styling"/>
-                        </p>
-                      </div>
-                    </section>
                   </div>
                 </c:if>
             </div>

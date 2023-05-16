@@ -62,12 +62,6 @@
     
   <div class="container mrgn-tp-lg" style="max-width:630px;">
 
-    <!-- <div class="col-sm-6 col-md-5 col-lg-4">
-        <div class="text-center hidden-xs visible-sm visible-md visible-lg">
-          <img src="\oxauth\ext\resources\assets\check-mark.svg" alt="A keypad with the numbers 1 through 9" class="mrgn-bttm-lg mrgn-tp-md mfa-input-image-desktop"/>
-        </div>
-    </div> -->
-
     <div class="row col-sm-6 col-md-12 col-lg-12">
       <ui:include src="/WEB-INF/incl/components/alerts-en.xhtml" />
 
@@ -77,9 +71,6 @@
       <p class="row" style="margin-top:20px;"> 
       You can proceed to #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}.
       </p>
-      <!-- <div class="row visible-xs hidden-sm hidden-md hidden-lg">
-        <img src="\oxauth\ext\resources\assets\check-mark.svg" alt="TBD" class="mrgn-bttm-lg mfa-input-image-mobile"/>
-      </div> -->
       <div class="row">
         <form jsf:id="result" class="form-horizontal">
           <nav class="mrgn-bttm-lg" role="navigation">
