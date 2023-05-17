@@ -3,6 +3,7 @@
 :root{
     --font-family-header: "Lato", sans-serif;
     --font-family-body: "Noto Sans", sans-serif;
+    --font-family-line-height: 150%;
 }
 
 .learn-more{
@@ -31,8 +32,10 @@ details[open]>section{
 .mfa-legend-header{
     font-size: 36px; 
     font-family: var(--font-family-header);
+    line-height: 122.1%;
     font-weight: bold;
     margin-bottom: 0px;
+    padding-left:15px;
 }
 
 .mfa-fieldset{
@@ -110,6 +113,10 @@ details[open]>section{
     width: 100%;
 }
 
+.field-name{
+    font-size: 20px;
+}
+
 .mfa-input-image-desktop{
     padding-right: 30px;
     max-height: 300px;
@@ -118,6 +125,37 @@ details[open]>section{
 .mfa-input-image-mobile{
     max-height: 170px;
 }
+
+.link-text{
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+}
+
+/* manage account styling below */
+
+.breakline{
+    border-bottom: 2px solid #c4c3c5;
+    padding-bottom: 30px; 
+    padding-left: 0px;
+}
+
+.default-label{
+    background-color: #F5F5F7;
+    /* border-style: 1px solid #DFDFE1; */
+    border-style: solid;
+    border-width: 1px;
+    border-color: #DFDFE1;
+    border-radius:4px;
+    padding:1px 9px;
+}
+
+.registered-mfa{
+    margin-right:18px;
+}
+
+/* changeoob.xhtml styling below (replace/delete phone number) */
+
+
 
 /* base styling below */
 
@@ -160,6 +198,50 @@ h6{
 }
 
 body{
+    font-size: var(--gcds-base-font-size);
+    font-family: var(--font-family-body);
+}
+
+.body{
     font-size: 20px;
     font-family: var(--font-family-body);
+    line-height: 1.65em;
+}
+
+.success-message{
+    background-color: var(--gcds-alert-success-background);
+}
+
+.warning-message{
+    background-color: var(--gcds-alert-warning-background);
+    padding-right: 20px; 
+}
+
+.problem-summary{
+    border-style: 2px solid black;
+}
+
+.error-styling{
+    line-height:150%; 
+    font-weight:400;
+}
+
+.alert-content{
+    padding-left: 10px;
+}
+
+.page-width{
+    max-width: 630px;
+}
+
+#content-calculation{
+    min-height: calc(100vh - 40px);
+}
+
+.footer-calculation{
+    height: 20px;
+}
+
+.header-calculation{
+    height: 20px;
 }
