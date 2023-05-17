@@ -8,13 +8,14 @@
                 template="/WEB-INF/incl/layouts/GCWeb.xhtml">
 
   <f:metadata>
+    <c:set var="step" value="oob" scope="request"/>
     <f:viewAction action="#{authenticator.prepareAuthenticationForStep}" />
     <f:viewAction action="#{language.setLocaleCode('en')}" />
     <f:importConstants type="javax.faces.application.FacesMessage" />
   </f:metadata>
 
   <ui:param name="title" value="Enter the 6-digit code - #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}" />
-  <ui:param name="step" value="oob" />
+  <ui:param name="french" value="hb" />
   <ui:param name="locale" value="en" />
 
   <ui:define name="name">

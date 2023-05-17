@@ -2,7 +2,8 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                xmlns:jsf="http://xmlns.jcp.org/jsf">
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
     <div class="global-header">
         <nav>
             <ul id="wb-tphp">
@@ -21,10 +22,7 @@
                 <h2 class="wb-inv">Sélection de la langue</h2>
                 <ul class="list-inline margin-bottom-none">
                     <li>
-                        <form jsf:id="lang">
-                            <input type="hidden" name="lang:step" value="#{step}"/>
-                            <a lang="en" hreflang="en" jsf:id="en-CA" jsf:action="#{authenticator.authenticate}">English</a>
-                        </form>
+                        <a lang="en" hreflang="en" jsf:outcome="/en/${english}"><f:param disable="#{empty param.i}" name="i" value="#{param.i}" />English</a>
                     </li>
                 </ul>
             </section>

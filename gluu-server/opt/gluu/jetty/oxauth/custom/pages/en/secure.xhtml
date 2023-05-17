@@ -9,13 +9,14 @@
   template="/WEB-INF/incl/layouts/GCWeb.xhtml">
 
   <f:metadata>
+    <c:set var="step" value="secure" scope="request"/>
     <f:viewAction action="#{authenticator.prepareAuthenticationForStep}" />
     <f:viewAction action="#{language.setLocaleCode('en')}" />
     <f:importConstants type="javax.faces.application.FacesMessage" />
   </f:metadata>
 
   <ui:param name="title" value="Make your account more secure - #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}" />
-  <ui:param name="step" value="secure" />
+  <ui:param name="french" value="securiser" />
   <ui:param name="locale" value="en" />
 
   <ui:define name="name">

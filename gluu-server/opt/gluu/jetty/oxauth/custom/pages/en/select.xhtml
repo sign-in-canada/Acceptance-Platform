@@ -6,13 +6,14 @@
                 template="/WEB-INF/incl/layouts/#{not empty identity.getWorkingParameter('layout') ? identity.getWorkingParameter('layout') : 'ATIP'}.xhtml">
 
   <f:metadata>
+    <c:set var="step" value="select" scope="request"/>
     <f:viewAction action="#{authenticator.prepareAuthenticationForStep}" />
     <f:viewAction action="#{language.setLocaleCode('en')}" />
   </f:metadata>
 
   <ui:param name="title" value="Sign in to #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}" />
   <ui:param name="locale" value="en" />
-  <ui:param name="step" value="chooser" />
+  <ui:param name="french" value="choisir" />
 
   <ui:define name="styles">
     <ui:include src="/WEB-INF/incl/content/#{not empty identity.getWorkingParameter('content') ? identity.getWorkingParameter('content') : 'default'}/styles.xhtml" />
