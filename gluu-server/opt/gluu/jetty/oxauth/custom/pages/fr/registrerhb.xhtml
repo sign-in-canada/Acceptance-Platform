@@ -81,7 +81,7 @@
 
         <div class="col-xs-12 col-sm-10" style="padding-left:0px; padding-right:0px;">
 
-          <div class="row mrgn-tp-lg" style="margin-left:0px;">
+          <div class="row mrgn-tp-lg">
             <ui:include src="/WEB-INF/incl/components/alerts-fr.xhtml" />
           </div>
 
@@ -99,7 +99,7 @@
               <c:if test="${identity.getWorkingParameter('oobChannel') == 'sms'}">
                 <ui:fragment rendered="${identity.getWorkingParameter('firstContact')}">
                   <details class="body">
-                    <summary class="learn-more">Comment utiliserons-nous ces renseignements?</summary>
+                    <summary class="learn-more">Comment nous utilisons ces informations</summary>
                     <section>
                       <p>Votre numéro sera utilisé pour :</p>
                       <ul>
@@ -115,11 +115,11 @@
                 </ui:fragment>
                 <c:if
                   test="${identity.getWorkingParameter('firstContact') or identity.getWorkingParameter('manageTask') == 'oobReplace'}">
-                  <p class="body">Entrez le numéro de téléphone mobile où vous souhaitez recevoir les codes de sécurité.</p>
+                  <p class="body">Entrez le numéro de téléphone cellulaire où vous souhaitez recevoir les codes de sécurité.</p>
                 </c:if>
                   <c:if
                   test="${!identity.getWorkingParameter('firstContact') and empty identity.getWorkingParameter('manageTask')}">
-                  Pour vous assurer que votre compte n’est pas verrouillé, vous pouvez ajouter un second numéro de téléphone mobile comme numéro de secours.
+                  Pour vous assurer que votre compte n’est pas verrouillé, vous pouvez ajouter un second numéro de téléphone cellulaire comme numéro de secours.
                 </c:if>
                 <c:if test="#{identity.getWorkingParameter('manageTask') == 'oobAdd'}">
                   <p class="body">Ajoutez un autre numéro de téléphone pour recevoir votre code à usage unique en 2 étapes au cas où vous perdriez votre numéro de téléphone par défaut ou n’y auriez pas accès.</p>
@@ -131,7 +131,7 @@
                   Enter the email address you want to receive security codes at.
                 </c:if>
                 <c:if test="${!identity.getWorkingParameter('firstContact')}">
-                  Pour vous assurer que votre compte n’est pas verrouillé, vous pouvez ajouter un second numéro de téléphone mobile comme numéro de secours.
+                  Pour vous assurer que votre compte n’est pas verrouillé, vous pouvez ajouter un second numéro de téléphone cellulaire comme numéro de secours.
                 </c:if>
               </c:if>
             </p>
@@ -190,7 +190,7 @@
                 <div class="row mrgn-tp-lg" style="margin-left:0px;">
                   <c:if
                     test="${!identity.getWorkingParameter('firstContact') and empty identity.getWorkingParameter('manageTask') }">
-                    <a jsf:outcome="/fr/cree">Je n’ai pas de second
+                    <a jsf:outcome="/fr/cree">Je n’ai pas d'autre
                       #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'numéro de téléphone' :
                       'email address'}</a>
                   </c:if>
