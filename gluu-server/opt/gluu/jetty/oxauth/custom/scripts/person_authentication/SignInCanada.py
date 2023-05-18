@@ -225,9 +225,6 @@ class PersonAuthentication(PersonAuthenticationType):
         rpConfig = self.rputils.getRPConfig(session)
         clientUri = self.rputils.getClientUri(session)
 
-        print ("Preparing for step %s" % step)
-        print ("View ID: %s" % facesResources.getFacesContext().getViewRoot().getViewId())
-
         externalContext = facesResources.getExternalContext()
         httpRequest = externalContext.getRequest()
 
@@ -261,7 +258,6 @@ class PersonAuthentication(PersonAuthenticationType):
             step = FORMS.get(stepName)
 
         pageLocale = httpRequest.getAttribute("locale")
-        print ("Page locale: %s" % pageLocale)
         if StringHelper.isNotEmpty(pageLocale) and pageLocale != uiLocales:
             sessionAttributes.put(AuthorizeRequestParam.UI_LOCALES, pageLocale)
             languageBean.setLocaleCode(pageLocale)
@@ -303,7 +299,6 @@ class PersonAuthentication(PersonAuthenticationType):
             attribute = "mobile" if channel == "sms" else "mail"
             user = userService.getUser(userId, attribute)
             contacts = user.getAttributeValues(attribute)
-            print(contacts, contacts is None or len(contacts) == 0)
             identity.setWorkingParameter("firstContact", contacts is None or len(contacts) == 0)
             identity.setWorkingParameter("oobContact", None)
 
@@ -430,7 +425,6 @@ class PersonAuthentication(PersonAuthenticationType):
         
     def authenticate(self, configurationAttributes, requestParameters, step):
 
-        print(requestParameters)
         if REMOTE_DEBUG:
             pydevd.settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
 
@@ -766,7 +760,6 @@ class PersonAuthentication(PersonAuthenticationType):
             # Session exists.
             uiLocales = session.getSessionAttributes().get(AuthorizeRequestParam.UI_LOCALES)
 
-        print(uiLocales)
         if uiLocales is not None:
             language = uiLocales[:2].lower()
         else:
@@ -806,8 +799,6 @@ class PersonAuthentication(PersonAuthenticationType):
         identity = CdiUtil.bean(Identity)
         sessionAttributes = identity.getSessionId().getSessionAttributes()
 
-        print ("Goto step %s" % step)
-
         # Mark all previous steps as passed so the workflow can skip steps
         for i in range(1, step + 1):
             sessionAttributes.put("auth_step_passed_%s" % i, "true")
@@ -831,8 +822,7 @@ class PersonAuthentication(PersonAuthenticationType):
             providerInfo = self.passport.getProvider(provider)
 
         originalStep = step
-        print ("Gluu step: %s" % originalStep)
-
+ 
         form = self.getFormName(requestParameters)
         if step == 1:
              # Determine if SPLASH, CHOOSER, or 1FA
