@@ -9,12 +9,14 @@
   template="/WEB-INF/incl/layouts/GCWeb.xhtml">
 
   <f:metadata>
+    <c:set var="locale" value="fr-CA" scope="request"/>
+    <c:set var="step" value="secure" scope="request"/>
     <f:viewAction action="#{authenticator.prepareAuthenticationForStep}" />
-    <f:viewAction action="#{language.setLocaleCode('fr')}" />
+    <f:importConstants type="javax.faces.application.FacesMessage" />
   </f:metadata>
 
-  <ui:param name="title" value="Rendez votre compte plus sécuritaire - #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}" />
-  <ui:param name="step" value="secure" />
+  <ui:param name="title" value="Make your account more secure - #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}" />
+  <ui:param name="english" value="secure" />
   <ui:param name="locale" value="fr" />
 
   <ui:define name="name">
@@ -55,174 +57,173 @@
   </ui:define>
 
   <ui:define name="content">
-    <div class="container">
-      <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Rendez votre compte plus sécuritaire</h1>
-      <p>
-        #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}
-        vous demande de créer un deuxième facteur
-        <c:if test="${not empty identity.getWorkingParameter('mfaMethod')}">that is stronger than the one you previously set up, </c:if>
-        pour rendre votre compte plus sûr.
-      </p>
-      <details>
-        <summary class="learn-more">Pour en savoir plus sur l’authentification à deux facteurs</summary>
-        <section>
-            <p>L’authentification à deux facteurs confirme que c’est vraiment vous
-                qui tentez d’accéder à votre compte.</p>
-                <p>Imaginez que c’est une porte verrouillée et qu’il faut une clef et
-                un code secret pour l’ouvrir. Quelqu’un qui essaye de se faire passer
-                pour vous dans Internet n’arrivera probablement jamais à obtenir et
-                votre clef et votre code.</p>
-        </section>
-      </details>
+    <div class="container" style="max-width:900px;">
+      <div class="row">
+        <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Rendez votre compte plus sécuritaire</h1>
+        <p>
+          <c:if test="${not empty identity.getWorkingParameter('mfaMethod')}">
+          #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}
+          requires a second factor that is stronger than the one you previously set up, to make your account more secure.
+          </c:if>
+          Two step verification is an extra layer of security that confirms it’s really you signing in.
+        </p>
+        <p></p>
+        <details>
+          <summary class="learn-more">Pour en savoir plus sur l’authentification à deux facteurs</summary>
+          <section>
+            <p>Imaginez que c’est une porte verrouillée et qu’il faut une clef et un code secret pour l’ouvrir. Quelqu’un qui essaye de se faire passer pour vous dans Internet n’arrivera probablement jamais à obtenir et votre clef et votre code.</p>
+          </section>
+        </details>
 
-      <form jsf:id="secure" jsf:action="#{authenticator.authenticate}" class="form">
-        <fieldset class="mfa-fieldset">
-          <legend class="mfa-legend-header">Choisissez un deuxième facteur:</legend>
-          <div class="row wb-eqht">
-              <c:if test="${identity.getWorkingParameter('fido-accepted')}">
-              <div class="col-md-12">
-                <section class="hght-inhrt mrgn-lft-sm mrgn-tp-md radio-boxes">
-                  <div class="gc-chckbxrdio radio mrgn-lft-md">
-                      <input type="radio" p:name="secure:method" jsf:id="fido" jsf:value="fido" id="fido" class="radio mrgn-lft-md"/>
-                      <label for="fido">
-                        <div class="row">
-                          <div class="col-xs-11 col-md-7">
-                            <p>
-                              <strong>Passkey</strong>
-                            </p>
-                            <p>
-                              <span class="security-badge-mobile most-secure visible-xs visible-sm hidden-md hidden-lg"><img src="\oxauth\ext\resources\assets\lock-icon.png" alt="closed padlock" class="lock-icon"/>Plus sécuritaire</span>
-                            </p>
-                            <p class="radio-box-description">
-                              Register a passkey on your device
-                            </p>
-                          </div>
-                          <div class="col-md-3 col-md-offset-1">
-                            <p> 
-                              <span class="security-badge-desktop most-secure hidden-sm visible-md visible-lg" style="margin-top:30%;"><img src="\oxauth\ext\resources\assets\lock-icon.png" alt="icon of a closed lock" class="lock-icon"/>Plus sécuritaire</span>
-                            </p>
-                          </div>
-                        </div>
-                      </label>
-                </div>
-                </section>
-              </div>
-            </c:if>
-
-              <c:if test="${identity.getWorkingParameter('totp-accepted')}">
-                <div class="col-md-12">
-                <section class="hght-inhrt mrgn-lft-sm mrgn-tp-md radio-boxes">
-                  <div class="gc-chckbxrdio radio mrgn-lft-md">
-                      <input type="radio" p:name="secure:method" jsf:id="totp" jsf:value="totp" id="totp" class="radio mrgn-lft-md"/>
-                      <label for="totp">
-                        <div class="row">
-                          <div class="col-xs-11 col-md-7">
-                            <p>
-                              <strong>Applications d’authentification</strong>
-                            </p>
-                            <p>
-                              <span class="security-badge-mobile most-secure visible-xs visible-sm hidden-md hidden-lg" style="min-width: 215px;"><img src="\oxauth\ext\resources\assets\lock-icon.png" alt="cadenas fermé" class="lock-icon"/>Plus sécuritaire</span>
-                            </p>
-                            <p class="radio-box-description">
-                                Téléchargez ou utilisez l’application
-                                d’authentification de tiers sécuritaire de votre
-                                choix. Elle doit être téléchargée sur un seul
-                                appareil. Elle peut également être utilisée avec
-                                d’autres services qui l’offrent.
-                            </p>
-                          </div>
-                          <div class="col-md-3 col-md-offset-1">
-                            <p> 
-                              <span class="security-badge-desktop most-secure hidden-sm visible-md visible-lg" style="margin-top:30%; min-width: 215px;"><img src="\oxauth\ext\resources\assets\lock-icon.png" alt="cadenas fermé" class="lock-icon"/>Plus sécuritaire</span>
-                            </p>
-                          </div>
-                        </div>
-                      </label>
-                </div>
-                </section>
-              </div>
-              </c:if>
-
-              <c:if test="${identity.getWorkingParameter('sms-accepted')}">
-                <div class="col-md-12">
-                <section class="hght-inhrt mrgn-lft-sm mrgn-tp-md radio-boxes">
-                  <div class="gc-chckbxrdio radio mrgn-lft-md">
-                        <input type="radio" p:name="secure:method" jsf:id="sms" jsf:value="sms" id="sms" />
-                        <label for="sms" style="width:99%;">
-                          <div class="row" style="width:99%;">
-                            <div class="col-xs-11 col-md-7">
-                              <p>
-                                <strong>Message texte (SMS)</strong>
-                              </p>
-                              <!-- <p>
-                                <span class="security-badge-mobile less-secure visible-xs visible-sm hidden-md hidden-lg">Less secure</span>
-                              </p> -->
-                              <p class="radio-box-description">
-                                Recevez un code sécurisé par messagerie texte. Des frais de messagerie mobile standard peuvent s'appliquer.
-                              </p>
-                            </div>
-                            <!-- <div class="col-md-3 col-md-offset-1">
-                              <p> 
-                                <span class="security-badge-desktop less-secure hidden-sm visible-md visible-lg" style="margin-top:15%;">Less secure</span>
-                              </p>
-                            </div> -->
-                          </div>
-                        </label>
-                  </div>
-                </section>
-              </div>
-              </c:if>
-
-              <c:if test="${identity.getWorkingParameter('email-accepted')}">
-                <div class="col-md-12">
-                <section class="hght-inhrt mrgn-lft-sm mrgn-tp-md radio-boxes">
-                  <div class="gc-chckbxrdio radio mrgn-lft-md">
-                      <input type="radio" p:name="secure:method" jsf:id="email" jsf:value="email" id="email" />
-                      <label for="email" style="width:98.5%;">
-                        <div class="row" style="width:98.5%;">
-                          <div class="col-xs-11 col-md-7">
-                            <p>
-                              <strong>Courriel</strong>
-                            </p>
-                            <!-- <p>
-                              <span class="security-badge-mobile least-secure visible-xs visible-sm hidden-md hidden-lg">Least secure</span>
-                            </p> -->
-                            <p class="radio-box-description">
-                                Recevez un code sécurisé par courriel
-                            </p>
-                          </div>
-                          <!-- <div class="col-md-3 col-md-offset-1">
-                            <p> 
-                              <span class="security-badge-desktop least-secure hidden-sm visible-md visible-lg" style="margin-top:10%;">Least secure</span>
-                            </p>
-                          </div> -->
-                        </div>
-                      </label>
-                  </div>
-                </section>
-                </div>
-              </c:if>
-
+        <form jsf:id="secure" jsf:action="#{authenticator.authenticate}" class="form">
+          <fieldset class="mfa-fieldset">
+            <div class="row">
+            <legend class="mfa-legend-header">Choisissez une option :</legend>
+          </div>
+            <div class="row wb-eqht">
+              
               <c:if test="${facesContext.getMessageList('secure:select').size() gt 0}">
                 <div class="col-md-12">
                   <section class="hght-inhrt mrgn-lft-sm mrgn-tp-md">
                     <div class="label label-danger wb-server-error">
                       <p>
-                        <h:message for="select"/>
+                        <h:message for="select" errorClass="error-styling"/>
                       </p>
                     </div>
                   </section>
                 </div>
               </c:if>
-          </div>
-        </fieldset>
-          <div class="row mrgn-tp-lg">
-            <div class="col-xs-12 col-sm-4 col-md-2 col-md-offset-10">
-              <button jsf:id="select" id="select" jsf:action="#{authenticator.authenticate}">Continuer</button>
-          </div>
-        </div>
 
-      </form>
+                <c:if test="${identity.getWorkingParameter('fido-accepted')}">
+                <div class="col-md-12">
+                  <section class="hght-inhrt mrgn-tp-md radio-boxes">
+                    <div class="gc-chckbxrdio radio mrgn-lft-md">
+                        <input type="radio" p:name="secure:method" jsf:id="fido" jsf:value="fido" id="fido" class="radio mrgn-lft-md"/>
+                        <label for="fido">
+                          <div class="row">
+                            <div class="col-xs-11 col-md-9">
+                              <p>
+                                <strong>Passkey</strong>
+                              </p>
+                              <p>
+                                <span class="security-badge-mobile security-badge most-secure visible-xs visible-sm hidden-md hidden-lg"><img src="\oxauth\ext\resources\assets\lock-icon.png" alt="closed padlock" class="lock-icon"/>Most secure</span>
+                              </p>
+                              <p class="radio-box-description">
+                                Register a passkey on your device
+                              </p>
+                            </div>
+                            <div class="col-md-3 col-md-offset-1">
+                              <p> 
+                                <span class="security-badge-desktop security-badge most-secure hidden-sm visible-md visible-lg" style="margin-top:30%;"><img src="\oxauth\ext\resources\assets\lock-icon.png" alt="icon of a closed lock" class="lock-icon"/>Most secure</span>
+                              </p>
+                            </div>
+                          </div>
+                        </label>
+                  </div>
+                  </section>
+                </div>
+              </c:if>
+
+                <c:if test="${identity.getWorkingParameter('totp-accepted')}">
+                  <div class="col-md-12">
+                  <section class="hght-inhrt mrgn-tp-md radio-boxes">
+                    <div class="gc-chckbxrdio radio mrgn-lft-md">
+                        <input type="radio" p:name="secure:method" jsf:id="totp" jsf:value="totp" id="totp" class="radio mrgn-lft-md"/>
+                        <label for="totp">
+                          <div class="row">
+                            <div class="col-xs-11 col-md-7">
+                              <p>
+                                <strong>Applications d’authentification</strong>
+                              </p>
+                              <p>
+                                <span class="security-badge-mobile-fr security-badge most-secure visible-xs hidden-sm hidden-md hidden-lg"><img src="\oxauth\ext\resources\assets\lock-icon.png" alt="closed padlock" class="lock-icon"/>La plus sécuritaire</span>
+                                <span class="security-badge-desktop-fr security-badge most-secure hidden-xs visible-sm hidden-md hidden-lg"><img src="\oxauth\ext\resources\assets\lock-icon.png" alt="closed padlock" class="lock-icon"/>La plus sécuritaire</span>
+                              </p>
+                              <p class="radio-box-description">
+                                Téléchargez ou utilisez l’application d’authentification de tiers sécuritaire de votre choix. Elle doit être téléchargée sur un seul appareil. Elle peut également être utilisée avec d’autres services qui l’offrent.
+                              </p>
+                            </div>
+                            <div class="col-md-3">
+                              <p> 
+                                <span class="security-badge-desktop-fr security-badge most-secure hidden-sm visible-md visible-lg" style="margin-top:30%;"><img src="\oxauth\ext\resources\assets\lock-icon.png" alt="closed padlock" class="lock-icon"/>La plus sécuritaire</span>
+                              </p>
+                            </div>
+                          </div>
+                        </label>
+                  </div>
+                  </section>
+                </div>
+                </c:if>
+
+                <c:if test="${identity.getWorkingParameter('sms-accepted')}">
+                  <div class="col-md-12">
+                  <section class="hght-inhrt mrgn-tp-md radio-boxes">
+                    <div class="gc-chckbxrdio radio mrgn-lft-md">
+                          <input type="radio" p:name="secure:method" jsf:id="sms" jsf:value="sms" id="sms" />
+                          <label for="sms" style="width:99%;">
+                            <div class="row" style="width:99%;">
+                              <div class="col-xs-11 col-md-7">
+                                <p>
+                                  <strong> Message texte (SMS)</strong>
+                                </p>
+                                <!-- <p>
+                                  <span class="security-badge-mobile less-secure visible-xs visible-sm hidden-md hidden-lg">Less secure</span>
+                                </p> -->
+                                <p class="radio-box-description">
+                                  Recevez un code sécurisé par messagerie texte.
+                                </p>
+                              </div>
+                              <!-- <div class="col-md-3 col-md-offset-1">
+                                <p> 
+                                  <span class="security-badge-desktop less-secure hidden-sm visible-md visible-lg" style="margin-top:15%;">Less secure</span>
+                                </p>
+                              </div> -->
+                            </div>
+                          </label>
+                    </div>
+                  </section>
+                </div>
+                </c:if>
+
+                <c:if test="${identity.getWorkingParameter('email-accepted')}">
+                  <div class="col-md-12">
+                  <section class="hght-inhrt mrgn-tp-md radio-boxes">
+                    <div class="gc-chckbxrdio radio mrgn-lft-md">
+                        <input type="radio" p:name="secure:method" jsf:id="email" jsf:value="email" id="email" />
+                        <label for="email" style="width:98.5%;">
+                          <div class="row" style="width:98.5%;">
+                            <div class="col-xs-11 col-md-7">
+                              <p>
+                                <strong>Email</strong>
+                              </p>
+                              <!-- <p>
+                                <span class="security-badge-mobile least-secure visible-xs visible-sm hidden-md hidden-lg">Least secure</span>
+                              </p> -->
+                              <p class="radio-box-description">
+                                Receive a secure code by email
+                              </p>
+                            </div>
+                            <!-- <div class="col-md-3 col-md-offset-1">
+                              <p> 
+                                <span class="security-badge-desktop least-secure hidden-sm visible-md visible-lg" style="margin-top:10%;">Least secure</span>
+                              </p>
+                            </div> -->
+                          </div>
+                        </label>
+                    </div>
+                  </section>
+                  </div>
+                </c:if>
+            </div>
+          </fieldset>
+            <div class="row mrgn-tp-lg">
+              <div class="col-xs-12 col-sm-2 col-sm-offset-10">
+                <button jsf:id="select" id="select" jsf:action="#{authenticator.authenticate}" class="body">Continuer</button>
+            </div>
+          </div>
+
+        </form>
+      </div>
     </div>
 
   </ui:define>

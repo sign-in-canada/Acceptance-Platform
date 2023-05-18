@@ -8,15 +8,15 @@
                 template="/WEB-INF/incl/layouts/GCWeb.xhtml">
 
   <f:metadata>
-    <c:set var="step" value="oob" scope="request"/>
-    <c:set var="locale" value="en-CA" scope="request"/>
+    <c:set var="step" value="oob" scope="request" />
+    <c:set var="locale" value="fr-CA" scope="request"/>
     <f:viewAction action="#{authenticator.prepareAuthenticationForStep}" />
     <f:importConstants type="javax.faces.application.FacesMessage" />
   </f:metadata>
 
   <ui:param name="title" value="Enter the 6-digit code - #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}" />
-  <ui:param name="french" value="hb" />
-  <ui:param name="locale" value="en" />
+  <ui:param name="english" value="oob" />
+  <ui:param name="locale" value="fr" />
 
   <ui:define name="name">
     <ui:include src="/WEB-INF/incl/content/default/name-#{view.locale.language}.xhtml" />
@@ -67,47 +67,39 @@
         
       <div class="col-xs-12 col-sm-10 padding-left:0px;">
         <div class="row mrgn-tp-lg">
-          <ui:include src="/WEB-INF/incl/components/alerts-en.xhtml" />
+          <ui:include src="/WEB-INF/incl/components/alerts-fr.xhtml" />
         </div>
         <div class="row">
         <ui:fragment rendered="${empty identity.getWorkingParameter('oobContact')}">
-          <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Two step verification</h1>
+          <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Vérification en deux étapes</h1>
         </ui:fragment>
         <ui:fragment rendered="${not empty identity.getWorkingParameter('oobContact')}">
-          <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Verify your #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'phone number' : 'email address'}</h1>
+          <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Vérifiez votre #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'numéro de téléphone' : 'email address'}</h1>
         </ui:fragment>
         </div>
         <div class="row mrgn-tp-md">
           <p>
           <ui:fragment rendered="${not empty identity.getWorkingParameter('oobContact')}">
-            We just sent a text message with a 6-digit verification code to:
+            Nous venons d’envoyer par messagerie un code de vérification à 6 chiffres au :
           </ui:fragment>
           <ui:fragment rendered="${empty identity.getWorkingParameter('oobContact')}">
-            Enter the 6-digit code we sent to your mobile phone:
+            Entrez le code à 6 chiffres que nous avons envoyé à votre téléphone mobile : 
           </ui:fragment>
            <strong>#{identity.getWorkingParameter('oobDisplay')}</strong>.</p>
         </div>
         <div class="row mrgn-tp-md">
           <div class="col-sm-9 mrgn-bttm-lg text-center text-sm-left text-md-left" style="padding-left:0px;">
-            <a jsf:rendered="${not empty identity.getWorkingParameter('oobContact')}" jsf:outcome="/en/registeroob" class="link-text">Edit #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'phone number' : 'email address'}</a>
+            <a jsf:rendered="${not empty identity.getWorkingParameter('oobContact')}" jsf:outcome="/fr/registrerhb" class="link-text">Modifier #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'un numéro de téléphone' : 'email address'}</a>
             <ui:fragment rendered="${empty identity.getWorkingParameter('oobContact') and empty identity.getWorkingParameter('manageTask') and identity.getWorkingParameter('backupAvailable')}">
-                <a jsf:outcome="/en/othermethod">Try another method</a>
+                <a jsf:outcome="/en/othermethod">Essayer une autre méthode</a>
             </ui:fragment>
             <ui:fragment rendered="${empty identity.getWorkingParameter('oobContact') and not identity.getWorkingParameter('backupAvailable')}">
-                <a href="">I don't have this phone right now</a>
+                <a href="">Je n’ai pas ce téléphone en ce moment</a>
             </ui:fragment>
           </div>
         </div>
         <div class="mrgn-tp-md">
           <form jsf:id="oob" jsf:action="#{authenticator.authenticate}" class="form">
-             <!-- <div class="text-center visible-xs hidden-sm hidden-md hidden-lg">
-              <c:if test="${identity.getWorkingParameter('oobChannel') == 'email'}">
-                <img src="\oxauth\ext\resources\assets\check-email.png" alt="An open envelope with a piece of paper sticking out that has a red #1 notification badge on top. Underneath is a bubble with 6 asterisks." class="mrgn-bttm-lg mfa-input-image-mobile"/>
-              </c:if>
-              <c:if test="${identity.getWorkingParameter('oobChannel') == 'sms'}">
-                <img src="\oxauth\ext\resources\assets\text-message-graphic.png" alt="A mobile phone with a speech bubble that has six asterisks on it" class="mrgn-bttm-lg mfa-input-image-mobile"/>
-              </c:if>
-            </div> -->
             <div class="row form-group mrg-tp-md">
               <div class="row">
                 <div class="col-xs-12 col-sm-10 col-md-10 col-lg-8">
@@ -115,7 +107,7 @@
                 <!-- Enter the 6-digit
                 <span class="field-name">code</span> we
                  #{identity.getWorkingParameter('oobChannel') == 'email' ? 'emailed' : 'texted'} you -->
-                  6-digit code
+                 Le code à 6 chiffres
                 </label>
               <h:message for="code" errorClass="label label-danger wb-server-error error-styling"/>
               </div>
@@ -128,12 +120,12 @@
             </div>
             <div class="row">
               <div class="col-xs-12 col-sm-3 mrgn-tp-md" style="padding-left:0px; padding-right:0px;">
-                <button jsf:id="signin" id="signin" jsf:action="#{authenticator.authenticate}" class="body">Continue</button>
+                <button jsf:id="signin" id="signin" jsf:action="#{authenticator.authenticate}" class="body">Continuer</button>
               </div>
             </div>
             <div class="row mrgn-tp-xl">
               <p class="text-center text-sm-left text-md-left">
-              <a jsf:id="resend" jsf:action="#{authenticator.authenticate}" style="font-size:20px;">Resend code</a>
+              <a jsf:id="resend" jsf:action="#{authenticator.authenticate}" style="font-size:20px;">Envoyer de nouveau le code</a>
               </p>
             </div>
           </form>

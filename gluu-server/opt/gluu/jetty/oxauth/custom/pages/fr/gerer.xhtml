@@ -6,14 +6,14 @@
 
   <f:metadata>
     <c:set var="step" value="manage" scope="request"/>
-    <c:set var="locale" value="en-CA" scope="request"/>
+    <c:set var="locale" value="fr-CA" scope="request"/>
     <f:viewAction action="#{authenticator.prepareAuthenticationForStep}" onPostback="true"/>
     <f:importConstants type="javax.faces.application.FacesMessage" />
   </f:metadata>
 
   <ui:param name="title" value="Sign in settings" />
-  <ui:param name="french" value="gerer" />
-  <ui:param name="locale" value="en" />
+  <ui:param name="english" value="manage" />
+  <ui:param name="locale" value="fr" />
 
   <ui:define name="name">
     <ui:include src="/WEB-INF/incl/content/default/name-#{language.localeCode}.xhtml" />
@@ -70,7 +70,8 @@
         <div class="col-lg-12 mrgn-tp-lg" style="padding-right:0px;">
           <form jsf:id="result">
             <a jsf:id="continue" jsf:action="#{authenticator.authenticate}" style="float:right;" class="body">
-              Return to service
+              Retourner au service
+               <!-- \#{language.getMessage(identity.getWorkingParameter('content').concat('.name'))} -->
               
               <!-- <i class="fa-solid fa-chevron-right fa-sm" style="color: #26374a; padding-right:5px;"></i> -->
               <img src="\oxauth\ext\resources\assets\arrow-right.svg" class="mrgn-lft-sm"/>
@@ -79,7 +80,7 @@
         </div>
       </div>
       <div class="row mrgn-tp-lg">
-        <ui:include src="/WEB-INF/incl/components/alerts-en.xhtml" />
+        <ui:include src="/WEB-INF/incl/components/alerts-fr.xhtml" />
       </div>
       <div class="row">
         <h1 property="name" id="wb-cont" class="gc-thickline">Sign in settings</h1>
@@ -91,32 +92,33 @@
         <c:if test="${flash.containsKey('backupNeeded')}">
         <div class="row" style="margin-left:-10px;">
             <section class="alert alert-warning warning-message col-xs-12 col-sm-12 mrgn-tp-lg">
-              <h5 class="alert-content" style="padding-top:20px; padding-right:20px;">We recommend adding a backup phone number</h5>
-              <p class="alert-content" style="padding-right:20px;">If you lose access to your phone number you will be <strong>permanently locked out</strong> of your sign in method for this service.</p>
-              <p class="alert-content" style="margin-top:10px; padding-bottom:20px; padding-right:20px;">Add additional phone numbers in <strong>Manage two step verification</strong>.</p>
+              <h5 class="alert-content" style="padding-top:20px; padding-right:20px;">Nous recommandons d’ajouter un numéro de téléphone de secours</h5>
+              <p class="alert-content" style="padding-right:20px;">Si vous n’avez plus accès à votre téléphone, vous <strong>ne pourrez plus utiliser</strong> votre méthode de connexion à ce service.</p>
+              <p class="alert-content" style="margin-top:10px; padding-bottom:20px; padding-right:20px;">Ajoutez d’autres numéros de téléphone dans <strong>Gérer la vérification en 2 étapes</strong>.</p>
             </section>
         </div>
       </c:if>
         
       </div>
 
-      <h2 class="row">Registered second steps</h2>
+      <h2 class="row">Deuxièmes étapes enregistrées</h2>
 
       <div class="row">
         <ul style="list-style: none; padding-left: 0px; margin-top:30px;" class="col-lg-12 breakline">
         <ui:repeat value="#{identity.getWorkingParameter('mobiles')}" var="mobile">
           <li class="row">
-              <p class="col-xs-10 col-lg-10 body">
+              <p class="col-xs-9 col-lg-10 body">
                 <strong><span class="registered-mfa body">#{mobile.display}</span></strong>
                 <ui:fragment rendered="#{mobile.index == 0}">
-                  <span class="default-label caption">Default</span>
+                  <br class="visible-xs hidden-sm" />
+                  <span class="default-label caption">Par défaut</span>
                 </ui:fragment>
               <br/>
-              6-digit SMS code
+              Code à 6 chiffres par messagerie
               </p>
-                <a jsf:outcome="/en/edit" jsf:id="mobile" p:id="mobile:#{mobile.index}" class="col-xs-2 col-lg-2 body" style="text-align:right; padding-right:0px;" aria-label="Edit phone number" title="Edit phone number">
+                <a jsf:outcome="/fr/modifier" jsf:id="mobile" p:id="mobile:#{mobile.index}" class="col-xs-3 col-lg-2 body" style="text-align:right; padding-right:0px;" aria-label="Edit phone number" title="Edit phone number">
                   <f:param name="i" value="#{mobile.index}" />
-                  Edit
+                  Modifier
                 </a>
           </li>
         </ui:repeat>
@@ -129,11 +131,11 @@
         <ul style="list-style: none; padding-left: 0px; margin-top:30px;" class="col-lg-12 breakline">
           <li class="row">
             <p class="col-xs-9 col-lg-10">
-              <strong>Mobile phone number</strong>
+              <strong>Numéro de téléphone mobile</strong>
             <br/>
-            6-digit SMS code
+            Code à 6 chiffres par messagerie
             </p>
-            <a jsf:outcome="/en/registeroob" class="col-xs-3 col-lg-2" style="text-align:right; padding-right:0px;" aria-label="Add phone number" title="Add phone number">Add</a>
+            <a jsf:outcome="/fr/registrerhb" class="col-xs-3 col-lg-2" style="text-align:right; padding-right:0px;" aria-label="Add phone number" title="Add phone number">Ajouter</a>
         </li>
           <!-- <li class="row">
             <p class="col-xs-9 col-lg-10">
@@ -163,8 +165,8 @@
       <div class="row">
           <div class="form-horizontal col-xs-12 col-sm-3 mrgn-tp-xl" style="padding-left:0px; padding-right:0px;">
             <nav class="mrgn-bttm-lg" role="navigation">
-              <h2 class="wb-inv">Navigation</h2>
-                  <a href="/oxauth/restv1/end_session?post_logout_redirect_uri=#{identity.getWorkingParameter('post_logout_redirect_uri')}" class="btn manage-button body" type="submit">Sign out</a>
+              <h2 class="wb-inv">La navigation</h2>
+                  <a href="/oxauth/restv1/end_session?post_logout_redirect_uri=#{identity.getWorkingParameter('post_logout_redirect_uri')}" class="btn manage-button body" type="submit">Déconnexion</a>
             </nav>
           </div>
       </div>
