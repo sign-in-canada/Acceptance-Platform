@@ -89,11 +89,11 @@
           #{identity.getWorkingParameter('mobiles').size() == 1 ? 'Remplacer' : 'Supprimer'} #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'le numéro de téléphone' : 'email address'}
         </h1>
         <p class="mrgn-tp-lg">
-        #{identity.getWorkingParameter('mobiles').size() == 1 ? 'First, enter' : 'Entrez'} 
+        #{identity.getWorkingParameter('mobiles').size() == 1 ? 'D’abord, entrez' : 'Entrez'} 
         le
         #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'numéro de téléphone' : 'email address'}
         que vous souhaitez
-        #{identity.getWorkingParameter('mobiles').size() == 1 ? 'remplacer' : 'supprimer'} 
+        #{identity.getWorkingParameter('mobiles').size() == 1 ? 'remplacer' : 'supprimer'} :
         </p>
         <p>
           <strong><span class="registered-mfa">#{identity.getWorkingParameter('mobiles')[param.i].display}</span></strong>

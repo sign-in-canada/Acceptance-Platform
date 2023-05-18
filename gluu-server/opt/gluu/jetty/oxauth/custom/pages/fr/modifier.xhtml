@@ -121,9 +121,9 @@
               <h2 class="wb-inv">La navigation</h2>
               <div class="row">
                 <div class="col-xs-12">
-                    <button jsf:id="makedefault" jsf:action="#{authenticator.authenticate}" rendered="${param.i > 0}" class="continue-button col-xs-12 col-sm-7 mrgn-rght-md mrgn-tp-md body">
+                    <button jsf:id="makedefault" jsf:action="#{authenticator.authenticate}" rendered="${param.i > 0}" class="continue-button col-xs-12 col-sm-4 mrgn-rght-md mrgn-tp-md body">
                       <f:param name="i" value="#{param.i}" />
-                      Régler comme numéro par défaut
+                      Définir par défaut
                     </button>
                     <button jsf:id="replace" jsf:outcome="/fr/supprimerhb" rendered="#{identity.getWorkingParameter('mobiles').size() == 1}" class="manage-button col-xs-12 col-sm-3 mrgn-tp-md body">
                       <f:param name="i" value="#{param.i}" />

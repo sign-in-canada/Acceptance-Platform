@@ -86,7 +86,7 @@
   <ui:define name="content">
     <div class="container" style="max-width:630px;">
       <ui:include src="/WEB-INF/incl/components/alerts-fr.xhtml" />
-      <h1 property="name" id="wb-cont" class="gc-thickline row">Vous avez ouvert une session avec succès</h1>
+      <h1 property="name" id="wb-cont" class="gc-thickline row">Vous vous êtes connecté avec succès</h1>
       <p class="row mrgn-bttm-lg mrgn-tp-lg">
         Vous pouvez passer à #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}.
       </p>
@@ -95,7 +95,7 @@
             <section class="alert alert-warning warning-message col-xs-12 col-sm-12 col-md-12 col-lg-12">
               <h5 class="alert-content" style="padding-top:20px; padding-right:20px;">Nous recommandons d’ajouter un numéro de téléphone de secours</h5>
               <p class="alert-content" style="padding-right:20px;">Si vous n’avez plus accès à votre téléphone, vous <strong>ne pourrez plus utiliser</strong> votre méthode de connexion à ce service.</p>
-              <p class="alert-content" style="margin-top:10px; padding-bottom:20px; padding-right:20px;">Ajoutez d’autres numéros de téléphone dans <strong>Gérer la vérification en 2 étapes</strong>.</p>
+              <p class="alert-content" style="margin-top:10px; padding-bottom:20px; padding-right:20px;">Ajoutez d’autres numéros de téléphone dans <strong>Sign in settings</strong>.</p>
             </section>
         </div>
       </c:if>

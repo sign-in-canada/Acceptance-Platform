@@ -21,7 +21,7 @@
     <ui:fragment rendered="#{not empty facesContext.getMaximumSeverity() and facesContext.getMaximumSeverity() == FacesMessage.SEVERITY_ERROR}">
         <div class="row" style="margin-left:0px;">
             <section class="col-xs-11 mrgn-bttm-md" style="border-style: solid; border-width: 6px; border-color: #C24438; padding: 0px 20px 30px 20px;">
-                <h2>Donell y avait un problème</h2>
+                <h2>Il y avait un problème</h2>
                 <p>Des erreurs ont été trouvées sur cette page :</p>
                 <ui:repeat value="#{facesContext.messageList}" var="message" varStatus="status">
                     <ui:fragment rendered="#{message.severity == FacesMessage.SEVERITY_ERROR and !message.summary.startsWith('Une erreur inattendue')}" >

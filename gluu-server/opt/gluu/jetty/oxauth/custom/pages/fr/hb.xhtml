@@ -84,6 +84,7 @@
           </ui:fragment>
           <ui:fragment rendered="${empty identity.getWorkingParameter('oobContact')}">
             Entrez le code à 6 chiffres que nous avons envoyé à votre téléphone mobile : 
+            <br class="visible-xs hidden-sm" />
           </ui:fragment>
            <strong>#{identity.getWorkingParameter('oobDisplay')}</strong>.</p>
         </div>

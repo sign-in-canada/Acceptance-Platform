@@ -54,20 +54,34 @@ details[open]>section{
 .radio-box-description{
     color: var(--gcds-color-grayscale-950);
 }
-
-.security-badge-desktop {
+.security-badge{
     border-radius: 10px;
     font-weight: 600;
     font-family: var(--font-family-body);
+}
+.security-badge-desktop {
     max-width: 183px;
     min-width: 183px;
 }
 
 .security-badge-mobile {
-    border-radius: 10px;
-    font-weight: 600;
     font-family: var(--font-family-body);
     max-width: 183px;
+}
+
+.security-badge-desktop-fr{
+    line-height:80%;
+    padding-bottom:5px;
+    padding-top:5px;
+    max-width: 250px;
+    min-width: 250px;
+}
+
+.security-badge-mobile-fr{
+    line-height:80%;
+    padding-bottom:10px;
+    max-width: 140px;
+    min-width: 140px;
 }
 
 .lock-icon{
