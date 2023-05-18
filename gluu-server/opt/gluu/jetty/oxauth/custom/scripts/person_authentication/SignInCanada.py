@@ -215,6 +215,7 @@ class PersonAuthentication(PersonAuthenticationType):
         facesService = CdiUtil.bean(FacesService)
         languageBean = CdiUtil.bean(LanguageBean)
         userService = CdiUtil.bean(UserService)
+        authenticationService = CdiUtil.bean(AuthenticationService)
         appConfiguration = CdiUtil.bean(AppConfiguration)
         
         session = identity.getSessionId()
@@ -375,6 +376,9 @@ class PersonAuthentication(PersonAuthenticationType):
             facesService.redirectToExternalURL(passportRequest)
 
         elif step == STEP_UPGRADE:
+            if identity.getWorkingParameter("mfaMethod") is not None and authenticationService.getAuthenticatedUser() is None:
+                return False
+            
             self.telemetryClient.trackEvent("2FA Choice Offered", {"sid" : session.getOutsideSid()}, None)
 
         elif step == STEP_OOB:
@@ -399,6 +403,9 @@ class PersonAuthentication(PersonAuthenticationType):
                 externalContext.getFlash().put("backupNeeded", True)
 
         elif step in {STEP_OTHERMETHOD, STEP_MANAGE, STEP_EDIT, STEP_OOB_CHANGE}:
+            if authenticationService.getAuthenticatedUser() is None:
+                return False
+
             if step == STEP_MANAGE:
                 identity.setWorkingParameter("manageTask", "oobAdd")
                 client = self.rputils.getClient(session)

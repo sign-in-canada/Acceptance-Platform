@@ -95,7 +95,6 @@ class OutOfBand:
                 mobile = mobile.get(0)
             elif mail is not None:
                 channel = "email"
-                print (mail.size())
                 if mail.size() < 2:
                     facesFlash.put("backupNeeded", True)
                 mail = mail.get(0)
@@ -164,6 +163,9 @@ class OutOfBand:
             telemetry["result"] = "success"
 
             if contact is not None: # Registration
+                if identity.getWorkingParameter("mfaMethod") and checkInvalidSession():
+                    return False
+                
                 telemetry["step"] = "code verification"
                 self.telemetryClient.trackEvent("OOB Registration", telemetry, {"durationInSeconds": duration})
                 channel = identity.getWorkingParameter("oobChannel")
@@ -323,6 +325,9 @@ class OutOfBand:
             return True
 
     def makeDefault(self, requestParameters):
+        if checkInvalidSession():
+            return False
+
         index = ServerUtil.getFirstValue(requestParameters, "i")
         if index.isdigit():
             return self.changeDefaultContact("sms", int(index))
@@ -332,6 +337,10 @@ class OutOfBand:
 
     def changeDefaultContact(self, channel, index):
         identity = CdiUtil.bean(Identity)
+
+        if checkInvalidSession():
+            return False
+
         userId = identity.getWorkingParameter("userId")
         attribute = "mobile" if channel == "sms" else "mail"
         user = self.userService.getUser(userId, "uid", attribute)
@@ -349,6 +358,10 @@ class OutOfBand:
 
     def changeContact(self, requestParameters):
         identity = CdiUtil.bean(Identity)
+
+        if checkInvalidSession():
+            return False
+
         userId = identity.getWorkingParameter("userId")
 
         index = ServerUtil.getFirstValue(requestParameters, "i")
@@ -393,6 +406,20 @@ class OutOfBand:
         else: # Replace
             identity.setWorkingParameter("oobContact", self.phoneUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.NATIONAL))
             identity.setWorkingParameter("manageTask", "oobReplace")
+
+def checkInvalidSession():
+    identity = CdiUtil.bean(Identity)
+    authenticationService = CdiUtil.bean(AuthenticationService)
+    session = identity.getSessionId()
+
+    if authenticationService.getAuthenticatedUser() is None:
+        # Not signed in
+        return True
+    elif Date.getTime() - session.getAuthenticationTime().getTime > 1200000:
+        # Signed in too long ago
+        return True
+    else:
+        return False
 
 def maskPhone (phoneNumber):
     return re.sub('\d', '*', phoneNumber, sum(map(unicode.isdigit, phoneNumber)) - 4)
