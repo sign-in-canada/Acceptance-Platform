@@ -233,7 +233,8 @@ class PersonAuthentication(PersonAuthenticationType):
         if step == 1:
             # Bookmark detection
             cookies = externalContext.getRequestCookieMap()
-            if not cookies.containsKey("bmd") and not rpConfig.get("allowBookmarks"):
+            viewId = facesResources.getFacesContext().getViewRoot().getViewId()
+            if viewId == "/authorize.xhtml" and not cookies.containsKey("bmd") and not rpConfig.get("allowBookmarks"):
                 if StringHelper.isNotEmpty(clientUri):
                     facesService.redirectToExternalURL(clientUri)
                     return True
