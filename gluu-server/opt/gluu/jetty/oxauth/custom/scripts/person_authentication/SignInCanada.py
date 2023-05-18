@@ -213,6 +213,7 @@ class PersonAuthentication(PersonAuthenticationType):
         identity = CdiUtil.bean(Identity)
         facesResources = CdiUtil.bean(FacesResources)
         facesService = CdiUtil.bean(FacesService)
+        languageBean = CdiUtil.bean(LanguageBean)
         userService = CdiUtil.bean(UserService)
         appConfiguration = CdiUtil.bean(AppConfiguration)
         
@@ -256,6 +257,12 @@ class PersonAuthentication(PersonAuthenticationType):
         stepName = httpRequest.getAttribute("step")
         if StringHelper.isNotEmpty(stepName) and stepName in FORMS:
             step = FORMS.get(stepName)
+
+        pageLocale = httpRequest.getAttribute("locale")
+        print ("Page locale: %s" % pageLocale)
+        if StringHelper.isNotEmpty(pageLocale) and pageLocale != uiLocales:
+            sessionAttributes.put(AuthorizeRequestParam.UI_LOCALES, pageLocale)
+            languageBean.setLocaleCode(pageLocale)
 
         if identity.getWorkingParameter("abort"): # Back button workaround
             if step == STEP_TOTP_REGISTER:
@@ -751,6 +758,7 @@ class PersonAuthentication(PersonAuthenticationType):
             # Session exists.
             uiLocales = session.getSessionAttributes().get(AuthorizeRequestParam.UI_LOCALES)
 
+        print(uiLocales)
         if uiLocales is not None:
             language = uiLocales[:2].lower()
         else:
