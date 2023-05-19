@@ -92,8 +92,9 @@
             </c:if>
             <c:if test="${!identity.getWorkingParameter('firstContact')}">
               <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline mrgn-tp-md">
-                #{(identity.getWorkingParameter('manageTask') == 'oobReplace' ? 'Entrez un nouveau' : (identity.getWorkingParameter('manageTask') == 'oobAdd' ?  'Ajouter un' : 'Add a backup'))}
-                #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'numéro de téléphone' : 'email address'}</h1>
+                #{identity.getWorkingParameter('manageTask') == 'oobReplace' ? 'Entrez un nouveau' : 'Ajouter un'}
+                #{identity.getWorkingParameter('oobChannel') == 'sms' ? (identity.getWorkingParameter('manageTask') == 'oobAdd' ?  'numéro de téléphone' : 'numéro de téléphone de secours') : 'email address'}
+              </h1>
             </c:if>
             <p>
               <c:if test="${identity.getWorkingParameter('oobChannel') == 'sms'}">
