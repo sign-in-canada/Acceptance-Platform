@@ -92,7 +92,7 @@
           <div class="col-sm-9 mrgn-bttm-lg text-center text-sm-left text-md-left" style="padding-left:0px;">
             <a jsf:rendered="${not empty identity.getWorkingParameter('oobContact')}" jsf:outcome="/fr/registrerhb" class="link-text">Modifier #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'un numéro de téléphone' : 'email address'}</a>
             <ui:fragment rendered="${empty identity.getWorkingParameter('oobContact') and empty identity.getWorkingParameter('manageTask') and identity.getWorkingParameter('backupAvailable')}">
-                <a jsf:outcome="/en/othermethod">Essayer une autre méthode</a>
+                <a jsf:outcome="/fr/autrermethode">Essayer une autre méthode</a>
             </ui:fragment>
             <ui:fragment rendered="${empty identity.getWorkingParameter('oobContact') and not identity.getWorkingParameter('backupAvailable')}">
                 <a href="">Je n’ai pas ce téléphone en ce moment</a>
