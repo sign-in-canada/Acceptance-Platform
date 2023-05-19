@@ -415,7 +415,7 @@ def checkInvalidSession():
     if authenticationService.getAuthenticatedUser() is None:
         # Not signed in
         return True
-    elif Date.getTime() - session.getAuthenticationTime().getTime > 1200000:
+    elif Date().getTime() - session.getAuthenticationTime().getTime() > 1200000:
         # Signed in too long ago
         return True
     else:
