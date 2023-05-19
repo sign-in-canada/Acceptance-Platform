@@ -59,21 +59,25 @@
   <ui:define name="content">
     <div class="container" style="max-width:900px;">
       <div class="row">
+        <ui:include src="/WEB-INF/incl/components/alerts-fr.xhtml" />
         <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Rendez votre compte plus sécuritaire</h1>
         <p>
-          <c:if test="${not empty identity.getWorkingParameter('mfaMethod')}">
-          #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}
-          requires a second factor that is stronger than the one you previously set up, to make your account more secure.
-          </c:if>
-          Two step verification is an extra layer of security that confirms it’s really you signing in.
+          La vérification en deux étapes est une couche de sécurité supplémentaire qui confirme que vous vous connectez vraiment.
         </p>
-        <p></p>
-        <details>
-          <summary class="learn-more">Pour en savoir plus sur l’authentification à deux facteurs</summary>
-          <section>
-            <p>Imaginez que c’est une porte verrouillée et qu’il faut une clef et un code secret pour l’ouvrir. Quelqu’un qui essaye de se faire passer pour vous dans Internet n’arrivera probablement jamais à obtenir et votre clef et votre code.</p>
-          </section>
-        </details>
+        <ui:fragment rendered="${not empty identity.getWorkingParameter('mfaMethod')}">
+          <p>
+            #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}
+            Nécessite un deuxième facteur plus fort que celui que vous avez précédemment créé.
+          </p>
+        </ui:fragment>
+        <ui:fragment rendered="${empty identity.getWorkingParameter('mfaMethod')}">
+          <details>
+            <summary class="learn-more">Pour en savoir plus sur l’authentification à deux facteurs</summary>
+            <section>
+              <p>Imaginez que c’est une porte verrouillée et qu’il faut une clef et un code secret pour l’ouvrir. Quelqu’un qui essaye de se faire passer pour vous dans Internet n’arrivera probablement jamais à obtenir et votre clef et votre code.</p>
+            </section>
+          </details>
+        </ui:fragment>
 
         <form jsf:id="secure" jsf:action="#{authenticator.authenticate}" class="form">
           <fieldset class="mfa-fieldset">

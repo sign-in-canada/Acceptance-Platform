@@ -59,20 +59,23 @@
   <ui:define name="content">
     <div class="container" style="max-width:900px;">
       <div class="row">
+        <ui:include src="/WEB-INF/incl/components/alerts-en.xhtml" />
         <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Two step verification</h1>
-        <p>
-          #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}
-          requires a second factor
-          <c:if test="${not empty identity.getWorkingParameter('mfaMethod')}">that is stronger than the one you previously set up, </c:if>
-          to make your account more secure.
-        </p>
-        <details>
-          <summary class="learn-more">Learn more about two step verification</summary>
-          <section>
-            <p>Two step verification confirms it’s really you signing in.</p>
-            <p>Think of it like a locked door that can only be opened with both a key and a secret code. Someone pretending to be you on the internet should never be able to get both the key and the code.</p>
-          </section>
-        </details>
+        <p>Two step verification is an extra layer of security that confirms it’s really you signing in.</p>
+        <ui:fragment rendered="${not empty identity.getWorkingParameter('mfaMethod')}">
+          <p>
+            #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}
+            requires a second factor that is stronger than the one you previously set up.
+          </p>
+        </ui:fragment>
+        <ui:fragment rendered="${empty identity.getWorkingParameter('mfaMethod')}">
+          <details>
+            <summary class="learn-more">Learn more about two step verification</summary>
+            <section>
+              <p>Think of it like a locked door that can only be opened with both a key and a secret code. Someone pretending to be you on the internet should never be able to get both the key and the code.</p>
+            </section>
+          </details>
+        </ui:fragment>
 
         <form jsf:id="secure" jsf:action="#{authenticator.authenticate}" class="form">
           <fieldset class="mfa-fieldset">
