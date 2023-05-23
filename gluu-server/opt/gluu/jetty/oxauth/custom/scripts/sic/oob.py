@@ -148,6 +148,13 @@ class OutOfBand:
             return False
 
         enteredCode = ServerUtil.getFirstValue(requestParameters, "oob:code")
+        if len(enteredCode) < 6:
+            addMessage("oob:code", FacesMessage.SEVERITY_ERROR, "sic.codeSmall")
+            return False
+        if len(enteredCode) > 6:
+            addMessage("oob:code", FacesMessage.SEVERITY_ERROR, "sic.codeBig")
+            return False
+
         user = self.userService.getUser(userId, "uid", "gluuStatus", "oxCountInvalidLogin", "mobile", "mail", "locale")
 
         if StringHelper.equals(user.getAttribute("gluuStatus"), GluuStatus.INACTIVE.getValue()):
