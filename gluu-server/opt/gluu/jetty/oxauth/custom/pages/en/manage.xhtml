@@ -22,54 +22,18 @@
   <ui:define name="styles">
     <style>
 
-      label{
-        font-weight: 600;
-        font-size: 20px;
-      }
-
       li + li {
         margin-top: 20px;
-      }
-
-      .manage-button{
-        background-color: var(--gcds-color-grayscale-0);
-        color: var(--gcds-button-secondary-default-text); 
-        min-height: 48px;
-        white-space: normal;
-        border-radius: 4.16px;
-        border-width: 2px;
-        border-color: var(--gcds-color-blue-700);
-        text-align: center;
-        margin-bottom: 0px;
-        vertical-align: middle;
-        padding-left:8px;
-        padding-right: 8px;
-        min-width:100%;
-      }
-
-      .manage-button:hover{
-        background-color: var(--gcds-button-secondary-hover-background);
-      }
-
-      .manage-button:focus{
-        background-color: var(--gcds-brand-focus);
-        box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
-        color: var(--gcds-button-primary-default-text); 
-      }
-
-      .manage-button:active.manage-button:focus{
-        background-color: var(--gcds-brand-default-text);
-        box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
       }
     </style>
   </ui:define>
 
   <ui:define name="content">
-    <div class="container" style="max-width:630px; margin: 0 auto;">
+    <div class="container container-width">
       <div class="row">
-        <div class="col-lg-12 mrgn-tp-lg" style="padding-right:0px;">
+        <div class="col-lg-12 mrgn-tp-lg padding-right-0">
           <form jsf:id="result">
-            <a jsf:id="continue" jsf:action="#{authenticator.authenticate}" style="float:right;" class="body">
+            <a jsf:id="continue" jsf:action="#{authenticator.authenticate}" style="float:right;" class="link-styling visited-link-styling">
               Go to service
               
               <!-- <i class="fa-solid fa-chevron-right fa-sm" style="color: #26374a; padding-right:5px;"></i> -->
@@ -85,14 +49,14 @@
         <h1 property="name" id="wb-cont" class="gc-thickline">Sign in settings</h1>
       </div>
       <div class="row breakline">
-        <p class="col-lg-12 mrgn-tp-md" style="padding-left:0px;">
+        <p class="col-lg-12 mrgn-tp-md padding-left-0">
           Keep your sign in information up to date so you always have access.
         </p>
         <c:if test="${flash.containsKey('backupNeeded')}">
         <div class="row" style="margin-left:-10px;">
             <section class="alert alert-warning warning-message col-xs-12 col-sm-12 mrgn-tp-lg">
-              <h5 class="alert-content" style="padding-top:20px; padding-right:20px;">We recommend adding a backup phone number</h5>
-              <p class="alert-content" style="padding-right:20px;">If you lose access to your phone number you will be <strong>permanently locked out</strong> of your sign in method for this service.</p>
+              <h5 class="warning-message-content" style="padding-top:20px;">We recommend adding a backup phone number</h5>
+              <p class="warning-message-content">If you lose access to your phone number you will be <strong>permanently locked out</strong> of your sign in method for this service.</p>
             </section>
         </div>
       </c:if>
@@ -102,7 +66,7 @@
       <h2 class="row">Registered second steps</h2>
 
       <div class="row">
-        <ul style="list-style: none; padding-left: 0px; margin-top:30px;" class="col-lg-12 breakline">
+        <ul class="col-lg-12 breakline list-style-none padding-left-0 mrgn-tp-md">
         <ui:repeat value="#{identity.getWorkingParameter('mobiles')}" var="mobile">
           <li class="row">
               <p class="col-xs-10 col-lg-10 body">
@@ -113,7 +77,7 @@
               <br/>
               6-digit SMS code
               </p>
-                <a jsf:outcome="/en/edit" jsf:id="mobile" p:id="mobile:#{mobile.index}" class="col-xs-2 col-lg-2 body" style="text-align:right; padding-right:0px;" aria-label="Edit phone number" title="Edit phone number">
+                <a jsf:outcome="/en/edit" jsf:id="mobile" p:id="mobile:#{mobile.index}" class="col-xs-2 col-lg-2 link-styling manage-links visited-link-styling" aria-label="Edit phone number" title="Edit phone number">
                   <f:param name="i" value="#{mobile.index}" />
                   Edit
                 </a>
@@ -125,14 +89,14 @@
       <h2 class="row">Add more backup methods</h2>
 
       <div class="row">
-        <ul style="list-style: none; padding-left: 0px; margin-top:30px;" class="col-lg-12 breakline">
+        <ul class="col-lg-12 breakline list-style-none padding-left-0 mrgn-tp-md">
           <li class="row">
             <p class="col-xs-9 col-lg-10">
               <strong>Mobile phone number</strong>
             <br/>
             6-digit SMS code
             </p>
-            <a jsf:outcome="/en/registeroob" class="col-xs-3 col-lg-2" style="text-align:right; padding-right:0px;" aria-label="Add phone number" title="Add phone number">Add</a>
+            <a jsf:outcome="/en/registeroob" class="col-xs-3 col-lg-2 link-styling manage-links visited-link-styling" aria-label="Add phone number" title="Add phone number">Add</a>
         </li>
           <!-- <li class="row">
             <p class="col-xs-9 col-lg-10">
@@ -147,9 +111,9 @@
 
       <ui:fragment rendered="#{identity.sessionId.sessionAttributes.get('SAMLProvider') == 'gckey'}">
         <h2 class="row">Manage my password and recovery questions</h2>
-        <div class="row breakline" style="margin-top:30px;">
+        <div class="row breakline mrgn-tp-md">
           <p>If you want to:
-            <ul class="col-lg-12" style="padding-left:30px;">
+            <ul class="col-lg-12 padding-left-30">
               <li>Recover your username or password</li>
               <li>Change your password, recovery questions and answers, and email address</li>
               <li>Set up a username, password or recovery questions but are having problems</li>
@@ -158,12 +122,14 @@
           </p>
         </div>
       </ui:fragment>
-
       <div class="row">
-          <div class="form-horizontal col-xs-12 col-sm-3 mrgn-tp-xl" style="padding-left:0px; padding-right:0px;">
+          <div class="form-horizontal mrgn-tp-xl">
             <nav class="mrgn-bttm-lg" role="navigation">
               <h2 class="wb-inv">Navigation</h2>
-                  <a href="/oxauth/restv1/end_session?post_logout_redirect_uri=#{identity.getWorkingParameter('post_logout_redirect_uri')}" class="btn manage-button body" type="submit">Sign out</a>
+              <div class="col-xs-12 col-sm-8 padding-left-0 padding-right-0">
+                  <button class="primary-button mrgn-bttm-md col-xs-12 col-sm-5 mrgn-rght-md">Go to service</button>
+                  <button href="/oxauth/restv1/end_session?post_logout_redirect_uri=#{identity.getWorkingParameter('post_logout_redirect_uri')}" class="secondary-button col-xs-12 col-sm-4" type="submit">Sign out</button>
+              </div>
             </nav>
           </div>
       </div>

@@ -14,7 +14,7 @@
     <f:importConstants type="javax.faces.application.FacesMessage" />
   </f:metadata>
 
-  <ui:param name="title" value="#{identity.getWorkingParameter('mobiles').size() == 1 ? 'Replace' : 'Delete'} #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'phone number' : 'email address'}" />
+  <ui:param name="title" value="#{identity.getWorkingParameter('mobiles').size() == 1 ? 'Remplacer' : 'Supprimer'} #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'le numéro de téléphone' : 'email address'}" />
   <ui:param name="english" value="changeoob" />
   <ui:param name="locale" value="fr" />
 
@@ -22,61 +22,9 @@
     <ui:include src="/WEB-INF/incl/content/default/name-#{view.locale.language}.xhtml" />
   </ui:define>
 
-  <ui:define name="styles">
-    <style>
-      button{
-        background-color: var(--gcds-button-primary-default-background);
-        color: var(--gcds-button-primary-default-text); 
-        white-space: normal;
-        min-height: 48px;
-        border-radius: 4.16px;
-        border-width:0px;
-        min-width: 100%;
-      }
-
-      button:hover{
-        background-color: var(--gcds-color-blue-700);
-      }
-
-      button:focus{
-        background-color: var(--gcds-brand-focus);
-        box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
-      }
-
-      button:hover.button:focus{
-        background-color: var(--gcds-button-primary-default-background);
-        box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
-      }
-
-      button:active{
-        background-color: var(--gcds-color-grayscale-1000);
-      }
-
-      label{
-        font-weight: 600;
-        font-size: 20px;
-      }
-
-      a{
-        font-size: 20px;
-        line-height: 1.3;
-        font-family: var(--font-family-body);
-        color: var(--gcds-button-primary-default-background);
-      }
-
-    .delete-button{
-      background-color: var(--gcds-color-red-700);
-    }
-
-    .delete-button:hover{
-        background-color: #822117;
-      }
-    </style>
-  </ui:define>
-
   <ui:define name="content">
 
-      <div class="container mrgn-tp-xl" style="max-width:630px">
+      <div class="container mrgn-tp-xl container-width">
 
       <div class="row mrgn-tp-lg">
         <ui:include src="/WEB-INF/incl/components/alerts-fr.xhtml" />
@@ -123,15 +71,11 @@
                 </ui:fragment-->
                   <nav class="mrgn-bttm-lg" role="navigation">
                     <h2 class="wb-inv">La navigation</h2>
-                    <div class="col-xs-12 col-sm-3" style="padding:0px;">
-                        <button jsf:id="continue" jsf:action="#{authenticator.authenticate}" class="body mrgn-tp-md mrgn-rght-xl mrgn-bttm-sm #{identity.getWorkingParameter('mobiles').size() > 1 ? 'delete-button' : ''}">
+                        <button jsf:id="continue" jsf:action="#{authenticator.authenticate}" class="primary-button delete-button mrgn-tp-md mrgn-rght-md mrgn-bttm-sm col-xs-12 col-sm-3 #{identity.getWorkingParameter('mobiles').size() > 1 ? 'delete-button' : ''}">
                           <f:param name="i" value="${param.i}" />
                           #{identity.getWorkingParameter('mobiles').size() == 1 ? 'Continuer' : 'Supprimer'}
                         </button>
-                    </div>
-                    <div class="col-xs-12 col-sm-3 text-center text-sm-left text-md-left" style="margin-top: 25px;">
-                      <a jsf:outcome="/fr/gerer.htm" style="font-size:20px; padding-left:0px;">Annuler</a>
-                    </div>
+                      <a jsf:outcome="/fr/gerer.htm" style="margin-top: 25px;" class="link-styling col-xs-12 col-sm-3 text-center text-sm-left text-md-left padding-left-0">Annuler</a>
                     </nav>
               </form>
           </div>

@@ -21,79 +21,16 @@
 
   <ui:define name="styles">
     <style>
-
-      label{
-        font-weight: 600;
-        font-size: 20px;
-      }
-
       li + li {
         margin-top: 20px;
-      }
-
-      .continue-button{
-        background-color: var(--gcds-button-primary-default-background);
-        color: var(--gcds-button-primary-default-text); 
-        min-height: 48px;
-        white-space: normal;
-        border-radius: 4.16px;
-        border-width:0px;
-      }
-
-      .continue-button:hover{
-        background-color: var(--gcds-color-blue-700);
-      }
-
-      .continue-button:focus{
-        background-color: var(--gcds-brand-focus);
-        box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
-      }
-
-      .continue-button:hover.continue-button:focus{
-        background-color: var(--gcds-brand-default-text);
-        box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
-      }
-
-      .continue-button:active{
-        background-color: var(--gcds-color-grayscale-1000);
-      }
-
-      .manage-button{
-        background-color: var(--gcds-color-grayscale-0);
-        color: var(--gcds-button-secondary-default-text); 
-        min-height: 48px;
-        white-space: normal;
-        border-radius: 4.16px;
-        border-width: 2px;
-        border-color: var(--gcds-color-blue-700);
-        text-align: center;
-        margin-bottom: 0px;
-        vertical-align: middle;
-        padding-left:8px;
-        padding-right: 8px;
-      }
-
-      .manage-button:hover{
-        background-color: var(--gcds-button-secondary-hover-background);
-      }
-
-      .manage-button:focus{
-        background-color: var(--gcds-brand-focus);
-        box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
-        color: var(--gcds-button-primary-default-text); 
-      }
-
-      .manage-button:active.manage-button:focus{
-        background-color: var(--gcds-brand-default-text);
-        box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
       }
     </style>
   </ui:define>
 
   <ui:define name="content">
-    <div class="container" style="max-width:630px; margin: 0 auto; padding-top:20px;">
+    <div class="container container-width mrgn-tp-md">
       <div class="row">
-        <div class="col-lg-12 mrgn-tp-md mrgn-bttm-md" style="padding-left:0px;">
+        <div class="col-lg-12 mrgn-tp-md mrgn-bttm-md padding-left-0">
           <a jsf:outcome="/en/manage" class="link-text"><img src="\oxauth\ext\resources\assets\arrow-left.svg" class="mrgn-rght-sm"/>Back</a>
         </div>
       </div>
@@ -115,20 +52,20 @@
         </ul>
       </div>  
       <div class="row">
-          <form jsf:id="edit" jsf:action="#{authenticator.authenticate}" class="form-horizontal" style="padding-left:0px; padding-right:0px;">
+          <form jsf:id="edit" jsf:action="#{authenticator.authenticate}" class="form-horizontal padding-left-0 padding-right-0">
             <nav class="mrgn-bttm-lg" role="navigation">
               <h2 class="wb-inv">Navigation</h2>
               <div class="row">
                 <div class="col-xs-12 col-sm-8">
-                    <button jsf:id="makedefault" jsf:action="#{authenticator.authenticate}" rendered="${param.i > 0}" class="continue-button col-xs-12 col-sm-5 mrgn-rght-md mrgn-tp-md body">
+                    <button jsf:id="makedefault" jsf:action="#{authenticator.authenticate}" rendered="${param.i > 0}" class="primary-button col-xs-12 col-sm-5 mrgn-rght-md mrgn-tp-md">
                       <f:param name="i" value="#{param.i}" />
                       Set as default
                     </button>
-                    <button jsf:id="replace" jsf:outcome="/en/changeoob" rendered="#{identity.getWorkingParameter('mobiles').size() == 1}" class="manage-button col-xs-12 col-sm-3 mrgn-tp-md body">
+                    <button jsf:id="replace" jsf:outcome="/en/changeoob" rendered="#{identity.getWorkingParameter('mobiles').size() == 1}" class="secondary-button col-xs-12 col-sm-3 mrgn-tp-md">
                       <f:param name="i" value="#{param.i}" />
                       Replace
                     </button>
-                    <button jsf:id="delete" jsf:outcome="/en/changeoob" rendered="#{identity.getWorkingParameter('mobiles').size() > 1}" class="manage-button col-xs-12 col-sm-3 mrgn-tp-md mrgn-rght-lg body">
+                    <button jsf:id="delete" jsf:outcome="/en/changeoob" rendered="#{identity.getWorkingParameter('mobiles').size() > 1}" class="secondary-button col-xs-12 col-sm-3 mrgn-tp-md mrgn-rght-lg">
                       <f:param name="i" value="#{param.i}" />
                       Delete
                     </button>

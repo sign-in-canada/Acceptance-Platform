@@ -4,6 +4,7 @@
     --font-family-header: "Lato", sans-serif;
     --font-family-body: "Noto Sans", sans-serif;
     --font-family-line-height: 150%;
+    --body-font-size: 20px;
 }
 
 .learn-more{
@@ -169,7 +170,23 @@ details[open]>section{
 
 /* changeoob.xhtml styling below (replace/delete phone number) */
 
+/* manage.xhtml */
 
+.manage-links{
+    text-align:right; 
+    padding-right:0px;
+}
+
+/* othermethod.xhtml styling */
+
+.other-method-form{
+    padding-left:15px;
+    font-weight: 600;
+}
+
+.width-99{
+    width:99%;
+}
 
 /* base styling below */
 
@@ -226,13 +243,34 @@ body{
     background-color: var(--gcds-alert-success-background);
 }
 
+.success-message-content{
+    padding-bottom:20px; 
+    padding-top: 20px; 
+    padding-right: 10px;
+    padding-left: 10px;
+    line-height: 130%;
+}
+
 .warning-message{
     background-color: var(--gcds-alert-warning-background);
     padding-right: 20px; 
 }
 
-.problem-summary{
-    border-style: 2px solid black;
+.warning-message-content{
+    padding-left:10px;
+    padding-right:20px;
+}
+
+.problem-summary{ 
+    border-style: solid; 
+    border-width: 6px; 
+    border-color: #C24438;
+    padding: 0px 20px 30px 20px;
+}
+
+.problem-summary-content{
+    padding-left: 10px;
+    color: #A62A1E;
 }
 
 .error-styling{
@@ -240,22 +278,167 @@ body{
     font-weight:400;
 }
 
-.alert-content{
-    padding-left: 10px;
-}
-
 .page-width{
     max-width: 630px;
 }
 
-#content-calculation{
-    min-height: calc(100vh - 40px);
+.link-styling{
+    font-size: 20px;
+    line-height: 1.3;
+    font-family: var(--font-family-body);
+    color: var(--gcds-button-primary-default-background);
 }
 
-.footer-calculation{
-    height: 20px;
+.visited-link-styling:visited{
+    color: #284162;
 }
 
-.header-calculation{
-    height: 20px;
+.visited-link-styling:visited.visited-link-styling:hover{
+    color:#303fc3;
 }
+
+.text-link-margin{
+    margin-top:40px;
+}
+
+.primary-button{
+    background-color: var(--gcds-button-primary-default-background);
+    color: var(--gcds-button-primary-default-text); 
+    min-height: 48px;
+    white-space: normal;
+    border-radius: 4.16px;
+    border-width:0px;
+    font-size: var(--body-font-size);
+}
+
+.primary-button:hover{
+    background-color: var(--gcds-color-blue-700);
+}
+
+.primary-button:focus{
+background-color: var(--gcds-brand-focus);
+box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
+}
+
+.primary-button:active{
+background-color: var(--gcds-color-grayscale-1000);
+}
+
+.primary-button:hover.primary-button:focus{
+background-color: var(--gcds-button-primary-default-background);
+box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
+}
+
+.secondary-button{
+    background-color: var(--gcds-color-grayscale-0);
+    color: var(--gcds-button-secondary-default-text); 
+    min-height: 48px;
+    white-space: normal;
+    border-radius: 4.16px;
+    border-width: 2px;
+    border-color: var(--gcds-color-blue-700);
+    text-align: center;
+    margin-bottom: 0px;
+    vertical-align: middle;
+    font-size: var(--body-font-size);
+}
+
+.secondary-button:hover{
+    background-color: var(--gcds-button-secondary-hover-background);
+}
+
+.secondary-button:focus{
+background-color: var(--gcds-brand-focus);
+box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
+}
+
+.secondary-button:active{
+background-color: var(--gcds-color-grayscale-1000);
+}
+
+.secondary-button:hover.primary-button:focus{
+background-color: var(--gcds-button-primary-default-background);
+box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
+}
+
+.delete-button{
+    background-color: #A62A1E;
+    color: var(--gcds-button-primary-default-text); 
+    min-height: 48px;
+    white-space: normal;
+    border-radius: 4.16px;
+    border-width:0px;
+    font-size: var(--body-font-size);
+}
+
+.delete-button:hover{
+    background-color: #822117;
+}
+
+.delete-button:focus{
+background-color: var(--gcds-brand-focus);
+box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
+}
+
+.delete-button:active{
+background-color: var(--gcds-color-grayscale-1000);
+}
+
+.delete-button:hover.primary-button:focus{
+background-color: var(--gcds-button-primary-default-background);
+box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
+}
+
+
+.min-width-none{
+    min-width: none;
+}
+
+.secondary-button:hover{
+    background-color: var(--gcds-button-secondary-hover-background);
+  }
+
+  .secondary-button:focus{
+    background-color: var(--gcds-brand-focus);
+    box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
+    color: var(--gcds-button-primary-default-text); 
+  }
+
+  .secondary-button:active.manage-button:focus{
+    background-color: var(--gcds-brand-default-text);
+    box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
+  }
+
+.padding-left-0{
+    padding-left:0px;
+}
+
+.padding-right-0{
+    padding-right:0px;
+}
+
+.padding-left-30{
+    padding-left:30px;
+}
+
+.list-style-none{
+    list-style:none;
+}
+
+h5.warning-message-content{
+    padding-top:20px;
+}
+
+.container-width{
+    max-width:630px;
+}
+
+.container-width-900{
+    max-width: 900px;
+}
+
+.label-font{
+    font-weight: 600;
+    font-size: 20px;
+}
+

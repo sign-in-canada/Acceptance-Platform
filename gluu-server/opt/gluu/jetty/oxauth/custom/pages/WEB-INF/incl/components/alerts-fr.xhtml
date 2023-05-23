@@ -9,7 +9,7 @@
             <section class="alert alert-success success-message col-xs-11 col-sm-12">
                 <ui:repeat value="#{facesContext.messageList}" var="message">
                     <ui:fragment rendered="#{message.severity == FacesMessage.SEVERITY_INFO}">
-                        <h5 style="padding-bottom:20px; padding-top: 20px; padding-right: 10px; line-height: 130%;" class="alert-content">
+                        <h5 class="success-message-content">
                             #{message.summary}
                         </h5>
                     </ui:fragment>
@@ -20,12 +20,12 @@
 
     <ui:fragment rendered="#{not empty facesContext.getMaximumSeverity() and facesContext.getMaximumSeverity() == FacesMessage.SEVERITY_ERROR}">
         <div class="row" style="margin-left:0px;">
-            <section class="col-xs-11 mrgn-bttm-md" style="border-style: solid; border-width: 6px; border-color: #C24438; padding: 0px 20px 30px 20px;">
+            <section class="col-xs-11 mrgn-bttm-md problem-summary">
                 <h2>Il y avait un problème</h2>
                 <p>Des erreurs ont été trouvées sur cette page :</p>
                 <ui:repeat value="#{facesContext.messageList}" var="message" varStatus="status">
                     <ui:fragment rendered="#{message.severity == FacesMessage.SEVERITY_ERROR and !message.summary.startsWith('Une erreur inattendue')}" >
-                        <div style="color: #A62A1E;" class="alert-content">
+                        <div class="problem-summary-content">
                             #{status.index + 1}. #{message.summary}
                         </div>
                     </ui:fragment>

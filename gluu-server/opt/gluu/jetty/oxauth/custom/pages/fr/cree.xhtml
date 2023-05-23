@@ -14,62 +14,25 @@
     <f:importConstants type="javax.faces.application.FacesMessage" />
   </f:metadata>
 
-  <ui:param name="title" value="Your Sign in Canada account has been created" />
+  <ui:param name="title" value="Votre méthode de connexion a été créée" />
   <ui:param name="english" value="created" />
   <ui:param name="locale" value="fr" />
 
   <ui:define name="name">
     <ui:include src="/WEB-INF/incl/content/default/name-#{language.localeCode}.xhtml" />
-  </ui:define>
-
-  <ui:define name="styles">
-    <style>
-      button{
-        background-color: var(--gcds-button-primary-default-background);
-        color: var(--gcds-button-primary-default-text); 
-        min-height: 52px;
-        min-width: 100%;
-        white-space: normal;
-        border-radius: 4.16px;
-        border-width:0px;
-      }
-
-      button:hover{
-        background-color: var(--gcds-color-blue-700);
-      }
-
-      button:focus{
-        background-color: var(--gcds-brand-focus);
-        box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
-      }
-
-      button:active{
-        background-color: var(--gcds-color-grayscale-1000);
-      }
-
-      button:hover.button:focus{
-        background-color: var(--gcds-button-primary-default-background);
-        box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
-      }
-
-      label{
-        font-weight: 600;
-        font-size: 20px;
-      }
-    </style>
-  </ui:define>
+</ui:define>
 
   <ui:define name="content">
     
-  <div class="container mrgn-tp-lg" style="max-width:630px;">
+  <div class="container container-width mrgn-tp-lg">
 
     <div class="row col-sm-6 col-md-12 col-lg-12">
       <ui:include src="/WEB-INF/incl/components/alerts-fr.xhtml" />
 
       <div class="row">
-        <h1 property="name" id="wb-cont" class="gc-thickline" style="margin-top:20px;">Votre méthode de connexion a été créée</h1>
+        <h1 property="name" id="wb-cont" class="gc-thickline mrgn-tp-md">Votre méthode de connexion a été créée</h1>
       </div>
-      <p class="row" style="margin-top:20px;"> 
+      <p class="row mrgn-tp-md"> 
       Vous pouvez passer à #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}.
       </p>
       <div class="row">
@@ -78,7 +41,7 @@
             <h2 class="wb-inv">La navigation</h2>
               <div class="col-xs-12 col-sm-3 mrgn-tp-md" style="padding: 0px;">
                 <button jsf:id="continue" type="submit"
-                  jsf:action="#{authenticator.authenticate}" class="body">Continuer</button>
+                  jsf:action="#{authenticator.authenticate}" class="primary-button">Continuer</button>
               </div>
           </nav>
         </form>

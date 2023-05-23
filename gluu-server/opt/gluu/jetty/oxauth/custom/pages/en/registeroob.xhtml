@@ -9,14 +9,14 @@
 
   <f:metadata>
     <c:set var="step" value="register_oob" scope="request" />
-    <c:set var="locale" value="en-CA" scope="request"/>
+    <c:set var="locale" value="fr-CA" scope="request"/>
     <f:viewAction action="#{authenticator.prepareAuthenticationForStep}" onPostback="true" />
     <f:importConstants type="javax.faces.application.FacesMessage" />
   </f:metadata>
 
   <c:if test="${identity.getWorkingParameter('firstContact')}">
     <ui:param name="title"
-      value="Enter your #{identity.getWorkingParameter('oobChannel') == 'email' ? 'email' : 'number'} - #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}" />
+      value="Enter your #{identity.getWorkingParameter('oobChannel') == 'email' ? 'email' : 'phone number'} - #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}" />
   </c:if>
   <c:if test="${!identity.getWorkingParameter('firstContact')}">
     <ui:param name="title"
@@ -30,57 +30,13 @@
     <ui:include src="/WEB-INF/incl/content/default/name-#{view.locale.language}.xhtml" />
   </ui:define>
 
-  <ui:define name="styles">
-    <style>
-      button{
-        background-color: var(--gcds-button-primary-default-background);
-        color: var(--gcds-button-primary-default-text); 
-        min-height: 52px;
-        min-width: 100%;
-        white-space: normal;
-        border-radius: 4.16px;
-        border-width:0px;
-      }
-
-      button:hover{
-        background-color: var(--gcds-color-blue-700);
-      }
-
-      button:focus{
-        background-color: var(--gcds-brand-focus);
-        box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
-      }
-
-      button:hover.button:focus{
-        background-color: var(--gcds-button-primary-default-background);
-        box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
-      }
-
-      button:active{
-        background-color: var(--gcds-color-grayscale-1000);
-      }
-
-      label{
-        font-weight: 600;
-        font-size: 20px;
-      }
-
-      a{
-        font-size: 20px;
-        line-height: 1.3;
-        font-family: var(--font-family-body);
-        color: var(--gcds-button-primary-default-background);
-      }
-    </style>
-  </ui:define>
-
   <ui:define name="content">
 
-    <div class="container mrgn-tp-lg" style="max-width:630px">
+    <div class="container mrgn-tp-lg container-width">
       
       <div class="row">
 
-        <div class="col-xs-12 col-sm-10" style="padding-left:0px; padding-right:0px;">
+        <div class="col-xs-12 col-sm-10">
 
           <div class="row mrgn-tp-lg">
             <ui:include src="/WEB-INF/incl/components/alerts-en.xhtml" />
@@ -108,7 +64,7 @@
                         <li>Notify you of any changes made to your account</li>
                       </ul>
                       <p>Your phone number will be stored securely. <br /> For more information, see
-                        the full <a href="">privacy notice statement.</a>
+                        the full <a href="" class="link">privacy notice statement.</a>
                       </p>
                     </section>
                   </details>
@@ -146,7 +102,7 @@
                     <div class="row">
                       <div class="form-group col-sm-8 mrgn-tp-md">
                         <label for="mobile"
-                          class="mrgn-bttm-md ${facesContext.getMessageList('register_oob:mobile').size() gt 0 ? 'text-danger' : ''}">
+                          class="label-font mrgn-bttm-md ${facesContext.getMessageList('register_oob:mobile').size() gt 0 ? 'text-danger' : ''}">
                           <span class="field-name">Phone number</span>
                           <h:message for="mobile"
                             errorClass="wb-server-error label label-danger error-styling" />
@@ -165,7 +121,7 @@
                     <div class="row">
                       <div class="form-group mrgn-tp-md col-lg-8">
                         <label for="email"
-                          class="mrgn-bttm-md ${facesContext.getMessageList('register_oob:email').size() gt 0 ? 'text-danger' : ''}">
+                          class="label-font mrgn-bttm-md ${facesContext.getMessageList('register_oob:email').size() gt 0 ? 'text-danger' : ''}">
                           <h:message for="email" styleClass="list-unstyled"
                             errorClass="label label-danger wb-server-error error-styling"
                             layout="list" />
@@ -176,25 +132,18 @@
                       </div>
                     </div>
                   </c:if>
-                <div class="row">
-                  <div class="col-xs-12 col-sm-3 mrgn-tp-md">
+                <div class="row col-xs-12 padding-right-0 padding-left-0 mrgn-lft-0">
                     <button jsf:id="register" jsf:action="#{authenticator.authenticate}"
-                      type="submit" class="body">Continue</button>
-                  </div>
-                  <ui:fragment rendered="#{not empty identity.getWorkingParameter('manageTask')}">
-                    <div class="row">
-                      <div class="col-xs-12 col-sm-3 text-center text-sm-left text-md-left"
-                        style="margin-top: 25px;">
-                        <a jsf:outcome="/en/manage" style="font-size:20px; padding-left:0px;">Cancel</a>
-                      </div>
-                    </div>
-                  </ui:fragment>
+                      type="submit" class="primary-button col-xs-12 col-sm-3 mrgn-tp-md mrgn-rght-lg">Continue</button>
+                    <ui:fragment rendered="#{not empty identity.getWorkingParameter('manageTask')}">
+                          <a jsf:outcome="/en/manage" style="margin-top: 25px;" class="link-styling padding-left-0 col-xs-12 col-sm-3 text-center text-sm-left text-md-left visited-link-styling">Cancel</a>
+                    </ui:fragment>
                 </div>
               </form>
-                <div class="row mrgn-tp-lg" style="margin-left:0px;">
+                <div class="row mrgn-tp-lg mrgn-lft-0">
                   <c:if
                     test="${!identity.getWorkingParameter('firstContact') and empty identity.getWorkingParameter('manageTask') }">
-                    <a jsf:outcome="/en/created">I don’t have access to a second
+                    <a jsf:outcome="/en/created" class="link-styling">I don’t have access to a second
                       #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'phone number' :
                       'email address'}</a>
                   </c:if>

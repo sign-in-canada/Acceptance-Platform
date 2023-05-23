@@ -21,68 +21,6 @@
     <ui:include src="/WEB-INF/incl/content/default/name-#{language.localeCode}.xhtml" />
   </ui:define>
 
-  <ui:define name="styles">
-    <style>
-      .continue-button{
-        background-color: var(--gcds-button-primary-default-background);
-        color: var(--gcds-button-primary-default-text); 
-        min-height: 48px;
-        white-space: normal;
-        border-radius: 4.16px;
-        border-width:0px;
-      }
-
-      .continue-button:hover{
-        background-color: var(--gcds-color-blue-700);
-      }
-
-      .continue-button:focus{
-        background-color: var(--gcds-brand-focus);
-        box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
-      }
-
-      .continue-button:hover.continue-button:focus{
-        background-color: var(--gcds-brand-default-text);
-        box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
-      }
-
-      .continue-button:active{
-        background-color: var(--gcds-color-grayscale-1000);
-      }
-
-      .manage-button{
-        background-color: var(--gcds-color-grayscale-0);
-        color: var(--gcds-button-secondary-default-text); 
-        min-height: 48px;
-        white-space: normal;
-        border-radius: 4.16px;
-        border-width: 2px;
-        border-color: var(--gcds-color-blue-700);
-        text-align: center;
-        margin-bottom: 0px;
-        vertical-align: middle;
-        padding-left:8px;
-        padding-right: 8px;
-      }
-
-      .manage-button:hover{
-        background-color: var(--gcds-button-secondary-hover-background);
-      }
-
-      .manage-button:focus{
-        background-color: var(--gcds-brand-focus);
-        box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
-        color: var(--gcds-button-primary-default-text); 
-      }
-
-      .manage-button:active.manage-button:focus{
-        background-color: var(--gcds-brand-default-text);
-        box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
-      }
-
-    </style>
-  </ui:define>
-
   <ui:define name="content">
     <div class="container" style="max-width:630px;">
       <ui:include src="/WEB-INF/incl/components/alerts-en.xhtml" />
@@ -105,9 +43,9 @@
             <h2 class="wb-inv">Navigation</h2>
             <div class="row">
               <div class="col-xs-12 col-sm-10">
-                  <button jsf:id="continue" class="continue-button body col-xs-12 col-sm-3 mrgn-rght-md mrgn-tp-md" type="submit"
+                  <button jsf:id="continue" class="primary-button col-xs-12 col-sm-3 mrgn-rght-md mrgn-tp-md" type="submit"
                   jsf:action="#{authenticator.authenticate}">Continue</button>
-                  <button jsf:id="managemfa" class="manage-button body col-xs-12 col-sm-4 mrgn-tp-md" type="submit"
+                  <button jsf:id="managemfa" class="col-xs-12 col-sm-5 secondary-button mrgn-tp-md" type="submit"
                   jsf:outcome="/en/manage">Sign in settings</button>
             </div>
             </div>
