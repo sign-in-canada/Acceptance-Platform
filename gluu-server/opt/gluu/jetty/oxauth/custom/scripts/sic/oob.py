@@ -363,7 +363,7 @@ class OutOfBand:
         existingContacts[0], existingContacts[index] = existingContacts[index], existingContacts[0]
         self.userService.updateUser(user)
         identity.setWorkingParameter("manageTask", "oobMakeDefault")
-        addMessage(None, FacesMessage.SEVERITY_INFO, "sic.phoneNewDefault", maskPhone(existingContacts[index]))
+        addMessage(None, FacesMessage.SEVERITY_INFO, "sic.phoneNewDefault", maskPhone(existingContacts[0]))
         return True
 
     def changeContact(self, requestParameters):
