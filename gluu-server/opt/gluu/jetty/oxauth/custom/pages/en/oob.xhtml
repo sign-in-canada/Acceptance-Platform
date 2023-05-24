@@ -51,12 +51,12 @@
         </div>
         <div class="row mrgn-tp-md">
           <div class="col-sm-9 mrgn-bttm-lg text-center text-sm-left text-md-left padding-left-0">
-            <a jsf:rendered="${not empty identity.getWorkingParameter('oobContact')}" jsf:outcome="/en/registeroob" class="link-text">Edit #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'phone number' : 'email address'}</a>
+            <a jsf:rendered="${not empty identity.getWorkingParameter('oobContact')}" jsf:outcome="/en/registeroob" class="link-text visited-link-styling">Edit #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'phone number' : 'email address'}</a>
             <ui:fragment rendered="${empty identity.getWorkingParameter('oobContact') and empty identity.getWorkingParameter('manageTask') and identity.getWorkingParameter('backupAvailable')}">
                 <a jsf:outcome="/en/othermethod" class="link-styling visited-link-styling">Try another method</a>
             </ui:fragment>
             <ui:fragment rendered="${empty identity.getWorkingParameter('oobContact') and not identity.getWorkingParameter('backupAvailable')}">
-                <a href="" class="link-styling visited-link-styling">I don't have this phone right now</a>
+                <a href="https://connect.canada.ca/en/help/index.html" class="link-styling visited-link-styling" target="_blank" rel="noopener noreferrer">I don't have this phone right now</a>
             </ui:fragment>
           </div>
         </div>
@@ -76,7 +76,7 @@
             </div>
               <div class="row">
                 <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
-                  <input id="code" jsf:id="code" type="text" autocomplete="one-time-code" inputmode="numeric" class="form-control mfa-input" />
+                  <input id="code" jsf:id="code" type="text" autocomplete="one-time-code" inputmode="numeric" data-rule-digits="true" data-rule-minlength="6" data-rule-maxlength="6" class="form-control mfa-input" />
                 </div>
             </div>  
             </div>

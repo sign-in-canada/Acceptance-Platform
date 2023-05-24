@@ -51,12 +51,12 @@
         </div>
         <div class="row mrgn-tp-md">
           <div class="col-sm-9 mrgn-bttm-lg text-center text-sm-left text-md-left" style="padding-left:0px;">
-            <a jsf:rendered="${not empty identity.getWorkingParameter('oobContact')}" jsf:outcome="/fr/registrerhb" class="link-text">Modifier #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'un numéro de téléphone' : 'email address'}</a>
+            <a jsf:rendered="${not empty identity.getWorkingParameter('oobContact')}" jsf:outcome="/fr/registrerhb" class="link-text visited-link-styling">Modifier #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'un numéro de téléphone' : 'email address'}</a>
             <ui:fragment rendered="${empty identity.getWorkingParameter('oobContact') and empty identity.getWorkingParameter('manageTask') and identity.getWorkingParameter('backupAvailable')}">
                 <a jsf:outcome="/en/othermethod" class="link-styling visited-link-styling">Essayer une autre méthode</a>
             </ui:fragment>
             <ui:fragment rendered="${empty identity.getWorkingParameter('oobContact') and not identity.getWorkingParameter('backupAvailable')}">
-                <a href="" class="link-styling visited-link-styling">Je n’ai pas ce téléphone en ce moment</a>
+                <a href="https://connect.canada.ca/en/help/index.html" class="link-styling visited-link-styling" target="_blank" rel="noopener noreferrer">Je n’ai pas ce téléphone en ce moment</a>
             </ui:fragment>
           </div>
         </div>
