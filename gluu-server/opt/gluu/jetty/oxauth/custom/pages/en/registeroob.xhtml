@@ -64,7 +64,7 @@
                         <li>Notify you of any changes made to your account</li>
                       </ul>
                       <p>Your phone number will be stored securely. <br /> For more information, see
-                        the full <a href="" class="link">privacy notice statement.</a>
+                        the full <a href="https://connect.canada.ca/en/privacy/index.html" class="link" target="_blank" rel="noopener noreferrer">privacy notice statement.</a>
                       </p>
                     </section>
                   </details>
@@ -107,7 +107,7 @@
                           <h:message for="mobile"
                             errorClass="wb-server-error label label-danger error-styling" />
                         </label>
-                        <input jsf:id="mobile" id="mobile" type="tel"
+                        <input jsf:id="mobile" id="mobile" required="required" type="tel"
                           class="form-control mfa-input" autocomplete="tel" />
                       </div>
                     </div>
@@ -140,10 +140,10 @@
                     </ui:fragment>
                 </div>
               </form>
-                <div class="row mrgn-tp-lg mrgn-lft-0">
+                <div class="row mrgn-lft-0">
                   <c:if
                     test="${!identity.getWorkingParameter('firstContact') and empty identity.getWorkingParameter('manageTask') }">
-                    <a jsf:outcome="/en/created" class="link-styling">I don’t have access to a second
+                    <a jsf:outcome="/en/created" class="link-styling visited-link-styling col-xs-12 padding-left-0 mrgn-tp-lg">I don’t have access to another
                       #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'phone number' :
                       'email address'}</a>
                   </c:if>

@@ -64,7 +64,7 @@
                         <li>Vous aviser des changements apportés à votre compte
                         </li>
                       </ul>
-                      <p>Votre numéro de téléphone sera stocké de façon sécuritaire.<br /> Pour en savoir plus, lisez la <a href="" class="link-styling visited-link-styling">déclaration complète de l’avis de confidentialité</a>.
+                      <p>Votre numéro de téléphone sera stocké de façon sécuritaire.<br /> Pour en savoir plus, lisez la <a href="https://connect.canada.ca/en/privacy/index.html" class="link-styling visited-link-styling" target="_blank" rel="noopener noreferrer">déclaration complète de l’avis de confidentialité</a>.
                       </p>
                     </section>
                   </details>
@@ -103,7 +103,7 @@
                           <h:message for="mobile"
                             errorClass="wb-server-error label label-danger error-styling" />
                         </label>
-                        <input jsf:id="mobile" id="mobile" type="tel"
+                        <input jsf:id="mobile" id="mobile" required="required" type="tel"
                           class="form-control mfa-input" autocomplete="tel" />
                       </div>
                     </div>
@@ -136,10 +136,10 @@
                   </ui:fragment>
                 </div>
               </form>
-                <div class="row mrgn-tp-lg mrgn-lft-0">
+                <div class="row mrgn-lft-0">
                   <c:if
                     test="${!identity.getWorkingParameter('firstContact') and empty identity.getWorkingParameter('manageTask') }">
-                    <a class="link-styling visited-link-styling" jsf:outcome="/fr/cree">Je n’ai pas d'autre
+                    <a class="link-styling visited-link-styling col-xs-12 padding-left-0 mrgn-tp-lg" jsf:outcome="/fr/cree">Je n’ai pas d'autre
                       #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'numéro de téléphone' :
                       'email address'}</a>
                   </c:if>
