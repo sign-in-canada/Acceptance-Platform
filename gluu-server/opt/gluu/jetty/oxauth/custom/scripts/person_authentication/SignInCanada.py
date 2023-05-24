@@ -411,7 +411,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 externalContext.getFlash().put("backupNeeded", True)
 
         elif step in {STEP_OTHERMETHOD, STEP_MANAGE, STEP_EDIT, STEP_OOB_CHANGE}:
-            if authenticationService.getAuthenticatedUser() is None:
+            if step != STEP_OTHERMETHOD and authenticationService.getAuthenticatedUser() is None:
                 return False
 
             if step == STEP_MANAGE:
