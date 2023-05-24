@@ -148,10 +148,13 @@ class OutOfBand:
             return False
 
         enteredCode = ServerUtil.getFirstValue(requestParameters, "oob:code")
-        if len(enteredCode) < 6:
+        if StringHelper.isEmpty(enteredCode):
+            addMessage("oob:code", FacesMessage.SEVERITY_ERROR, "sic.enterCode")
+            return False
+        elif len(enteredCode) < 6:
             addMessage("oob:code", FacesMessage.SEVERITY_ERROR, "sic.codeSmall")
             return False
-        if len(enteredCode) > 6:
+        elif len(enteredCode) > 6:
             addMessage("oob:code", FacesMessage.SEVERITY_ERROR, "sic.codeBig")
             return False
 
