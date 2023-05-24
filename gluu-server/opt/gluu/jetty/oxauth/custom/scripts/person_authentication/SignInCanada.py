@@ -281,12 +281,25 @@ class PersonAuthentication(PersonAuthenticationType):
                     step = STEP_CHOOSER
 
         if step == STEP_ABORT:
-            if StringHelper.isNotEmpty(clientUri):
+            logoutUri = None
+            if authenticationService.getAuthenticatedUser() is not None or sessionAttributes.get("SAMLProvider") is not None:
+                # Initiate logout
+                client = self.rputils.getClient(session)
+                for plru in client.getPostLogoutRedirectUris():
+                    if not plru.startswith(appConfiguration.getIssuer()): # Skip passport
+                        logoutUri = plru
+                        break
+            if logoutUri is not None:
+                if not session.isPermissionGrantedForClient(client.getClientId()):
+                    # The client must be authorized for logout to work
+                    session.addPermission(client.getClientId(), True)
+                facesService.redirectToExternalURL("/oxauth/restv1/end_session?post_logout_redirect_uri=%s" % URLEncoder.encode(logoutUri))
+            elif StringHelper.isNotEmpty(clientUri):
                 facesService.redirectToExternalURL(clientUri)
-                return True
             else:
                 print("%s: prepareForStep. clientUri is missing for client %s" % (self.name, self.rputils.getClient(session).getClientName()))
                 return False
+            return True
 
         # Prepare for page customization.
         for param in ["layout", "chooser", "content"]:
@@ -403,12 +416,6 @@ class PersonAuthentication(PersonAuthenticationType):
 
             if step == STEP_MANAGE:
                 identity.setWorkingParameter("manageTask", "oobAdd")
-                client = self.rputils.getClient(session)
-                session.addPermission(client.getClientId(), True)
-                for plri in client.getPostLogoutRedirectUris():
-                    if not plri.startswith(appConfiguration.getIssuer()):
-                        identity.setWorkingParameter("post_logout_redirect_uri", URLEncoder.encode(plri, "UTF8"))
-                        break
 
             user = userService.getUser(userId, "mobile", "secretAnswer")
             mobiles = user.getAttributeValues("mobile")
@@ -554,6 +561,9 @@ class PersonAuthentication(PersonAuthenticationType):
                                          identity.getWorkingParameter("oobChannel"),
                                          user.getAttributeValues("mobile")[index])
 
+        elif requestParameters.containsKey("manage:continue") or requestParameters.containsKey("manage:signout"):
+            pass
+
         elif requestParameters.containsKey("edit"):
             if requestParameters.containsKey("edit:makedefault"):
                 return self.oob.makeDefault(requestParameters)
@@ -563,7 +573,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 return self.oob.changeContact(requestParameters)
 
         elif requestParameters.containsKey("result:continue"):
-            print ("%s: Navigate to: %s." % (self.name, self.getFormButton(requestParameters)))
+            pass
 
         else: # Invalid response
             print ("%s: Invalid form submission: %s." % (self.name, requestParameters.keySet().toString()))
@@ -917,6 +927,10 @@ class PersonAuthentication(PersonAuthenticationType):
                return self.gotoStep(STEP_CODE)
             else:
                 return self.gotoStep(STEP_OOB)
+
+        if step == STEP_MANAGE:
+            if requestParameters.containsKey("manage:signout"):
+                return self.gotoStep(STEP_ABORT)
 
         if step == STEP_EDIT:
             if requestParameters.containsKey("edit:makedefault"):
