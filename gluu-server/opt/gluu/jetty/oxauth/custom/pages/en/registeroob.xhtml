@@ -14,14 +14,15 @@
     <f:importConstants type="javax.faces.application.FacesMessage" />
   </f:metadata>
 
-  <c:if test="${identity.getWorkingParameter('firstContact')}">
     <ui:param name="title"
-      value="Enter your #{identity.getWorkingParameter('oobChannel') == 'email' ? 'email' : 'phone number'} - #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}" />
-  </c:if>
-  <c:if test="${!identity.getWorkingParameter('firstContact')}">
-    <ui:param name="title"
-      value="Add an additional #{identity.getWorkingParameter('oobChannel') == 'email' ? 'email' : 'number'} - #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}" />
-  </c:if>
+      value="#{identity.getWorkingParameter('firstContact') ?
+                 'Enter your' :
+                 identity.getWorkingParameter('manageTask') == 'oobReplace' ?
+                    'Enter a new' :
+                    identity.getWorkingParameter('manageTask') == 'oobAdd' ?
+                      'Add a' :
+                      'Add a backup'}
+              #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'phone number' : 'email address'}" />
 
   <ui:param name="french" value="registrerhb" />
   <ui:param name="locale" value="en" />
@@ -43,15 +44,16 @@
           </div>
 
           <div class="row">
-            <c:if test="${identity.getWorkingParameter('firstContact')}">
-              <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Enter your
-                #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'phone number' : 'email'}</h1>
-            </c:if>
-            <c:if test="${!identity.getWorkingParameter('firstContact')}">
-              <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline mrgn-tp-md">
-                #{(identity.getWorkingParameter('manageTask') == 'oobReplace' ? 'Enter a new' : (identity.getWorkingParameter('manageTask') == 'oobAdd' ?  'Add a' : 'Add a backup'))}
-                #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'phone number' : 'email address'}</h1>
-            </c:if>
+              <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">
+                #{identity.getWorkingParameter('firstContact') ?
+                 'Enter your' :
+                 identity.getWorkingParameter('manageTask') == 'oobReplace' ?
+                    'Enter a new' :
+                    identity.getWorkingParameter('manageTask') == 'oobAdd' ?
+                      'Add a' :
+                      'Add a backup'}
+                #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'phone number' : 'email address'}
+               </h1>
             <p>
               <c:if test="${identity.getWorkingParameter('oobChannel') == 'sms'}">
                 <ui:fragment rendered="${identity.getWorkingParameter('firstContact')}">
