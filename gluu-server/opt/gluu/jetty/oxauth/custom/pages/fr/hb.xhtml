@@ -15,9 +15,9 @@
   </f:metadata>
 
   <ui:param name="title"
-            value="#{empty identity.getWorkingParameter('oobContact') ?
-                    'Vérification en deux étapes - '.concat(language.getMessage(identity.getWorkingParameter('content').concat('.name'))) :
-                    'Vérifiez votre '.concat(identity.getWorkingParameter('oobChannel') == 'sms' ? 'numéro de téléphone' : 'adresse de courriel')}" />
+  value="#{empty identity.getWorkingParameter('oobContact') ?
+          'Vérification en deux étapes - '.concat(language.getMessage(identity.getWorkingParameter('content').concat('.name'))) :
+          'Vérifiez votre '.concat(identity.getWorkingParameter('oobChannel') == 'sms' ? 'numéro de téléphone' : 'adresse de courriel')}" />
   <ui:param name="english" value="oob" />
   <ui:param name="locale" value="fr" />
 

@@ -14,14 +14,14 @@
     <f:importConstants type="javax.faces.application.FacesMessage" />
   </f:metadata>
 
-    <ui:param name="title"
-      value="#{identity.getWorkingParameter('firstContact') ?
-                 'Entrez votre' :
-                 identity.getWorkingParameter('manageTask') == 'oobReplace' ?
-                    'Entrez un nouveau' :
-                    'Ajouter un'}
-              #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'numéro de téléphone' : 'adresse de courriel'}
-              #{identity.getWorkingParameter('manageTask') != 'oobAdd' ? 'de secours' : ''}" />
+  <ui:param name="title"
+  value="#{identity.getWorkingParameter('firstContact') ?
+             'Entrez votre' :
+             identity.getWorkingParameter('manageTask') == 'oobReplace' ?
+                'Entrez un nouveau' :
+                'Ajouter un'}
+          #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'numéro de téléphone' : 'adresse de courriel'}
+          #{identity.getWorkingParameter('manageTask') != 'oobAdd' ? 'de secours' : ''}" />
 
   <ui:param name="english" value="registeroob" />
   <ui:param name="locale" value="fr" />
@@ -121,7 +121,7 @@
                           <h:message for="email" styleClass="list-unstyled"
                             errorClass="label label-danger wb-server-error error-styling"
                             layout="list" />
-                          <span class="field-name">Adresse de courriel</span>
+                            <span class="field-name">Adresse de courriel</span>
                         </label>
                         <input jsf:id="email" id="email" type="email" autocomplete="email"
                           class="form-control mfa-input" />

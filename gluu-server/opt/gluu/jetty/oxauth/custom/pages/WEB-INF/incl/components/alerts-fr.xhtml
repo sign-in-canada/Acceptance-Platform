@@ -22,7 +22,7 @@
         <div class="row" style="margin-left:0px;">
             <section class="col-xs-11 mrgn-bttm-md problem-summary">
                 <h2>Il y avait un problème</h2>
-                <p>Des erreurs ont été trouvées sur cette page :</p>
+                <p>Des erreurs ont été trouvées sur cette <br/> page :</p>
                 <ui:repeat value="#{facesContext.messageList}" var="message" varStatus="status">
                     <ui:fragment rendered="#{message.severity == FacesMessage.SEVERITY_ERROR and !message.summary.startsWith('Une erreur inattendue')}" >
                         <div class="problem-summary-content">

@@ -46,11 +46,11 @@
         <ui:include src="/WEB-INF/incl/components/alerts-fr.xhtml" />
       </div>
       <div class="row">
-        <h1 property="name" id="wb-cont" class="gc-thickline">Sign in settings</h1>
+        <h1 property="name" id="wb-cont" class="gc-thickline">Paramètres de connexion</h1>
       </div>
       <div class="row breakline">
         <p class="col-lg-12 mrgn-tp-md padding-left-0">
-          Keep your sign in information up to date so you always have access.
+          Maintenez vos renseignements de connexion à jour pour conserver votre accès.
         </p>
         <c:if test="${flash.containsKey('backupNeeded')}">
         <div class="row" style="margin-left:-10px;">
@@ -111,15 +111,15 @@
       </div> 
 
       <ui:fragment rendered="#{identity.sessionId.sessionAttributes.get('SAMLProvider') == 'gckey'}">
-        <h2 class="row">Manage my password and recovery questions</h2>
+        <h2 class="row">Gérer mon mot de passe et mes questions de récupération</h2>
         <div class="row breakline mrgn-tp-md">
-          <p>If you want to:
+          <p>Si vous voulez :
             <ul class="col-lg-12 padding-left-30">
-              <li>Recover your username or password</li>
-              <li>Change your password, recovery questions and answers, and email address</li>
-              <li>Set up a username, password or recovery questions but are having problems</li>
+              <li>Récupérer votre nom d’utilisateur ou votre mot de passe</li>
+              <li>Changer votre mot de passe, vos questions et réponses de récupération et votre adresse courriel</li>
+              <li>Configurer un nom d’utilisateur, un mot de passe ou des questions de récupération, mais que vous avez des difficultés</li>
             </ul>
-            Visit this page to learn more <a href="https://www.canada.ca/fr/gouvernement/ouvrir-session-dossier-compte-en-ligne/clegc.html" target="_blank" rel="noopener noreferrer">GCKey help</a>
+            Consultez cette page pour en apprendre davantage <a href="https://www.canada.ca/fr/gouvernement/ouvrir-session-dossier-compte-en-ligne/clegc.html" target="_blank" rel="noopener noreferrer">Aide ayant trait à CléGC</a>
           </p>
         </div>
       </ui:fragment>
