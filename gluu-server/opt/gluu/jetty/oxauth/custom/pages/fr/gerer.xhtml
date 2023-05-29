@@ -55,7 +55,7 @@
         <c:if test="${flash.containsKey('backupNeeded')}">
         <div class="row" style="margin-left:-10px;">
             <section class="alert alert-warning warning-message col-xs-12 col-sm-12 mrgn-tp-lg">
-              <h5 class="warning-message-content" style="padding-top:20px;">Nous recommandons d’ajouter un numéro de téléphone de secours</h5>
+              <p class="warning-message-content h5" style="padding-top:20px;">Nous recommandons d’ajouter un numéro de téléphone de secours</p>
               <p class="warning-message-content">Si vous n’avez plus accès à votre téléphone, vous <strong>ne pourrez plus utiliser</strong> votre méthode de connexion à ce service.</p>
             </section>
         </div>
@@ -69,7 +69,7 @@
         <ul class="col-lg-12 breakline list-style-none padding-left-0 mrgn-tp-md">
         <ui:repeat value="#{identity.getWorkingParameter('mobiles')}" var="mobile">
           <li class="row">
-              <p class="col-xs-9 col-lg-10 body">
+              <p class="col-xs-9 col-lg-10 body" id="edit-phone-number-fr">
                 <strong><span class="registered-mfa body">#{mobile.display}</span></strong>
                 <ui:fragment rendered="#{mobile.index == 0}">
                   <br class="visible-xs hidden-sm" />
@@ -78,7 +78,8 @@
               <br/>
               Code à 6 chiffres par messagerie
               </p>
-                <a jsf:outcome="/fr/modifier" jsf:id="mobile" p:id="mobile:#{mobile.index}" class="col-xs-3 col-lg-2 link-styling manage-links visited-link-styling" aria-label="Edit phone number" title="Edit phone number">
+                <a jsf:outcome="/fr/modifier" jsf:id="mobile" p:id="mobile:#{mobile.index}" class="col-xs-3 col-lg-2 link-styling manage-links visited-link-styling" id="edit-fr" aria-labelledby="edit-fr edit-phone-number-fr" title="
+                Modifier le numéro de téléphone">
                   <f:param name="i" value="#{mobile.index}" />
                   Modifier
                 </a>
@@ -92,12 +93,12 @@
       <div class="row">
         <ul class="col-lg-12 breakline list-style-none padding-left-0 mrgn-tp-md">
           <li class="row">
-            <p class="col-xs-9 col-lg-10">
+            <p class="col-xs-9 col-lg-10" id="add-phone-number-fr">
               <strong>Numéro de téléphone cellulaire</strong>
             <br/>
             Code à 6 chiffres par messagerie
             </p>
-            <a jsf:outcome="/fr/registrerhb" class="col-xs-3 col-lg-2 link-styling manage-links visited-link-styling" aria-label="Add phone number" title="Add phone number">Ajouter</a>
+            <a jsf:outcome="/fr/registrerhb" class="col-xs-3 col-lg-2 link-styling manage-links visited-link-styling" aria-label="Ajouter un numéro de téléphone cellulaire" title="Ajouter un numéro de téléphone">Ajouter</a>
         </li>
           <!-- <li class="row">
             <p class="col-xs-9 col-lg-10">

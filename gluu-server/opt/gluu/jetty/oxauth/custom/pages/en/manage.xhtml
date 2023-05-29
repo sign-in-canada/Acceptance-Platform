@@ -53,7 +53,7 @@
         <c:if test="${flash.containsKey('backupNeeded')}">
         <div class="row" style="margin-left:-10px;">
             <section class="alert alert-warning warning-message col-xs-12 col-sm-12 mrgn-tp-lg">
-              <h5 class="warning-message-content" style="padding-top:20px;">We recommend adding a backup phone number</h5>
+              <p class="warning-message-content h5" style="padding-top:20px;">We recommend adding a backup phone number</p>
               <p class="warning-message-content">If you lose access to your phone number you will be <strong>permanently locked out</strong> of your sign in method for this service.</p>
             </section>
         </div>
@@ -67,7 +67,7 @@
         <ul class="col-lg-12 breakline list-style-none padding-left-0 mrgn-tp-md">
         <ui:repeat value="#{identity.getWorkingParameter('mobiles')}" var="mobile">
           <li class="row">
-              <p class="col-xs-10 col-lg-10 body">
+              <p class="col-xs-10 col-lg-10 body" id="phone-number-edit">
                 <strong><span class="registered-mfa body">#{mobile.display}</span></strong>
                 <ui:fragment rendered="#{mobile.index == 0}">
                   <span class="default-label caption">Default</span>
@@ -75,7 +75,7 @@
               <br/>
               6-digit SMS code
               </p>
-                <a jsf:outcome="/en/edit" jsf:id="mobile" p:id="mobile:#{mobile.index}" class="col-xs-2 col-lg-2 link-styling manage-links visited-link-styling" aria-label="Edit phone number" title="Edit phone number">
+                <a jsf:outcome="/en/edit" jsf:id="mobile" p:id="mobile:#{mobile.index}" class="col-xs-2 col-lg-2 link-styling manage-links visited-link-styling" id="edit" aria-labelledby="edit phone-number-edit" title="Edit phone number">
                   <f:param name="i" value="#{mobile.index}" />
                   Edit
                 </a>
@@ -89,12 +89,12 @@
       <div class="row">
         <ul class="col-lg-12 breakline list-style-none padding-left-0 mrgn-tp-md">
           <li class="row">
-            <p class="col-xs-9 col-lg-10">
+            <p class="col-xs-9 col-lg-10" id="phone-number-add">
               <strong>Mobile phone number</strong>
             <br/>
             6-digit SMS code
             </p>
-            <a jsf:outcome="/en/registeroob" class="col-xs-3 col-lg-2 link-styling manage-links visited-link-styling" aria-label="Add phone number" title="Add phone number">Add</a>
+            <a jsf:outcome="/en/registeroob" class="col-xs-3 col-lg-2 link-styling manage-links visited-link-styling" aria-label="Add a mobile phone number" title="Add a mobile phone number">Add</a>
         </li>
           <!-- <li class="row">
             <p class="col-xs-9 col-lg-10">

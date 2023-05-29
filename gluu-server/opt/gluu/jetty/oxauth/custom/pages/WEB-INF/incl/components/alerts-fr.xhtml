@@ -9,9 +9,9 @@
             <section class="alert alert-success success-message col-xs-11 col-sm-12">
                 <ui:repeat value="#{facesContext.messageList}" var="message">
                     <ui:fragment rendered="#{message.severity == FacesMessage.SEVERITY_INFO}">
-                        <h5 class="success-message-content">
+                        <p class="success-message-content h5">
                             #{message.summary}
-                        </h5>
+                        </p>
                     </ui:fragment>
                 </ui:repeat>
             </section>
