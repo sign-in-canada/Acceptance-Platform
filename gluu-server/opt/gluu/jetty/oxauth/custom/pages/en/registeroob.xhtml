@@ -145,7 +145,7 @@
                 <div class="row mrgn-lft-0">
                   <c:if
                     test="${!identity.getWorkingParameter('firstContact') and empty identity.getWorkingParameter('manageTask') }">
-                    <a jsf:outcome="/en/created" class="link-styling visited-link-styling col-xs-12 padding-left-0 mrgn-tp-lg">I don’t have access to another
+                    <a jsf:outcome="/en/created" class="link-styling visited-link-styling col-xs-12 padding-left-0 mrgn-tp-lg">I don’t have another
                       #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'phone number' :
                       'email address'}</a>
                   </c:if>
