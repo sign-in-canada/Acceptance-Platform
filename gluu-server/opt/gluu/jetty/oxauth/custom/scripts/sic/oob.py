@@ -184,7 +184,7 @@ class OutOfBand:
                 if not existing or contact not in existing:
                     if identity.getWorkingParameter("manageTask") == "oobReplace":
                         user.setAttribute(attribute, contact, True)
-                        addMessage(None, FacesMessage.SEVERITY_INFO, "sic.phoneReplaced", contact)
+                        addMessage(None, FacesMessage.SEVERITY_INFO, "sic.phoneReplaced", maskPhone(contact))
                     else:
                         self.userService.addUserAttribute(user, attribute, contact, True)
                         if not existing or len(existing) == 0:
@@ -411,7 +411,7 @@ class OutOfBand:
             user.setAttribute("mobile", newContacts, True)
             self.userService.updateUser(user)
             identity.setWorkingParameter("manageTask", "oobDelete")
-            addMessage(None, FacesMessage.SEVERITY_INFO, "sic.phoneDeleted", existingContacts[index])
+            addMessage(None, FacesMessage.SEVERITY_INFO, "sic.phoneDeleted", maskPhone(existingContacts[index]))
             return True
         else: # Replace
             identity.setWorkingParameter("oobContact", self.phoneUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.NATIONAL))
