@@ -187,7 +187,7 @@ class OutOfBand:
                         addMessage(None, FacesMessage.SEVERITY_INFO, "sic.phoneReplaced", maskPhone(contact))
                     else:
                         self.userService.addUserAttribute(user, attribute, contact, True)
-                        if not existing or len(existing) == 0:
+                        if not existing or len(existing) == 0 or identity.getWorkingParameter("manageTask") == "oobAdd":
                             addMessage(None, FacesMessage.SEVERITY_INFO, "sic.phoneVerified")
                         else:
                             addMessage(None, FacesMessage.SEVERITY_INFO, "sic.backupPhoneVerified")
