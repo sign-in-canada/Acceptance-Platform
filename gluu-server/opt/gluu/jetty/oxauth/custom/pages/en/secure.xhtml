@@ -13,6 +13,7 @@
     <c:set var="locale" value="en-CA" scope="request"/>
     <f:viewAction action="#{authenticator.prepareAuthenticationForStep}" />
     <f:importConstants type="javax.faces.application.FacesMessage" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
   </f:metadata>
 
   <ui:param name="title" value="Two step verification - #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}" />
@@ -47,11 +48,10 @@
 
         <form jsf:id="secure" jsf:action="#{authenticator.authenticate}" class="form">
           <fieldset class="mfa-fieldset">
-            <div class="row">
-            <legend class="mfa-legend-header">Choose a second factor:</legend>
-          </div>
-            <div class="row wb-eqht">
-              
+            <legend class="mfa-legend-header row" style="white-space:normal;">Choose a second factor:</legend>
+            <br/>
+            <br/>
+            <div class="row wb-eqht overlap-fix">
               <c:if test="${facesContext.getMessageList('secure:select').size() gt 0}">
                 <div class="col-md-12">
                   <section class="hght-inhrt mrgn-lft-sm mrgn-tp-md">

@@ -54,11 +54,10 @@
 
         <form jsf:id="secure" jsf:action="#{authenticator.authenticate}" class="form">
           <fieldset class="mfa-fieldset">
-            <div class="row">
-            <legend class="mfa-legend-header">Choisissez une option :</legend>
-          </div>
-            <div class="row wb-eqht">
-              
+            <legend class="mfa-legend-header row" style="white-space:normal;">Choisissez une option :</legend>
+            <br/>
+            <br/>
+            <div class="row wb-eqht overlap-fix">
               <c:if test="${facesContext.getMessageList('secure:select').size() gt 0}">
                 <div class="col-md-12">
                   <section class="hght-inhrt mrgn-lft-sm mrgn-tp-md">
