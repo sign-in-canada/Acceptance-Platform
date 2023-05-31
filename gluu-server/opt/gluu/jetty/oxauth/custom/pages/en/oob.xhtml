@@ -32,7 +32,7 @@
       <div class="row">
         
       <div class="col-xs-12 col-sm-10">
-          <ui:include src="/WEB-INF/incl/components/alerts-en.xhtml" class="row mrgn-tp-lg" />
+        <ui:include src="/WEB-INF/incl/components/alerts-en.xhtml" class="row mrgn-tp-lg" />
         <div class="row">
         <ui:fragment rendered="${empty identity.getWorkingParameter('oobContact')}">
           <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Two step verification</h1>
@@ -73,8 +73,8 @@
                 <span class="field-name">code</span> we
                  #{identity.getWorkingParameter('oobChannel') == 'email' ? 'emailed' : 'texted'} you -->
                   6-digit code
+                  <h:message for="code" errorClass="label label-danger wb-server-error error-styling"/>
                 </label>
-              <h:message for="code" errorClass="label label-danger wb-server-error error-styling"/>
               </div>
             </div>
               <div class="row">
