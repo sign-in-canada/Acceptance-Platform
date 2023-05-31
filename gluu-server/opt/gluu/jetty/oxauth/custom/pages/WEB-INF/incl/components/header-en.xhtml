@@ -2,12 +2,13 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                xmlns:jsf="http://xmlns.jcp.org/jsf">
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
     <div class="global-header">
         <nav>
             <ul id="wb-tphp">
                 <li class="wb-slc">
-                    <a class="wb-sl" href="#wb-cont">Skip to main content</a>
+                    <a class="wb-sl" href="#main">Skip to main content</a>
                 </li>
                 <li class="wb-slc">
                     <a class="wb-sl" href="#wb-info">Skip to &#34;About government&#34;</a>
@@ -21,10 +22,7 @@
                 <h2 class="wb-inv">Language selection</h2>
                 <ul class="list-inline margin-bottom-none">
                     <li>
-                        <form jsf:id="lang">
-                            <input type="hidden" name="lang:step" value="#{step}"/>
-                            <a lang="fr" hreflang="fr" jsf:id="fr-CA" jsf:action="#{authenticator.authenticate}">Français</a>
-                        </form>
+                        <a lang="fr" hreflang="fr" jsf:outcome="/fr/${french}" class="caption"><f:param disable="#{empty param.i}" name="i" value="#{param.i}" />Français</a>
                     </li>
                 </ul>
             </section>
