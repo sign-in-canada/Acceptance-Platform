@@ -71,7 +71,7 @@
                 </ui:fragment-->
                   <nav class="mrgn-bttm-lg" role="navigation">
                     <h2 class="wb-inv">La navigation</h2>
-                        <button jsf:id="continue" jsf:action="#{authenticator.authenticate}" class="primary-button delete-button mrgn-tp-md mrgn-rght-md mrgn-bttm-sm col-xs-12 col-sm-3 #{identity.getWorkingParameter('mobiles').size() > 1 ? 'delete-button' : ''}">
+                    <button jsf:id="continue" jsf:action="#{authenticator.authenticate}" class="mrgn-tp-md mrgn-rght-lg mrgn-bttm-sm col-xs-12 col-sm-3 #{identity.getWorkingParameter('mobiles').size() == 1 ? 'primary-button' : 'delete-button'}">
                           <f:param name="i" value="${param.i}" />
                           #{identity.getWorkingParameter('mobiles').size() == 1 ? 'Continuer' : 'Supprimer'}
                         </button>
