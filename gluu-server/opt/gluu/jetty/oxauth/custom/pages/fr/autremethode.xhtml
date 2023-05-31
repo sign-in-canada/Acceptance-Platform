@@ -39,14 +39,14 @@
           <div class="row">
             <form jsf:id="othermethod" jsf:action="#{authenticator.authenticate}" class="form">
               <fieldset class="mfa-fieldset">
-                <div class="row">
-                  <legend class="other-method-form body">Choisissez la façon dont vous
+                  <legend class="other-method-form body row">Choisissez la façon dont vous
                     voulez ouvrir une session :</legend>
-                </div>
-                <div class="row wb-eqht">
+                    <br/>
+                    <br/>
+                <div class="row mrgn-tp-md wb-eqht">
                   <ui:repeat value="#{identity.getWorkingParameter('mobiles')}" var="mobile">
                     <div class="col-md-12">
-                      <section class="hght-inhrt mrgn-tp-md">
+                      <section class="hght-inhrt mrgn-tp-sm">
                         <div class="gc-chckbxrdio radio mrgn-lft-md">
                           <input type="radio" p:name="othermethod:method" jsf:id="mobiledefault"
                             value="mobile:#{mobile.index}" p:id="mobile:#{mobile.index}"
