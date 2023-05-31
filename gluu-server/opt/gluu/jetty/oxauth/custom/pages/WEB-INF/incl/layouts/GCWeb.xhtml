@@ -15,17 +15,15 @@
 
     </head>
 
-    <body class="page-type-nav" vocab="http://schema.org/" typeof="WebPage">
+    <body class="page-type-nav" vocab="http://schema.org/" typeof="WebPage" style="height:100%; margin:0; min-height: 100vh; display: flex; flex-direction: column;">
 
       <ui:include src="/WEB-INF/incl/components/header-#{view.locale.language}.xhtml" />
 
-      <main property="mainContentOfPage" class="container" typeof="WebPageElement">
+      <main property="mainContentOfPage" class="container" typeof="WebPageElement" id="main">
 
         <ui:insert name="content" />
 
         <div class="pagedetails">
-
-          <ui:include src="/WEB-INF/incl/components/problem-#{view.locale.language}.xhtml" />
 
           <dl id="wb-dtmd">
             <dt>#{view.locale.language eq "en" ? "Date modified:&#32;" : "Date de modification&#160;:&#32;"}</dt>
@@ -45,6 +43,8 @@
     <script src="/oxauth/ext/resources/wet-boew/js/wet-boew.min.js"></script>
     <script src="/oxauth/ext/resources/GCWeb/js/theme.min.js" type="text/x-javascript" integrity="sha256-IHzMFPGBTJCKpC+mG8g/OR5zDei9TNqrlO/yD/+Kw9k= sha512-jwinup4nXZ6lzcPwURPOWtLstLa6o36/ZSIrNaO0/qpEQUDQe2UMGYq3L6a7POSa+B8WSGaH+bPgyvZ2w92Lqg=="></script>
     <script src="/oxauth/ext/resources/js/utils.js" type="text/x-javascript"></script>
+    <script src="https://kit.fontawesome.com/eacc308001.js" crossorigin="anonymous"></script>
+
     <ui:insert name="scripts" />
   </f:view>
 </html>

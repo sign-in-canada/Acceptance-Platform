@@ -1,0 +1,87 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html>
+<ui:composition xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+                template="/WEB-INF/incl/layouts/GCWeb.xhtml">
+
+  <f:metadata>
+    <c:set var="step" value="change_oob" scope="request"/>
+    <c:set var="locale" value="fr-CA" scope="request"/>
+    <f:viewAction action="#{authenticator.prepareAuthenticationForStep}" onPostback="true" />
+    <f:importConstants type="javax.faces.application.FacesMessage" />
+  </f:metadata>
+
+  <ui:param name="title" value="#{identity.getWorkingParameter('mobiles').size() == 1 ? 'Remplacer' : 'Supprimer'} #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'le numéro de téléphone' : 'email address'}" />
+  <ui:param name="english" value="changeoob" />
+  <ui:param name="locale" value="fr" />
+
+  <ui:define name="name">
+    <ui:include src="/WEB-INF/incl/content/default/name-#{view.locale.language}.xhtml" />
+  </ui:define>
+
+  <ui:define name="content">
+
+      <div class="container mrgn-tp-xl container-width">
+
+      <div class="row mrgn-tp-lg">
+        <ui:include src="/WEB-INF/incl/components/alerts-fr.xhtml" />
+      </div>
+      
+      <div class="row">
+
+      <div class="col-xs-12 col-sm-10 col-md-10 col-lg-10 wb-frmvld">
+        <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline mrgn-tp-md">
+          #{identity.getWorkingParameter('mobiles').size() == 1 ? 'Remplacer' : 'Supprimer'} #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'le numéro de téléphone' : 'email address'}
+        </h1>
+        <p class="mrgn-tp-lg">
+        #{identity.getWorkingParameter('mobiles').size() == 1 ? 'D’abord, entrez' : 'Entrez'} 
+        le
+        #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'numéro de téléphone' : 'email address'}
+        que vous souhaitez
+        #{identity.getWorkingParameter('mobiles').size() == 1 ? 'remplacer' : 'supprimer'} :
+        </p>
+        <p>
+          <strong><span class="registered-mfa">#{identity.getWorkingParameter('mobiles')[param.i].display}</span></strong>
+        </p>
+        <div class="show mrgn-tp-lg mrgn-bttm-0 brdr-rds-0" style="border-width:0px;">
+          <div class="panel-body" style="padding:0px;">
+              <form jsf:id="change_oob" jsf:action="#{authenticator.authenticate}" class="form">
+                  <div class="row">
+                    <div class="form-group col-sm-8 mrgn-tp-md">
+                      <label for="mobile" class="mrgn-bttm-md ${facesContext.getMessageList('register_oob:mobile').size() gt 0 ? 'text-danger' : ''}">
+                        <span class="field-name">Numéro de téléphone</span>
+                        <h:messages for="mobile" styleClass="list-unstyled" errorClass="label label-danger wb-server-error error-styling" layout="list"/>
+                      </label>
+                      <input jsf:id="mobile" id="mobile" type="tel" class="form-control mfa-input" autocomplete="tel"/>
+                    </div>
+                  </div>
+                <!--ui:fragment rendered="${identity.getWorkingParameter('oobChannel') == 'email'}">
+                  <div class="row">
+                    <div class="form-group mrgn-tp-md col-lg-8">
+                      <label for="email" class="mrgn-bttm-md ${facesContext.getMessageList('register_oob:email').size() gt 0 ? 'text-danger' : ''}">
+                        <span class="field-name">Email address</span> 
+                      </label>
+                      <input jsf:id="email" id="email" type="email" autocomplete="email" class="form-control mfa-input" />
+                      <h:messages for="email" styleClass="list-unstyled" errorClass="label label-danger wb-server-error" layout="list" />
+                    </div>
+                  </div>
+                </ui:fragment-->
+                  <nav class="mrgn-bttm-lg" role="navigation">
+                    <h2 class="wb-inv">La navigation</h2>
+                    <button jsf:id="continue" jsf:action="#{authenticator.authenticate}" class="mrgn-tp-md mrgn-rght-lg mrgn-bttm-sm col-xs-12 col-sm-3 #{identity.getWorkingParameter('mobiles').size() == 1 ? 'primary-button' : 'delete-button'}">
+                          <f:param name="i" value="${param.i}" />
+                          #{identity.getWorkingParameter('mobiles').size() == 1 ? 'Continuer' : 'Supprimer'}
+                        </button>
+                      <a jsf:outcome="/fr/gerer.htm" style="margin-top: 25px;" class="link-styling col-xs-12 col-sm-3 text-center text-sm-left text-md-left padding-left-0">Annuler</a>
+                    </nav>
+              </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </ui:define>
+</ui:composition>

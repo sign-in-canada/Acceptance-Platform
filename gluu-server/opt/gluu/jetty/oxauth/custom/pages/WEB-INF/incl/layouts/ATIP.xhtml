@@ -16,23 +16,7 @@
 
       <ui:include src="/WEB-INF/incl/components/header-#{view.locale.language}.xhtml" />
 
-      <main property="mainContentOfPage" class="container" typeof="WebPageElement">
-
-        <div style="margin-top: 20px; float: right;">
-          <a href="#help" aria-controls="help" role="button" class="btn btn-primary wb-lbx" style="color:#FFF">
-            <span class="glyphicon glyphicon-question-sign" aria-hidden="true" style="padding-right: 5px;"></span>
-            #{view.locale.language eq "en" ? "Help" : "Aide"}
-          </a>
-        </div>
-
-        <section id="help" class="mfp-hide modal-dialog modal-content overlay-def">
-          <header class="modal-header">
-            <h2 class="modal-title">#{view.locale.language eq "en" ? "Help" : "Aide"}</h2>
-          </header>
-          <div class="modal-body">
-            <ui:insert name="help" />
-          </div>
-        </section>
+      <main property="mainContentOfPage" class="container" typeof="WebPageElement" id="main">
 
         <div>
           <h1 property="name" id="wb-cont">
@@ -45,8 +29,6 @@
         <ui:insert name="chooser" />
 
         <div class="pagedetails">
-
-          <ui:include src="/WEB-INF/incl/components/problem-#{view.locale.language}.xhtml" />
 
           <dl id="wb-dtmd">
             <dt>#{view.locale.language eq "en" ? "Date modified:&#32;" : "Date de modification&#160;:&#32;"}</dt>

@@ -52,7 +52,6 @@ class Account:
     # Creation via registration form
     def register (self, requestParameters):
         uid = ServerUtil.getFirstValue(requestParameters, "registration:username")
-        print ('uid: ', uid)
         self.facesMessages.setKeepMessages()
         if re.search('\s', uid):
             self.facesMessages.add(FacesMessage.SEVERITY_ERROR, self.languageBean.getMessage("sic.uidnospace"))
@@ -81,7 +80,6 @@ class Account:
     def delete (self, username):
         user = self.userService.getUser(username, "gluuStatus")
         if user.getAttribute("gluuStatus") == GluuStatus.REGISTER.getValue(): # Never delete active accounts
-            print (user.getUserId(), user.getDn())
             self.entryManager.removeRecursively(user.getDn(), User)
 
     # Lookup via external CSP PAI
@@ -209,6 +207,21 @@ class Account:
             return "email"
         else:
             return None
+
+    def backupNeeded(self, userId):
+        user = self.userService.getUser(userId, "mobile", "secretAnswer")
+        mobile = user.getAttributeValues("mobile")
+        backupCodes = user.getAttributeValues("secretAnswer")
+        if self.userService.countFido2RegisteredDevices(user.getUserId()) > 1:
+            return False
+        elif self.getExternalUid(user, "mfa") is not None:
+            return False
+        elif mobile is not None and len(mobile) > 1:
+            return False
+        elif backupCodes is not None:
+            return False
+        else:
+            return True
 
 # FIDO2 authenticator management
 

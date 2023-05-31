@@ -17,7 +17,7 @@
 
       <ui:include src="/WEB-INF/incl/components/header-#{view.locale.language}.xhtml" />
 
-      <main property="mainContentOfPage" class="container" typeof="WebPageElement">
+      <main property="mainContentOfPage" class="container" typeof="WebPageElement" id="main">
         <section class="container">
             <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Sign in to
               <ui:insert name="name" />
@@ -45,8 +45,6 @@
         </section>
 
         <div class="pagedetails">
-
-          <ui:include src="/WEB-INF/incl/components/problem-#{view.locale.language}.xhtml" />
 
           <dl id="wb-dtmd">
             <dt>#{view.locale.language eq "en" ? "Date modified:&#32;" : "Date de modification&#160;:&#32;"}</dt>
