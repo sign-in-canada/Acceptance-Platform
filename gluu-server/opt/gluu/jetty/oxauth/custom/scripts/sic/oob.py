@@ -173,7 +173,7 @@ class OutOfBand:
             telemetry["result"] = "success"
 
             if contact is not None: # Registration
-                if identity.getWorkingParameter("mfaMethod") and checkInvalidSession():
+                if identity.getWorkingParameter("mfaMethod") and not isManagementAllowed():
                     return False
                 
                 telemetry["step"] = "code verification"
@@ -335,7 +335,7 @@ class OutOfBand:
             return True
 
     def makeDefault(self, requestParameters):
-        if checkInvalidSession():
+        if not isManagementAllowed():
             return False
 
         index = ServerUtil.getFirstValue(requestParameters, "i")
@@ -348,7 +348,7 @@ class OutOfBand:
     def changeDefaultContact(self, channel, index):
         identity = CdiUtil.bean(Identity)
 
-        if checkInvalidSession():
+        if not isManagementAllowed():
             return False
 
         userId = identity.getWorkingParameter("userId")
@@ -369,7 +369,7 @@ class OutOfBand:
     def changeContact(self, requestParameters):
         identity = CdiUtil.bean(Identity)
 
-        if checkInvalidSession():
+        if not isManagementAllowed():
             return False
 
         userId = identity.getWorkingParameter("userId")
@@ -417,19 +417,22 @@ class OutOfBand:
             identity.setWorkingParameter("oobContact", self.phoneUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.NATIONAL))
             identity.setWorkingParameter("manageTask", "oobReplace")
 
-def checkInvalidSession():
+def isManagementAllowed():
     identity = CdiUtil.bean(Identity)
     authenticationService = CdiUtil.bean(AuthenticationService)
     session = identity.getSessionId()
 
     if authenticationService.getAuthenticatedUser() is None:
         # Not signed in
-        return True
-    elif Date().getTime() - session.getAuthenticationTime().getTime() > 1200000:
-        # Signed in too long ago
-        return True
-    else:
         return False
+    elif not session.getPermissionGrantedMap().getClientIds(True).isEmpty():
+        # Already signed in to an RP
+        return False
+    elif Date().getTime() - session.getAuthenticationTime().getTime() > 1200000: # 20 minutes
+        # Signed in too long ago
+        return False
+    else:
+        return True
 
 def maskPhone (phoneNumber):
     return re.sub('\d', '*', phoneNumber, sum(map(unicode.isdigit, phoneNumber)) - 4)
