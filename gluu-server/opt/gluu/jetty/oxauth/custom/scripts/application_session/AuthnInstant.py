@@ -38,7 +38,6 @@ class ApplicationSession(ApplicationSessionType):
         acrLevels = externalAuthenticationService.acrToLevelMapping()
         authnInstant = sessionAttributes.get("authnInstant")
         if acrLevels[sessionAcr] <= 50 and authnInstant:
-            print ("Adjusting auth time")
             session.setAuthenticationTime(Date.from(Instant.parse(authnInstant)))
         return True
 
