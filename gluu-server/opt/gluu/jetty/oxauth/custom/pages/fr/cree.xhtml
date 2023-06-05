@@ -35,13 +35,10 @@
       <p class="row mrgn-tp-md"> 
       Vous pouvez passer à #{language.getMessage(identity.getWorkingParameter('content').concat('.name'))}.
       </p>
-      <div class="row">
+      <div class="row mrgn-tp-xl">
         <form jsf:id="result" class="form-horizontal">
-          <nav class="mrgn-bttm-lg" role="navigation">
-            <h2 class="wb-inv">La navigation</h2>
-                <button jsf:id="continue" type="submit"
-                  jsf:action="#{authenticator.authenticate}" class="primary-button col-xs-12 col-sm-3 mrgn-tp-md">Continuer</button>
-          </nav>
+            <button jsf:id="continue" type="submit"
+              jsf:action="#{authenticator.authenticate}" class="primary-button col-xs-12 col-sm-3 mrgn-tp-md">Continuer</button>
         </form>
       </div>
   </div>
