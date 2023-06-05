@@ -30,6 +30,9 @@
 
   <ui:define name="content">
     <div class="container container-width">
+      <div class="row mrgn-tp-lg">
+        <ui:include src="/WEB-INF/incl/components/alerts-en.xhtml" />
+      </div>
       <div class="row">
         <div class="col-lg-12 mrgn-tp-lg padding-right-0">
           <form jsf:id="result">
@@ -39,9 +42,6 @@
             </a>
           </form>
         </div>
-      </div>
-      <div class="row mrgn-tp-lg">
-        <ui:include src="/WEB-INF/incl/components/alerts-en.xhtml" />
       </div>
       <div class="row">
         <h1 property="name" id="wb-cont" class="gc-thickline">Sign in settings</h1>
