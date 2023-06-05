@@ -20,11 +20,9 @@
         <div id="wb-bnr" class="container">
             <section id="wb-lng" class="text-right">
                 <h2 class="wb-inv">Sélection de la langue</h2>
-                <ul class="list-inline margin-bottom-none">
-                    <li>
-                        <a lang="en" hreflang="en" jsf:outcome="/en/${english}" class="caption"><f:param disable="#{empty param.i}" name="i" value="#{param.i}" />English</a>
-                    </li>
-                </ul>
+                <div class="margin-bottom-none">
+                    <a lang="en" hreflang="en" jsf:outcome="/en/${english}" class="caption"><f:param disable="#{empty param.i}" name="i" value="#{param.i}" />English</a>
+                </div>
             </section>
             <div class="row">
                 <div class="brand col-xs-5 col-md-4" property="publisher" typeof="GovernmentOrganization">
