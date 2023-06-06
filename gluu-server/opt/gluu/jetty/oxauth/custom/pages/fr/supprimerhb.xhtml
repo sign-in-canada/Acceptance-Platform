@@ -58,17 +58,6 @@
                       <input jsf:id="mobile" id="mobile" type="tel" class="form-control mfa-input" autocomplete="tel"/>
                     </div>
                   </div>
-                <!--ui:fragment rendered="${identity.getWorkingParameter('oobChannel') == 'email'}">
-                  <div class="row">
-                    <div class="form-group mrgn-tp-md col-lg-8">
-                      <label for="email" class="mrgn-bttm-md ${facesContext.getMessageList('register_oob:email').size() gt 0 ? 'text-danger' : ''}">
-                        <span class="field-name">Email address</span> 
-                      </label>
-                      <input jsf:id="email" id="email" type="email" autocomplete="email" class="form-control mfa-input" />
-                      <h:messages for="email" styleClass="list-unstyled" errorClass="label label-danger wb-server-error" layout="list" />
-                    </div>
-                  </div>
-                </ui:fragment-->
                   <div class="row mrgn-bttm-lg">
                     <button jsf:id="continue" jsf:action="#{authenticator.authenticate}" class="mrgn-tp-md mrgn-rght-lg mrgn-bttm-sm col-xs-12 col-sm-3 #{identity.getWorkingParameter('mobiles').size() == 1 ? 'primary-button' : 'delete-button'}">
                           <f:param name="i" value="${param.i}" />
