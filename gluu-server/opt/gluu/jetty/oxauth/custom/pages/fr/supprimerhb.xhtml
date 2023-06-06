@@ -26,9 +26,7 @@
 
       <div class="container mrgn-tp-xl container-width">
 
-      <div class="row mrgn-tp-lg">
         <ui:include src="/WEB-INF/incl/components/alerts-fr.xhtml" />
-      </div>
       
       <div class="row">
 
@@ -56,9 +54,9 @@
                         <h:messages for="mobile" styleClass="list-unstyled" errorClass="label label-danger wb-server-error error-styling" layout="list"/>
                       </label>
                       <input jsf:id="mobile" id="mobile" type="tel" class="form-control mfa-input" autocomplete="tel">
-                        <f:passThroughAttribute name="aria-invalid" value="#{not empty facesContext.getMessageList('change_oob:mobile')}" />
-                      </input>
-                    </div>
+                      <f:passThroughAttribute name="aria-invalid" value="#{not empty facesContext.getMessageList('change_oob:mobile')}" />
+                    </input>
+                  </div>
                   </div>
                   <div class="row mrgn-bttm-lg">
                     <button jsf:id="continue" jsf:action="#{authenticator.authenticate}" class="mrgn-tp-md mrgn-rght-lg mrgn-bttm-sm col-xs-12 col-sm-3 #{identity.getWorkingParameter('mobiles').size() == 1 ? 'primary-button' : 'delete-button'}">

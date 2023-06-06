@@ -5,7 +5,7 @@
     xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
     <ui:fragment rendered="#{not empty facesContext.getMaximumSeverity() and facesContext.getMaximumSeverity() == FacesMessage.SEVERITY_INFO}">
-        <div class="row">
+        <div class="row mrgn-tp-lg">
             <section class="alert alert-success success-message col-xs-11 col-sm-12">
                 <ui:repeat value="#{facesContext.messageList}" var="message">
                     <ui:fragment rendered="#{message.severity == FacesMessage.SEVERITY_INFO}">
@@ -19,7 +19,7 @@
     </ui:fragment>
 
     <ui:fragment rendered="#{not empty facesContext.getMaximumSeverity() and facesContext.getMaximumSeverity() == FacesMessage.SEVERITY_ERROR}">
-        <div class="row mrgn-lft-0">
+        <div class="row">
             <section class="col-xs-11 mrgn-bttm-md problem-summary">
                 <h2>There was a problem</h2>
                 <p>Errors were found on this page:</p>
