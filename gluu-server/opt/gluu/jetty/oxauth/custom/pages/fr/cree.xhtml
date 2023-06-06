@@ -26,7 +26,7 @@
     
   <div class="container container-width mrgn-tp-lg">
 
-    <div class="row col-sm-6 col-md-12 col-lg-12">
+    <div class="row col-xs-12 col-sm-10">
       <ui:include src="/WEB-INF/incl/components/alerts-fr.xhtml" />
 
       <div class="row">
@@ -38,7 +38,7 @@
       <div class="row mrgn-tp-xl">
         <form jsf:id="result" class="form-horizontal">
             <button jsf:id="continue" type="submit"
-              jsf:action="#{authenticator.authenticate}" class="primary-button col-xs-12 col-sm-3 mrgn-tp-md">Continuer</button>
+              jsf:action="#{authenticator.authenticate}" class="primary-button col-xs-12 col-sm-3 mrgn-tp-md" style="max-width:300px;">Continuer</button>
         </form>
       </div>
   </div>
