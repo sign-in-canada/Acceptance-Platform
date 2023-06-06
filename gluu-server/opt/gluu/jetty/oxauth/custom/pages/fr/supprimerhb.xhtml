@@ -55,7 +55,9 @@
                         <span class="field-name">Numéro de téléphone</span>
                         <h:messages for="mobile" styleClass="list-unstyled" errorClass="label label-danger wb-server-error error-styling" layout="list"/>
                       </label>
-                      <input jsf:id="mobile" id="mobile" type="tel" class="form-control mfa-input" autocomplete="tel"/>
+                      <input jsf:id="mobile" id="mobile" type="tel" class="form-control mfa-input" autocomplete="tel">
+                        <f:passThroughAttribute name="aria-invalid" value="#{not empty facesContext.getMessageList('change_oob:mobile')}" />
+                      </input>
                     </div>
                   </div>
                   <div class="row mrgn-bttm-lg">

@@ -76,7 +76,9 @@
             </div>
               <div class="row">
                 <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
-                  <input id="code" jsf:id="code" type="text" autocomplete="one-time-code" inputmode="numeric" class="form-control mfa-input" />
+                  <input id="code" jsf:id="code" type="text" autocomplete="one-time-code" inputmode="numeric" class="form-control mfa-input">
+                    <f:passThroughAttribute name="aria-invalid" value="#{not empty facesContext.getMessageList('oob:code')}" />
+                  </input>
                 </div>
             </div>  
             </div>

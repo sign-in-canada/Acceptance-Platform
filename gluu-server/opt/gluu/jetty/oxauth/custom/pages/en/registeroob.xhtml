@@ -110,7 +110,9 @@
                             errorClass="wb-server-error label label-danger error-styling" />
                         </label>
                         <input jsf:id="mobile" id="mobile" type="tel"
-                          class="form-control mfa-input" autocomplete="tel" />
+                               class="form-control mfa-input" autocomplete="tel">
+                          <f:passThroughAttribute name="aria-invalid" value="#{not empty facesContext.getMessageList('register_oob:mobile')}" />
+                        </input>
                       </div>
                     </div>
                   </c:if>
@@ -130,7 +132,9 @@
                           <span class="field-name">Email address</span>
                         </label>
                         <input jsf:id="email" id="email" type="email" autocomplete="email"
-                          class="form-control mfa-input" />
+                          class="form-control mfa-input">
+                            <f:passThroughAttribute name="aria-invalid" value="#{not empty facesContext.getMessageList('register_oob:email')}" />
+                          </input>
                       </div>
                     </div>
                   </c:if>
