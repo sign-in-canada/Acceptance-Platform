@@ -20,6 +20,7 @@
           'Vérifiez votre '.concat(identity.getWorkingParameter('oobChannel') == 'sms' ? 'numéro de téléphone' : 'adresse de courriel')}" />
   <ui:param name="english" value="oob" />
   <ui:param name="locale" value="fr" />
+  <ui:param name="alertlink" value="code" />
 
   <ui:define name="name">
     <ui:include src="/WEB-INF/incl/content/default/name-#{view.locale.language}.xhtml" />

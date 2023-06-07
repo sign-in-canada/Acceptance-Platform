@@ -26,7 +26,14 @@
                 <ui:repeat value="#{facesContext.messageList}" var="message" varStatus="status">
                     <ui:fragment rendered="#{message.severity == FacesMessage.SEVERITY_ERROR and !message.summary.startsWith('Une erreur inattendue')}" >
                         <div class="problem-summary-content">
-                            #{status.index + 1}. #{message.summary}
+                            <ui:fragment rendered="#{not empty alertlink}">
+                                <a href="#{'#'.concat(alertlink)}">
+                                    #{status.index + 1}. #{message.summary}
+                                </a>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{empty alertlink}">
+                                #{status.index + 1}. #{message.summary}
+                            </ui:fragment>
                         </div>
                     </ui:fragment>
                 </ui:repeat>

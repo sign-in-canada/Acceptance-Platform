@@ -17,6 +17,7 @@
   <ui:param name="title" value="#{identity.getWorkingParameter('mobiles').size() == 1 ? 'Remplacer' : 'Supprimer'} #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'le numéro de téléphone' : 'email address'}" />
   <ui:param name="english" value="changeoob" />
   <ui:param name="locale" value="fr" />
+  <ui:param name="alertlink" value="mobile" />
 
   <ui:define name="name">
     <ui:include src="/WEB-INF/incl/content/default/name-#{view.locale.language}.xhtml" />
