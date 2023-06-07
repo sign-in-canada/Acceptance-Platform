@@ -6,11 +6,11 @@
 
     <ui:fragment rendered="#{not empty facesContext.getMaximumSeverity() and facesContext.getMaximumSeverity() == FacesMessage.SEVERITY_INFO}">
         <div class="row mrgn-tp-lg">
-            <section class="alert alert-success success-message col-xs-11 col-sm-12">
+            <section class="alert alert-success success-message col-xs-12">
                 <ui:repeat value="#{facesContext.messageList}" var="message">
                     <ui:fragment rendered="#{message.severity == FacesMessage.SEVERITY_INFO}">
-                        <p class="success-message-content h5">
-                            #{message.summary}
+                        <p class="body">
+                            <strong>#{message.summary}</strong>
                         </p>
                     </ui:fragment>
                 </ui:repeat>
