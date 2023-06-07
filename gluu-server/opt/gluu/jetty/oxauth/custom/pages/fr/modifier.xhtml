@@ -38,7 +38,7 @@
       </div>
       <div class="row">
         <h1 property="name" id="wb-cont" class="gc-thickline mrgn-tp-xl">Modifier le numéro de téléphone</h1>
-      </div>
+      </div> 
       <div class="row">
         <ul style="list-style: none; padding-left: 0px; margin-top:30px;" class="col-lg-12">
           <li class="row">
@@ -54,10 +54,8 @@
           </li>
         </ul>
       </div>  
-      <div class="row">
+      <div class="row mrgn-bttm-lg">
           <form jsf:id="edit" jsf:action="#{authenticator.authenticate}" class="form-horizontal" style="padding-left:0px; padding-right:0px;">
-            <nav class="mrgn-bttm-lg" role="navigation">
-              <h2 class="wb-inv">La navigation</h2>
               <div class="row">
                 <div class="col-xs-12">
                     <button jsf:id="makedefault" jsf:action="#{authenticator.authenticate}" rendered="${param.i > 0}" class="primary-button col-xs-12 col-sm-4 mrgn-rght-md mrgn-tp-md">
@@ -74,7 +72,6 @@
                     </button>
                 </div>
               </div>
-            </nav>
           </form>
       </div>
   </div>

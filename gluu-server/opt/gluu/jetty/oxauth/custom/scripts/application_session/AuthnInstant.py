@@ -4,8 +4,10 @@
 # Author: Doug Harris
 #
 
+from org.gluu.service.cdi.util import CdiUtil
 from org.gluu.model.custom.script.type.session import ApplicationSessionType
 from org.gluu.oxauth.service import SessionIdService
+from org.gluu.oxauth.service.external import ExternalAuthenticationService
 
 from java.util import Date
 from java.time import Instant
@@ -15,21 +17,28 @@ class ApplicationSession(ApplicationSessionType):
     def __init__(self, currentTimeMillis):
         self.currentTimeMillis = currentTimeMillis
 
-    def init(self, configurationAttributes):
+    def init(self, customScript, configurationAttributes):
+        print ("%s: init" % customScript.getName())
         return True
 
     def destroy(self, configurationAttributes):
         return True
 
     def getApiVersion(self):
-        return 2
+        return 11
 
-    def startSession(self, httpRequest, sessionId, configurationAttributes):
-        sessionAttributes = sessionId.getSessionAttributes()
-        sessionAttributes.put(SessionIdService.SESSION_CUSTOM_STATE, Long.toString(sessionId.getExpirationDate().getTime()))
+    def startSession(self, httpRequest, session, configurationAttributes):
+        externalAuthenticationService = CdiUtil.bean(ExternalAuthenticationService)
+        sessionAttributes = session.getSessionAttributes()
+        # Exponse the session expiry timestamp to Passport via the session status API
+        sessionAttributes.put(SessionIdService.SESSION_CUSTOM_STATE, Long.toString(session.getExpirationDate().getTime()))
+
+        # If no MFA for this session, use the CSP's authentication instant as our own
+        sessionAcr = sessionAttributes.get("acr")
+        acrLevels = externalAuthenticationService.acrToLevelMapping()
         authnInstant = sessionAttributes.get("authnInstant")
-        if authnInstant:
-            sessionId.setAuthenticationTime(Date.from(Instant.parse(authnInstant)))
+        if acrLevels[sessionAcr] <= 50 and authnInstant:
+            session.setAuthenticationTime(Date.from(Instant.parse(authnInstant)))
         return True
 
     def onEvent(self, event):
