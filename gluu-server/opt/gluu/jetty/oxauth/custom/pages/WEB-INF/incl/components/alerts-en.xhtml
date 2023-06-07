@@ -27,7 +27,7 @@
                     <ui:fragment rendered="#{message.severity == FacesMessage.SEVERITY_ERROR and !message.summary.startsWith('An unexpected')}" >
                         <div class="problem-summary-content">
                             <ui:fragment rendered="#{not empty alertlink}">
-                                <a href="#{'#'.concat(alertlink)}">
+                                <a href="#{'#'.concat(alertlink)}" class="visited-link-styling">
                                     #{status.index + 1}. #{message.summary}
                                 </a>
                             </ui:fragment>
