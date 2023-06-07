@@ -421,6 +421,10 @@ box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
     padding-left:30px;
 }
 
+.padding-0{
+    padding: 0px;
+}
+
 .list-style-none{
     list-style:none;
 }

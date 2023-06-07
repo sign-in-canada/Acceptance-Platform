@@ -411,7 +411,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 externalContext.getFlash().put("backupNeeded", True)
 
         elif step in {STEP_OTHERMETHOD, STEP_MANAGE, STEP_EDIT, STEP_OOB_CHANGE}:
-            if step != STEP_OTHERMETHOD and authenticationService.getAuthenticatedUser() is None:
+            if step != STEP_OTHERMETHOD and not oob.isManagementAllowed():
                 return False
 
             if step == STEP_MANAGE:
@@ -919,7 +919,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     return self.gotoStep(STEP_CREATED)
             elif identity.getWorkingParameter("mfaMethod") not in self.mfaMethods:
                 return self.gotoStep(STEP_UPGRADE)
-            elif authenticationService.getAuthenticatedUser() is not None:
+            elif oob.isManagementAllowed():
                 return self.gotoStep(STEP_SIGNEDIN)
 
         if step == STEP_OTHERMETHOD:

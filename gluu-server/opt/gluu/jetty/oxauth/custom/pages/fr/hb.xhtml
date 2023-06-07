@@ -20,6 +20,7 @@
           'Vérifiez votre '.concat(identity.getWorkingParameter('oobChannel') == 'sms' ? 'numéro de téléphone' : 'adresse de courriel')}" />
   <ui:param name="english" value="oob" />
   <ui:param name="locale" value="fr" />
+  <ui:param name="alertlink" value="code" />
 
   <ui:define name="name">
     <ui:include src="/WEB-INF/incl/content/default/name-#{view.locale.language}.xhtml" />
@@ -32,7 +33,7 @@
       <div class="row">
         
       <div class="col-xs-12 col-sm-10">
-          <ui:include src="/WEB-INF/incl/components/alerts-fr.xhtml" class="row mrgn-tp-lg" />
+          <ui:include src="/WEB-INF/incl/components/alerts-fr.xhtml" />
         <div class="row">
         <ui:fragment rendered="${empty identity.getWorkingParameter('oobContact')}">
           <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Vérification en deux étapes</h1>
@@ -56,7 +57,7 @@
           <div class="col-sm-9 mrgn-bttm-lg text-center text-sm-left text-md-left" style="padding-left:0px;">
             <a jsf:rendered="${not empty identity.getWorkingParameter('oobContact')}" jsf:outcome="/fr/registrerhb" class="link-text visited-link-styling">Modifier #{identity.getWorkingParameter('oobChannel') == 'sms' ? 'un numéro de téléphone' : 'email address'}</a>
             <ui:fragment rendered="${empty identity.getWorkingParameter('oobContact') and empty identity.getWorkingParameter('manageTask') and identity.getWorkingParameter('backupAvailable')}">
-                <a jsf:outcome="/en/othermethod" class="link-styling visited-link-styling">Essayer une autre méthode</a>
+                <a jsf:outcome="/fr/autremethode" class="link-styling visited-link-styling">Essayer une autre méthode</a>
             </ui:fragment>
             <ui:fragment rendered="${empty identity.getWorkingParameter('oobContact') and not identity.getWorkingParameter('backupAvailable')}">
                 <a href="https://connect.canada.ca/en/help/index.html" class="link-styling visited-link-styling" target="_blank" rel="noopener noreferrer">Je n’ai pas ce téléphone en ce moment</a>
@@ -69,9 +70,6 @@
               <div class="row">
                 <div class="col-xs-12 col-sm-10 col-md-10 col-lg-8">
               <label for="code" class="mrgn-bttm-md label-font ${facesContext.getMessageList('oob:code').size() gt 0 ? 'text-danger' : ''}">
-                <!-- Enter the 6-digit
-                <span class="field-name">code</span> we
-                 #{identity.getWorkingParameter('oobChannel') == 'email' ? 'emailed' : 'texted'} you -->
                  Le code à 6 chiffres
                  <h:message for="code" errorClass="label label-danger wb-server-error error-styling"/>
                 </label>
@@ -79,7 +77,9 @@
             </div>
               <div class="row">
                 <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
-                  <input id="code" jsf:id="code" type="text" autocomplete="one-time-code" inputmode="numeric" class="form-control mfa-input" />
+                  <input id="code" jsf:id="code" type="text" autocomplete="one-time-code" inputmode="numeric" class="form-control mfa-input">
+                    <f:passThroughAttribute name="aria-invalid" value="#{not empty facesContext.getMessageList('oob:code')}" />
+                  </input>
                 </div>
             </div>  
             </div>

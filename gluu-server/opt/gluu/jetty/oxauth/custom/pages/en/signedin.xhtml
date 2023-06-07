@@ -37,19 +37,16 @@
             </section>
         </div>
       </c:if>
-      <div class="row">
+      <div class="row mrgn-bttm-lg">
         <form jsf:id="result" class="form-horizontal">
-          <nav class="mrgn-bttm-lg" role="navigation">
-            <h2 class="wb-inv">Navigation</h2>
             <div class="row">
               <div class="col-xs-12 col-sm-10">
                   <button jsf:id="continue" class="primary-button col-xs-12 col-sm-3 mrgn-rght-md mrgn-tp-md" type="submit"
                   jsf:action="#{authenticator.authenticate}">Continue</button>
                   <button jsf:id="managemfa" class="col-xs-12 col-sm-5 secondary-button mrgn-tp-md" type="submit"
                   jsf:outcome="/en/manage">Sign in settings</button>
+              </div>
             </div>
-            </div>
-          </nav>
         </form>
       </div>
   </div>

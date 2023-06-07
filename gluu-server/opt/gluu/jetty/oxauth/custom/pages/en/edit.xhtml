@@ -51,10 +51,8 @@
           </li>
         </ul>
       </div>  
-      <div class="row">
+      <div class="row mrgn-bttm-lg">
           <form jsf:id="edit" jsf:action="#{authenticator.authenticate}" class="form-horizontal padding-left-0 padding-right-0">
-            <nav class="mrgn-bttm-lg" role="navigation">
-              <h2 class="wb-inv">Navigation</h2>
               <div class="row">
                 <div class="col-xs-12 col-sm-8">
                     <button jsf:id="makedefault" jsf:action="#{authenticator.authenticate}" rendered="${param.i > 0}" class="primary-button col-xs-12 col-sm-5 mrgn-rght-md mrgn-tp-md">
@@ -71,7 +69,6 @@
                     </button>
                 </div>
               </div>
-            </nav>
           </form>
       </div>
   </div>

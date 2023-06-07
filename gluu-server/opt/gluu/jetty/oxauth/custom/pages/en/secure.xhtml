@@ -29,7 +29,6 @@
       <div class="row">
         <ui:include src="/WEB-INF/incl/components/alerts-en.xhtml" />
         <h1 property="name" id="wb-cont" dir="ltr" class="gc-thickline">Two step verification</h1>
-
         <ui:fragment rendered="${empty identity.getWorkingParameter('mfaMethod')}">
         <p>Two step verification is an extra layer of security that confirms it’s really you signing in.</p>
           <details>
@@ -135,18 +134,10 @@
                                 <p>
                                   <strong>Text message (SMS)</strong>
                                 </p>
-                                <!-- <p>
-                                  <span class="security-badge-mobile less-secure visible-xs visible-sm hidden-md hidden-lg">Less secure</span>
-                                </p> -->
                                 <p class="radio-box-description">
                                   Get a secure code by text. Standard mobile messaging charges may apply.
                                 </p>
                               </div>
-                              <!-- <div class="col-md-3 col-md-offset-1">
-                                <p> 
-                                  <span class="security-badge-desktop less-secure hidden-sm visible-md visible-lg" style="margin-top:15%;">Less secure</span>
-                                </p>
-                              </div> -->
                             </div>
                           </label>
                     </div>
@@ -165,18 +156,10 @@
                               <p>
                                 <strong>Email</strong>
                               </p>
-                              <!-- <p>
-                                <span class="security-badge-mobile least-secure visible-xs visible-sm hidden-md hidden-lg">Least secure</span>
-                              </p> -->
                               <p class="radio-box-description">
                                 Receive a secure code by email
                               </p>
                             </div>
-                            <!-- <div class="col-md-3 col-md-offset-1">
-                              <p> 
-                                <span class="security-badge-desktop least-secure hidden-sm visible-md visible-lg" style="margin-top:10%;">Least secure</span>
-                              </p>
-                            </div> -->
                           </div>
                         </label>
                     </div>
