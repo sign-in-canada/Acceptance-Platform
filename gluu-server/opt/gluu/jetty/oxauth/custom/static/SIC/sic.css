@@ -7,6 +7,8 @@
     --body-font-size: 20px;
 }
 
+/* MFA chooser styling below */
+
 .learn-more{
     border-style: none; 
     text-decoration: underline;
@@ -119,6 +121,26 @@ details[open]>section{
     padding-left: 0px;
     vertical-align: middle;
 }
+
+.overlap-fix{
+    margin-top:10px;
+}
+
+@media only screen and (max-width: 426px) {
+    .overlap-fix {
+      margin-top: 50px;
+    }
+  }
+
+.overlap-fix-fr{
+    margin-top:10px;
+}
+
+@media only screen and (max-width: 408px) {
+    .overlap-fix-fr {
+      margin-top: 50px;
+    }
+  }
 
 /* MFA input styling below */
 
