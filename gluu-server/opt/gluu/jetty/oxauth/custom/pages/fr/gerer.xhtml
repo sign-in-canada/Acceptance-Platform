@@ -64,19 +64,19 @@
 
       <div class="row">
         <ul class="col-lg-12 breakline list-style-none padding-left-0 mrgn-tp-md">
-        <ui:repeat value="#{identity.getWorkingParameter('mobiles')}" var="mobile">
+        <ui:repeat value="#{identity.getWorkingParameter('mobiles')}" var="mobile"  varStatus="status">
           <li class="row">
-              <span class="col-xs-9 col-lg-10 mrgn-bttm-md body" id="edit-phone-number-fr">
+              <span class="col-xs-9 col-lg-10 mrgn-bttm-md body" id="#{'phone-number-edit-'.concat(status.index)}">
                 <strong><span class="registered-mfa body">#{mobile.display}</span></strong>
                 <ui:fragment rendered="#{mobile.index == 0}">
                   <br class="visible-xs hidden-sm" />
                   <span class="default-label caption">Par défaut</span>
                 </ui:fragment>
-              <br/>
-              Code à 6 chiffres par messagerie
+                <br/>
+                Code à 6 chiffres par messagerie
               </span>
-                <a jsf:outcome="/fr/modifier" jsf:id="mobile" p:id="mobile:#{mobile.index}" class="col-xs-3 col-lg-2 link-styling manage-links visited-link-styling" aria-label="Modifier le numéro de téléphone" title="
-                Modifier le numéro de téléphone">
+                <a jsf:outcome="/fr/modifier" jsf:id="mobile" p:id="mobile:#{mobile.index}" class="col-xs-3 col-lg-2 link-styling manage-links visited-link-styling"
+                   aria-label="#{'Modifier le numéro de téléphone se terminant par '.concat(mobile.ending)}" title="Modifier le numéro de téléphone">
                   <f:param name="i" value="#{mobile.index}" />
                   Modifier
                 </a>

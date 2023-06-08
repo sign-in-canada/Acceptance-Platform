@@ -63,17 +63,18 @@
 
       <div class="row">
         <ul class="col-lg-12 breakline list-style-none padding-left-0 mrgn-tp-md">
-        <ui:repeat value="#{identity.getWorkingParameter('mobiles')}" var="mobile">
+        <ui:repeat value="#{identity.getWorkingParameter('mobiles')}" var="mobile"  varStatus="status">
           <li class="row">
-              <span class="col-xs-10 col-lg-10 body mrgn-bttm-md" id="phone-number-edit">
+              <span class="col-xs-10 col-lg-10 body mrgn-bttm-md" id="#{'phone-number-edit-'.concat(status.index)}">
                 <strong><span class="registered-mfa body">#{mobile.display}</span></strong>
                 <ui:fragment rendered="#{mobile.index == 0}">
                   <span class="default-label caption">Default</span>
                 </ui:fragment>
-              <br/>
-              6-digit SMS code
+                <br/>
+                6-digit SMS code
               </span>
-                <a jsf:outcome="/en/edit" jsf:id="mobile" p:id="mobile:#{mobile.index}" class="col-xs-2 col-lg-2 link-styling manage-links visited-link-styling" aria-label="Edit phone number" title="Edit phone number">
+                <a jsf:outcome="/en/edit" jsf:id="mobile" p:id="mobile:#{mobile.index}" class="col-xs-2 col-lg-2 link-styling manage-links visited-link-styling"
+                   aria-label="#{'Edit phone number ending with '.concat(mobile.ending)}" title="Edit phone number">
                   <f:param name="i" value="#{mobile.index}" />
                   Edit
                 </a>
