@@ -50,9 +50,14 @@
         </p>
         <c:if test="${flash.containsKey('backupNeeded')}">
         <div class="row" style="margin-left:-10px;">
-            <section class="alert alert-warning warning-message col-xs-12 col-sm-12 mrgn-tp-lg">
-              <p class="warning-message-content" style="padding-top:20px; padding-bottom:10px;"><strong>We recommend adding a backup phone number</strong></p>
-              <p class="warning-message-content">If you lose access to your phone number you will be <strong>permanently locked out</strong> of your sign in method for this service.</p>
+            <section class="alert alert-warning warning-message col-xs-12 col-sm-12 mrgn-tp-lg">        
+              <button class="col-xs-12 visible-xs hidden-sm close-alert-mobile close-alert close-alert-warning" aria-label="close" title="close">x</button>
+              <div class="col-xs-10">
+                <p class="warning-message-content"><strong>We recommend adding a backup phone number</strong></p>
+                <p class="warning-message-content">If you lose access to your phone number you will be <strong>permanently locked out</strong> of your sign in method for this service.</p>
+              </div>
+              <button class="col-sm-1 hidden-xs visible-sm visible-md visible-lg visible-xl close-alert-desktop close-alert close-alert-warning" aria-label="close" title="close">x</button>
+            
             </section>
         </div>
       </c:if>

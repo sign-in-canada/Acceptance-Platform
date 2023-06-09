@@ -9,9 +9,11 @@
             <section class="alert alert-success success-message col-xs-12">
                 <ui:repeat value="#{facesContext.messageList}" var="message">
                     <ui:fragment rendered="#{message.severity == FacesMessage.SEVERITY_INFO}">
-                        <p class="body">
+                        <button class="col-xs-12 visible-xs hidden-sm close-alert-mobile close-alert close-alert-success" aria-label="close" title="close">x</button>
+                        <p class="body col-xs-10">
                             <strong>#{message.summary}</strong>
                         </p>
+                        <button class="col-sm-1 hidden-xs visible-sm visible-md visible-lg visible-xl close-alert-desktop close-alert close-alert-success" aria-label="close" title="close">x</button>
                     </ui:fragment>
                 </ui:repeat>
             </section>
