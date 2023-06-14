@@ -73,9 +73,11 @@ class OutOfBand:
     def SendOneTimeCode(self, userId=None, channel=None, contact=None):
         identity = CdiUtil.bean(Identity)
         facesResources = CdiUtil.bean(FacesResources)
-        facesContext = facesResources.getFacesContext()
         externalContext = facesResources.getExternalContext()
         facesFlash = externalContext.getFlash()
+
+        # Mitigate SMS DoS
+        throttle()
 
         if contact is not None: # Registrastion
             if channel == "sms":
@@ -116,13 +118,8 @@ class OutOfBand:
 
     def AuthenticateOutOfBand(self, requestParameters):
         identity = CdiUtil.bean(Identity)
-        facesResources = CdiUtil.bean(FacesResources)
-        facesContext = facesResources.getFacesContext()
-        externalContext = facesResources.getExternalContext()
-        facesFlash = externalContext.getFlash()
         facesMessages = CdiUtil.bean(FacesMessages)
         authenticationService = CdiUtil.bean(AuthenticationService)
-        authenticationProtectionService = CdiUtil.bean(AuthenticationProtectionService)
 
         session = identity.getSessionId()
         userId = identity.getWorkingParameter("userId")
@@ -142,7 +139,6 @@ class OutOfBand:
             telemetry["result"] = "failed"
             telemetry["reason"] = "code expired" if codeExpired else "new code requested"
             self.telemetryClient.trackEvent("OOB Authentication", telemetry, {"durationInSeconds": duration})
-            throttle(authenticationProtectionService, session, userId)
             identity.setWorkingParameter("oobCode", None) # Start over
             addMessage("oob:resend", FacesMessage.SEVERITY_INFO, "sic.newCode")
             return False
@@ -162,7 +158,7 @@ class OutOfBand:
 
         if StringHelper.equals(user.getAttribute("gluuStatus"), GluuStatus.INACTIVE.getValue()):
              addMessage("oob:code", FacesMessage.SEVERITY_ERROR, "sic.lockedOut")
-             throttle(authenticationProtectionService, session, userId)
+             throttle()
              return False
 
         if enteredCode == identity.getWorkingParameter("oobCode"):
@@ -232,14 +228,13 @@ class OutOfBand:
             else:
                 addMessage("oob:code", FacesMessage.SEVERITY_ERROR, "sic.invalidCode")
             self.userService.updateUser(user)
-            throttle(authenticationProtectionService, session, userId)
+            throttle()
 
             return False
 
     def RegisterOutOfBand(self, requestParameters):
         identity = CdiUtil.bean(Identity)
         facesMessages = CdiUtil.bean(FacesMessages)
-        authenticationProtectionService = CdiUtil.bean(AuthenticationProtectionService)
 
         session = identity.getSessionId()
         userId = identity.getWorkingParameter("userId")
@@ -251,6 +246,8 @@ class OutOfBand:
                      "step": "contact entry",
                      "channel": channel}
         duration = float((Date().getTime() - session.getLastUsedAt().getTime()) / 1000)
+
+        identity.setWorkingParameter("oobCode", None)
 
         if StringHelper.isEmpty(contact):
             addMessage(paramName, FacesMessage.SEVERITY_ERROR, "sic.enterPhone" if channel == "sms" else "sic.enterEmail")
@@ -311,11 +308,6 @@ class OutOfBand:
                 telemetry["reason"] = "Duplicate email address"
                 self.telemetryClient.trackEvent("OOB Registration", telemetry, {"durationInSeconds": duration})
                 return False
-
-        if identity.getWorkingParameter("oobCode") is not None:
-            # This means the user previously tried to register but then backed up
-            # and changed the email address or mobile number. Possible DoS
-            throttle(authenticationProtectionService, session, userId)
 
         if not self.SendOneTimeCode(None, channel, contact):
             telemetry["result"] = "failed"
@@ -447,7 +439,11 @@ def addMessage(uiControl, severity, msgId, *extras):
     facesContext.addMessage(uiControl, message)
     externalContext.getFlash().setKeepMessages(True)
 
-def throttle(authenticationProtectionService, session, userId):
+def throttle():
+    authenticationProtectionService = CdiUtil.bean(AuthenticationProtectionService)
+    identity = CdiUtil.bean(Identity)
+    userId = identity.getWorkingParameter("userId")
+
     if authenticationProtectionService.isEnabled():
         authenticationProtectionService.storeAttempt(userId, False)
         attempts = authenticationProtectionService.getNonExpiredAttempts(userId)
@@ -460,4 +456,4 @@ def throttle(authenticationProtectionService, session, userId):
                 # Progressive rate limiting
                 Thread.sleep((2**(attemptCount - 4) * 1000))
             else: # boot-em
-                CdiUtil.bean(SessionIdService).remove(session)
+                CdiUtil.bean(SessionIdService).remove(identity.getSessionId())

@@ -50,9 +50,14 @@
         </p>
         <c:if test="${flash.containsKey('backupNeeded')}">
         <div class="row" style="margin-left:-10px;">
-            <section class="alert alert-warning warning-message col-xs-12 col-sm-12 mrgn-tp-lg">
-              <p class="warning-message-content h5" style="padding-top:20px;">We recommend adding a backup phone number</p>
-              <p class="warning-message-content">If you lose access to your phone number you will be <strong>permanently locked out</strong> of your sign in method for this service.</p>
+            <section class="alert alert-warning warning-message warning-message-manage col-xs-12 col-sm-12 mrgn-tp-lg">        
+              <button class="col-xs-12 visible-xs hidden-sm close-alert-mobile close-alert close-alert-warning" aria-label="close" title="close">x</button>
+              <div class="col-xs-10">
+                <p class="warning-message-content"><strong>We recommend adding a backup phone number</strong></p>
+                <p class="warning-message-content">If you lose access to your phone number you will be <strong>permanently locked out</strong> of your sign in method for this service.</p>
+              </div>
+              <button class="col-sm-1 hidden-xs visible-sm visible-md visible-lg visible-xl close-alert-desktop close-alert close-alert-warning" aria-label="close" title="close">x</button>
+            
             </section>
         </div>
       </c:if>
@@ -63,17 +68,18 @@
 
       <div class="row">
         <ul class="col-lg-12 breakline list-style-none padding-left-0 mrgn-tp-md">
-        <ui:repeat value="#{identity.getWorkingParameter('mobiles')}" var="mobile">
+        <ui:repeat value="#{identity.getWorkingParameter('mobiles')}" var="mobile"  varStatus="status">
           <li class="row">
-              <span class="col-xs-10 col-lg-10 body mrgn-bttm-md" id="phone-number-edit">
+              <span class="col-xs-10 col-lg-10 body mrgn-bttm-md" id="#{'phone-number-edit-'.concat(status.index)}">
                 <strong><span class="registered-mfa body">#{mobile.display}</span></strong>
                 <ui:fragment rendered="#{mobile.index == 0}">
                   <span class="default-label caption">Default</span>
                 </ui:fragment>
-              <br/>
-              6-digit SMS code
+                <br/>
+                6-digit SMS code
               </span>
-                <a jsf:outcome="/en/edit" jsf:id="mobile" p:id="mobile:#{mobile.index}" class="col-xs-2 col-lg-2 link-styling manage-links visited-link-styling" aria-label="Edit phone number" title="Edit phone number">
+                <a jsf:outcome="/en/edit" jsf:id="mobile" p:id="mobile:#{mobile.index}" class="col-xs-2 col-lg-2 link-styling manage-links visited-link-styling"
+                   aria-label="#{'Edit phone number ending with '.concat(mobile.ending)}" title="Edit phone number">
                   <f:param name="i" value="#{mobile.index}" />
                   Edit
                 </a>

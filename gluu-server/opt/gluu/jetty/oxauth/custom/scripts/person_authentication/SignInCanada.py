@@ -14,6 +14,7 @@ from org.gluu.jsf2.service import FacesResources, FacesService
 from org.gluu.jsf2.message import FacesMessages
 from org.gluu.oxauth.model.authorize import AuthorizeRequestParam
 from org.gluu.util import StringHelper
+from org.apache.commons.lang3 import StringUtils
 
 from java.util import Arrays, Date
 from java.time import Instant
@@ -424,7 +425,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 if len(mobiles) < 2:
                     externalContext.getFlash().put("backupNeeded", True)
                 for i in range (0, len(mobiles)):
-                    maskedMobiles.append({"index": i, "display" : oob.maskPhone(mobiles[i])})
+                    maskedMobiles.append({"index": i, "display" : oob.maskPhone(mobiles[i]), "ending": StringUtils.right(mobiles[i], 4)})
             identity.setWorkingParameter("mobiles", maskedMobiles)
             identity.setWorkingParameter("code-available", user.getAttributeValues("secretAnswer") is not None)
 
