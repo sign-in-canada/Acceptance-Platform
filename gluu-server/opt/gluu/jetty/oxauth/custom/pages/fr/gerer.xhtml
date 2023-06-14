@@ -51,9 +51,13 @@
         </p>
         <c:if test="${flash.containsKey('backupNeeded')}">
         <div class="row" style="margin-left:-10px;">
-            <section class="alert alert-warning warning-message col-xs-12 col-sm-12 mrgn-tp-lg">
-              <p class="warning-message-content h5" style="padding-top:20px;">Nous recommandons d’ajouter un numéro de téléphone de secours</p>
-              <p class="warning-message-content">Si vous n’avez plus accès à votre téléphone, vous <strong>ne pourrez plus utiliser</strong> votre méthode de connexion à ce service.</p>
+            <section class="alert alert-warning warning-message warning-message-manage col-xs-12 col-sm-12 mrgn-tp-lg">
+              <button class="col-xs-12 visible-xs hidden-sm close-alert-mobile close-alert close-alert-warning" aria-label="Fermer" title="Fermer">x</button>
+              <div class="col-xs-10">
+                <p class="warning-message-content"><strong>Nous recommandons d’ajouter un numéro de téléphone de secours</strong></p>
+                <p class="warning-message-content">Si vous n’avez plus accès à votre téléphone, vous <strong>ne pourrez plus utiliser</strong> votre méthode de connexion à ce service.</p>
+              </div>
+              <button class="col-sm-1 hidden-xs visible-sm visible-md visible-lg visible-xl close-alert-desktop close-alert close-alert-warning" aria-label="Fermer" title="Fermer">x</button>
             </section>
         </div>
       </c:if>
@@ -64,19 +68,19 @@
 
       <div class="row">
         <ul class="col-lg-12 breakline list-style-none padding-left-0 mrgn-tp-md">
-        <ui:repeat value="#{identity.getWorkingParameter('mobiles')}" var="mobile">
+        <ui:repeat value="#{identity.getWorkingParameter('mobiles')}" var="mobile"  varStatus="status">
           <li class="row">
-              <span class="col-xs-9 col-lg-10 mrgn-bttm-md body" id="edit-phone-number-fr">
+              <span class="col-xs-9 col-lg-10 mrgn-bttm-md body" id="#{'phone-number-edit-'.concat(status.index)}">
                 <strong><span class="registered-mfa body">#{mobile.display}</span></strong>
                 <ui:fragment rendered="#{mobile.index == 0}">
                   <br class="visible-xs hidden-sm" />
                   <span class="default-label caption">Par défaut</span>
                 </ui:fragment>
-              <br/>
-              Code à 6 chiffres par messagerie
+                <br/>
+                Code à 6 chiffres par messagerie
               </span>
-                <a jsf:outcome="/fr/modifier" jsf:id="mobile" p:id="mobile:#{mobile.index}" class="col-xs-3 col-lg-2 link-styling manage-links visited-link-styling" aria-label="Modifier le numéro de téléphone" title="
-                Modifier le numéro de téléphone">
+                <a jsf:outcome="/fr/modifier" jsf:id="mobile" p:id="mobile:#{mobile.index}" class="col-xs-3 col-lg-2 link-styling manage-links visited-link-styling"
+                   aria-label="#{'Modifier le numéro de téléphone se terminant par '.concat(mobile.ending)}" title="Modifier le numéro de téléphone">
                   <f:param name="i" value="#{mobile.index}" />
                   Modifier
                 </a>

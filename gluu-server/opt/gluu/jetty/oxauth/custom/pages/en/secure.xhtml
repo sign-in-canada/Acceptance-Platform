@@ -50,12 +50,12 @@
             <legend class="mfa-legend-header row" style="white-space:normal;">Choose a second factor:</legend>
             <br/>
             <br/>
-            <div class="row wb-eqht overlap-fix" aria-live="assertive">
+            <div class="row wb-eqht overlap-fix">
               <c:if test="${facesContext.getMessageList('secure:select').size() gt 0}">
                 <div class="col-md-12">
                   <section class="hght-inhrt mrgn-lft-sm mrgn-tp-md">
                     <div class="label label-danger wb-server-error">
-                      <p>
+                      <p aria-live="assertive">
                         <h:message for="select" errorClass="error-styling"/>
                       </p>
                     </div>

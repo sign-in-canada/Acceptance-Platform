@@ -7,6 +7,8 @@
     --body-font-size: 20px;
 }
 
+/* MFA chooser styling below */
+
 .learn-more{
     border-style: none; 
     text-decoration: underline;
@@ -119,6 +121,26 @@ details[open]>section{
     padding-left: 0px;
     vertical-align: middle;
 }
+
+.overlap-fix{
+    margin-top:10px;
+}
+
+@media only screen and (max-width: 426px) {
+    .overlap-fix {
+      margin-top: 50px;
+    }
+  }
+
+.overlap-fix-fr{
+    margin-top:10px;
+}
+
+@media only screen and (max-width: 408px) {
+    .overlap-fix-fr {
+      margin-top: 50px;
+    }
+  }
 
 /* MFA input styling below */
 
@@ -243,13 +265,30 @@ body{
     background-color: var(--gcds-alert-success-background);
 }
 
-.success-message-content{
+section.success-message{
+    margin-left: 0px;
+}
+
+.success-message>:nth-child(1):not(details){
+    margin-top: 10px;
+    margin-left: 0px;
+    float: right;
+    margin-right: 10px;
+    padding-top: 6px;
+}
+
+.success-message>:nth-child(2):not(details){
     padding-bottom:20px; 
     padding-top: 20px; 
-    padding-right: 10px;
+    padding-right: 20px;
     padding-left: 10px;
-    line-height: 130%;
 }
+
+@media only screen and (max-width: 479px) {
+    .success-message>:nth-child(2):not(details){
+        padding-top: 0px; 
+    }
+  }
 
 .warning-message{
     background-color: var(--gcds-alert-warning-background);
@@ -259,6 +298,81 @@ body{
 .warning-message-content{
     padding-left:10px;
     padding-right:20px;
+}
+
+.warning-message>:nth-child(1):not(details){
+    margin-top: 10px;
+    margin-left: 0px;
+    float: right;
+    margin-right: 10px;
+    padding-top: 6px;
+}
+
+.warning-message-signed-in>:nth-child(2):not(details){
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.warning-message-manage>:nth-child(2):not(details){
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+
+@media only screen and (max-width: 499px) {
+    .warning-message-signed-in>:nth-child(2):not(details){
+        margin-top: 0px;
+    }
+  }
+
+  @media only screen and (max-width: 474px) {
+    .warning-message-manage>:nth-child(2):not(details){
+        margin-top: 0px;
+    }
+  }
+
+.close-alert{
+    font-family: Helvetica,Arial,sans-serif;
+    font-size: 22px;
+    height: 44px;
+    width: 44px;
+    border-style: none;
+    border-radius: 6px;
+    padding-top: 3px;
+}
+
+.close-alert-warning{
+    background-color: var(--gcds-alert-warning-background);
+}
+
+.close-alert-success{
+    background-color: var(--gcds-alert-success-background);
+}
+
+.close-alert-desktop{
+    margin-top: 17px;
+    margin-left: 0px;
+    float: right;
+    margin-right: 10px;
+}
+
+.close-alert:focus{
+    background-color: var(--gcds-brand-focus);
+    box-shadow: inset 0px 0px 0px 3px var(--gcds-color-grayscale-0);
+    color: #fff;
+}
+
+.close-alert:hover{
+    border-color: #000;
+    border-width: 2px;
+    border-style: solid;
+}
+.close-alert-desktop:hover{
+    padding: 0.7px 0.5px 5px 0.5px;
+}
+
+.close-alert-mobile:hover{
+    padding: 1px 0.5px 5px 0px;
 }
 
 .problem-summary{ 

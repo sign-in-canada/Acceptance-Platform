@@ -6,12 +6,14 @@
 
     <ui:fragment rendered="#{not empty facesContext.getMaximumSeverity() and facesContext.getMaximumSeverity() == FacesMessage.SEVERITY_INFO}">
         <div class="row mrgn-tp-lg">
-            <section class="alert alert-success success-message col-xs-11 col-sm-12">
+            <section class="alert alert-success success-message col-xs-12">
                 <ui:repeat value="#{facesContext.messageList}" var="message">
                     <ui:fragment rendered="#{message.severity == FacesMessage.SEVERITY_INFO}">
-                        <p class="success-message-content h5">
-                            #{message.summary}
+                        <button class="col-xs-12 visible-xs hidden-sm close-alert-mobile close-alert close-alert-success" aria-label="Fermer" title="Fermer">x</button>
+                        <p class="body col-xs-10">
+                            <strong>#{message.summary}</strong>
                         </p>
+                        <button class="col-sm-1 hidden-xs visible-sm visible-md visible-lg visible-xl close-alert-desktop close-alert close-alert-success" aria-label="Fermer" title="Fermer">x</button>
                     </ui:fragment>
                 </ui:repeat>
             </section>
