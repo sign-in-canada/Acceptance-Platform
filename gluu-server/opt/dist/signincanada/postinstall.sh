@@ -8,16 +8,11 @@ echo 'Clearing jetty temp files'
 rm -rf /opt/jetty-9.4/temp/*
 
 echo 'Enabling the keyvault service...'
-if grep Red /etc/redhat-release ; then
-   yum remove -y epel-release
-fi
-yum clean all
-yum install -y /opt/dist/app/oniguruma-6.8.2-1.el7.x86_64.rpm /opt/dist/app/jq-1.6-2.el7.x86_64.rpm
 systemctl enable keyvault
 
 echo 'Installing and configuring logstash...'
 rpm --import /etc/pki/rpm-gpg/GPG-KEY-elasticsearch
-yum install -y /opt/dist/app/logstash-*-x86_64.rpm
+dnf install -y /opt/dist/app/logstash-*-x86_64.rpm
 /usr/share/logstash/bin/logstash-plugin install file:///opt/dist/app/logstash-offline-plugins-8.8.1.zip
 sed -i "s/^# api\.enabled: true/api\.enabled: false/" /etc/logstash/logstash.yml
 mkdir /etc/systemd/system/logstash.service.d
@@ -78,15 +73,6 @@ cat /opt/dist/certs/tbs-chain.pem >> /etc/certs/tbs-ca.crt
 echo "Configuring Couchbase scan consistency"
 sed -i 's/not_bounded/request_plus/g' /etc/gluu/conf/gluu-couchbase.properties
 
-echo "Patching oxTrust log4j config"
-mkdir -p /tmp/warpatch
-pushd /tmp/warpatch
-/opt/jre/bin/jar -x -f /opt/gluu/jetty/identity/webapps/identity.war WEB-INF/classes/log4j2.xml
-sed -i "s/DEBUG/INFO/g" WEB-INF/classes/log4j2.xml
-/opt/jre/bin/jar -u -f /opt/gluu/jetty/identity/webapps/identity.war WEB-INF/classes/log4j2.xml
-popd
-rm -rf /tmp/warpatch
-
 echo "Patching FIDO2 API server"
 mkdir -p /tmp/warpatch
 pushd /tmp/warpatch
@@ -96,5 +82,12 @@ popd
 rm -rf /tmp/warpatch
 
 echo "Updating packages..."
-yum update -y
+if grep Red /etc/redhat-release ; then
+   wget https://rhelimage.blob.core.windows.net/repositories/rhui-microsoft-azure-rhel8.config
+   rpm -e rh-amazon-rhui-client
+   dnf -y --config=rhui-microsoft-azure-rhel8.config install rhui-azure-rhel8
+fi
+dnf clean all
+dnf install -y jq
+dnf update -y
 echo 'Done.'

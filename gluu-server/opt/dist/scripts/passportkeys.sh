@@ -21,7 +21,7 @@ mkdir /run/keyvault/keys
 
 # Retrieve the oxAuth keystore password
 export gluuPW=$(/opt/gluu/bin/encode.py -d $(grep auth.userPassword /etc/gluu/conf/gluu-couchbase.properties | awk -F': ' '{print $2}'))
-keyStoreSecret=$(openssl enc -d -aes-256-cbc -pass env:gluuPW -in /install/community-edition-setup/setup.properties.last.enc |
+keyStoreSecret=$(openssl enc -d -pbkdf2 -aes-256-cbc -pass env:gluuPW -in /install/community-edition-setup/setup.properties.last.enc |
                  grep oxauth_openid_jks_pass | awk -F'=' '{print $2}')
 
 # Use the salt to encrypt the keys
