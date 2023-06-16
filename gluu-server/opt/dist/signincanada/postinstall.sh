@@ -10,6 +10,8 @@ if grep Red /etc/redhat-release ; then
    dnf clean all
 fi
 
+dnf install -y jq zip
+
 echo 'Enabling the keyvault service...'
 systemctl enable keyvault
 
@@ -85,6 +87,5 @@ popd
 rm -rf /tmp/warpatch
 
 echo "Updating packages..."
-dnf install -y jq
 dnf update -y
 echo 'Done.'
