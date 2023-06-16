@@ -1,11 +1,14 @@
 #!/bin/sh
 
 umask 22
-echo 'Stopping services...'
-systemctl stop httpd oxauth identity fido2 idp passport
 
-echo 'Clearing jetty temp files'
-rm -rf /opt/jetty-9.4/temp/*
+if grep Red /etc/redhat-release ; then
+   echo "Reconfiguring to use the Red Hat Update Infrastructure for Azure"
+   wget https://rhelimage.blob.core.windows.net/repositories/rhui-microsoft-azure-rhel8.config
+   rpm -e rh-amazon-rhui-client
+   dnf -y --config=rhui-microsoft-azure-rhel8.config install rhui-azure-rhel8
+   dnf clean all
+fi
 
 echo 'Enabling the keyvault service...'
 systemctl enable keyvault
@@ -82,12 +85,6 @@ popd
 rm -rf /tmp/warpatch
 
 echo "Updating packages..."
-if grep Red /etc/redhat-release ; then
-   wget https://rhelimage.blob.core.windows.net/repositories/rhui-microsoft-azure-rhel8.config
-   rpm -e rh-amazon-rhui-client
-   dnf -y --config=rhui-microsoft-azure-rhel8.config install rhui-azure-rhel8
-fi
-dnf clean all
 dnf install -y jq
 dnf update -y
 echo 'Done.'
