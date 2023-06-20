@@ -61,11 +61,9 @@ stages:
 
     - script: |
         mkdir -p gluu-server/opt/dist/app
-        wget http://mirror.csclub.uwaterloo.ca/fedora/epel/7/x86_64/Packages/j/jq-1.6-2.el7.x86_64.rpm \
+        wget https://rhelimage.blob.core.windows.net/repositories/rhui-microsoft-azure-rhel8.config \
           -P gluu-server/opt/dist/app
-        wget http://mirror.csclub.uwaterloo.ca/fedora/epel/7/x86_64/Packages/o/oniguruma-6.8.2-2.el7.x86_64.rpm \
-          -P gluu-server/opt/dist/app
-      displayName: 'Downloading jq'
+      displayName: 'Downloading RHUI config for Azure'
       continueOnError: false
 
     - script: |

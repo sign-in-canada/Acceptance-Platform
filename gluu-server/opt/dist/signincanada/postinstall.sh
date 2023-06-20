@@ -4,9 +4,8 @@ umask 22
 
 if grep Red /etc/redhat-release ; then
    echo "Reconfiguring to use the Red Hat Update Infrastructure for Azure"
-   wget https://rhelimage.blob.core.windows.net/repositories/rhui-microsoft-azure-rhel8.config
    rpm -e rh-amazon-rhui-client
-   dnf -y --config=rhui-microsoft-azure-rhel8.config install rhui-azure-rhel8
+   dnf -y --config=/opt/dist/app/rhui-microsoft-azure-rhel8.config install rhui-azure-rhel8
    dnf clean all
 fi
 
