@@ -87,7 +87,7 @@ class EndSession(EndSessionType):
             iframes.append("<iframe id='passport' height='0' width='0' src='%s' sandbox='allow-same-origin allow-scripts allow-popups allow-forms'></iframe>" % self.getPassportRequest(sessionAttributes))
 
         if state:
-            postLogoutRedirectUri += ("?state=%s" % state)
+            postLogoutRedirectUri += ("&" if "?" in postLogoutRedirectUri else "?") + ("state=%s" % state)
         page = self.pageTemplate % ("true" if rpInitiated else "false", "true" if passportLogout else "false", postLogoutRedirectUri, " ".join(iframes))
         return page
 
