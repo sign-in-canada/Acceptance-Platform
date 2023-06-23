@@ -37,9 +37,6 @@ class CouchbaseInstaller(PackageUtils, BaseInstaller):
 
         self.extract_libs()
 
-        if Config.couchbase_hostname == 'localhost':
-            Config.couchbase_hostname = Config.hostname
-
         if not Config.get('couchebaseClusterAdmin'):
             Config.couchebaseClusterAdmin = 'admin'
             
