@@ -9,6 +9,7 @@ Before=fido2.service
 
 [Service]
 Type=oneshot
+RemainAfterExit=yes
 EnvironmentFile=/etc/default/azure
 ExecStart=/opt/dist/scripts/azure/keyvault.sh $KEYVAULT
 User=root
