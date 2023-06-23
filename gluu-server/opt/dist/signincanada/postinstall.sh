@@ -2,13 +2,6 @@
 
 umask 22
 
-if grep Red /etc/redhat-release ; then
-   echo "Reconfiguring to use the Red Hat Update Infrastructure for Azure"
-   rpm -e rh-amazon-rhui-client
-   dnf -y --config=/opt/dist/app/rhui-microsoft-azure-rhel8.config install rhui-azure-rhel8
-   dnf clean all
-fi
-
 dnf install -y jq zip
 
 echo 'Enabling the keyvault service...'
@@ -85,6 +78,4 @@ pushd /tmp/warpatch
 popd
 rm -rf /tmp/warpatch
 
-echo "Updating packages..."
-dnf update -y
 echo 'Done.'
