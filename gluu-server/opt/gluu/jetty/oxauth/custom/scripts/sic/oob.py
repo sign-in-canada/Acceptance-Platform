@@ -133,7 +133,6 @@ class OutOfBand:
 
         if codeExpired:
             addMessage("oob:code", FacesMessage.SEVERITY_ERROR, "sic.expiredCode")
-            addMessage("oob:resend", FacesMessage.SEVERITY_INFO, "sic.newCode")
 
         if codeExpired or requestParameters.containsKey("oob:resend"):
             telemetry["result"] = "failed"
