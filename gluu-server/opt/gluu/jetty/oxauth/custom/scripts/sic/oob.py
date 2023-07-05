@@ -31,7 +31,7 @@ import java
 
 sys.path.append("/opt/gluu/jetty/oxauth/custom/scripts/person_authentication")
 
-from sic import notify
+from sic import notify, rputils
 
 class OOBError(Exception):
     """Base class for exceptions in this module."""
@@ -42,10 +42,12 @@ class OutOfBand:
     def __init__(self):
         return None
     
-    def init(self, configurationAttributes, scriptName):
+    def init(self, configurationAttributes, scriptName, rpUtils):
 
         self.scriptName = scriptName
         print ("OutOfBand. init called from " + self.scriptName)
+
+        self.rputils = rpUtils
 
         self.codeLifetime = 600
         if configurationAttributes.containsKey("oob_code_lifetime"):
@@ -125,7 +127,8 @@ class OutOfBand:
         userId = identity.getWorkingParameter("userId")
         contact = identity.getWorkingParameter("oobContact")
 
-        telemetry = {"sid" : session.getOutsideSid()}
+        telemetry = {"sid" : session.getOutsideSid(),
+                     "client" : self.rputils.getClient(session).getClientName()}
         duration = float((Date().getTime() - session.getLastUsedAt().getTime()) / 1000)
 
         codeExpiry = int(identity.getWorkingParameter("oobExpiry"))
@@ -242,6 +245,7 @@ class OutOfBand:
         contact = ServerUtil.getFirstValue(requestParameters, paramName)
 
         telemetry = {"sid" : session.getOutsideSid(),
+                     "client" : self.rputils.getClient(session).getClientName(),
                      "step": "contact entry",
                      "channel": channel}
         duration = float((Date().getTime() - session.getLastUsedAt().getTime()) / 1000)
