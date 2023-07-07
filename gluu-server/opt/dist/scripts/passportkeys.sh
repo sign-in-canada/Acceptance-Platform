@@ -34,5 +34,6 @@ for kid in $kids ; do
     # Convert the private key to AES-encrypted PKCS8
     openssl pkcs12 -in /run/keyvault/keys/${kid}.p12 -nocerts -passin pass:${keyStoreSecret} -nodes -nocerts |
         openssl pkcs8  -topk8 -v2 aes256 -out /run/keyvault/keys/${kid}.pem -passout env:encodeSalt
+    chmod g+r /run/keyvault/keys/${kid}.pem
     rm /run/keyvault/keys/${kid}.p12
 done
