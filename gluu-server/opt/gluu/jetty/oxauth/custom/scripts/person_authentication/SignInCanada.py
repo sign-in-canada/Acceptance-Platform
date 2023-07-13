@@ -156,7 +156,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
         if self.mfaMethods:
             self.oob = oob.OutOfBand()
-            self.oob.init(configurationAttributes, self.name)
+            self.oob.init(configurationAttributes, self.name, self.rputils)
 
         self.telemetryClient = TelemetryClient()
 
@@ -448,7 +448,8 @@ class PersonAuthentication(PersonAuthenticationType):
         # Clear the abort flag
         identity.setWorkingParameter("abort", False)
 
-        telemetry = {"sid" : session.getOutsideSid()}
+        telemetry = {"sid" : session.getOutsideSid(),
+                     "client" : self.rputils.getClient(session).getClientName()}
         duration = float((Date().getTime() - session.getLastUsedAt().getTime()) / 1000)
 
         if requestParameters.containsKey("user"):
@@ -598,6 +599,7 @@ class PersonAuthentication(PersonAuthenticationType):
         rpConfig = self.rputils.getRPConfig(session)
 
         telemetry = {"sid" : session.getOutsideSid(),
+                     "client" : self.rputils.getClient(session).getClientName(),
                      "result" : "success"}
         duration = float((Date().getTime() - session.getLastUsedAt().getTime()) / 1000)
 
