@@ -12,7 +12,7 @@ if grep Red /etc/redhat-release ; then
    yum remove -y epel-release
 fi
 yum clean all
-yum install -y /opt/dist/app/oniguruma-6.8.2-1.el7.x86_64.rpm /opt/dist/app/jq-1.6-2.el7.x86_64.rpm
+yum install -y /opt/dist/app/oniguruma-6.8.2-2.el7.x86_64.rpm /opt/dist/app/jq-1.6-2.el7.x86_64.rpm
 systemctl enable keyvault
 
 echo 'Installing and configuring logstash...'
