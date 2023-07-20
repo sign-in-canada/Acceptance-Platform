@@ -80,7 +80,7 @@ stages:
         project: '7302639f-e704-47c3-9557-99b4e04a75bc'
         definition: '285'
         runVersion: 'latestFromBranch'
-        runBranch: "refs/heads/version_6.0.0"
+        runBranch: "refs/heads/ramda_update_0.29.0"
         artifactName: 'gluu-passport'
         targetPath: '$(Pipeline.Workspace)/s/gluu-server/opt/dist/gluu'
       displayName: 'Download gluu-passport tarballs'
