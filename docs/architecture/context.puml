@@ -1,0 +1,27 @@
+@startuml container
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+top to bottom direction
+
+title C4 Context Diagram for the Sign In Canada Identity Broker
+
+Person(admin, "Administrator", "A Sign In Canada system administrator")
+Person(user, "User", "A consumer of GC digital services")
+System_Ext(rp,"Relying Party", "A provider of GC digital services")
+System_Ext(gckey,"GCKey", "Allows users to sign in with a GC-branded username and password")
+System(sic, "Sign In Canada", "Allows users to sign in using their preferred authentication method(s). Also allows them to use SMS as a 2nd factor.")
+System_Ext(cbs,"Interac Broker", "Allows users to sign in with their online banking username and password")
+System_Ext(totp, "SSC 2ndFaaS", "Allows useers to sign in with an Authenticator App as a 2nd factor")
+System_Ext(notify, "GC Notify", "Sends SMS text messages")
+
+Rel(user, sic, "Signs in using")
+Rel(admin, sic, "Administers")
+Rel(user, rp, "Accesses GC services from")
+Rel(rp, sic, "Uses")
+
+Rel(sic, gckey, "Provides 1st factor authentication using")
+Rel(sic, cbs, "Provides 1st factor authentication using")
+Rel(sic, notify, "Sends one-time codes using")
+Rel(sic, totp, "Provides 2nd factor authnetication using")
+
+@enduml
