@@ -1,0 +1,95 @@
+@startuml
+
+skinparam sequenceMessageAlign direction
+skinparam responseMessageBelowArrow true
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor red
+skinparam titleBackgroundColor Aqua-CadetBlue
+
+title Sign In Canada MFA sign-in with GCKey and Authenticator App
+
+autonumber
+
+Actor "User Agent (browser)" as user
+Participant "Relying Party" as rp
+Participant "oxAuth" as op
+Participant "Passport" as passport
+Participant "Language cookie writer" as lcs
+Participant "Couchbase" as couchbase
+Participant "GCKey" as gckey
+Participant "SSC 2ndFaaS" as totp
+
+user -> rp : Sign in
+opt OP metadata not in cache?
+    rp -> op : OIDC Discovery request
+    rp <-- op : OIDC OP metadata
+end
+user <-- rp : Authentication request (OIDC)
+user -> op : Authentication request
+user <-- op : Chooser page
+user -> op : Choice (GCKey)
+op -> passport : CSRF token request
+op <-- passport : CSRF token
+user <-- op : current language + passport request (CRSF token + parameters)
+user -> lcs : current language + passport request (CRSF token + parameters)
+user <-- lcs : passport request (CRSF token + parameters) with set-cookie header
+user -> user: set language cookie
+user -> passport : passport request (token + parameters)
+user <-- passport : Authentication Request (SAML)
+user -> gckey : Authentication Request
+user <-- gckey : Sign in page
+user -> gckey : Username & password
+user <-- gckey : SAML Assertion
+user -> passport : SAML Assertion
+passport -> passport : validate assertion signature
+user <-- passport : GCKey pairwise identfier (in JWT)
+user --> op : GCKey pairwise identfier (in JWT)
+op -> op : Validate JWT signature
+op -> couchbase : account lookup
+op <-- couchbase : user profile
+op -> passport : CSRF token request
+op <-- passport : CSRF token
+user <-- op : passport request (CRSF token + parameters)
+user -> passport : passport request (token + parameters)
+opt OP metadata not in cache?
+    passport -> totp : OIDC Discovery request
+    passport <-- totp : OIDC OP metadata
+end
+user <-- passport : Authentication Request (OIDC)
+user -> totp : Authentication Request
+opt JWKS not in cache?
+    passport <- totp : JWKS request
+    passport --> totp : JWKS
+end
+totp -> totp : Validate signature on request
+user <-- totp : Prompt for code
+user -> totp : One-time code
+totp -> totp : Verify code
+user <-- totp : Authorization code
+user -> passport : Authorization code
+passport -> totp : token request
+passport <-- totp : ID token, access token
+passport -> totp : userinfo request (with access token)
+passport <-- totp : userinfo with locale claim
+user <-- passport : 2nd factor pairwise identfier + localce claim (as JWT)
+user --> op : 2nd factor pairwise identfier (as JWT)
+op -> op : Check 2nd factor pairwise identifier against account
+user <-- op : Authorization code
+user -> rp :  Authorization code
+rp -> op : Authorization code, client credentials
+rp <-- op : ID token, access token
+opt JWKS not in cache?
+    rp -> op : JWKS request
+    rp <-- op : JWKS
+end
+rp -> rp : validate token signature
+opt
+    rp -> op : Userinfo request (with access token)
+    rp <-- op : userinfo with locale claim
+end
+user <-- rp: Welcome!
+
+@enduml
+
+
