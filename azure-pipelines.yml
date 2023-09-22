@@ -41,8 +41,8 @@ stages:
 
     - script: |
         echo 'Downloading AppInsights Agent'
-        wget https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.4.13/applicationinsights-agent-3.4.13.jar \
-          -P gluu-server/opt/azure
+        curl -L https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.4.17/applicationinsights-agent-3.4.17.jar \
+          -o gluu-server/opt/azure/applicationinsights-agent.jar
         ls -al 
       displayName: 'Downloading AppInsights'
       continueOnError: false
