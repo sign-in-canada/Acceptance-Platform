@@ -1,0 +1,41 @@
+@startuml container
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+top to bottom direction
+
+title C4 Container Diagram for the Sign In Canada Identity Broker
+
+Person_Ext(user, "User")
+System_Ext(rp,"Relying Party")
+Person(admin, "Administrator")
+System_Ext(gckey,"GCKey")
+System_Ext(cbs,"Interac Broker")
+System_Ext(totp,"SSC 2ndFaaS")
+System_Ext(notify, "GC Notify")
+
+System_Boundary(sic, "Sign In Canada") {
+    Container(op, "OpenID Provider", "Gluu oxAuth", "Allows relying parties to authenticate their users. Coordinates single-logout across systems.")
+    Container(oxtrust, "Management Service", "Gluu oxTrust", "Allows administrators to configure the system")
+    Container(passport, "Acceptance Framework", "Gluu Passport", "Integrates with external credential services")
+    ContainerDb(couchbase, "NoSQL Database", "Couchbase Server", "Stores user profiles and system configuration")
+}
+
+Rel(user, op, "Signs in using", "HTTPS")
+Rel(user, rp, "Obtains GC services from", "HTTPS")
+Rel_R(rp, op, "Requests sign-in and sign-out from", "OpenID Connect")
+Rel_L(op, rp, "Sends global logout notification to", "OpenID Connect")
+Rel(admin, oxtrust, "Manages configuration using", "Web Console")
+
+Rel(op, passport, "Uses")
+
+Rel(op, couchbase, "Obtains configuration from", "API")
+Rel(passport, oxtrust, "Obtains configuration from", "API")
+Rel(passport, gckey, "Federates with", "SAML")
+Rel(passport, cbs, "Federates with", "SAML")
+Rel(passport, totp, "Federates with", "OpenID Connect")
+Rel_R(op, notify, "Sends SMS messages using", "API")
+
+Rel(op, couchbase, "Stores user profiles in")
+Rel_L(oxtrust, couchbase, "Stores configuration in")
+
+@enduml
