@@ -61,7 +61,7 @@ stages:
 
     - script: |
         mkdir -p gluu-server/opt/dist/app
-        wget https://rhelimage.blob.core.windows.net/repositories/rhui-microsoft-azure-rhel8.config \
+        wget https://rhelimage.blob.core.windows.net/repositories/rhui-microsoft-azure-rhel9.config \
           -P gluu-server/opt/dist/app
       displayName: 'Downloading RHUI config for Azure'
       continueOnError: false
