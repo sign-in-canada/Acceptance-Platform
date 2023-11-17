@@ -854,8 +854,6 @@ class PersonAuthentication(PersonAuthenticationType):
             elif form in FORMS:
                 step = FORMS.get(form)
 
-        print ("Step %s, Form %s" % (step, form))
-
         if requestParameters.containsKey("navigate"):
             target = self.getFormButton(requestParameters)
             if target == "register":
