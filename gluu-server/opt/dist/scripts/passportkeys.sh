@@ -21,7 +21,7 @@ mkdir /run/keyvault/keys
 
 # Retrieve the oxAuth keystore password
 export gluuPW=$(/opt/gluu/bin/encode.py -d $(grep auth.userPassword /etc/gluu/conf/gluu-couchbase.properties | awk -F': ' '{print $2}'))
-keyStoreSecret=$(openssl enc -d -aes-256-cbc -pass env:gluuPW -in /install/community-edition-setup/setup.properties.last.enc |
+keyStoreSecret=$(openssl enc -d -pbkdf2 -aes-256-cbc -pass env:gluuPW -in /install/community-edition-setup/setup.properties.last.enc |
                  grep oxauth_openid_jks_pass | awk -F'=' '{print $2}')
 
 # Use the salt to encrypt the keys
@@ -33,6 +33,7 @@ for kid in $kids ; do
     /opt/jre/bin/keytool -importkeystore -srckeystore /etc/certs/oxauth-keys.pkcs12 -srcstoretype pkcs12 -destkeystore /run/keyvault/keys/${kid}.p12 -alias ${kid} -srcstorepass $keyStoreSecret -deststorepass $keyStoreSecret
     # Convert the private key to AES-encrypted PKCS8
     openssl pkcs12 -in /run/keyvault/keys/${kid}.p12 -nocerts -passin pass:${keyStoreSecret} -nodes -nocerts |
-        openssl pkcs8  -topk8 -v2 aes256 -out /run/keyvault/keys/${kid}.pem -passout env:encodeSalt
+        openssl pkcs8  -topk8 -v2 aes256 -out /run/keyvault/keys/${kid}.pem -nocrypt
+    chmod g+r /run/keyvault/keys/${kid}.pem
     rm /run/keyvault/keys/${kid}.p12
 done

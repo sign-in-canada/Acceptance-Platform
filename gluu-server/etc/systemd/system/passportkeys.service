@@ -5,6 +5,7 @@ Before=passport.service
 
 [Service]
 Type=oneshot
+RemainAfterExit=yes
 ExecStart=/opt/dist/scripts/passportkeys.sh
 User=root
 Group=gluu
